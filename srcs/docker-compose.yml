@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    ports: ['443:443']
+    volumes: ['react_data:/var/www/react']
+    networks: ['transcendence']
+
+  nodejs:
+    image: nodejs:alpine
+    container_name: nodejs
+    restart: always
+    networks: ['transcendence']
+  
+  postgresql:
+    image: postgresql:alpine
+    container_name: postgresql
+    restart: always
+    volumes: ['db_data:/var/lib/mysql']
+    networks: ['transcendence']
+
+networks:
+  transcendence:
+    driver: bridge
+    name: transcendance
