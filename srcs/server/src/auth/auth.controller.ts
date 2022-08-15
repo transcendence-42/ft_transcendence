@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Request,
+  Session,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -11,10 +12,11 @@ import {
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard } from './guards/ft.auth.guard';
-import { LocalGuard } from './guards/local.auth.guard';
+import {
+  LocalAuthGuard,
+  LocalAuthenticatedGuard,
+} from './guards/local.auth.guard';
 import { RegisterUserDto } from './dto/registerUser.dto';
-import { UserLoginDto } from './dto/login.dto';
-import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
@@ -32,11 +34,17 @@ export class AuthController {
   }
 
   /**** local Authentication flow handles ****/
-  @UseGuards(LocalGuard)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   handleLocalLogin(@Request() req) {
     return req.user;
     // return this.authService.validateUserCredentials(payload);
+  }
+
+  @UseGuards(LocalAuthenticatedGuard)
+  @Get('status')
+  isLoggedIn(@Session() session) {
+    return 'User is logged in with session' + { session };
   }
 
   @Post('register')
