@@ -11,7 +11,7 @@ RUN     npm install -g @nestjs/cli
 COPY 	src/package.json	.
 
 # npm install packages 
-RUN     npm install
+RUN    npm install
 
 # copy the source files of the app
 COPY 	./src/. 			.

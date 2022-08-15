@@ -7,7 +7,6 @@ services:
     container_name: nginx
     restart: always
     ports: ['443:443']
-    volumes: ['react_data:/var/www/react']
     networks: ['transcendence']
 
   nodejs:
@@ -20,7 +19,6 @@ services:
     image: postgresql:alpine
     container_name: postgresql
     restart: always
-    volumes: ['db_data:/var/lib/mysql']
     networks: ['transcendence']
 
 networks:
