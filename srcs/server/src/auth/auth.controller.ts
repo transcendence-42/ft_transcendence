@@ -11,11 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { FtAuthGuard } from './guards/ft.auth.guard';
-import {
-  LocalAuthGuard,
-  LocalAuthenticatedGuard,
-} from './guards/local.auth.guard';
+import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { RegisterUserDto } from './dto/registerUser.dto';
 
 @Controller('auth')
@@ -30,7 +26,7 @@ export class AuthController {
   @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   handleFtRedirec(@Request() req): any {
-    return 'Validated user' + req.user;
+    return `Validated user:  ${req.user}`;
   }
 
   /**** local Authentication flow handles ****/
@@ -41,10 +37,10 @@ export class AuthController {
     // return this.authService.validateUserCredentials(payload);
   }
 
-  @UseGuards(LocalAuthenticatedGuard)
+  @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session) {
-    return 'User is logged in with session' + { session };
+    return `User is logged in with session' ${session}`;
   }
 
   @Post('register')

@@ -5,7 +5,7 @@ import { Strategy } from 'passport-42';
 import { AuthService } from '../auth.service';
 
 @Injectable()
-export class FtStrategy extends PassportStrategy(Strategy, 'passport-42') {
+export class FtStrategy extends PassportStrategy(Strategy, '42') {
   constructor(private authService: AuthService, config: ConfigService) {
     super({
       clientID: config.get('CLIENT_ID'),
