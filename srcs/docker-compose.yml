@@ -2,20 +2,20 @@ version: '3.7'
 
 services:
   
-  nginx:
-    image: nginx:alpine
+  client:
+    image: client:42
     container_name: nginx
     restart: always
     ports: ['443:443']
     networks: ['transcendence']
 
-  nodejs:
+  server:
     image: nodejs:alpine
     container_name: nodejs
     restart: always
     networks: ['transcendence']
   
-  postgresql:
+  database:
     image: postgresql:alpine
     container_name: postgresql
     restart: always

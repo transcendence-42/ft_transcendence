@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  
+  client:
+    image: client:${TAG}
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: client
+    restart: always
+    ports: ['3000:3000']
+    volumes:
+      - ./client/node_modules:/app/node_modules
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+    networks: ['transcendence']
+
+  # server:
+  #   image: node:alpine
+  #   container_name: nodejs
+  #   restart: always
+  #   networks: ['transcendence']
+  
+  # database:
+  #   image: postgresql:XXX
+  #   container_name: postgresql
+  #   restart: always
+  #   networks: ['transcendence']
+
+networks:
+  transcendence:
+    driver: bridge
+    name: transcendance
