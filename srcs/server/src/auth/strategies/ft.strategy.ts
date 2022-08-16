@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-42';
 import { AuthService } from '../auth.service';
+import { FtRegisterUserDto } from '../dto/registerUser.dto';
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
@@ -18,12 +19,15 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       //     username: 'login',
       //     'emails.0.value': 'email',
       //     'photos.0.value': 'image_url',
-      //   },
     });
   }
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const user = this.authService.validateFtUser(profile);
-    console.log('User inside validate', user);
+    const userInfo: FtRegisterUserDto = {
+      email: profile.emails[0].value,
+      username: profile.username,
+      profile_image_url: profile.photos[0].value,
+    };
+    const user = await this.authService.validateFtUser(userInfo);
     if (!user) throw new UnauthorizedException('Invalid user!');
     return user;
   }

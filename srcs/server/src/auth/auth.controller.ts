@@ -12,7 +12,8 @@ import {
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
-import { RegisterUserDto } from './dto/registerUser.dto';
+import { LocalRegisterUserDto } from './dto/registerUser.dto';
+import { UserController } from 'src/user/user.controller';
 
 @Controller('auth')
 export class AuthController {
@@ -21,20 +22,26 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  /**** 42 Oauth2 flow handles ****/
+  /**** 42 Oauth2 flow ****/
 
   @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   handleFtRedirec(@Request() req): any {
-    return `Validated user:  ${req.user}`;
+    return `Validated user\n:  ${JSON.stringify(req.user)}`;
   }
 
-  /**** local Authentication flow handles ****/
+  @UseGuards(FtAuthGuard)
+  @Get('42/register')
+  handleFtUserRegistration(@Request() req) {
+    // check if username and email are not registered in the database
+    const user = req.user;
+  }
+
+  /**** local Authentication flow ****/
   @UseGuards(LocalAuthGuard)
   @Post('login')
   handleLocalLogin(@Request() req) {
     return req.user;
-    // return this.authService.validateUserCredentials(payload);
   }
 
   @UseGuards(LoggedInGuard)
@@ -45,7 +52,7 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(ValidationPipe)
-  handleLocalRegister(@Body() payload: RegisterUserDto): any {
-    return this.authService.registerUser(payload);
+  handleLocalRegister(@Body() payload: LocalRegisterUserDto): any {
+    return this.authService.localRegisterUser(payload);
   }
 }

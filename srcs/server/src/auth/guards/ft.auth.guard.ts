@@ -6,7 +6,7 @@ export class FtAuthGuard extends AuthGuard('42') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const result = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
-    await this.logIn(request);
+    await super.logIn(request);
     return result;
   }
 }
