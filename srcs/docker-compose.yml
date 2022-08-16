@@ -3,25 +3,43 @@ version: '3.7'
 services:
   
   client:
-    image: client:42
-    container_name: nginx
+    image: client:${TAG}
+    build: ./client
+    container_name: client
     restart: always
-    ports: ['443:443']
+    ports: ['80:80']
+    depends_on: ['server']
     networks: ['transcendence']
 
   server:
-    image: nodejs:alpine
-    container_name: nodejs
+    image: server:${TAG}
+    build: ./server
+    container_name: server
     restart: always
+    depends_on: ['database']
     networks: ['transcendence']
-  
+   
   database:
-    image: postgresql:alpine
-    container_name: postgresql
+    image: postgres:alpine
+    container_name: database
     restart: always
+    environment:
+       - POSTGRES_USER=${POSTGRES_USER}
+       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+       - POSTGRES_DB=${POSTGRES_DB}
+    # volumes: ['db_data:/var/lib/postgresql/data']
     networks: ['transcendence']
 
 networks:
   transcendence:
     driver: bridge
     name: transcendance
+
+# volumes:
+#   db_data:
+#     driver: local
+#     name: db_data
+#     driver_opts:
+#       device: ${DATABIND}/db
+#       type: volume
+#       o: bind
