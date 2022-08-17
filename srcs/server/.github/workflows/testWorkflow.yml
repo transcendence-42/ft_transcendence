@@ -1,0 +1,12 @@
+name: testWorkflow
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    
