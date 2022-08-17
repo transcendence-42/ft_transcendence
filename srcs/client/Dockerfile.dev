@@ -6,9 +6,9 @@ WORKDIR /app
 
 # copy local files to workdir.
 # The folders are then binded through volumes.
-COPY 	.   /app
+COPY    .   /app
 
 # install packages reading package.json
-RUN     npm install --legacy--peer-deps
+RUN     npm install --silent
 
 CMD     ["npm", "run", "start"]
