@@ -8,7 +8,11 @@ WORKDIR /app
 # The folders are then binded through volumes.
 COPY    .   /app
 
-# install packages reading package.json
-RUN     npm install --silent
+# copy entrypoint
+COPY	./script/docker-entrypoint.sh 	/usr/local/bin/
 
-CMD     ["npm", "run", "start"]
+# make sure entrypoint can be executed
+RUN     chmod +x /usr/local/bin/docker-entrypoint.sh
+
+#CMD     [ "npm", "run", "start" ]
+ENTRYPOINT ["docker-entrypoint.sh"]
