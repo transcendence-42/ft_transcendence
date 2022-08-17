@@ -8,21 +8,18 @@ WORKDIR /app
 COPY    .   /app/
 
 # get packages and build
-RUN     npm install --silent \
+RUN     npm ci \
  &&     npm run build
+
+ENV     NODE_ENV production
+
+RUN     npm ci --only=production \
+ &&     npm cache clean --force
 
 # stage 2. serve production build with a clean node server
 FROM    node:alpine
 
-WORKDIR /app
+COPY    --from=build /app/node_modules  ./node_modules
+COPY    --from=build /app/dist          ./dist
 
-# copy build and conf file 
-COPY    --from=build app/build /app
-COPY    package.json  /app/package.json
-
-# install packages
-RUN     npm install --silent
-
-# run server on port http 4200
-EXPOSE  4200
-CMD     ["npm", "run", "start"]
+CMD     [ "node", "dist/main.js" ]

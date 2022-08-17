@@ -7,7 +7,7 @@ services:
     build: ./client
     container_name: client
     restart: always
-    ports: ['80:80']
+    ports: ['8080:80']
     depends_on: ['server']
     networks: ['transcendence']
 
@@ -22,24 +22,15 @@ services:
   database:
     image: postgres:alpine
     container_name: database
-    restart: always
     environment:
-       - POSTGRES_USER=${POSTGRES_USER}
-       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-       - POSTGRES_DB=${POSTGRES_DB}
-    # volumes: ['db_data:/var/lib/postgresql/data']
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=${PGDATA}
+    restart: always
     networks: ['transcendence']
 
 networks:
   transcendence:
     driver: bridge
     name: transcendance
-
-# volumes:
-#   db_data:
-#     driver: local
-#     name: db_data
-#     driver_opts:
-#       device: ${DATABIND}/db
-#       type: volume
-#       o: bind

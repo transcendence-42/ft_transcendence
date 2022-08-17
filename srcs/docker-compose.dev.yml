@@ -34,19 +34,15 @@ services:
     networks: ['transcendence']
   
   database:
-    image: database:${TAG}
+    image: postgres:alpine
     container_name: database
-    build:
-      context: ./database
-      dockerfile: Dockerfile.dev
-      args:
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${POSTGRES_DB}
-        - PGDATA=${PGDATA}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGDATA=${PGDATA}
     restart: always
     ports: ['5432:5432']
-    volumes: ['./database/data:${PGDATA}']
     networks: ['transcendence']
 
 networks:
