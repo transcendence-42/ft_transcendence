@@ -60,13 +60,13 @@ export class AuthService {
     const userCredentials: Credentials | null =
       await this.userService.getUserCredentialsByEmail(payload.email);
     if (!userCredentials)
-      throw new UnauthorizedException('User doesn\t exist or false email');
+      throw new UnauthorizedException('Invalid email!');
 
     const validUser = await Bcrypt.compare(
       payload.password,
       userCredentials.password,
     );
-    if (!validUser) throw new UnauthorizedException('Invalid Password!');
+    if (!validUser) throw new UnauthorizedException('Invalid password!');
     const user: User = await this.userService.getUserByEmail(payload.email);
     return user;
   }

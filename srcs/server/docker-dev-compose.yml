@@ -12,7 +12,7 @@ services:
     networks:
       - transcendence-network
     restart: on-failure
-  redis-session:  
+  dev-redis-session:  
     image: redis:latest
     container_name: redis_dev
     ports:

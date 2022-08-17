@@ -13,7 +13,6 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto } from './dto/registerUser.dto';
-import { UserController } from 'src/user/user.controller';
 
 @Controller('auth')
 export class AuthController {
@@ -47,7 +46,7 @@ export class AuthController {
   @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session) {
-    return `User is logged in with session' ${session}`;
+    return `User is logged in with session' ${JSON.stringify(session)}`;
   }
 
   @Post('register')

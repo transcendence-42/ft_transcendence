@@ -13,12 +13,16 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "restart:test:db": "docker-compose down --remove-orphans && docker-compose -f docker-test-compose.yml --env-file .env.test up -d --remove-orphans && sleep 1",
+    "restart:dev:db": "docker-compose down --remove-orphans && docker-compose -f docker-test-compose.yml up -d --remove-orphans && sleep 1",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "pretest:int": "npm run restart:test:db && dotenv -e .env.test -- prisma migrate reset --force",
+    "test:int": "dotenv -e .env.test -- jest -i --no-cache --watch --config ./jest-int.json"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -54,6 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "bcrypt": "^5.0.1",
+    "dotenv-cli": "^6.0.0",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
