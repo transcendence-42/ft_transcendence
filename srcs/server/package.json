@@ -25,6 +25,7 @@
     "test:int": "dotenv -e .env.test -- jest -i --no-cache --watch --config ./jest-int.json"
   },
   "dependencies": {
+    "@nestjs/cli": "^9.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
@@ -43,8 +44,7 @@
     "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0",
-    "@nestjs/cli": "^9.0.0"
+    "rxjs": "^7.2.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^9.0.0",

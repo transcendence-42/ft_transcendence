@@ -12,6 +12,7 @@ COPY    . /app/
 
 # install packages reading package.json
 
-RUN     npm i 
 
-CMD     ["npm", "run", "start:dev"]
+RUN     npm i && npm i -g @nestjs/cli
+
+CMD [ "npm",  "run", "start:dev"]
