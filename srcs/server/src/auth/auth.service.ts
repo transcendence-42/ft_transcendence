@@ -5,7 +5,7 @@ import {
   LocalRegisterUserDto,
 } from './dto/registerUser.dto';
 import { Credentials, User } from '@prisma/client';
-import * as Bcrypt from 'bcrypt';
+import * as Bcrypt from 'bcryptjs';
 import { UserLoginDto } from './dto/login.dto';
 
 @Injectable()

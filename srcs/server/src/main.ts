@@ -8,7 +8,7 @@ import * as ConnectRedis from 'connect-redis';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = new ConfigService();
+  const config = app.get(ConfigService);
   const redisClient = Redis.createClient({
     url: config.get('REDIS_URL'),
     legacyMode: true,
@@ -33,7 +33,7 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
-  await app.listen(4200);
+  await app.listen(config.get('SERVER_PORT'));
 }
 
 bootstrap();

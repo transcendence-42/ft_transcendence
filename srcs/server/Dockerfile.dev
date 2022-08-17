@@ -8,7 +8,10 @@ WORKDIR /app
 # The folders are then binded through volumes.
 COPY    . /app/
 
+# COPY ./env /app/
+
 # install packages reading package.json
-RUN     npm ci 
+
+RUN     npm i 
 
 CMD     ["npm", "run", "start:dev"]

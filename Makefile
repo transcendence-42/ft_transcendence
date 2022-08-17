@@ -1,3 +1,7 @@
+# COLORS
+###############################################################################
+GREEN        = \033[1;32m
+RESET		 = \033[0m
 # COMMANDS
 ################################################################################
 RM						:= rm -rf
@@ -8,6 +12,7 @@ DCOMPOSE			:= docker-compose
 TOUCH					:= touch
 MKDIR					:= mkdir -p
 REPLACE				:= sed -i
+cp					:= cp
 
 # SOURCES
 ################################################################################
@@ -21,11 +26,6 @@ NAME					:= .done
 # DIRECTORIES
 ################################################################################
 SRCS					:= ./srcs
-
-# USER & GROUP
-################################################################################
-UID						:= $(shell id -u ${USER})
-GID						:= $(shell id -g ${USER})
 
 # FLAGS
 ################################################################################
@@ -42,9 +42,6 @@ $(NAME):
 
 .PHONY:				all
 all:			
-							# Update env file
-							$(REPLACE) "s|.*USER_ID.*|USER_ID=$(UID)|g" $(SRCS)/$(ENVFILE)
-							$(REPLACE) "s|.*GROUP_ID.*|GROUP_ID=$(GID)|g" $(SRCS)/$(ENVFILE)
 							# Build images and run containers
 							$(CD) $(SRCS) && $(DCOMPOSE) -f $(DCOMPOSEFILE) $(FLAGENV) \
 								 							 $(ENVFILE) $(UP)	
@@ -64,8 +61,31 @@ fclean:				clean
 							$(DOCKER) image prune --force
 
 .PHONY:				dev
-dev:					DCOMPOSEFILE = docker-compose.dev.yml
+
+copy_files:				
+						cp $(SRCS)/.env.development $(SRCS)/server/.env
+						cp $(SRCS)/.env.development $(SRCS)/client/.env
+dev:					copy_files
+dev:					DCOMPOSEFILE = docker-compose.dev.test.yml
+dev:					ENVFILE = .env.development
 dev:					all
+
+.PHONY:				test
+# test:					DCOMPOSEFILE = docker-compose.dev.test.yml && ENVFILE = .env.test
+test:					
+						DCOMPOSEFILE = docker-compose.dev.test.yml && ENVFILE = .env.test
+						@cp $(SRCS)/.env.test $(SRCS)/server/.env
+						@cp $(SRCS)/.env.test $(SRCS)/client/.env
+						@make server-test @make client-test
+
+.PHONY:				server-test
+server-test:
+					@echo "$(GREEN) Running Server tests chief $(RESET)"
+					npm run test:int
+
+.PHONY:				client-test
+client-test:
+					@echo "$(GREEN) Running Client tests $(RESET)"
 
 .PHONY:				re
 re:						fclean all
