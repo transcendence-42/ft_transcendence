@@ -42,9 +42,6 @@ $(NAME):
 
 .PHONY:				all
 all:			
-							# Update env file
-							$(REPLACE) "s|.*USER_ID.*|USER_ID=$(UID)|g" $(SRCS)/$(ENVFILE)
-							$(REPLACE) "s|.*GROUP_ID.*|GROUP_ID=$(GID)|g" $(SRCS)/$(ENVFILE)
 							# Build images and run containers
 							$(CD) $(SRCS) && $(DCOMPOSE) -f $(DCOMPOSEFILE) $(FLAGENV) \
 								 							 $(ENVFILE) $(UP)	
