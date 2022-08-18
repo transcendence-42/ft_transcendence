@@ -19,12 +19,12 @@ SRCS					:= ./srcs
 # ENVIRONMENTS
 ################################################################################
 
-ifeq ($(PROD), true)
+ifeq ($(PROD),)
 	DCOMPOSEFILE	= docker-compose.yml
 	ENVFILE = .env
 endif
 
-ifeq ($(DEV), true)
+ifeq ($(DEV),)
 	DCOMPOSEFILE	= docker-compose.dev.yml
 	ENVFILE = .env.dev
 endif
@@ -83,3 +83,6 @@ cleannode:
 
 .PHONY:				re
 re:						fclean all
+
+.PHONY:				DEV
+.PHONY:				PROD

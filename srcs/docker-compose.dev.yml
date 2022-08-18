@@ -46,6 +46,7 @@ services:
     networks: ['transcendence']
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+    env_file: ['.env.dev']
 
   adminer:
     image: adminer
