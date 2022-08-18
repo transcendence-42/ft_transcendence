@@ -32,7 +32,8 @@ services:
         condition: service_healthy
     networks: ['transcendence']
     env_file: ['.env.dev']
-  
+    entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
+    
   database:
     image: postgres:alpine
     container_name: database

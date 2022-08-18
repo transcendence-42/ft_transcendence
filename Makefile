@@ -7,6 +7,7 @@ DOCKERIMG			:= docker image
 DCOMPOSE			:= docker-compose
 TOUCH					:= touch
 MKDIR					:= mkdir -p
+REPLACE				:= sed -i
 
 # SOURCES
 ################################################################################
@@ -22,11 +23,19 @@ SRCS					:= ./srcs
 ifeq ($(PROD),)
 	DCOMPOSEFILE	= docker-compose.yml
 	ENVFILE = .env
+	RUNNING_ENV = prod
 endif
 
 ifeq ($(DEV),)
 	DCOMPOSEFILE	= docker-compose.dev.yml
 	ENVFILE = .env.dev
+	RUNNING_ENV = dev
+endif
+
+ifeq ($(TESTINT),)
+	DCOMPOSEFILE	= docker-compose.dev.yml
+	ENVFILE = .env.dev
+	RUNNING_ENV = test.int
 endif
 
 # EXECUTABLES & LIBRARIES
@@ -50,12 +59,15 @@ $(NAME):
 .PHONY:				all
 all:					$(NAME)
 							# Build images and run containers
+							$(REPLACE) "s/RUNNING_ENV=.*/RUNNING_ENV=${RUNNING_ENV}/" \
+								$(SRCS)/$(ENVFILE)
 							$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
 													--env-file $(SRCS)/$(ENVFILE) $(UP)
 													
 .PHONY:				stop
-stop:					$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
-													--env-file $(SRCS)/$(ENVFILE)$(DOWN)
+stop:					
+							$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
+													--env-file $(SRCS)/$(ENVFILE) $(DOWN)
 
 .PHONY:				clean
 clean:
