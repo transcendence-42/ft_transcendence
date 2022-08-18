@@ -70,8 +70,8 @@ cleannode:
 							$(RM) $(SERVER)/node_modules
 
 .PHONY:				dev
-dev:					DCOMPOSEFILE = docker-compose.dev.test.yml
-dev:					ENVFILE = .env.development
+dev:					DCOMPOSEFILE = -f docker-compose.dev.test.yml
+dev:					ENVFILE = --env-file .env.development
 dev:					all
 
 .PHONY:				re

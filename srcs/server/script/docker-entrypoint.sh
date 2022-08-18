@@ -9,8 +9,8 @@ npm i -g @nestjs/cli
 npm i -g @prisma/client
 
 # init prisma
-npx prisma generate
 npx prisma init
+npx prisma generate
 
 # replace default file with proper model
 rm -f ./prisma/schema.prisma
