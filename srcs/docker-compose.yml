@@ -17,7 +17,7 @@ services:
     container_name: server
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - CLIENTID=${CLIENT_ID}
+      - CLIENT_ID=${CLIENT_ID}
       - CLIENT_SECRET=${CLIENT_SECRET}
       - CALLBACK_URL=${CALLBACK_URL}
       - SESSION_SECRET=${SESSION_SECRET}
@@ -40,6 +40,12 @@ services:
     networks: ['transcendence']
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    networks: ['transcendence']
 
 networks:
   transcendence:
