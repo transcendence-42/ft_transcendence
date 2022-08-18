@@ -1,23 +1,26 @@
-#!/bin/sh
+#!/bin/ash
 
 cd /app
 
 # install packages
 npm i -g npm@8.18.0
 npm i
-npm i -g @nestjs/cli
-npm i -g @prisma/client
+# npm i -g @nestjs/cli
+# npm i -g @prisma/client
 
-# init prisma
-npx prisma init
-npx prisma generate
+# # init prisma
+# rm -rf ./prisma
+# npx prisma init --url ${DATABASE_URL}
 
-rm -f ./prisma/schema.prisma
-mv ./model.to.use ./prisma/schema.prisma
+# # clean std install
+# rm -f .env
+# rm -f ./prisma/schema.prisma
+# cp ./conf/schema.prisma ./prisma/schema.prisma
+
+# npx prisma generate
 
 # update the database with the model
-npx prisma db push
-#npx prisma migrate dev --preview-feature
+#npx prisma db push
 
 # start node server
 npm run start:dev

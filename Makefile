@@ -10,8 +10,24 @@ MKDIR					:= mkdir -p
 
 # SOURCES
 ################################################################################
-ENVFILE				= --env-file .env
-DCOMPOSEFILE	= -f docker-compose.yml
+DCOMPOSEFILE	= docker-compose.yml
+
+# DIRECTORIES
+################################################################################
+SRCS					:= ./srcs
+
+# ENVIRONMENTS
+################################################################################
+
+ifeq ($(PROD), true)
+	DCOMPOSEFILE	= docker-compose.yml
+	ENVFILE = .env
+endif
+
+ifeq ($(DEV), true)
+	DCOMPOSEFILE	= docker-compose.dev.yml
+	ENVFILE = .env.dev
+endif
 
 # EXECUTABLES & LIBRARIES
 ################################################################################
@@ -20,13 +36,9 @@ SERVER				:= $(SRCS)/server
 CLIENT				:= $(SRCS)/client
 DATABASE			:= $(SRCS)/database
 
-# DIRECTORIES
-################################################################################
-SRCS					:= ./srcs
-
 # FLAGS
 ################################################################################
-UP						:= up -d
+UP						:= up --build -d
 DOWN					:= down
 REMOVEALL			:= --rmi all --remove-orphans -v
 
@@ -36,24 +48,24 @@ $(NAME):
 							@touch $(NAME)
 
 .PHONY:				all
-all:			
+all:					$(NAME)
 							# Build images and run containers
-							$(CD) $(SRCS) && $(DCOMPOSE) $(DCOMPOSEFILE) $(ENVFILE) $(UP)	
+							$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
+													--env-file $(SRCS)/$(ENVFILE) $(UP)
+													
+.PHONY:				stop
+stop:					$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
+													--env-file $(SRCS)/$(ENVFILE)$(DOWN)
 
 .PHONY:				clean
 clean:
 							# Stops containers and remove images + volumes
-							$(CD) $(SRCS) && $(DCOMPOSE) $(DCOMPOSEFILE) $(ENVFILE) $(DOWN) 
-															 $(REMOVEALL)
+							$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
+													--env-file $(SRCS)/$(ENVFILE) $(DOWN) $(REMOVEALL)	
 							$(RM) .done
 
 .PHONY:				fclean
 fclean:				clean cleandocker cleannode
-
-.PHONY:				fcleandev
-fcleandev:		DCOMPOSEFILE = -f docker-compose.dev.test.yml
-fcleandev:		ENVFILE = --env-file .env.development
-fcleandev:		clean cleandocker cleannode
 
 .PHONY:				cleandocker
 cleandocker:	
@@ -68,11 +80,6 @@ cleannode:
 							# clean node_modules
 							$(RM) $(CLIENT)/node_modules
 							$(RM) $(SERVER)/node_modules
-
-.PHONY:				dev
-dev:					DCOMPOSEFILE = -f docker-compose.dev.test.yml
-dev:					ENVFILE = --env-file .env.development
-dev:					all
 
 .PHONY:				re
 re:						fclean all

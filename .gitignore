@@ -5,8 +5,7 @@
 
 ## Other
 .DS_Store
-.env
-.env.*
+.done
 
 # Debug files
 *.dSYM/
@@ -36,3 +35,4 @@
 
 # env files
 .env
+.env.*

@@ -11,12 +11,11 @@ services:
     restart: always
     ports: ['${CLIENT_PORT}:3000']
     volumes:
-      - ./client/node_modules:/app/node_modules
-      - ./client/src:/app/src
-      - ./client/public:/app/public
+      - ./client/:/app
     depends_on:
       - server
     networks: ['transcendence']
+    env_file: ['.env.dev']
 
   server:
     image: server:${TAG}
@@ -24,22 +23,15 @@ services:
       context: ./server
       dockerfile: Dockerfile.dev
     container_name: server
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - CLIENT_ID=${CLIENT_ID}
-      - CLIENT_SECRET=${CLIENT_SECRET}
-      - CALLBACK_URL=${CALLBACK_URL}
-      - SESSION_SECRET=${SESSION_SECRET}
-      - REDIS_URL=${REDIS_URL}
     restart: always
     ports: ['${SERVER_PORT}:4200']
     volumes:
-      - ./server/node_modules:/app/node_modules
-      - ./server/src:/app/src
+      - ./server/:/app
     depends_on:
       database:
         condition: service_healthy
     networks: ['transcendence']
+    env_file: ['.env.dev']
   
   database:
     image: postgres:alpine
