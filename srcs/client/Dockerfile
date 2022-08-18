@@ -8,7 +8,8 @@ WORKDIR /app
 COPY    .   /app/
 
 # get packages and build
-RUN     npm install --silent \
+RUN     npm i -g npm@8.18.0 \
+ &&     npm i --silent \
  &&     npm run build
 
 # stage 2. serve files with nginx, node is not needed anymore

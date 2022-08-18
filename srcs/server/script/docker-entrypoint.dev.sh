@@ -17,11 +17,7 @@ rm -f ./prisma/schema.prisma
 mv ./model.to.use ./prisma/schema.prisma
 
 # update the database with the model
-npx prisma migrate dev
-npx prisma migrate deploy
-
-# build
-npm run build
+npx prisma migrate dev --preview-feature
 
 # start node server
-node dist/main.js
+npm run start:dev

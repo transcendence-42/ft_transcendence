@@ -24,6 +24,8 @@ services:
       context: ./server
       dockerfile: Dockerfile.dev
     container_name: server
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
     restart: always
     ports: ['${SERVER_PORT}:4200']
     volumes:

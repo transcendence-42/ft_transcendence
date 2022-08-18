@@ -5,21 +5,11 @@ FROM    node:alpine as build
 
 # copy files into /app
 WORKDIR /app
-COPY    .   /app/
+COPY    .                               /app/
+COPY    ./conf/schema.prisma            /app/model.to.use
+COPY	  ./script/docker-entrypoint.sh 	/usr/local/bin/ 
 
-# get packages and build
-RUN     npm ci \
- &&     npm run build
+# make sure entrypoint can be executed
+RUN     chmod +x /usr/local/bin/docker-entrypoint.sh
 
-ENV     NODE_ENV production
-
-RUN     npm ci --only=production \
- &&     npm cache clean --force
-
-# stage 2. serve production build with a clean node server
-FROM    node:alpine
-
-COPY    --from=build /app/node_modules  ./node_modules
-COPY    --from=build /app/dist          ./dist
-
-CMD     [ "node", "dist/main.js" ]
+ENTRYPOINT ["docker-entrypoint.sh"]

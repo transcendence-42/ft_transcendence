@@ -1,84 +1,78 @@
-# COLORS
-###############################################################################
-GREEN			= \033[1;32m
-RESET			= \033[0m
-
 # COMMANDS
 ################################################################################
-RM				:= rm -rf
-CD				:= cd
-DOCKER			:= docker
-DOCKERIMG		:= docker image
-DCOMPOSE		:= docker compose
-TOUCH			:= touch
-MKDIR			:= mkdir -p
-REPLACE			:= sed -i
-cp				:= cp
+RM						:= rm -rf
+CD						:= cd
+DOCKER				:= docker
+DOCKERIMG			:= docker image
+DCOMPOSE			:= docker-compose
+TOUCH					:= touch
+MKDIR					:= mkdir -p
 
 # SOURCES
 ################################################################################
-ENVFILE			= .env
-DCOMPOSEFILE	= docker-compose.yml
+ENVFILE				= --env-file .env
+DCOMPOSEFILE	= -f docker-compose.yml
 
 # EXECUTABLES & LIBRARIES
 ################################################################################
-NAME			:= .done
+NAME					:= .done
+SERVER				:= $(SRCS)/server
+CLIENT				:= $(SRCS)/client
+DATABASE			:= $(SRCS)/database
 
 # DIRECTORIES
 ################################################################################
-SRCS			:= ./srcs
+SRCS					:= ./srcs
 
 # FLAGS
 ################################################################################
-FLAGENV			:= --env-file
-FLAGFILE		:= -f
-UP				:= up -d
-DOWN			:= down
-REMOVEALL		:= --rmi all --remove-orphans -v
+UP						:= up -d
+DOWN					:= down
+REMOVEALL			:= --rmi all --remove-orphans -v
 
 # RULES
 ################################################################################
 $(NAME):		
-				@touch $(NAME)
+							@touch $(NAME)
 
-.PHONY:			all
+.PHONY:				all
 all:			
-				# Build images and run containers
-				$(CD) $(SRCS) && $(DCOMPOSE) -f $(DCOMPOSEFILE) $(FLAGENV) \
-								 $(ENVFILE) $(UP)	
+							# Build images and run containers
+							$(CD) $(SRCS) && $(DCOMPOSE) $(DCOMPOSEFILE) $(ENVFILE) $(UP)	
 
-.PHONY:			clean
+.PHONY:				clean
 clean:
-				# Clean all : stops containers and remove images + volumes
-				$(CD) $(SRCS) && $(DCOMPOSE) -f $(DCOMPOSEFILE) $(FLAGENV) \
-								 $(ENVFILE) $(DOWN) $(REMOVEALL)
-				$(RM) .done
+							# Stops containers and remove images + volumes
+							$(CD) $(SRCS) && $(DCOMPOSE) $(DCOMPOSEFILE) $(ENVFILE) $(DOWN) 
+															 $(REMOVEALL)
+							$(RM) .done
 
-.PHONY:			fclean
-fclean:			clean 
-				# Clean all : stops containers, remove images, volumes, network
-				$(DOCKER) system prune --all --force --volumes
-				$(DOCKER) network prune --force
-				$(DOCKER) volume prune --force
-				$(DOCKER) image prune --force
+.PHONY:				fclean
+fclean:				clean cleandocker cleannode
 
-.PHONY:			fcleandev
-fcleandev:		DCOMPOSEFILE = docker-compose.dev.test.yml
-fcleandev:		ENVFILE = .env.development
-fcleandev:		clean 
-				# Clean all : stops containers, remove images, volumes, network
-				$(DOCKER) system prune --all --force --volumes
-				$(DOCKER) network prune --force
-				$(DOCKER) volume prune --force
-				$(DOCKER) image prune --force
-				# clean node_modules
-				$(RM) $(SRCS)/client/node_modules
-				$(RM) $(SRCS)/server/node_modules
+.PHONY:				fcleandev
+fcleandev:		DCOMPOSEFILE = -f docker-compose.dev.test.yml
+fcleandev:		ENVFILE = --env-file .env.development
+fcleandev:		clean cleandocker cleannode
 
-.PHONY:			dev
-dev:			DCOMPOSEFILE = docker-compose.dev.test.yml
-dev:			ENVFILE = .env.development
-dev:			all
+.PHONY:				cleandocker
+cleandocker:	
+							# Clean all : stops containers, remove images, volumes, network
+							$(DOCKER) system prune --all --force --volumes
+							$(DOCKER) network prune --force
+							$(DOCKER) volume prune --force
+							$(DOCKER) image prune --force
 
-.PHONY:			re
-re:				fclean all
+.PHONY:				cleannode
+cleannode:		
+							# clean node_modules
+							$(RM) $(CLIENT)/node_modules
+							$(RM) $(SERVER)/node_modules
+
+.PHONY:				dev
+dev:					DCOMPOSEFILE = docker-compose.dev.test.yml
+dev:					ENVFILE = .env.development
+dev:					all
+
+.PHONY:				re
+re:						fclean all
