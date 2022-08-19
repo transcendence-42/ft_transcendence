@@ -69,6 +69,6 @@ jobs:
       with:
         time: '30s'
     - name: Run Integration Tests
-      run: docker run --entrypoint "npx prisma migrate dev && npm run test:int" server:${{ secrets.TAG }}
+      run: docker run --entrypoint "npm run test:int" server:${{ secrets.TAG }}
 
 
