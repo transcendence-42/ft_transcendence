@@ -4,4 +4,4 @@
 npx prisma migrate dev
 
 # start tests
-npm run test:int
+tail -f /dev/null
