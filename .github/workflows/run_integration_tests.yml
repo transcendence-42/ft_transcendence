@@ -67,7 +67,7 @@ jobs:
     - name: Sleep for 30 seconds to let the containers start
       uses: jakejarvis/wait-action@master
       with:
-        time: '30s'
+        time: '90s'
     - name: Run Integration Tests
       run: docker exec -w /app server npm run test:int
 
