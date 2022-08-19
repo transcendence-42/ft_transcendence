@@ -69,7 +69,7 @@ jobs:
       with:
         time: '30s'
     - name: Run Integration Tests
-      run: docker run --entrypoint npm server:${{ secrets.TAG }} run test:int
+      run: docker exec server npm run test:int
 
 
 
