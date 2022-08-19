@@ -60,5 +60,13 @@ jobs:
       with:
         name: env_file
         path: ./srcs/
-    - name: Run Docker-Compose Up and Integration Tests on the server
+    - name: Run Docker-Compose Up
       run: make TESTINT=
+    - name: Sleep for 30 seconds to let the containers start
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '30s'
+    - name: Run Integration Tests
+      run: docker run --entrypoint "npx prisma migrate dev && npm run test:int" server
+
+
