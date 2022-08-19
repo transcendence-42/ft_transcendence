@@ -1,24 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
+import {Routes, Route} from 'react-router-dom';
+import EmailAuth from './Components/emailAuth';
+import SchoolAuth from './Components/schoolAuth';
+import Home from './Components/Home/Home'
+import Profile from './Components/Profile/Profile'
+import Notfound from './Components/NotFound/notFound';
+import NavBar from './Components/NavBar/navBar';
+import FriendsGame from './Components/MyFriends/MyFriends';
+//<Route path="/" element={<Home />} />
+//<Route path="/profile/:id" element={<Profile />}>
+//<Route path="/profile/:id/friends" element={<FriendsGame/>} />
+//</Route>
+//<Route path="*" element={<Notfound />} />
+
+
+
+
+//<NavBar />
+//<Routes>
+//  <Route></Route>
+//</Routes>
+//<Route path='/'>
+//  <EmailAuth />
+//  <SchoolAuth />
+//
+//</Route>
 function App() {
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="main">
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile/:id" element={<Profile />}>
+          <Route path="/profile/:id/friends" element={<FriendsGame/>} />
+        </Route>
+        <Route path="*" element={<Notfound />} />
+      </Routes>
     </div>
   );
 }
