@@ -1,18 +1,17 @@
-import React from 'react';
 import './App.css';
 
-import { Route } from 'react-router-dom';
-import EmailAuth from './components/emailAuth';
-import SchoolAuth from './components/schoolAuth';
+import { Routes, Route } from 'react-router-dom';
+import Welcome from './components/welcome';
+import React from 'react';
 
 
 function App() {
   return (
     <div className="main">
-        <Route path='/'>
-          <EmailAuth />
-          <SchoolAuth />
+      <Routes>
+        <Route path='/' element={<Welcome />}>
         </Route>
+      </Routes>
     </div>
   );
 }
