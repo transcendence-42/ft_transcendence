@@ -69,7 +69,7 @@ jobs:
       with:
         time: '30s'
     - name: Run Integration Tests
-      run: docker exec server npm run test:int
+      run: docker exec -w /app server npm run test:int
 
 
 
