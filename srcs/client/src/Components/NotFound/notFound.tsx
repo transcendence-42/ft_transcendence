@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import './notFound.css'
 
 //Call UseNavigate declare it and use an unknown function to navigate to main page
 export default function NotFound()
@@ -12,8 +13,8 @@ export default function NotFound()
 
     return (
         <div>
-            <p> Error unknown path</p> 
-            <button onClick={goHome}>Back to main page</button>
+            <p className="message"> Error unknown path</p> 
+            <button onClick={goHome} className="button">Back to main page</button>
          </div>
       
     )

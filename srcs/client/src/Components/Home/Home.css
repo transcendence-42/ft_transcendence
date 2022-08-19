@@ -1,0 +1,19 @@
+.one {
+    float: left;
+    width: 50%;
+    height: 100%;
+    color: rebeccapurple;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+  }
+  
+  .two {
+    width: 50%;
+    float: right;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

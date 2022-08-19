@@ -1,9 +1,6 @@
 import React from 'react';
 import './App.css';
-
 import {Routes, Route} from 'react-router-dom';
-import EmailAuth from './Components/emailAuth';
-import SchoolAuth from './Components/schoolAuth';
 import Home from './Components/Home/Home'
 import Profile from './Components/Profile/Profile'
 import Notfound from './Components/NotFound/notFound';

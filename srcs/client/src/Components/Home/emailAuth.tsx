@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
+import './Home.css';
 
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
 
 function EmailAuth() {
