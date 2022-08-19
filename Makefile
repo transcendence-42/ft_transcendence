@@ -8,6 +8,9 @@ DCOMPOSE			:= docker-compose
 TOUCH					:= touch
 MKDIR					:= mkdir -p
 REPLACE				:= sed -i
+UNAME_S 			:= $(shell uname -s)
+
+
 
 # SOURCES
 ################################################################################
@@ -19,6 +22,10 @@ SRCS					:= ./srcs
 
 # ENVIRONMENTS
 ################################################################################
+
+ifeq ($(UNAME_S),Darwin)
+	REPLACE = sed -i'' -e
+endif
 
 ifeq ($(PROD),)
 	DCOMPOSEFILE	= docker-compose.yml
