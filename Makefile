@@ -34,26 +34,25 @@ ifeq ($(UNAME_S),Darwin)
 endif
 
 ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+$(eval $(ARGS):;@:)
 ifeq (build,$(firstword $(MAKECMDGOALS)))
     BUILD_ENV := $(word 1, $(ARGS))
-    $(eval $(ARGS):;@:)
 else ifeq (clean, $(firstword $(MAKECMDGOALS)))
     BUILD_ENV := $(word 1, $(ARGS))
-    $(eval $(ARGS):;@:)
 else ifeq (fclean, $(firstword $(MAKECMDGOALS)))
     BUILD_ENV := $(word 1, $(ARGS))
-    $(eval $(ARGS):;@:)
+else ifeq (stop, $(firstword $(MAKECMDGOALS)))
+    BUILD_ENV := $(word 1, $(ARGS))
 else ifeq (test,$(firstword $(MAKECMDGOALS)))
     CLIENT_OR_SERVER := $(word 1,$(ARGS))
     TEST_TYPE := $(word 1,$(ARGS))
-    $(eval $(ARGS):;@:)
 endif
 
 ifeq ($(BUILD_ENV), dev)
 	DCOMPOSEFILE	= docker-compose.dev.yml
 	ENVFILE = .env.dev
 	RUNNING_ENV = dev
-else ifeq ($(BUILD_ENV), test)
+else ifeq ($(BUILD_ENV), testing)
 	DCOMPOSEFILE	= docker-compose.dev.yml
 	ENVFILE = .env.dev
 	RUNNING_ENV = test.int
@@ -136,13 +135,12 @@ re:						fclean all
 .PHONY:				help
 help:
 					@$(PRINT) "\n$(CYAN) make build:$(RESET)\n"\
-						" Usage: make build [ dev | prod | test ].\n" \
+						" Usage: make build [ dev | prod | testing ].\n" \
 						" Builds a choosen enviroment using docker-compose. \
 Accepts either of these three arguments:\n" \
 						" - dev to build a development environment.\n" \
 						" - prod to build a production environment.\n" \
-						" - test to build a testing environment where you can run \
-tests with specific commands e.g.: make test_server.\n" \
+						" - test to build a testing environment where you can run tests.\n" \
 						" When nothing is specified, defaults to building prod.\n"
 
 					@$(PRINT) "$(CYAN) make test:$(RESET)\n" \

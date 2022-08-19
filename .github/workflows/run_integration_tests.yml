@@ -63,7 +63,7 @@ jobs:
         name: env_file
         path: ./srcs/
     - name: Run Docker-Compose Up
-      run: make build test
+      run: make build testing
     - name: Sleep for 90 seconds to let the containers start
       uses: jakejarvis/wait-action@master
       with:
