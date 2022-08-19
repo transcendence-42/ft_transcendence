@@ -1,5 +1,6 @@
 #!/bin/ash
 
+npm i
 # push prisma schema into database
 npx prisma migrate dev
 

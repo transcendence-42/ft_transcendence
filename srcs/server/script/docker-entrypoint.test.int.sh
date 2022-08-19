@@ -5,4 +5,6 @@ npx prisma migrate dev
 
 # This makes sure the container doesn't exist so that we can run
 # docker exec commands to test our code
+npm i
+ls -la
 tail -f /dev/null
