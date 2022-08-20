@@ -2,7 +2,7 @@
 ################################################################################
 ## 
 ## 
-## +make build:
+## make build:
 ##  Usage: make build [ dev | prod | testing ].
 ##  Builds a choosen enviroment using docker-compose. Accepts either of these 
 ##  three arguments:
@@ -11,19 +11,19 @@
 ##  - test to build a testing environment where you can run tests.
 ##  When nothing is specified, defaults to building prod.
 ## 
-## +make test:
+## make test:
 ##  Usage: make test [ client | server ] [ int | e2e ].
 ##  Runs tests on the testing environment built with 'make build test'.
 ##  Example: make test server int, make test client e2e.
 ## 
-## +make clean, fclean:
+## make clean, fclean:
 ##  Usage: make [ clean | fclean ].
 ##  Clean Stops all running containers and remove the images and volumes.
 ##  Fclean does all of the above and deletes the folder node_modulesfrom the 
 ##  server and the client directories, deletes the networks and prunes the 
 ##  system.
 ## 
-## +make stop:
+## make stop:
 ##  Stops all running containers.
 ## 
 
@@ -57,7 +57,6 @@ SRCS			:= ./srcs
 
 # Environments
 ################################################################################
-
 ifeq ($(UNAME_S),Darwin)
 	REPLACE = sed -i'' -e
 endif
@@ -171,9 +170,9 @@ help:
 				while read -r line; do \
 					awk ' \
 					{ \
-						if ($$line ~ /\+/) \
+						if ($$line !~ /^ .*/) \
 						{ \
-							printf "$(BLUE)%s$(RESET)\n", substr($$line,2) \
+							printf "$(BLUE)%s$(RESET)\n", $$line \
 						} \
 						else \
 						{ \
