@@ -29,7 +29,7 @@
 
 # Commands
 ################################################################################
-RM				:= rm -rf
+REMOVE			:= rm -rf
 CD				:= cd
 DOCKER			:= docker
 DOCKERIMG		:= docker image
@@ -39,6 +39,8 @@ MKDIR			:= mkdir -p
 REPLACE			:= sed -i
 UNAME_S			:= $(shell uname -s)
 PRINT			:= echo
+CLONE			:= git clone
+MOVE			:= mv
 
 # Colors 
 ################################################################################
@@ -50,6 +52,8 @@ RESET		 	= \033[0m
 # Sources
 ################################################################################
 DCOMPOSEFILE	= docker-compose.yml
+PROJECT_REPO	= git@github.com:transcendence-42
+ENV_REPO		= PRIVATE_env_files_container
 
 # Directories
 ################################################################################
@@ -116,7 +120,7 @@ $(NAME):
 all:			build
 
 .PHONY:			build
-build:			$(NAME)
+build:			$(NAME) getenv
 				$(REPLACE) "s/RUNNING_ENV=.*/RUNNING_ENV=${RUNNING_ENV}/" \
 					$(SRCS)/$(ENVFILE)
 				$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
@@ -125,8 +129,18 @@ build:			$(NAME)
 # Tests
 ################################################################################
 .PHONY:			test
-test:
+test:			getenv	
 				docker exec -w /app $(CLIENT_OR_SERVER) npm run test:$(TEST_TYPE)
+
+# Secrets
+################################################################################
+.PHONY:			getenv
+getenv:
+				@if [ ! -f $(SRCS)/$(ENVFILE) ]; then \
+					$(CLONE) $(PROJECT_REPO)/$(ENV_REPO).git; \
+					$(MOVE) $(ENV_REPO)/.env* $(SRCS)/; \
+					$(REMOVE) $(ENV_REPO); \
+				fi \
 
 # Stop & Cleaning Rules
 ################################################################################
@@ -140,7 +154,8 @@ clean:
 				# Stops containers and remove images + volumes
 				$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
 					--env-file $(SRCS)/$(ENVFILE) $(DOWN) $(REMOVEALL)	
-				$(RM) .done
+				$(REMOVE) .done
+				$(REMOVE) $(SRCS)/.env*
 
 .PHONY:			fclean
 fclean:			clean cleandocker cleannode
@@ -156,8 +171,8 @@ cleandocker:
 .PHONY:			cleannode
 cleannode:		
 				# clean node_modules
-				$(RM) $(CLIENT)/node_modules
-				$(RM) $(SERVER)/node_modules
+				$(REMOVE) $(CLIENT)/node_modules
+				$(REMOVE) $(SERVER)/node_modules
 
 .PHONY:			re
 re:				fclean all
