@@ -16,15 +16,14 @@ jobs:
       name: transcendence_dev_secrets
 
     steps:
+      - uses: actions/checkout@v3
       - name: Get ssh key for cloning
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Cloning .env files repository
-        uses: actions/checkout@v1  
-        with:
-          repository: transcendence-42/PRIVATE_env_files_container
+        run: git clone git@github.com:transcendence-42/PRIVATE_env_files_container.git
           
       - name: Saving the .env files
         uses: actions/upload-artifact@v2
