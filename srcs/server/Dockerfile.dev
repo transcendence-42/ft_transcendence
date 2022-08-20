@@ -5,10 +5,11 @@ WORKDIR /app
 
 COPY    . /app/
 
+# install dependencies
 RUN     npm i -g npm@8.18.0 \
  &&     npm i
 
-COPY	  ./script/docker-entrypoint.dev.sh 	/usr/local/bin/docker-entrypoint.sh
+COPY	./script/docker-entrypoint.dev.sh   /usr/local/bin/docker-entrypoint.sh
 
 # make sure entrypoint can be executed
 RUN     chmod +x /usr/local/bin/docker-entrypoint.sh

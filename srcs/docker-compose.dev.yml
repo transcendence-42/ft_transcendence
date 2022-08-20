@@ -34,6 +34,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks: ['transcendence']
     env_file: ['.env.dev']
     entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
@@ -87,6 +89,12 @@ services:
     container_name: redis
     restart: always
     networks: ['transcendence']
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
 
 networks:
   transcendence:
