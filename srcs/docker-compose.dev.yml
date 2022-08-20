@@ -12,10 +12,14 @@ services:
     ports: ['${CLIENT_PORT}:3000']
     volumes:
       - ./client/:/app
-    depends_on:
-      - server
     networks: ['transcendence']
     env_file: ['.env.dev']
+    healthcheck:
+      test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ];then exit 1;fi;
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   server:
     image: server:${TAG}
@@ -33,6 +37,12 @@ services:
     networks: ['transcendence']
     env_file: ['.env.dev']
     entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
+    healthcheck:
+      test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ];then exit 1;fi;
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
     
   database:
     image: postgres:alpine
@@ -46,7 +56,7 @@ services:
     ports: ['${POSTGRES_PORT}:5432']
     networks: ['transcendence']
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
     env_file: ['.env.dev']
 
   adminer:
@@ -59,6 +69,19 @@ services:
       database:
         condition: service_healthy
 
+  controller:
+    image: busybox
+    container_name: controller
+    restart: always
+    networks: ['transcendence']
+    depends_on:
+      database:
+        condition: service_healthy
+      client:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+  
   redis:
     image: redis
     container_name: redis

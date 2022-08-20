@@ -77,7 +77,7 @@ else ifeq (stop, $(firstword $(MAKECMDGOALS)))
 else ifeq (test,$(firstword $(MAKECMDGOALS)))
     CLIENT_OR_SERVER := $(word 1,$(ARGS))
     TEST_TYPE := $(word 2,$(ARGS))
-    $(eval $(ARGS):;@true:)
+    $(eval $(ARGS):;@:)
 endif
 
 ifeq ($(BUILD_ENV), dev)
