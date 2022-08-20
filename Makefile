@@ -100,7 +100,7 @@ endif
 
 # Executables & libraries
 ################################################################################
-NAME			:= .done
+NAME			:= transcendence
 SERVER			:= $(SRCS)/server
 CLIENT			:= $(SRCS)/client
 DATABASE		:= $(SRCS)/database
@@ -113,14 +113,14 @@ REMOVEALL		:= --rmi all --remove-orphans -v
 
 # Global Rule
 ################################################################################
-$(NAME):		
+$(NAME):		all
 				@touch $(NAME)
 
 .PHONY:			all
 all:			build
 
 .PHONY:			build
-build:			$(NAME) getenv
+build:			getenv
 				$(REPLACE) "s/RUNNING_ENV=.*/RUNNING_ENV=${RUNNING_ENV}/" \
 					$(SRCS)/$(ENVFILE)
 				$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
@@ -154,7 +154,7 @@ clean:
 				# Stops containers and remove images + volumes
 				$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
 					--env-file $(SRCS)/$(ENVFILE) $(DOWN) $(REMOVEALL)	
-				$(REMOVE) .done
+				$(REMOVE) $(NAME)
 				$(REMOVE) $(SRCS)/.env*
 
 .PHONY:			fclean

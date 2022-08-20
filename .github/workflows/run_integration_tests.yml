@@ -9,69 +9,12 @@ on:
       - "*"
 
 jobs:
-  Create-env-file:
-    runs-on: ubuntu-latest
-    environment:
-      name: transcendence_dev_secrets
-    steps:
-      - name: Create a .env file
-        uses: SpicyPizza/create-envfile@v1.3.0
-        with:
-          file_name: .env.dev
-          envkey_TAG: ${{ secrets.TAG }}
-          envkey_RUNNING_ENV: ${{ secrets.RUNNING_ENV }}
-          envkey_SERVER_PORT: ${{ secrets.SERVER_PORT }}
-          envkey_CLIENT_PORT: ${{ secrets.CLIENT_PORT }}
-          envkey_DBADMIN_PORT: ${{ secrets.DBADMIN_PORT }}
-
-          # PostgreSQL
-          envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          envkey_PGDATA: ${{ secrets.PGDATA }}
-          envkey_POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-
-          # Authentification
-          envkey_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          envkey_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          envkey_CALLBACK_URL: ${{ secrets.CALLBACK_URL }}
-
-          # Session secret (random string) used to protect sessions from being highjacked
-          envkey_SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-
-          # Redis URL
-          envkey_REDIS_URL: ${{ secrets.REDIS_URL }}
-
-          # Prisma
-          envkey_DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: env_file
-          path: ./.env.dev
-  
   Run-integration-tests:
-    environment:
-      name: transcendence_dev_secrets
-    needs: Create-env-file
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/download-artifact@v2
-      with:
-        name: env_file
-        path: ./srcs/
     - name: Run Docker-Compose Up
       run: make build testing
-    - name: Sleep for 90 seconds to let the containers start
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '90s'
     - name: Run Integration Tests on the server
       run: make test server int
-    # - name: Run Integration Tests
-      # run: docker exec -w /app server npm run test:int
-
-
-
