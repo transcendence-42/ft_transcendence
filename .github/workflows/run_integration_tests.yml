@@ -9,12 +9,41 @@ on:
       - "*"
 
 jobs:
+
+  Get-env-file:
+    runs-on: ubuntu-latest
+    environment:
+      name: transcendence_dev_secrets
+
+    steps:
+      - name: Get ssh key for cloning
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Cloning .env files repository
+        uses: actions/checkout@v1  
+        with:
+          repository: transcendence-42/PRIVATE_env_files_container
+          
+      - name: Saving the .env files
+        uses: actions/upload-artifact@v2
+        with:
+          name: env_files
+          path: ./PRIVATE_env_files_container/.env*
+
   Run-integration-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Run Docker-Compose Up
-      run: make build testing
-    - name: Run Integration Tests on the server
-      run: make test server int
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: env_files
+          path: ./srcs/
+
+      - name: Run Docker-Compose Up
+        run: make build testing
+
+      - name: Run Integration Tests on the server
+        run: make test server int
