@@ -51,7 +51,7 @@ RESET		 	= \033[0m
 
 # Sources
 ################################################################################
-DCOMPOSEFILE	= docker-compose.yml
+DCOMPOSEFILE	= docker-compose.prod.yml
 PROJECT_REPO	= git@github.com:transcendence-42
 ENV_REPO		= PRIVATE_env_files_container
 
@@ -93,7 +93,7 @@ else ifeq ($(BUILD_ENV), testing)
 	ENVFILE			= .env.dev
 	RUNNING_ENV		= test.int
 else
-	DCOMPOSEFILE	= docker-compose.yml
+	DCOMPOSEFILE	= docker-compose.prod.yml
 	ENVFILE			= .env
 	RUNNING_ENV		= prod
 endif

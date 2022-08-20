@@ -14,8 +14,9 @@ services:
       - ./client/:/app
     networks: ['transcendence']
     env_file: ['.env.dev']
+    entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
     healthcheck:
-      test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ];then exit 1;fi;
+      test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
       interval: 30s
       timeout: 30s
       retries: 4
