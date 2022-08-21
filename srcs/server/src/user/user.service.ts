@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Credentials, User } from '@prisma/client';
-import { FtRegisterUserDto } from 'src/auth/dto/registerUser.dto';
+import { FtRegisterUserDto, LocalRegisterUserDto } from 'src/auth/dto/registerUser.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserCredentialsByEmail(email: string): Promise<Credentials | null> {
+  async getUserCredentialsByEmail(email: string): Promise<Credentials> {
     try {
       const user = await this.prisma.credentials.findUnique({
         where: {
@@ -22,7 +22,7 @@ export class UserService {
 
   async getUserCredentialsByUsername(
     username: string,
-  ): Promise<Credentials | null> {
+  ): Promise<Credentials> {
     try {
       const user = await this.prisma.credentials.findUnique({
         where: {
@@ -35,8 +35,8 @@ export class UserService {
     }
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    const user: User | null = await this.prisma.user.findFirst({
+  async getUserByEmail(email: string): Promise<User> {
+    const user: User | null = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
@@ -55,7 +55,7 @@ export class UserService {
     return user;
   }
 
-  async createUserWithCredentials(userInfo: User, hash: string): Promise<User> {
+  async createUserWithCredentials(userInfo: LocalRegisterUserDto, hash: string): Promise<User> {
     const user: User = await this.prisma.user.create({
       data: {
         email: userInfo.email,

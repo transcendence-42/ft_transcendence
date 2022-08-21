@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto } from './dto/registerUser.dto';
+import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +46,7 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(ValidationPipe)
-  handleLocalRegister(@Body() payload: LocalRegisterUserDto): any {
+  handleLocalRegister(@Body() payload: LocalRegisterUserDto): Promise<User> {
     return this.authService.localRegisterUser(payload);
   }
 

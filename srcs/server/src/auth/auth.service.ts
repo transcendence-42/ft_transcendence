@@ -12,7 +12,7 @@ import { UserLoginDto } from './dto/login.dto';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async validateFtUser(userInfo: FtRegisterUserDto): Promise<User | null> {
+  async validateFtUser(userInfo: FtRegisterUserDto): Promise<User> {
     /* this functions goal is to check whether a user has already registered
      * using a local authentication method (email + password)
      * if user exists in Credentials table it means that a user has already registered
@@ -29,9 +29,10 @@ export class AuthService {
     return user;
   }
 
-  async isUserRegisteredByOauth(username: string, email: string) {
+  async isUserRegisteredByOauth(username: string, email: string): Promise<boolean> {
     const foundUserEmail = await this.userService.getUserByEmail(email);
     if (foundUserEmail) return true;
+    return false;
   }
 
   async isUserRegisteredByCredentials(
@@ -51,12 +52,12 @@ export class AuthService {
     return false;
   }
 
-  async ftRegisteruser(userInfo: FtRegisterUserDto): Promise<User | null> {
-    const user = this.userService.createUserWithoutCredentials(userInfo);
+  async ftRegisteruser(userInfo: FtRegisterUserDto): Promise<User> {
+    const user: User = await this.userService.createUserWithoutCredentials(userInfo);
     return user;
   }
 
-  async validateUserCredentials(payload: UserLoginDto): Promise<User | null> {
+  async validateUserCredentials(payload: UserLoginDto): Promise<User> {
     const userCredentials: Credentials | null =
       await this.userService.getUserCredentialsByEmail(payload.email);
     if (!userCredentials)
@@ -73,7 +74,7 @@ export class AuthService {
 
   async localRegisterUser(
     userInfo: LocalRegisterUserDto,
-  ): Promise<User | null> {
+  ): Promise<User> {
     // Check if the user already exists
     const userDb = await this.userService.getUserByEmail(userInfo.email);
     if (userDb) throw new UnauthorizedException('User already exists');
@@ -83,18 +84,10 @@ export class AuthService {
     const salt: string = await Bcrypt.genSalt(saltRounds);
     const hash: string = await Bcrypt.hash(userInfo.password, salt);
 
-    const newUser: User = {
-      email: userInfo.email,
-      username: userInfo.username,
-      id: null,
-      created_at: null,
-      profile_picture: null,
-    };
     const createdUser = await this.userService.createUserWithCredentials(
-      newUser,
+      userInfo,
       hash,
     );
-    console.log('Created a new user!');
     return createdUser;
   }
 }
