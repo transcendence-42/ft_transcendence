@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/login.dto';
 import { LocalRegisterUserDto } from './dto/registerUser.dto';
 
-describe('AuthService integration', () => {
+describe('AuthService integration test', () => {
   let prisma: PrismaService;
   let authService: AuthService;
   beforeAll(async () => {

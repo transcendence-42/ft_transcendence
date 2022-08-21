@@ -43,15 +43,16 @@ export class AuthController {
     return req.user;
   }
 
+  @Post('register')
+  @UsePipes(ValidationPipe)
+  handleLocalRegister(@Body() payload: LocalRegisterUserDto): any {
+    return this.authService.localRegisterUser(payload);
+  }
+
   @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session) {
     return `User is logged in with session' ${JSON.stringify(session)}`;
   }
 
-  @Post('register')
-  @UsePipes(ValidationPipe)
-  handleLocalRegister(@Body() payload: LocalRegisterUserDto): any {
-    return this.authService.localRegisterUser(payload);
-  }
 }

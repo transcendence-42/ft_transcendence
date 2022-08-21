@@ -26,6 +26,8 @@
 ## make stop:
 ##  Stops all running containers.
 ## 
+## make getenv:
+##  Clones a private repo containing the .env* files.
 
 # Commands
 ################################################################################
@@ -57,7 +59,7 @@ ENV_REPO		= PRIVATE_env_files_container
 
 # Directories
 ################################################################################
-SRCS			:= ./srcs
+SRCS			:= srcs
 
 # Environments
 ################################################################################
