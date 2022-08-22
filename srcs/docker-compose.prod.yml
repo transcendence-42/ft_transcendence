@@ -1,0 +1,61 @@
+version: '3.7'
+
+services:
+  
+  client:
+    image: client:${TAG}
+    build: ./client
+    container_name: client
+    restart: always
+    ports: ['${CLIENT_PORT}:80']
+    depends_on:
+      server:
+        condition: service_healthy
+    networks: ['transcendence']
+    env_file: ['.env']
+
+  server:
+    image: server:${TAG}
+    build: ./server
+    container_name: server
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: ['transcendence']
+    env_file: ['.env']
+    entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
+    healthcheck:
+      test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ];then exit 1;fi;
+      interval: 30s
+      timeout: 30s
+      retries: 4
+      start_period: 1m30s
+   
+  database:
+    image: postgres:alpine
+    container_name: database
+    restart: always
+    networks: ['transcendence']
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+    env_file: ['.env']
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    networks: ['transcendence']
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+
+networks:
+  transcendence:
+    driver: bridge
+    name: transcendance

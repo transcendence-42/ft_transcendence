@@ -1,0 +1,51 @@
+name: Makefile CI
+
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+
+  Get-env-file:
+    runs-on: ubuntu-latest
+    environment:
+      name: transcendence_dev_secrets
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get ssh key for cloning
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Cloning .env files repository
+        run: git clone git@github.com:transcendence-42/PRIVATE_env_files_container.git
+          
+      - name: Saving the .env files
+        uses: actions/upload-artifact@v2
+        with:
+          name: env_files
+          path: ./PRIVATE_env_files_container/.env*
+
+  Run-integration-tests:
+    runs-on: ubuntu-latest
+    needs: Get-env-file
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v2
+        with:
+          name: env_files
+          path: ./srcs/
+
+      - name: Run Docker-Compose Up
+        run: make build testing
+
+      - name: Run Integration Tests on the server
+        run: make test server int
+      - name: Run End-to-End Tests on the server
+        run: make test server e2e

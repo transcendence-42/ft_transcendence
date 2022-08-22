@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.9'
 
 services:
   
@@ -9,14 +9,18 @@ services:
       dockerfile: Dockerfile.dev
     container_name: client
     restart: always
-    ports: ['3000:3000']
+    ports: ['${CLIENT_PORT}:3000']
     volumes:
-      - ./client/node_modules:/app/node_modules
-      - ./client/src:/app/src
-      - ./client/public:/app/public
-    depends_on:
-      - server
+      - ./client/:/app
     networks: ['transcendence']
+    env_file: ['.env.dev']
+    entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
+    healthcheck:
+      test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
+      interval: 30s
+      timeout: 30s
+      retries: 4
+      start_period: 1m30s
 
   server:
     image: server:${TAG}
@@ -25,14 +29,24 @@ services:
       dockerfile: Dockerfile.dev
     container_name: server
     restart: always
-    ports: ['4200:4200']
+    ports: ['${SERVER_PORT}:4200']
     volumes:
-      - ./server/node_modules:/app/node_modules
-      - ./server/src:/app/src
+      - ./server/:/app
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks: ['transcendence']
-  
+    env_file: ['.env.dev']
+    entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
+    healthcheck:
+      test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
+      interval: 30s
+      timeout: 30s
+      retries: 4
+      start_period: 1m30s
+    
   database:
     image: postgres:alpine
     container_name: database
@@ -42,11 +56,48 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - PGDATA=${PGDATA}
     restart: always
-    ports: ['5432:5432']
+    ports: ['${POSTGRES_PORT}:5432']
     networks: ['transcendence']
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+    env_file: ['.env.dev']
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports: ['${DBADMIN_PORT}:8080']
+    networks: ['transcendence']
+    depends_on:
+      database:
+        condition: service_healthy
+
+  controller:
+    image: busybox
+    container_name: controller
+    restart: "no"
+    networks: ['transcendence']
+    depends_on:
+      database:
+        condition: service_healthy
+      client:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+  
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    networks: ['transcendence']
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
 
 networks:
   transcendence:
     driver: bridge
     name: transcendance
-
