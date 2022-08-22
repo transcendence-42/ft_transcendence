@@ -2,29 +2,115 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique
-  username        String   @unique
-  created_at      DateTime @default(now())
-  profile_picture String?
+    id                  Int              @id @default(autoincrement())
+    username            String           @unique
+    email               String           @unique
+    createdAt           DateTime         @default(now())
+    profilePicture      String?
+    currentStatus       Int              @default(0)
+    currentLadder       Int              @default(0)
+    credentials         Credentials?
+    stats               Stats?
+    ladderHistory       Ladder[]
+    ownedChannels       Channel[]
+    channels            UserOnChannel[]
+    friendshipRequested UserFriendship[] @relation("requester")
+    friendshipAccepted  UserFriendship[] @relation("addressee")
+    matches             PlayerOnMatch[]
+}
 
-  credentials Credentials?
+model Match {
+    id      Int             @id @default(autoincrement())
+    date    DateTime        @default(now())
+    status  Int             @default(0)
+    players PlayerOnMatch[]
+}
+
+model Achievement {
+    id         Int               @id @default(autoincrement())
+    name       DateTime          @default(now())
+    usersStats UserAchievement[]
+}
+
+model Channel {
+    id          Int             @id @default(autoincrement())
+    name        String          @unique
+    channelMode Int             @default(0)
+    password    String?
+    owner       User            @relation(fields: [ownerId], references: [id])
+    ownerId     Int             @unique
+    users       UserOnChannel[]
 }
 
 model Credentials {
-  email    String @unique
-  username String @unique
-  password String
-  user_id  Int    @unique
+    id       Int    @id @default(autoincrement())
+    email    String @unique
+    username String @unique
+    password String
+    user     User   @relation(fields: [userId], references: [id])
+    userId   Int    @unique
+}
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model Stats {
+    id           Int               @id @default(autoincrement())
+    wins         Int               @default(0)
+    losses       Int               @default(0)
+    user         User              @relation(fields: [userId], references: [id])
+    userId       Int               @unique
+    achievements UserAchievement[]
+}
+
+model Ladder {
+    id       Int      @id @default(autoincrement())
+    date     DateTime @default(now())
+    position Int
+    user     User     @relation(fields: [userId], references: [id])
+    userId   Int      @unique
+}
+
+model UserOnChannel {
+    channel   Channel @relation(fields: [channelId], references: [id])
+    channelId Int
+    user      User    @relation(fields: [userId], references: [id])
+    userId    Int
+    mode      Int     @default(0)
+    @@id([channelId, userId])
+}
+
+model PlayerOnMatch {
+    match       Match @relation(fields: [matchId], references: [id])
+    matchId     Int
+    player      User  @relation(fields: [playerId], references: [id])
+    playerId    Int
+    playerNum   Int   @default(1)
+    playerScore Int   @default(0)
+    @@id([matchId, playerId])
+}
+
+model UserAchievement {
+    achievement   Achievement @relation(fields: [achievementId], references: [id])
+    achievementId Int
+    stats         Stats       @relation(fields: [statsId], references: [id])
+    statsId       Int
+    date          DateTime    @default(now())
+    @@id([achievementId, statsId])
+}
+
+model UserFriendship {
+    requester   User     @relation(name: "requester", fields: [requesterId], references: [id])
+    requesterId Int
+    addressee   User     @relation(name: "addressee", fields: [addresseeId], references: [id])
+    addresseeId Int
+    date        DateTime @default(now())
+    status      Int      @default(0)
+    @@id([requesterId, addresseeId])
 }

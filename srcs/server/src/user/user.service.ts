@@ -49,7 +49,7 @@ export class UserService {
       data: {
         email: userInfo.email,
         username: userInfo.username,
-        profile_picture: userInfo.profile_image_url,
+        profilePicture: userInfo.profile_image_url,
       }
     });
     return user;
