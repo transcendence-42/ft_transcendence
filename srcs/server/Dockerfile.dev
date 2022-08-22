@@ -1,14 +1,12 @@
 # syntax=docker/dockerfile:1
 FROM    node:alpine
 
-# workdir
 WORKDIR /app
 
-# copy local files to workdir.
-# The folders are then binded through volumes.
 COPY    . /app/
 
-# install packages reading package.json
-RUN     npm ci 
+# install dependencies
+RUN     npm i -g npm@8.18.0 \
+ &&     npm i
 
-CMD     ["npm", "run", "start:dev"]
+CMD     ["sh"]

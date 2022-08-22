@@ -43,24 +43,22 @@ Clone the repo and install module dependencies
 ```sh
 git clone git@github.com:twagger/ft_transcendence.git
 cd ft_transcendence
-cd ./srcs/client && npm install
-cd ./srcs/server && npm install
 ```
-Make dev to build the application **dev environment** :
+To build the **dev environment** :
 ```sh
-make dev
+make build dev
 ```
 
-Make dev to build the application **production environment** :
+To build the **production application** :
 ```sh
-make
+make build prod
 ```
 
 To access the services (reactJS) :
 ```
 https://localhost:3000        # Client (ReactJS)
 https://localhost:4200        # Server (NestJS) 
-port 5432 with psql           # Database (PGSQL)
+https://localhost:5555        # Database (through Adminer)
 ```
 
 <br />
