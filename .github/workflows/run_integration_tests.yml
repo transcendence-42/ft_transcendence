@@ -46,3 +46,5 @@ jobs:
 
       - name: Run Integration Tests on the server
         run: make test server int
+      - name: Run End-to-End Tests on the server
+        run: make test server e2e
