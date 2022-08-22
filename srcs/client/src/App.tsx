@@ -7,12 +7,10 @@ import React from 'react';
 
 function App() {
   return (
-    <div className="main">
-      <Routes>
-        <Route path='/' element={<Welcome />}>
-        </Route>
-      </Routes>
-    </div>
+    <Routes>
+      <Route path='/' element={<Welcome />}>
+      </Route>
+    </Routes>
   );
 }
 

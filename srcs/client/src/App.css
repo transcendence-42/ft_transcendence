@@ -1,26 +1,38 @@
 .main {
-  background-image: url("pong.jpg");
+  /* background-image: url("pong.jpg"); */
+  background-color: black;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
   height: 100vh;
 }
 
-.one {
-  float: left;
-  width: 50%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
+.logo {
+  color: white;
 }
 
-.two {
-  width: 50%;
-  float: right;
-  height: 100%;
+.slogan {
+  color: white;
+  justify-content: ;
+}
+
+.description {
+  color: white;
+}
+
+.button {
+  background-color: aqua;
+
+
+}
+
+.navBar{
+
+  background-color: grey;
+  justify-content: space-between;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  
+
+
+
 }
