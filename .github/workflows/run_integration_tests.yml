@@ -33,6 +33,7 @@ jobs:
 
   Run-integration-tests:
     runs-on: ubuntu-latest
+    needs: Get-env-file
 
     steps:
       - uses: actions/checkout@v3
