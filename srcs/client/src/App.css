@@ -13,7 +13,6 @@
 
 .slogan {
   color: white;
-  justify-content: ;
 }
 
 .description {
@@ -22,8 +21,6 @@
 
 .button {
   background-color: aqua;
-
-
 }
 
 .navBar{
@@ -31,8 +28,4 @@
   background-color: grey;
   justify-content: space-between;
   display: flex;
-  
-
-
-
 }
