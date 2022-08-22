@@ -13,4 +13,6 @@ export const fakeUser: User = {
   username: mockValidRegisterUserDto.username,
   profilePicture: null,
   createdAt: null,
+  currentStatus: 0,
+  currentLadder: 0,
 };

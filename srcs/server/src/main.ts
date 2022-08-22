@@ -5,6 +5,7 @@ import * as Passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,14 @@ async function bootstrap() {
   redisClient.on('connect', () => {
     console.log('Connected to Redis');
   });
+
+  const cfg = new DocumentBuilder()
+    .setTitle('Transcendence API')
+    .setDescription('The transcendence API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, cfg);
+  SwaggerModule.setup('/', app, document);
 
   app.use(
     Session({
