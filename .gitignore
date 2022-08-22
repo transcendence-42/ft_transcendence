@@ -5,7 +5,7 @@
 
 ## Other
 .DS_Store
-.env
+.done
 
 # Debug files
 *.dSYM/
@@ -32,3 +32,7 @@
 *.i*86
 *.x86_64
 *.hex
+
+# env files
+.env
+.env.*
