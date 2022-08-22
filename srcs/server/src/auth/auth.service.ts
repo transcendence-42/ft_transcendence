@@ -88,7 +88,6 @@ export class AuthService {
       userInfo,
       hash,
     );
-    console.log(`User doesn't exist:${createdUser.email}|`);
     return createdUser;
   }
 }

@@ -1,6 +1,0 @@
-{
-  "devDependencies": {
-    "@types/supertest": "^2.0.12",
-    "supertest": "^6.2.4"
-  }
-}
