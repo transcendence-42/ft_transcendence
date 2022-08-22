@@ -3,7 +3,7 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Matches } from 'class
 export class LocalRegisterUserDto {
   @IsNotEmpty()
   @IsString()
-  @Matches('^(?=.{3,18}$)[a-zA-Z0-0_]*$')
+  // @Matches('^(?=.{3,18}$)[a-zA-Z0-0_]*$')
   username: string;
 
   /* Explanation of the regex pattern
@@ -17,14 +17,14 @@ export class LocalRegisterUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @Matches(
-    /^(?=.{12,36}$)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\'";.,/#@!%^&*()\][{}])((.)\2?(?!\2))+$/g,
-    {
-      message:
-        'Password must be between 12 and 36 characters long and must contain atleat: one Upper Case' +
-        ' letter, one lower case letter, a digit and a special character and must not contain more than 2 consecutive characters.',
-    },
-  )
+  // @Matches(
+  //   /^(?=.{12,36}$)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\'";.,/#@!%^&*()\][{}])((.)\2?(?!\2))+$/g,
+  //   {
+  //     message:
+  //       'Password must be between 12 and 36 characters long and must contain atleat: one Upper Case' +
+  //       ' letter, one lower case letter, a digit and a special character and must not contain more than 2 consecutive characters.',
+  //   },
+  // )
   password: string;
 
   /* Explanation of the regex pattern

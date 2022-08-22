@@ -34,6 +34,7 @@ async function bootstrap() {
   app.use(Passport.initialize());
   app.use(Passport.session());
   await app.listen(config.get('SERVER_PORT'));
+  console.log(`Listening on port ${config.get('SERVER_PORT')}`);
 }
 
 bootstrap();

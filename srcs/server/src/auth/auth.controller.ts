@@ -50,6 +50,7 @@ export class AuthController {
     return this.authService.localRegisterUser(payload);
   }
 
+  /*** Helper function for dev only. Helps to see if the user is logged in.*/
   @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session) {
