@@ -5,6 +5,7 @@ import * as Passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
+import { cors } from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,6 +34,7 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
+  app.enableCors({origin: 'http://localhost:3042'});
   await app.listen(config.get('SERVER_PORT'));
   console.log(`Listening on port ${config.get('SERVER_PORT')}`);
 }

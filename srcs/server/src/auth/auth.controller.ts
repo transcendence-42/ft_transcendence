@@ -27,7 +27,7 @@ export class AuthController {
   @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   handleFtRedirec(@Request() req): any {
-    return `Validated user\n:  ${JSON.stringify(req.user)}`;
+    return req.user;
   }
 
   @UseGuards(FtAuthGuard)
