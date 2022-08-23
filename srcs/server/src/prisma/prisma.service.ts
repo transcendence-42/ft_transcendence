@@ -21,9 +21,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     // return Promise.all(models.map((modelKey) => this[modelKey].deleteMany()));
     const propertyNames = Object.getOwnPropertyNames(this);
     const modelNames = propertyNames.filter(
-      (propertyName) => !propertyName.startsWith('_')
+      (propertyName) => !propertyName.startsWith('_'),
     );
-  
+
     return Promise.all(modelNames.map((model) => this[model].deleteMany()));
-  };
+  }
 }

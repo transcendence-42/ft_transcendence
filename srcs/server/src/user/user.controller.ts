@@ -13,6 +13,7 @@ import {
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -29,6 +30,7 @@ export class UserController {
 
   // Creation
   @Post()
+  @ApiOperation({ summary: 'create a new user' })
   @ApiCreatedResponse({
     description: 'Main information of created user',
     type: ResponseUserDto,
@@ -45,6 +47,7 @@ export class UserController {
 
   // Get all
   @Get()
+  @ApiOperation({ summary: 'get all users' })
   @ApiOkResponse({
     description: 'Array of all users',
     type: User,
@@ -58,6 +61,7 @@ export class UserController {
 
   // Get by id
   @Get(':id')
+  @ApiOperation({ summary: 'get one user by id' })
   @ApiOkResponse({
     description: 'User object',
     type: User,
@@ -71,6 +75,7 @@ export class UserController {
 
   // Update
   @Patch(':id')
+  @ApiOperation({ summary: 'update one user' })
   @ApiOkResponse({
     description: 'Updated object',
     type: UpdateUserDto,
@@ -84,6 +89,7 @@ export class UserController {
 
   // Delete
   @Delete(':id')
+  @ApiOperation({ summary: 'delete a user' })
   @ApiOkResponse({
     description: 'Deleted user main infos',
     type: ResponseUserDto,
