@@ -14,6 +14,7 @@ import {
 } from 'src/auth/dto/registerUser.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResponseUserDto } from './dto/response-user.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class UserService {
@@ -44,8 +45,13 @@ export class UserService {
     return user;
   }
 
-  async findAll() {
-    const result: User[] = await this.prisma.user.findMany();
+  async findAll(paginationQuery: PaginationQueryDto) {
+    const { limit, offset } = paginationQuery;
+    const query = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+    };
+    const result: User[] = await this.prisma.user.findMany(query);
     if (result.length == 0)
       throw new HttpException(`No users`, HttpStatus.NO_CONTENT);
     return result;

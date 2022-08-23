@@ -22,7 +22,13 @@ async function bootstrap() {
   });
 
   // For DTO validation
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   // For Swagger UI
   const options = new DocumentBuilder()

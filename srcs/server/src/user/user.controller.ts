@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -14,6 +15,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -22,6 +24,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ResponseUserDto } from './dto/response-user.dto';
 import { ExceptionsDto } from '../common/dto/exceptions.dto';
 import { User } from './entities/user.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -53,9 +56,11 @@ export class UserController {
     type: User,
     isArray: true,
   })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
   @ApiNoContentResponse({ description: 'No users', type: ExceptionsDto })
-  async findAll() {
-    const res = await this.userService.findAll();
+  async findAll(@Query() paginationQuery: PaginationQueryDto) {
+    const res = await this.userService.findAll(paginationQuery);
     return res;
   }
 
