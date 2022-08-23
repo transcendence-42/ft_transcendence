@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   IsUrl,
 } from 'class-validator';
@@ -18,11 +19,14 @@ export class CreateUserDto {
 
   @IsString()
   @IsUrl()
+  @IsOptional()
   readonly profilePicture?: string;
 
   @IsNumber()
+  @IsOptional()
   readonly currentStatus?: number;
 
   @IsNumber()
+  @IsOptional()
   readonly currentLadder?: number;
 }
