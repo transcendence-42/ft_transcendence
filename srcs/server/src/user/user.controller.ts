@@ -61,7 +61,7 @@ export class UserController {
 
   // Get by id
   @Get(':id')
-  @ApiOperation({ summary: 'get one user by id' })
+  @ApiOperation({ summary: 'get user by id' })
   @ApiOkResponse({
     description: 'User object',
     type: User,
@@ -75,7 +75,7 @@ export class UserController {
 
   // Update
   @Patch(':id')
-  @ApiOperation({ summary: 'update one user' })
+  @ApiOperation({ summary: 'update a user' })
   @ApiOkResponse({
     description: 'Updated object',
     type: UpdateUserDto,
