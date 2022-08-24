@@ -4,6 +4,7 @@ import {Stats} from './stats.entity'
 import {Ladder} from './ladder.entity'
 import {Channel} from './channel.entity'
 import {UserOnChannel} from './userOnChannel.entity'
+import {UserFriendship} from './userFriendship.entity'
 import {PlayerOnMatch} from './playerOnMatch.entity'
 
 
@@ -20,7 +21,7 @@ stats?: Stats  | null;
 ladderHistory?: Ladder[] ;
 ownedChannels?: Channel[] ;
 channels?: UserOnChannel[] ;
-followedBy?: User[] ;
-following?: User[] ;
+friendshipRequested?: UserFriendship[] ;
+friendshipAccepted?: UserFriendship[] ;
 matches?: PlayerOnMatch[] ;
 }

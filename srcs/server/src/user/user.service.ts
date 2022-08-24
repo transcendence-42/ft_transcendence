@@ -11,10 +11,10 @@ import { Credentials, User } from '@prisma/client';
 import {
   FtRegisterUserDto,
   LocalRegisterUserDto,
-} from 'src/auth/dto/registerUser.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+} from '../auth/dto/registerUser.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import { ResponseUserDto } from './dto/response-user.dto';
-import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class UserService {
