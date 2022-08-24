@@ -5,6 +5,7 @@ import { Strategy } from 'passport-42';
 import { VerifyFunction } from 'passport-local';
 import { AuthService } from '../auth.service';
 import { FtRegisterUserDto } from '../dto/registerUser.dto';
+import { BadCredentialsException } from '../exceptions';
 
 @Injectable()
 export class FtStrategy extends PassportStrategy(Strategy, '42') {
@@ -15,7 +16,7 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       callbackURL: config.get('CALLBACK_URL'),
     });
   }
-  async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyFunction) {
+  async validate(accessToken: string, refreshToken: string, profile: any) {
     const userInfo: FtRegisterUserDto = {
       email: profile.emails[0].value,
       username: profile.username,
@@ -24,8 +25,8 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     console.debug('Trying to validate user in FT Strat!');
     const [user, authMessage] = await this.authService.validateFtUser(userInfo);
     const authenticatedUser = {...user, authMessage};
-    console.debug('this is new user' , authenticatedUser);
-    if (!authenticatedUser) throw new UnauthorizedException('Invalid user!');
+    console.debug('this is user' , authenticatedUser);
+    if (!authenticatedUser) throw new BadCredentialsException();
     return authenticatedUser;
   }
 }

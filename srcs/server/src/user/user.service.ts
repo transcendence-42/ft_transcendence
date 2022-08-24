@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserCredentialsByEmail(email: string): Promise<Credentials> {
+  async getUserCredentialsByEmail(email: string): Promise<Credentials | null> {
     try {
       const user = await this.prisma.credentials.findUnique({
         where: {

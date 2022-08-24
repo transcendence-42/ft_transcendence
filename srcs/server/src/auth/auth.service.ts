@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import {
   FtRegisterUserDto,
@@ -7,10 +7,15 @@ import {
 import { Credentials, User } from '@prisma/client';
 import * as Bcrypt from 'bcryptjs';
 import { UserLoginDto } from './dto/login.dto';
+import { BadCredentialsException, userAlreadyRegistered } from './exceptions';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly config: ConfigService,
+  ) {}
 
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<[User, string]> {
     /* this functions goal is to check whether a user has already registered
@@ -19,26 +24,25 @@ export class AuthService {
      * with his email using local authentification and thus we should deny access
      * if the user is not registered we create a new account else we just log the user in
      */
-    const emailAndUsernameTaken = await this.isUserRegisteredByCredentials(userInfo.email, userInfo.username);
-    if (emailAndUsernameTaken) return [null, "credentials taken"];
+    const emailAndUsernameTaken = await this.isUserRegisteredByCredentials(
+      userInfo.email,
+      userInfo.username,
+    );
+    if (emailAndUsernameTaken) return [null, 'Credentials taken'];
 
-    const userAlreadyRegistered = await this.userService.getUserByEmail(userInfo.email);
-    if (userAlreadyRegistered)
-      return [userAlreadyRegistered, "logged in!"];
+    const userAlreadyRegistered = await this.userService.getUserByEmail(
+      userInfo.email,
+    );
+    if (userAlreadyRegistered) return [userAlreadyRegistered, 'Logged in'];
     const user = await this.ftRegisteruser(userInfo);
-    return [user, "Registered"];
-  }
-
-  async isUserRegisteredByOauth(username: string, email: string): Promise<boolean> {
-    const foundUserEmail = await this.userService.getUserByEmail(email);
-    if (foundUserEmail) return true;
-    return false;
+    return [user, 'Registered'];
   }
 
   async isUserRegisteredByCredentials(
     username: string,
     email: string,
   ): Promise<boolean> {
+    /* Checks if the user registered using credentials (username, email and password) */
     const foundUserEmail = await this.userService.getUserCredentialsByEmail(
       email,
     );
@@ -53,33 +57,39 @@ export class AuthService {
   }
 
   async ftRegisteruser(userInfo: FtRegisterUserDto): Promise<User> {
-    const user: User = await this.userService.createUserWithoutCredentials(userInfo);
+    /* creates a user using the information from FortyTwo Oauth2 flow
+     * this means that the user doesn't get a credentials table in the database
+     */
+    const user: User = await this.userService.createUserWithoutCredentials(
+      userInfo,
+    );
     return user;
+  }
+
+  handleFtRedirect(res) {
+    return res.redirect(this.config.get('HOME_PAGE'));
   }
 
   async validateUserCredentials(payload: UserLoginDto): Promise<User> {
     const userCredentials: Credentials | null =
       await this.userService.getUserCredentialsByEmail(payload.email);
-    if (!userCredentials)
-      throw new UnauthorizedException('Invalid email!');
+    if (!userCredentials) throw new BadCredentialsException('Invalid email!');
 
-    const validUser = await Bcrypt.compare(
+    const validUser: boolean = await Bcrypt.compare(
       payload.password,
       userCredentials.password,
     );
-    if (!validUser) throw new UnauthorizedException('Invalid password!');
+    if (!validUser) throw new BadCredentialsException('Invalid password!');
     const user: User = await this.userService.getUserByEmail(payload.email);
     return user;
   }
 
-  async localRegisterUser(
-    userInfo: LocalRegisterUserDto,
-  ): Promise<User> {
-    // Check if the user already exists
+  async localRegisterUser(userInfo: LocalRegisterUserDto): Promise<User> {
+    /* Check if the user already exists */
     const userDb = await this.userService.getUserByEmail(userInfo.email);
-    if (userDb) throw new UnauthorizedException('User already exists');
+    if (userDb) throw new userAlreadyRegistered();
 
-    // the strenght of the hashing
+    /* the strenght of the hashing algorithm */
     const saltRounds: number = 10;
     const salt: string = await Bcrypt.genSalt(saltRounds);
     const hash: string = await Bcrypt.hash(userInfo.password, salt);

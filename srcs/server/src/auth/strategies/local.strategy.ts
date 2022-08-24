@@ -4,6 +4,7 @@ import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
 import { UserLoginDto } from '../dto/login.dto';
 import { User } from '@prisma/client';
+import { BadCredentialsException } from '../exceptions';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -19,7 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUserCredentials(payload);
     console.debug('Trying to get the correct credentials', {user});
     if (!user)
-      throw new UnauthorizedException('Invalid Credentials from user!');
+      throw new BadCredentialsException();
     return user;
   }
 }

@@ -14,24 +14,26 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto } from './dto/registerUser.dto';
-import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private config: ConfigService,
     private readonly authService: AuthService,
-  ) {}
+  ) {
+  }
+  LOGIN_PAGE: string = this.config.get('LOGIN_PAGE');
+  HOME_PAGE: string = this.config.get('HOME_PAGE');
 
   /**** 42 Oauth2 flow ****/
 
-  @UseGuards(FtAuthGuard)
+  // @UseGuards(FtAuthGuard)
   @Get('42/redirect')
-  handleFtRedirec(@Request() req, @Response() res): any {
+  FtRedirec(@Request() req, @Response() res): any {
     console.log(
       `Returning response from /redirect ${JSON.stringify(req.user, null, 4)}`,
     );
-    return res.redirect('http://127.0.0.1:3042/');
+    return this.authService.handleFtRedirect(res);
   }
 
   @UseGuards(LoggedInGuard)
@@ -57,13 +59,13 @@ export class AuthController {
 
   @UseGuards(FtAuthGuard)
   @Get('42/register')
-  handleFtUserRegistration(@Request() req) {}
+  handleFtUserRegistration() {}
 
   /**** local Authentication flow ****/
   @UseGuards(LocalAuthGuard)
   @Post('login')
   handleLocalLogin(@Request() req, @Response() res) {
-    return res.redirect('http://127.0.0.1:3042/');
+    return res.redirect(this.HOME_PAGE);
   }
 
   @Post('register')
@@ -71,8 +73,8 @@ export class AuthController {
   handleLocalRegister(@Body() payload: LocalRegisterUserDto, @Response() res) {
     // return this.authService.localRegisterUser(payload);
     const user = this.authService.localRegisterUser(payload);
-    if (user) return res.redirect('http://127.0.0.1:3042/');
-    else return res.redirect('http://127.0.0.1:3042/login');
+    if (user) return res.redirect(this.HOME_PAGE);
+    else return res.redirect(this.LOGIN_PAGE);
   }
 
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
