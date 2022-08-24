@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import Home from "./Home";
 import Login from "./Login";
 import "./App.css";
-import SignIn from "./components/SignIn";
+import Play from "./components/Play";
 import "./Box.css"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -35,16 +35,27 @@ const App = () => {
     <BrowserRouter>
       <div>
         <Navbar user={user} />
-          <h2 className="blueText" style={{fontSize: "70px"}}> ABCD </h2>
-          <h2 className="yellowText" style={{fontSize: "70px"}} > ABCD </h2>
+          <h2 className="blueText" style={{fontSize: "50px"}}> ABCD </h2>
+          <h2 className="yellowText" style={{fontSize: "50px"}} > ABCD </h2>
           <h2 className="pinkText" style={{fontSize: "70px"}}> ABCD </h2>
-          <div className="blueBox"
+          < Play />
+
+        <div className="yellowBox"
           style={{
-            width: "227px",
-            height: "82px",
-            left: "400px",
-            top: "561px"
-            }}> <h2 className="blueText" style={{fontSize: "40px"}}> ABCD </h2> </div>
+            width: "200px",
+            height: "200px",
+            left: "200px",
+            top: "550px"
+            }}> <h2 className="pinkText" style={{fontSize: "40px"}}> ABCD </h2> </div>
+
+          <div className="yellowBox2"
+          style={{
+            width: "200px",
+            height: "200px",
+            left: "500px",
+            top: "550px"
+            }}> <h2 className="pinkText" style={{fontSize: "40px"}}> ABCD </h2> </div>
+            
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
