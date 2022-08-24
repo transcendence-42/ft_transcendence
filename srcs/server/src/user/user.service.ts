@@ -19,7 +19,7 @@ import {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
       where: { username: createUserDto.username },
     });
@@ -32,7 +32,7 @@ export class UserService {
     return user;
   }
 
-  async findAll(paginationQuery: PaginationQueryDto) {
+  async findAll(paginationQuery: PaginationQueryDto): Promise<User[]> {
     const { limit, offset } = paginationQuery;
     const query = {
       ...(limit && { take: +limit }),
@@ -43,7 +43,7 @@ export class UserService {
     return result;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<User> {
     const result: User | null = await this.prisma.user.findUnique({
       where: { id: id },
     });
@@ -51,7 +51,9 @@ export class UserService {
     return result;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(
+		id: number, updateUserDto: UpdateUserDto
+	): Promise<ResponseUserDto> {
     try {
       const result: ResponseUserDto = await this.prisma.user.update({
         where: { id: id },
@@ -63,7 +65,7 @@ export class UserService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<ResponseUserDto> {
     try {
       const result: ResponseUserDto = await this.prisma.user.delete({
         where: { id: id },

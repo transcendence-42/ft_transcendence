@@ -13,7 +13,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { ResponseUserDto } from '../dto/response-user.dto';
 
 describe('User service integration tests', () => {
-  let service: UserService;
+  let userService: UserService;
   let prisma: PrismaService;
 
   // setup modules for test
@@ -22,7 +22,7 @@ describe('User service integration tests', () => {
       imports: [AppModule],
     }).compile();
 
-    service = moduleRef.get<UserService>(UserService);
+    userService = moduleRef.get<UserService>(UserService);
     prisma = moduleRef.get(PrismaService);
   });
 
@@ -37,7 +37,7 @@ describe('User service integration tests', () => {
         username: 'homer',
         email: 'homer@springfield.com',
       };
-      const response: User = await service.create(data);
+      const response: User = await userService.create(data);
       expect(response.id).toBeDefined();
       expect(response.createdAt).toBeDefined();
       expect(response.currentLadder).toBe(0);
@@ -55,7 +55,7 @@ describe('User service integration tests', () => {
         currentStatus: 1,
         currentLadder: 17,
       };
-      const response: User = await service.create(data);
+      const response: User = await userService.create(data);
       expect(response.id).toBeDefined();
       expect(response.createdAt).toBeDefined();
       expect(response.currentStatus).toBe(data.currentStatus);
@@ -70,8 +70,8 @@ describe('User service integration tests', () => {
         username: 'homer',
         email: 'homer@springfield.com',
       };
-      await service.create(data);
-      await expect(service.create(data)).rejects.toThrow(
+      await userService.create(data);
+      await expect(userService.create(data)).rejects.toThrow(
         UserAlreadyExistsException,
       );
     });
@@ -85,11 +85,11 @@ describe('User service integration tests', () => {
 
     it('should get an array with all users', async () => {
       // create few users
-      await service.create({ username: 'homer', email: 'homer@mail.com' });
-      await service.create({ username: 'marge', email: 'marge@mail.com' });
-      await service.create({ username: 'lisa', email: 'lisa@mail.com' });
-      await service.create({ username: 'bart', email: 'bart@mail.com' });
-      const response: User[] = await service.findAll({
+      await userService.create({ username: 'homer', email: 'homer@mail.com' });
+      await userService.create({ username: 'marge', email: 'marge@mail.com' });
+      await userService.create({ username: 'lisa', email: 'lisa@mail.com' });
+      await userService.create({ username: 'bart', email: 'bart@mail.com' });
+      const response: User[] = await userService.findAll({
         limit: null,
         offset: null,
       });
@@ -98,11 +98,11 @@ describe('User service integration tests', () => {
 
     it('should get an array with a certain number of user when a limit is set', async () => {
       // create few users
-      await service.create({ username: 'homer', email: 'homer@mail.com' });
-      await service.create({ username: 'marge', email: 'marge@mail.com' });
-      await service.create({ username: 'lisa', email: 'lisa@mail.com' });
-      await service.create({ username: 'bart', email: 'bart@mail.com' });
-      const response: User[] = await service.findAll({
+      await userService.create({ username: 'homer', email: 'homer@mail.com' });
+      await userService.create({ username: 'marge', email: 'marge@mail.com' });
+      await userService.create({ username: 'lisa', email: 'lisa@mail.com' });
+      await userService.create({ username: 'bart', email: 'bart@mail.com' });
+      const response: User[] = await userService.findAll({
         limit: 2,
         offset: null,
       });
@@ -111,11 +111,11 @@ describe('User service integration tests', () => {
 
     it('should get an array with a certain number of user when a limit and an offset is set', async () => {
       // create few users
-      await service.create({ username: 'homer', email: 'homer@mail.com' });
-      await service.create({ username: 'marge', email: 'marge@mail.com' });
-      await service.create({ username: 'lisa', email: 'lisa@mail.com' });
-      await service.create({ username: 'bart', email: 'bart@mail.com' });
-      const response: User[] = await service.findAll({
+      await userService.create({ username: 'homer', email: 'homer@mail.com' });
+      await userService.create({ username: 'marge', email: 'marge@mail.com' });
+      await userService.create({ username: 'lisa', email: 'lisa@mail.com' });
+      await userService.create({ username: 'bart', email: 'bart@mail.com' });
+      const response: User[] = await userService.findAll({
         limit: 2,
         offset: 3,
       });
@@ -123,7 +123,7 @@ describe('User service integration tests', () => {
     });
 
     it('should throw a "NoUsersInDatabaseException" if the database contains no user', async () => {
-      await expect(service.findAll({ limit: 2, offset: null })).rejects.toThrow(
+      await expect(userService.findAll({ limit: 2, offset: null })).rejects.toThrow(
         NoUsersInDatabaseException,
       );
     });
@@ -136,20 +136,20 @@ describe('User service integration tests', () => {
     });
 
     it('should get a user with the correct id', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
-      const response: User = await service.findOne(createResponse.id);
+      const response: User = await userService.findOne(createResponse.id);
       expect(response.id).toBe(createResponse.id);
     });
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
-      await expect(service.findOne(createResponse.id + 1)).rejects.toThrow(
+      await expect(userService.findOne(createResponse.id + 1)).rejects.toThrow(
         UserNotFoundException,
       );
     });
@@ -162,7 +162,7 @@ describe('User service integration tests', () => {
     });
 
     it('should update the attributes of an existing user', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
@@ -172,7 +172,7 @@ describe('User service integration tests', () => {
         currentStatus: 5,
         currentLadder: 2,
       };
-      const response: ResponseUserDto = await service.update(
+      const response: ResponseUserDto = await userService.update(
         createResponse.id,
         updateData,
       );
@@ -184,7 +184,7 @@ describe('User service integration tests', () => {
     });
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
@@ -195,7 +195,7 @@ describe('User service integration tests', () => {
         currentLadder: 2,
       };
       await expect(
-        service.update(createResponse.id + 1, updateData),
+        userService.update(createResponse.id + 1, updateData),
       ).rejects.toThrow(UserNotFoundException);
     });
   });
@@ -207,22 +207,22 @@ describe('User service integration tests', () => {
     });
 
     it('should remove an existing user', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
-      await service.remove(createResponse.id);
-      await expect(service.findOne(createResponse.id)).rejects.toThrow(
+      await userService.remove(createResponse.id);
+      await expect(userService.findOne(createResponse.id)).rejects.toThrow(
         UserNotFoundException,
       );
     });
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
-      const createResponse = await service.create({
+      const createResponse = await userService.create({
         username: 'homer',
         email: 'homer@mail.com',
       });
-      await expect(service.remove(createResponse.id + 1)).rejects.toThrow(
+      await expect(userService.remove(createResponse.id + 1)).rejects.toThrow(
         UserNotFoundException,
       );
     });
