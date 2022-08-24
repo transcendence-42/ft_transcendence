@@ -25,21 +25,19 @@ export class AuthController {
 
   /**** 42 Oauth2 flow ****/
 
-  @UseGuards(LoggedInGuard)
+  @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   handleFtRedirec(@Request() req, @Response() res): any {
     console.log(
-      `Returning response from /redirect ${JSON.stringify(req.user)}`,
+      `Returning response from /redirect ${JSON.stringify(req.user, null, 4)}`,
     );
-    console.log(`Is user authenticated ? ${req.isAuthenticated()}`);
     return res.redirect('http://127.0.0.1:3042/');
-    return req.user;
   }
 
-  // @UseGuards(LoggedInGuard)
+  @UseGuards(LoggedInGuard)
   @Get('success')
   handleSuccess(@Request() req, @Response() res, @Session() ses) {
-    console.log(
+    console.debug(
       `Returning User-session ${JSON.stringify(
         ses,
         null,
@@ -59,22 +57,22 @@ export class AuthController {
 
   @UseGuards(FtAuthGuard)
   @Get('42/register')
-  handleFtUserRegistration(@Request() req) {
-    // check if username and email are not registered in the database
-    // const user = req.user;
-  }
+  handleFtUserRegistration(@Request() req) {}
 
   /**** local Authentication flow ****/
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  handleLocalLogin(@Request() req) {
-    return req.user;
+  handleLocalLogin(@Request() req, @Response() res) {
+    return res.redirect('http://127.0.0.1:3042/');
   }
 
   @Post('register')
   @UsePipes(ValidationPipe)
-  handleLocalRegister(@Body() payload: LocalRegisterUserDto): Promise<User> {
-    return this.authService.localRegisterUser(payload);
+  handleLocalRegister(@Body() payload: LocalRegisterUserDto, @Response() res) {
+    // return this.authService.localRegisterUser(payload);
+    const user = this.authService.localRegisterUser(payload);
+    if (user) return res.redirect('http://127.0.0.1:3042/');
+    else return res.redirect('http://127.0.0.1:3042/login');
   }
 
   /*** Helper function for dev only. Helps to see if the user is logged in.*/

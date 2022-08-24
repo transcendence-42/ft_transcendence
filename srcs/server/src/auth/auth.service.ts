@@ -12,21 +12,21 @@ import { UserLoginDto } from './dto/login.dto';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async validateFtUser(userInfo: FtRegisterUserDto): Promise<User> {
+  async validateFtUser(userInfo: FtRegisterUserDto): Promise<[User, string]> {
     /* this functions goal is to check whether a user has already registered
      * using a local authentication method (email + password)
      * if user exists in Credentials table it means that a user has already registered
-     * with this email using local authentification and thus we should deny access
+     * with his email using local authentification and thus we should deny access
      * if the user is not registered we create a new account else we just log the user in
      */
     const emailAndUsernameTaken = await this.isUserRegisteredByCredentials(userInfo.email, userInfo.username);
-    if (emailAndUsernameTaken) return null;
+    if (emailAndUsernameTaken) return [null, "credentials taken"];
 
     const userAlreadyRegistered = await this.userService.getUserByEmail(userInfo.email);
     if (userAlreadyRegistered)
-      return userAlreadyRegistered;
+      return [userAlreadyRegistered, "logged in!"];
     const user = await this.ftRegisteruser(userInfo);
-    return user;
+    return [user, "Registered"];
   }
 
   async isUserRegisteredByOauth(username: string, email: string): Promise<boolean> {
