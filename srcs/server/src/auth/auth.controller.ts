@@ -20,14 +20,13 @@ export class AuthController {
   constructor(
     private config: ConfigService,
     private readonly authService: AuthService,
-  ) {
-  }
+  ) {}
   LOGIN_PAGE: string = this.config.get('LOGIN_PAGE');
   HOME_PAGE: string = this.config.get('HOME_PAGE');
 
   /**** 42 Oauth2 flow ****/
 
-  // @UseGuards(FtAuthGuard)
+  @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   FtRedirec(@Request() req, @Response() res): any {
     console.log(
