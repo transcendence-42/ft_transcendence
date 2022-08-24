@@ -1,46 +1,33 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Credentials, User } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { ResponseUserDto } from './dto/response-user.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   FtRegisterUserDto,
   LocalRegisterUserDto,
 } from '../auth/dto/registerUser.dto';
-import { PrismaService } from '../prisma/prisma.service';
-import { ResponseUserDto } from './dto/response-user.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import {
+  NoUsersInDatabaseException,
+  UserAlreadyExistsException,
+  UserNotFoundException,
+} from './exceptions/user-exceptions';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async doesUserExists(createUserDto: CreateUserDto): Promise<boolean> {
-    const user = await this.prisma.user.findUnique({
+  async create(createUserDto: CreateUserDto) {
+    const maybeUser = await this.prisma.user.findUnique({
       where: { username: createUserDto.username },
     });
-    if (user != null) {
-      return true;
-    }
-    return false;
-  }
+    if (maybeUser != null)
+      throw new UserAlreadyExistsException(createUserDto.username);
 
-  async create(createUserDto: CreateUserDto) {
-    if (await this.doesUserExists(createUserDto)) {
-      throw new ConflictException(
-        `User "${createUserDto.username}" already exists`,
-      );
-    }
     const user = await this.prisma.user.create({
-      data: {
-        username: createUserDto.username,
-        email: createUserDto.email,
-      },
+      data: { ...createUserDto },
     });
     return user;
   }
@@ -52,28 +39,27 @@ export class UserService {
       ...(offset && { skip: +offset }),
     };
     const result: User[] = await this.prisma.user.findMany(query);
-    if (result.length == 0)
-      throw new HttpException(`No users`, HttpStatus.NO_CONTENT);
+    if (result.length == 0) throw new NoUsersInDatabaseException();
     return result;
   }
 
   async findOne(id: number) {
-    const result: ResponseUserDto | null = await this.prisma.user.findUnique({
+    const result: User | null = await this.prisma.user.findUnique({
       where: { id: id },
     });
-    if (result == null) throw new NotFoundException(`User #${id} not found`);
+    if (result == null) throw new UserNotFoundException(id);
     return result;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
-      const result: UpdateUserDto = await this.prisma.user.update({
+      const result: ResponseUserDto = await this.prisma.user.update({
         where: { id: id },
         data: { ...updateUserDto },
       });
       return result;
     } catch (e) {
-      throw new NotFoundException(`User #${id} not found`);
+      throw new UserNotFoundException(id);
     }
   }
 
@@ -84,7 +70,7 @@ export class UserService {
       });
       return result;
     } catch (e) {
-      throw new NotFoundException(`User #${id} not found`);
+      throw new UserNotFoundException(id);
     }
   }
 

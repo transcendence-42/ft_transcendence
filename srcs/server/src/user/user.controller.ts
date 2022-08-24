@@ -83,7 +83,7 @@ export class UserController {
   @ApiOperation({ summary: 'update a user' })
   @ApiOkResponse({
     description: 'Updated object',
-    type: UpdateUserDto,
+    type: ResponseUserDto,
     isArray: false,
   })
   @ApiNotFoundResponse({ description: 'User not found', type: ExceptionsDto })

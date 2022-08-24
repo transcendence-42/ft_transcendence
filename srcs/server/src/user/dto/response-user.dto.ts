@@ -1,11 +1,8 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
-export class ResponseUserDto extends PickType(CreateUserDto, [
-  'email',
-  'username',
-] as const) {
+export class ResponseUserDto extends PartialType(CreateUserDto) {
   @IsNumber()
   @ApiProperty({
     description: 'database id of the user',
