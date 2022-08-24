@@ -4,7 +4,7 @@ import {Routes, Route} from 'react-router-dom';
 import Home from './Components/Home/Home'
 import Profile from './Components/Profile/Profile'
 import Notfound from './Components/NotFound/notFound';
-import NavBar from './Components/NavBar/navBar';
+import NavBar from './Components/NavBar/NavBar';
 import FriendsGame from './Components/MyFriends/MyFriends';
 //<Route path="/" element={<Home />} />
 //<Route path="/profile/:id" element={<Profile />}>

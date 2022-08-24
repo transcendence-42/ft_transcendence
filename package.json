@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5"
+  }
+}
