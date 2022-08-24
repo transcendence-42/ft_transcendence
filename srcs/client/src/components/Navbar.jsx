@@ -7,14 +7,9 @@ const Navbar = ({user}) => {
       {user ? (
         <ul className="list">
           <li className="listItem">
-            <img
-            //   src="https://cdn.intra.42.fr/users/nammari.jpg"
-            src={user.profile_picture}
-              alt=""
-              className="avatar"
-            ></img>
+            <img className="avatar" src={user.profile_picture}/>
           </li>
-          <li className="listItem">Noufel Ammari</li>
+          <li className="listItem">{user.username}</li>
           <li className="listItem">Logout</li>
         </ul>
       ) : (
