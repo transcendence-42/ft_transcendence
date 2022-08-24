@@ -34,7 +34,7 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
-  app.enableCors({origin: 'http://localhost:3042'});
+  app.enableCors({origin: [/api\/.intra.42\.fr$/, 'http://localhost:3042', 'http://127.0.0.1:3042', 'https://api.intra.42.fr/oauth/authorize'], credentials: true, methods: "GET,HEAD,PUT,PATCH,POST,DELETE"});
   await app.listen(config.get('SERVER_PORT'));
   console.log(`Listening on port ${config.get('SERVER_PORT')}`);
 }

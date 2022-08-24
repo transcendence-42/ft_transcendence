@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Request,
+  Response,
   Session,
   UseGuards,
   UsePipes,
@@ -24,17 +25,43 @@ export class AuthController {
 
   /**** 42 Oauth2 flow ****/
 
-  @UseGuards(FtAuthGuard)
+  @UseGuards(LoggedInGuard)
   @Get('42/redirect')
-  handleFtRedirec(@Request() req): any {
+  handleFtRedirec(@Request() req, @Response() res): any {
+    console.log(
+      `Returning response from /redirect ${JSON.stringify(req.user)}`,
+    );
+    console.log(`Is user authenticated ? ${req.isAuthenticated()}`);
+    return res.redirect('http://127.0.0.1:3042/');
     return req.user;
+  }
+
+  // @UseGuards(LoggedInGuard)
+  @Get('success')
+  handleSuccess(@Request() req, @Response() res, @Session() ses) {
+    console.log(
+      `Returning User-session ${JSON.stringify(
+        ses,
+        null,
+        4,
+      )} and User ${JSON.stringify(req.user, null, 4)}`,
+    );
+    if (req.user) {
+      res.json({
+        success: true,
+        message: 'user has successfully authenticated',
+        user: req.user,
+        cookies: req.cookies,
+      });
+      return req.user;
+    } else return `Bad user. Status = ${res.status}`;
   }
 
   @UseGuards(FtAuthGuard)
   @Get('42/register')
   handleFtUserRegistration(@Request() req) {
     // check if username and email are not registered in the database
-    const user = req.user;
+    // const user = req.user;
   }
 
   /**** local Authentication flow ****/
@@ -53,8 +80,7 @@ export class AuthController {
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
   @UseGuards(LoggedInGuard)
   @Get('status')
-  isLoggedIn(@Session() session) {
+  isLoggedIn(@Session() session, @Request() req) {
     return `User is logged in with session' ${JSON.stringify(session)}`;
   }
-
 }
