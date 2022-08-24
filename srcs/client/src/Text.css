@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,900');
+/* @import url(http://fonts.googleapis.com/css?family=Advent+Pro:400,200,700); */
+
+:root {
+	--weight: 400;
+	--height: 20px;
+}
+
+.blueText{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+
+  color: #80FFFF;
+
+  text-shadow: 0px 0px 7.49518px #6ABDFF, 0px 0px 14.9904px #3D9FEE, 0px 0px 25.6977px #187BCA;
+}
+
+.yellowText{
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+
+  color: #FFE710;
+
+  text-shadow: 0px 0px 7.49518px #FF6ADE, 0px 0px 14.9904px #EA3DEE, 0px 0px 25.6977px #CA18A3;
+}
+
+.pinkText{
+  font-family: 'Montserrat', normal;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+
+  color: #FF80F2;
+  text-shadow: 0px 0px 7.49518px #FF6ADE, 0px 0px 14.9904px #EA3DEE, 0px 0px 25.6977px #CA18A3;
+}
