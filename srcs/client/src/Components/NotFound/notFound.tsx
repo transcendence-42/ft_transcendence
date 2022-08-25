@@ -16,6 +16,5 @@ export default function NotFound()
             <p className="message"> Error unknown path</p> 
             <button onClick={goHome} className="button">Back to main page</button>
          </div>
-      
-    )
+    );
 }

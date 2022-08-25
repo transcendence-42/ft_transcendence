@@ -1,5 +1,5 @@
-import '../Text.css';
-import '../Box.css';
+import '../Tools/Text.css';
+import '../Tools/Box.css';
 
 function Play() {
 	return (
