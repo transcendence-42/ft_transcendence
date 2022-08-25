@@ -123,9 +123,9 @@ describe('User service integration tests', () => {
     });
 
     it('should throw a "NoUsersInDatabaseException" if the database contains no user', async () => {
-      await expect(userService.findAll({ limit: 2, offset: null })).rejects.toThrow(
-        NoUsersInDatabaseException,
-      );
+      await expect(
+        userService.findAll({ limit: 2, offset: null }),
+      ).rejects.toThrow(NoUsersInDatabaseException);
     });
   });
 
