@@ -1,9 +1,9 @@
-const Home = ({ user }) => {
+const Home = ({ user, loginOrRegister }) => {
   return (
     <div className="Home">
       {user ? (
         <h1>
-          {user.authMessage} for user {user.username}!
+          {loginOrRegister} for user {user.username}!
         </h1>
       ) : (
         <h1>Welcome Home !</h1>

@@ -16,22 +16,20 @@ import { LocalRegisterUserDto } from './dto/registerUser.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**** 42 Oauth2 flow ****/
 
   @UseGuards(FtAuthGuard)
   @Get('42/redirect')
-  FtRedirec(@Response() res): any {
+  FtRedirec(@Response() res) {
     return this.authService.handleFtRedirect(res);
   }
 
   @UseGuards(LoggedInGuard)
   @Get('success')
-  SuccessLogin(@Request() req, @Response() res, @Session() ses) {
-    return this.authService.handleSuccessLogin(req, res);
+  SuccessLogin(@Request() req) {
+    return this.authService.handleSuccessLogin(req.user);
   }
 
   @UseGuards(FtAuthGuard)
@@ -39,6 +37,7 @@ export class AuthController {
   handleFtUserRegistration() {}
 
   /**** local Authentication flow ****/
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
   LocalLogin(@Request() req, @Response() res) {
@@ -52,6 +51,7 @@ export class AuthController {
   }
 
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
+
   @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session, @Request() req) {

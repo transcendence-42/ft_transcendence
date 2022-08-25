@@ -73,16 +73,13 @@ export class AuthService {
     return res.redirect(this.HOME_PAGE);
   }
 
-  handleSuccessLogin(req, res) {
-    if (req.user) {
-      res.json({
-        success: true,
-        message: 'user has successfully authenticated',
-        user: req.user,
-        cookies: req.cookies,
-      });
-      return req.user;
-    } else return `Bad user. Status = ${res.status}`;
+  handleSuccessLogin(user) {
+    /* this function is called upon successful login and deletes the authMessage property
+     * which contains either: "User Logged-in" or "User Registered" type message.
+     */
+    const message: string = user.authMessage;
+    delete user.authMessage;
+    return { message: message, user: user };
   }
 
   handleLocalLogin(req, res) {

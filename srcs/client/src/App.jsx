@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loginOrRegister, setAuthState]= useState(null);
   useEffect(() => {
     const getUser = () => {
       fetch("http://127.0.0.1:4200/auth/success", {
@@ -23,7 +24,14 @@ const App = () => {
             return response.json();
           throw new Error("authentification failed.");
         })
-        .then((responeObject) => setUser(responeObject.user))
+        .then((responseObject) => {
+          console.log(
+            "this is response from fetch: ",
+            JSON.stringify(responseObject, null, 4)
+          );
+          setUser(responseObject.user);
+          setAuthState(responseObject.message);
+        })
         .catch((err) => console.log(err));
     };
     getUser();
@@ -34,7 +42,10 @@ const App = () => {
       <div>
         <Navbar user={user} />
         <Routes>
-          <Route path="/" element={<Home user={user} />} />
+          <Route
+            path="/"
+            element={<Home user={user} loginOrRegister={loginOrRegister} />}
+          />
           <Route
             path="/login"
             element={user ? <Navigate to="/" /> : <Login />}
