@@ -1,10 +1,29 @@
-.navbar {
-  height: 50px;
-  color: white;
-  background-color: rgb(25, 110, 143);
-  justify-content: space-around;
-  align-items: center;
+.main {
+
+  background-color: rgb(5, 2, 30);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+
+.one {
+  float: left;
+  width: 50%;
+  height: 100%;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.two {
+  width: 50%;
+  float: right;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .logo {

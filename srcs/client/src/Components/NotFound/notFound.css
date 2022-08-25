@@ -1,0 +1,22 @@
+body
+{
+    background-color: black;
+}
+
+.message
+{
+    text-align: center;
+    background-color: blue;
+    color: red;
+}
+
+.button
+{
+    /* text-align: center; */
+    float: left;
+    /* width: 50%; */
+    /* height: 100%; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

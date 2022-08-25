@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,900');
+@import url(http://fonts.googleapis.com/css?family=Advent+Pro:400,200,700);
+
+ul{
+    list-style: none;
+}
+
+li  {
+  
+    font-family: 'Advent Pro', sans-serif;
+    text-align: center;
+    padding: 14px 16px;
+    float:right;
+
+    /* list-style: none; */
+  }
+
+
+  .elementBlock a{
+     font-family: 'Advent Pro', sans-serif;
+    position: relative;
+    top: 70px ;
+    display: inline-block;
+    right: 300px;
+    color: #FFE710;
+    font-weight: normal;
+    font-size: 35px;
+    line-height: 53px;
+    text-shadow: 0px 0px 20px  #FFE710, 0px 0px 60px #FF80F2;   
+    padding: 0px 40px 0px 30px;
+
+  }
+
+
+
+
+
+.elementSignIn a
+{
+  font-family: 'Advent Pro', sans-serif;
+  position: relative;
+  left: 600px;
+  top: 70px;
+  float:left;
+  margin: 0px;
+  font-weight: 400px;
+  font-size: 50px;
+  line-height: 53px;
+  text-align: center;
+  color: #FFE710;
+  text-shadow:  0px 0px 10px #FF80F2;  
+  padding: 1px 10px 10px 10px;
+  transition: .5s all;
+  overflow: hidden;
+
+}
+
+.elementSignIn a:hover{
+  background-color: #80FFFF;
+  color: black;
+  
+}
+
+.elementSignIn a span{
+  position: absolute;
+
+}
+
+.elementSignIn a span:nth-child(1)
+{
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #80FFFF);
+  animation: animate1 1s linear infinite
+}
+
+
+@keyframes animate1 {
+  0%{
+    left: -100%
+  }
+ 50%, 100%{
+    left:100%
+  }
+}
+
+.elementSignIn a span:nth-child(2)
+{
+  top: -100%;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, #80FFFF);
+  animation: animate2 1s linear infinite;
+  animation-delay: .25s;
+}
+
+
+@keyframes animate2 {
+  0%{
+    top: -100%
+  }
+  50%, 100%{
+    top:100%
+  }
+}
+
+.elementSignIn a span:nth-child(3)
+{
+  bottom:0;
+  right: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(270deg, transparent, #80FFFF);
+  animation: animate3 1s linear infinite;
+  animation-delay: .50s;
+}
+
+
+@keyframes animate3 {
+  0%{
+    right: -100%
+  }
+  50%, 100%{
+    right:100%
+  }
+}
+
+.elementSignIn a span:nth-child(4)
+{
+  bottom: -100%;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(360deg, transparent, #80FFFF);
+  animation: animate4 1s linear infinite;
+  animation-delay: 0.75s;
+}
+
+
+@keyframes animate4 {
+  0%{
+    bottom: -100%
+  }
+  50%, 100% {
+    bottom: 100%
+  }
+}
+
+  .element a{
+    position: absolute;
+    left: 80px;
+    top: 80px;
+    float:left;
+    margin: 0px;
+    font-weight: 400px;
+    font-size: 50px;
+    line-height: 53px;
+    text-align: center;
+    color: #80FFFF;
+    text-shadow: 0px 0px 50px #6ABDFF, 0px 0px 50px #6ABDFF, 0px 0px 50px #6ABDFF;
+  }
+  
+
+  li a {text-decoration: none;} 
+  
