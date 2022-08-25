@@ -10,7 +10,6 @@ import {
   UserNotFoundException,
 } from '../exceptions/user-exceptions';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { ResponseUserDto } from '../dto/response-user.dto';
 
 describe('User service integration tests', () => {
   let userService: UserService;
@@ -172,7 +171,7 @@ describe('User service integration tests', () => {
         currentStatus: 5,
         currentLadder: 2,
       };
-      const response: ResponseUserDto = await userService.update(
+      const response: User = await userService.update(
         createResponse.id,
         updateData,
       );

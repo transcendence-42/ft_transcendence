@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -21,10 +22,9 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseUserDto } from './dto/response-user.dto';
-import { ExceptionsDto } from '../common/dto/exceptions.dto';
-import { User } from './entities/user.entity';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
+import { User } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('users')
@@ -35,13 +35,13 @@ export class UserController {
   @Post()
   @ApiOperation({ summary: 'create a new user' })
   @ApiCreatedResponse({
-    description: 'Main information of created user',
-    type: ResponseUserDto,
+    description: 'Created user',
+    type: User,
     isArray: false,
   })
   @ApiConflictResponse({
     description: 'User already exists',
-    type: ExceptionsDto,
+    type: BaseApiException,
   })
   async create(@Body() createUserDto: CreateUserDto) {
     const res = await this.userService.create(createUserDto);
@@ -58,7 +58,7 @@ export class UserController {
   })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiNoContentResponse({ description: 'No users', type: ExceptionsDto })
+  @ApiNoContentResponse({ description: 'No users', type: BaseApiException })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     const res = await this.userService.findAll(paginationQuery);
     return res;
@@ -68,13 +68,16 @@ export class UserController {
   @Get(':id')
   @ApiOperation({ summary: 'get user by id' })
   @ApiOkResponse({
-    description: 'User object',
+    description: 'Found User',
     type: User,
     isArray: false,
   })
-  @ApiNotFoundResponse({ description: 'User not found', type: ExceptionsDto })
-  async findOne(@Param('id') id: string) {
-    const res = await this.userService.findOne(+id);
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const res = await this.userService.findOne(id);
     return res;
   }
 
@@ -82,11 +85,14 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'update a user' })
   @ApiOkResponse({
-    description: 'Updated object',
-    type: ResponseUserDto,
+    description: 'Updated user',
+    type: User,
     isArray: false,
   })
-  @ApiNotFoundResponse({ description: 'User not found', type: ExceptionsDto })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const res = await this.userService.update(+id, updateUserDto);
     return res;
@@ -96,11 +102,14 @@ export class UserController {
   @Delete(':id')
   @ApiOperation({ summary: 'delete a user' })
   @ApiOkResponse({
-    description: 'Deleted user main infos',
-    type: ResponseUserDto,
+    description: 'Deleted user',
+    type: User,
     isArray: false,
   })
-  @ApiNotFoundResponse({ description: 'User not found', type: ExceptionsDto })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
   async remove(@Param('id') id: string) {
     const res = await this.userService.remove(+id);
     return res;

@@ -3,7 +3,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Credentials, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { ResponseUserDto } from './dto/response-user.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
   FtRegisterUserDto,
@@ -25,9 +24,14 @@ export class UserService {
     });
     if (maybeUser != null)
       throw new UserAlreadyExistsException(createUserDto.username);
-
+    const userStat = { wins: 0, losses: 0 };
     const user = await this.prisma.user.create({
-      data: { ...createUserDto },
+      data: {
+        ...createUserDto,
+        stats: {
+          create: userStat,
+        },
+      },
     });
     return user;
   }
@@ -51,12 +55,9 @@ export class UserService {
     return result;
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<ResponseUserDto> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
-      const result: ResponseUserDto = await this.prisma.user.update({
+      const result: User = await this.prisma.user.update({
         where: { id: id },
         data: { ...updateUserDto },
       });
@@ -66,9 +67,9 @@ export class UserService {
     }
   }
 
-  async remove(id: number): Promise<ResponseUserDto> {
+  async remove(id: number): Promise<User> {
     try {
-      const result: ResponseUserDto = await this.prisma.user.delete({
+      const result: User = await this.prisma.user.delete({
         where: { id: id },
       });
       return result;
