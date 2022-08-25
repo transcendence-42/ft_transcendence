@@ -43,18 +43,17 @@
 
 
 
-/* Custom your Box */
-/* add into your div  */
-/*           style={{
-            width: "227px",
-            height: "82px",
-            left: "500px",
-            top: "350px",
-            overflow: "auto"
-            }}> */
-/*
-width / height for the shape of your box
-left / top for the position in the page
-overflow: "auto" -> create an automatique scrolling
-display...
+/* Custom your Box
+* add into your div  
+*           style={{
+*           width: "227px",
+*           height: "82px",
+*           left: "500px",
+*          top: "350px",
+*          overflow: "auto"
+*           }}>
+* width / height for the shape of your box
+* left / top for the position in the page
+* overflow: "auto" -> create an automatic scrolling
+* display...
 */
