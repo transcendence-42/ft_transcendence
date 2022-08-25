@@ -10,7 +10,6 @@ export class LoggedInGuard implements CanActivate {
       console.debug("Guard Accepeted user!")
     else
       console.debug("Guard Rejected user!")
-    console.debug(`This is headers from request ${JSON.stringify(request.headers, null, 4)}`)
     return result;
   }
 }

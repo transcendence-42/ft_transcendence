@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 const Navbar = ({user}) => {
   return (
     <div className="navbar">
-      <span className="logo">Transcendence</span>
+      <Link className="link" to="home">Transcendence</Link>
+      {/* <span className="logo">Transcendence</span> */}
       {user ? (
         <ul className="list">
           <li className="listItem">

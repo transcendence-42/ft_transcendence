@@ -16,6 +16,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly config: ConfigService,
   ) {}
+  private readonly LOGIN_PAGE: string = this.config.get('LOGIN_PAGE');
+  private readonly HOME_PAGE: string = this.config.get('HOME_PAGE');
 
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<[User, string]> {
     /* this functions goal is to check whether a user has already registered
@@ -60,6 +62,7 @@ export class AuthService {
     /* creates a user using the information from FortyTwo Oauth2 flow
      * this means that the user doesn't get a credentials table in the database
      */
+
     const user: User = await this.userService.createUserWithoutCredentials(
       userInfo,
     );
@@ -67,7 +70,29 @@ export class AuthService {
   }
 
   handleFtRedirect(res) {
-    return res.redirect(this.config.get('HOME_PAGE'));
+    return res.redirect(this.HOME_PAGE);
+  }
+
+  handleSuccessLogin(req, res) {
+    if (req.user) {
+      res.json({
+        success: true,
+        message: 'user has successfully authenticated',
+        user: req.user,
+        cookies: req.cookies,
+      });
+      return req.user;
+    } else return `Bad user. Status = ${res.status}`;
+  }
+
+  handleLocalLogin(req, res) {
+    return res.redirect(this.HOME_PAGE);
+  }
+
+  handleLocalRegister(payload: LocalRegisterUserDto, res) {
+    const user = this.localRegisterUser(payload);
+    if (user) return res.redirect(this.HOME_PAGE);
+    else return res.redirect(this.LOGIN_PAGE);
   }
 
   async validateUserCredentials(payload: UserLoginDto): Promise<User> {

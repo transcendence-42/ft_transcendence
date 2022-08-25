@@ -5,7 +5,6 @@ import * as Passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
-import { cors } from 'cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,7 +16,7 @@ async function bootstrap() {
   const redisStore = await ConnectRedis(Session);
   redisClient.connect();
   redisClient.on('connect', () => {
-    console.log('Connected to Redis');
+    console.debug('\x1b[32m%s\x1b[0m', 'Connected to', 'Redis');
   });
 
   app.use(
@@ -34,9 +33,14 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
-  app.enableCors({origin: [/api\/.intra.42\.fr$/, 'http://localhost:3042', 'http://127.0.0.1:3042', 'https://api.intra.42.fr/oauth/authorize'], credentials: true, methods: "GET,HEAD,PUT,PATCH,POST,DELETE"});
+  app.enableCors({
+    origin: [
+      config.get('WEBSITE_URL')
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
   await app.listen(config.get('SERVER_PORT'));
-  console.log(`Listening on port ${config.get('SERVER_PORT')}`);
+  console.debug('\x1b[32m%s\x1b[0m', 'Listening on port:', config.get('SERVER_PORT'));
 }
-
 bootstrap();
