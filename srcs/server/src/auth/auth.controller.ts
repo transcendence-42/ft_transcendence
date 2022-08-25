@@ -25,7 +25,7 @@ export class AuthController {
 
   /**** 42 Oauth2 flow ****/
 
-  @UseGuards(LoggedInGuard)
+  @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   handleFtRedirec(@Request() req, @Response() res): any {
     console.log(

@@ -145,7 +145,7 @@
 }
 
 body{
-  background:rgb(0, 0, 0);
+  background: white !important;
   margin:0;
   padding:0;
 }

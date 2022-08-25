@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
+import "./Header.css";
 
 export default class Header extends Component {
   static propTypes = {
@@ -15,9 +16,9 @@ export default class Header extends Component {
           <Link to="/">Home</Link>
         </li>
         {authenticated ? (
-          <li onClick={this._handleLogoutClick}>Logout</li>
+          <li onClick={this._handleLogoutClick} className="menu1">Logout</li>
         ) : (
-          <li onClick={this._handleSignInClick}>Login</li>
+          <li onClick={this._handleSignInClick} className="menu2">Login</li>
         )}
       </ul>
     );

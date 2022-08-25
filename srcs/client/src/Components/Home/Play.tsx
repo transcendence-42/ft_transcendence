@@ -3,6 +3,8 @@ import '../Tools/Box.css';
 
 function Play() {
 	return (
+
+		
 		<div className="blueBox"
 		style={{
 		  width: "227px",
