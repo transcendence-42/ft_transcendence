@@ -6,7 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
-
   async getUserCredentialsByEmail(email: string): Promise<Credentials | null> {
     try {
       const user = await this.prisma.credentials.findUnique({
@@ -35,6 +34,7 @@ export class UserService {
     }
   }
 
+/* don't need this anymore. Use getOne and insert email instead of id */
   async getUserByEmail(email: string): Promise<User> {
     const user: User | null = await this.prisma.user.findUnique({
       where: {
@@ -44,6 +44,7 @@ export class UserService {
     return user;
   }
 
+/* don't need this anymore. Use createOne and insert email instead of id */
   async createUserWithoutCredentials(userInfo: FtRegisterUserDto): Promise<User> {
     const user: User = await this.prisma.user.create({
       data: {
