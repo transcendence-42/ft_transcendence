@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import Home from "./Home";
 import Login from "./Login";
+import Register from "./Register";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -49,6 +50,10 @@ const App = () => {
           <Route
             path="/login"
             element={user ? <Navigate to="/" /> : <Login />}
+          />
+          <Route
+          path="/register"
+          element={<Register user={user} />}
           />
         </Routes>
       </div>

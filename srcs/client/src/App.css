@@ -32,7 +32,7 @@
   object-fit: cover;
 }
 
-.login {
+.login, .register {
   height: calc(100vh - 50px); /* to avoid overflow with navbar*/
   align-items: center;
   justify-content: center;
@@ -87,7 +87,7 @@
   z-index: -1;
 }
 
-.loginButton {
+.loginButton, .registerButton {
   width: 150px;
   padding: 15px 25px;
   border-radius: 5px;
@@ -96,6 +96,7 @@
   align-items: center;
   font-weight: bold;
   margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .fortyTwo {
@@ -114,7 +115,7 @@
   margin-bottom: 20px;
 }
 
-.loginTitle {
+.loginTitle, .registerTitle {
   position: absolute;
   top: 150px;
   color: lightgray;
