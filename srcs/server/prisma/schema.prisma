@@ -15,16 +15,20 @@ model User {
   email           String   @unique
   username        String   @unique
   created_at      DateTime @default(now())
+  two_fa_activated Boolean @default(false)
+  two_fa_secret String?
   profile_picture String?
 
   credentials Credentials?
 }
 
 model Credentials {
+  user_id  Int    @unique
   email    String @unique
   username String @unique
-  password String
-  user_id  Int    @unique
+  password String?
+  two_fa_activated Boolean
+  two_fa_secret String?
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }

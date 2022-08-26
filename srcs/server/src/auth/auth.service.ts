@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import {
   FtRegisterUserDto,
@@ -9,6 +9,9 @@ import * as Bcrypt from 'bcryptjs';
 import { UserLoginDto } from './dto/login.dto';
 import { BadCredentialsException, userAlreadyRegistered } from './exceptions';
 import { ConfigService } from '@nestjs/config';
+import { authenticator } from 'otplib';
+import { toFileStream } from 'qrcode';
+import { TwoFactorDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -69,7 +72,9 @@ export class AuthService {
     return user;
   }
 
-  handleFtRedirect(res) {
+  handleFtRedirect(res, req) {
+    if (req.user.two_fa_activated)
+      res.redirect('http://127.0.0.1:4200/auth/2fa/authenticate');
     return res.redirect(this.HOME_PAGE);
   }
 
@@ -125,9 +130,48 @@ export class AuthService {
 
   async handleLogout(req, res) {
     if (req.session) {
-      req.session.destroy((err) => {if (err) console.log(err)});
-      res.clearCookie('auth_session', {path: '/'});
+      req.session.destroy((err) => {
+        if (err) console.log(err);
+      });
+      res.clearCookie('auth_session', { path: '/' });
       return { message: 'user logged-out successfuly' };
     }
+  }
+
+  async handleTwoFa() {}
+
+  async generateTwoFactorCode(user) {
+    const secret = authenticator.generateSecret();
+    const otpAuthUrl = authenticator.keyuri(
+      user.username,
+      this.config.get('TWO_FA_APP_NAME'),
+      secret,
+    );
+    console.log(`settig userid ${user.id}`);
+    const res = await this.userService.setTwofaSecret(user.id, secret);
+    console.log(`This is the result I got from res ${JSON.stringify(res, null, 4)}`);
+    return { secret, otpAuthUrl };
+  }
+
+  async turnOnTwoFactorAuth(user: User, twoFactorCode: string) {
+    const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
+    if (isCodeValid) return await this.userService.updateTwoAuth(user.id, true);
+
+    throw new UnauthorizedException('Bad 2FA Code');
+  }
+
+  async pipeQrCodeStream(stream: Response, otpAuthUrl: string) {
+    return toFileStream(stream, otpAuthUrl);
+  }
+
+  async verifyTwoFactorCode(twoFactorCode: string, user: User) {
+    return authenticator.verify({
+      token: twoFactorCode,
+      secret: user.two_fa_secret,
+    });
+  }
+
+  async activateTwoFa(user, value) {
+    return await this.userService.updateTwoAuth(user.id, value);
   }
 }

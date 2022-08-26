@@ -24,8 +24,8 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
     };
     console.debug('Trying to validate user in FT Strat!');
     const [user, authMessage] = await this.authService.validateFtUser(userInfo);
-    const authenticatedUser = {...user, authMessage};
-    console.debug('this is user' , authenticatedUser);
+    const authenticatedUser = { ...user, authMessage };
+    console.debug('this is user', authenticatedUser);
     if (!authenticatedUser) throw new BadCredentialsException();
     return authenticatedUser;
   }
