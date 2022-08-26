@@ -10,6 +10,7 @@ import {
   UserNotFoundException,
 } from '../exceptions/user-exceptions';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { mockUserDto } from 'src/common/stubs/mock.user.dto';
 
 describe('User service integration tests', () => {
   let userService: UserService;
@@ -33,8 +34,8 @@ describe('User service integration tests', () => {
 
     it('should create a new user with only required information', async () => {
       const data: CreateUserDto = {
-        username: 'homer',
-        email: 'homer@springfield.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       };
       const response: User = await userService.create(data);
       expect(response.id).toBeDefined();
@@ -48,11 +49,11 @@ describe('User service integration tests', () => {
 
     it('should create a new user with all information', async () => {
       const data: CreateUserDto = {
-        username: 'homer',
-        email: 'homer@springfield.com',
-        profilePicture: 'http://site.com/image.png',
-        currentStatus: 1,
-        currentLadder: 17,
+        username: mockUserDto.username,
+        email: mockUserDto.email,
+        profilePicture: mockUserDto.profilePicture,
+        currentStatus: mockUserDto.currentStatus,
+        currentLadder: mockUserDto.currentLadder,
       };
       const response: User = await userService.create(data);
       expect(response.id).toBeDefined();
@@ -66,8 +67,8 @@ describe('User service integration tests', () => {
 
     it('should throw a "UserAlreadyExistsException" if user already exists', async () => {
       const data: CreateUserDto = {
-        username: 'homer',
-        email: 'homer@springfield.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       };
       await userService.create(data);
       await expect(userService.create(data)).rejects.toThrow(
@@ -136,8 +137,8 @@ describe('User service integration tests', () => {
 
     it('should get a user with the correct id', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       const response: User = await userService.findOne(createResponse.id);
       expect(response.id).toBe(createResponse.id);
@@ -145,8 +146,8 @@ describe('User service integration tests', () => {
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       await expect(userService.findOne(createResponse.id + 1)).rejects.toThrow(
         UserNotFoundException,
@@ -162,12 +163,12 @@ describe('User service integration tests', () => {
 
     it('should update the attributes of an existing user', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       const updateData: UpdateUserDto = {
-        username: 'new_homer',
-        email: 'homer_updated@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
         currentStatus: 5,
         currentLadder: 2,
       };
@@ -184,12 +185,12 @@ describe('User service integration tests', () => {
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       const updateData: UpdateUserDto = {
-        username: 'new_homer',
-        email: 'homer_updated@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
         currentStatus: 5,
         currentLadder: 2,
       };
@@ -207,8 +208,8 @@ describe('User service integration tests', () => {
 
     it('should remove an existing user', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       await userService.remove(createResponse.id);
       await expect(userService.findOne(createResponse.id)).rejects.toThrow(
@@ -218,8 +219,8 @@ describe('User service integration tests', () => {
 
     it('should throw a "UserNotFoundException" if the user is not found', async () => {
       const createResponse = await userService.create({
-        username: 'homer',
-        email: 'homer@mail.com',
+        username: mockUserDto.username,
+        email: mockUserDto.email,
       });
       await expect(userService.remove(createResponse.id + 1)).rejects.toThrow(
         UserNotFoundException,
