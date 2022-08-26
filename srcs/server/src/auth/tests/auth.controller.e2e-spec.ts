@@ -41,12 +41,9 @@ describe('AuthController e2e test', () => {
         email: mockValidRegisterUserDto.email,
       });
     });
-    it('should return 200 ok if user is already in the database and a message saying user already exists if email', async () => {
-      await postRegisterUser();
-      const response = await postRegisterUser();
-      expect(response.status).toBe(401);
-      expect(response.body.message).toBe('User already exists');
-    });
+    it.todo(
+      'should return 200 ok if user is already in the database and a message saying user already exists if email',
+    );
     it.todo(
       'should return 200 ok if user is already in the database and a message saying user already exists if username is taken',
     );
