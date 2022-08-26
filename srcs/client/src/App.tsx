@@ -7,7 +7,7 @@ import Notfound from './Components/NotFound/notFound';
 import NavBar from './Components/Tools/NavBar/NavBar';
 
 function App() {
-  
+
   return (
     <div className="main">
       <NavBar />
