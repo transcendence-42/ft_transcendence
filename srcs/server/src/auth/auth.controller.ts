@@ -14,7 +14,9 @@ import { ConfigService } from '@nestjs/config';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto } from './dto/registerUser.dto';
 import { User } from '@prisma/client';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(

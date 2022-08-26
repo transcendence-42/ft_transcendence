@@ -5,6 +5,9 @@ import * as Passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +21,29 @@ async function bootstrap() {
   redisClient.on('connect', () => {
     console.log('Connected to Redis');
   });
+
+  // For DTO validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // do not handle properties not defined in dto
+      transform: true, // transform payloads to dto instances
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // For setting secure HTTP Headers
+  app.use(helmet());
+
+  // For Swagger UI
+  const options = new DocumentBuilder()
+    .setTitle('Transcendence API')
+    .setDescription('The transcendence API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('/', app, document);
 
   app.use(
     Session({

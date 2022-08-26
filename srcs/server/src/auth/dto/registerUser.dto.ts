@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Matches,
+} from 'class-validator';
 
 export class LocalRegisterUserDto {
   @IsNotEmpty()
@@ -40,7 +47,6 @@ export class LocalRegisterUserDto {
 }
 
 export class FtRegisterUserDto {
-
   @IsNotEmpty()
   @IsEmail()
   email: string;

@@ -5,27 +5,41 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator nestjsDto {
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src/generated/nestjs-dto"
+  outputToNestJsResourceStructure = "false"
+  exportRelationModifierClasses   = "true"
+  reExport                        = "false"
+  createDtoPrefix                 = "Create"
+  updateDtoPrefix                 = "Update"
+  dtoSuffix                       = "Dto"
+  entityPrefix                    = ""
+  entitySuffix                    = ""
+  fileNamingStyle                 = "camel"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  username       String          @unique
-  email          String          @unique
-  createdAt      DateTime        @default(now())
-  profilePicture String?
-  currentStatus  Int             @default(0)
-  currentLadder  Int             @default(0)
-  credentials    Credentials?
-  stats          Stats?
-  ladderHistory  Ladder[]
-  ownedChannels  Channel[]
-  channels       UserOnChannel[]
-  followedBy     User[]          @relation("userFriends")
-  following      User[]          @relation("userFriends")
-  matches        PlayerOnMatch[]
+  id                  Int              @id @default(autoincrement())
+  username            String           @unique
+  email               String           @unique
+  createdAt           DateTime         @default(now())
+  profilePicture      String?
+  currentStatus       Int              @default(0)
+  currentLadder       Int              @default(0)
+  credentials         Credentials?
+  stats               Stats?
+  ladderHistory       Ladder[]
+  ownedChannels       Channel[]
+  channels            UserOnChannel[]
+  friendshipRequested UserFriendship[] @relation("requester")
+  friendshipAccepted  UserFriendship[] @relation("addressee")
+  matches             PlayerOnMatch[]
 }
 
 model Match {
@@ -56,7 +70,7 @@ model Credentials {
   email    String @unique
   username String @unique
   password String
-  user     User   @relation(fields: [userId], references: [id])
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int    @unique
 }
 
@@ -64,7 +78,7 @@ model Stats {
   id           Int               @id @default(autoincrement())
   wins         Int               @default(0)
   losses       Int               @default(0)
-  user         User              @relation(fields: [userId], references: [id])
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int               @unique
   achievements UserAchievement[]
 }
@@ -73,7 +87,7 @@ model Ladder {
   id       Int      @id @default(autoincrement())
   date     DateTime @default(now())
   position Int
-  user     User     @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int      @unique
 }
 
@@ -83,6 +97,7 @@ model UserOnChannel {
   user      User    @relation(fields: [userId], references: [id])
   userId    Int
   mode      Int     @default(0)
+
   @@id([channelId, userId])
 }
 
@@ -93,6 +108,7 @@ model PlayerOnMatch {
   playerId    Int
   playerNum   Int   @default(1)
   playerScore Int   @default(0)
+
   @@id([matchId, playerId])
 }
 
@@ -102,5 +118,17 @@ model UserAchievement {
   stats         Stats       @relation(fields: [statsId], references: [id])
   statsId       Int
   date          DateTime    @default(now())
+
   @@id([achievementId, statsId])
+}
+
+model UserFriendship {
+  requester   User     @relation(name: "requester", fields: [requesterId], references: [id])
+  requesterId Int
+  addressee   User     @relation(name: "addressee", fields: [addresseeId], references: [id])
+  addresseeId Int
+  date        DateTime @default(now())
+  status      Int      @default(0)
+
+  @@id([requesterId, addresseeId])
 }
