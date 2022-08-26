@@ -1,12 +1,12 @@
 
 import {Achievement} from './achievement.entity'
-import {Stats} from './stats.entity'
+import {User} from './user.entity'
 
 
 export class UserAchievement {
   achievement?: Achievement ;
 achievementId: number ;
-stats?: Stats ;
-statsId: number ;
+user?: User ;
+userId: number ;
 date: Date ;
 }

@@ -25,21 +25,23 @@ datasource db {
 }
 
 model User {
-  id                  Int              @id @default(autoincrement())
-  username            String           @unique
-  email               String           @unique
-  createdAt           DateTime         @default(now())
+  id                  Int               @id @default(autoincrement())
+  username            String            @unique
+  email               String            @unique
+  createdAt           DateTime          @default(now())
   profilePicture      String?
-  currentStatus       Int              @default(0)
-  currentLadder       Int              @default(0)
+  currentStatus       Int               @default(0)
+  currentLadder       Int               @default(0)
+  hasActivated2fa     Boolean           @default(false)
   credentials         Credentials?
   stats               Stats?
-  ladderHistory       Ladder[]
+  rankingHistory      Rank[]
   ownedChannels       Channel[]
   channels            UserOnChannel[]
-  friendshipRequested UserFriendship[] @relation("requester")
-  friendshipAccepted  UserFriendship[] @relation("addressee")
+  friendshipRequested UserFriendship[]  @relation("requester")
+  friendshipAddressed UserFriendship[]  @relation("addressee")
   matches             PlayerOnMatch[]
+  achievements        UserAchievement[]
 }
 
 model Match {
@@ -75,15 +77,14 @@ model Credentials {
 }
 
 model Stats {
-  id           Int               @id @default(autoincrement())
-  wins         Int               @default(0)
-  losses       Int               @default(0)
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int               @unique
-  achievements UserAchievement[]
+  id     Int  @id @default(autoincrement())
+  wins   Int  @default(0)
+  losses Int  @default(0)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
 }
 
-model Ladder {
+model Rank {
   id       Int      @id @default(autoincrement())
   date     DateTime @default(now())
   position Int
@@ -115,11 +116,11 @@ model PlayerOnMatch {
 model UserAchievement {
   achievement   Achievement @relation(fields: [achievementId], references: [id])
   achievementId Int
-  stats         Stats       @relation(fields: [statsId], references: [id])
-  statsId       Int
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int
   date          DateTime    @default(now())
 
-  @@id([achievementId, statsId])
+  @@id([achievementId, userId])
 }
 
 model UserFriendship {

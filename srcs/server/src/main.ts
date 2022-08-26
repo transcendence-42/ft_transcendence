@@ -7,6 +7,7 @@ import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,11 +25,16 @@ async function bootstrap() {
   // For DTO validation
   app.useGlobalPipes(
     new ValidationPipe({
+      whitelist: true, // do not handle properties not defined in dto
+      transform: true, // transform payloads to dto instances
       transformOptions: {
         enableImplicitConversion: true,
       },
     }),
   );
+
+  // For setting secure HTTP Headers
+  app.use(helmet());
 
   // For Swagger UI
   const options = new DocumentBuilder()

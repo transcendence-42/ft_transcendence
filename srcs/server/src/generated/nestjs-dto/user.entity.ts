@@ -1,11 +1,12 @@
 
 import {Credentials} from './credentials.entity'
 import {Stats} from './stats.entity'
-import {Ladder} from './ladder.entity'
+import {Rank} from './rank.entity'
 import {Channel} from './channel.entity'
 import {UserOnChannel} from './userOnChannel.entity'
 import {UserFriendship} from './userFriendship.entity'
 import {PlayerOnMatch} from './playerOnMatch.entity'
+import {UserAchievement} from './userAchievement.entity'
 
 
 export class User {
@@ -16,12 +17,14 @@ createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
 currentLadder: number ;
+hasActivated2fa: boolean ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
-ladderHistory?: Ladder[] ;
+rankingHistory?: Rank[] ;
 ownedChannels?: Channel[] ;
 channels?: UserOnChannel[] ;
 friendshipRequested?: UserFriendship[] ;
-friendshipAccepted?: UserFriendship[] ;
+friendshipAddressed?: UserFriendship[] ;
 matches?: PlayerOnMatch[] ;
+achievements?: UserAchievement[] ;
 }

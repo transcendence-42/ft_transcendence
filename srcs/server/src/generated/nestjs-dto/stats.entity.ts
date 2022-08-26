@@ -1,6 +1,5 @@
 
 import {User} from './user.entity'
-import {UserAchievement} from './userAchievement.entity'
 
 
 export class Stats {
@@ -9,5 +8,4 @@ wins: number ;
 losses: number ;
 user?: User ;
 userId: number ;
-achievements?: UserAchievement[] ;
 }

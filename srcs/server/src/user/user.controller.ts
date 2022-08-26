@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -76,7 +75,7 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id') id: number) {
     const res = await this.userService.findOne(id);
     return res;
   }
@@ -93,7 +92,7 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     const res = await this.userService.update(+id, updateUserDto);
     return res;
   }
@@ -110,7 +109,7 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     const res = await this.userService.remove(+id);
     return res;
   }

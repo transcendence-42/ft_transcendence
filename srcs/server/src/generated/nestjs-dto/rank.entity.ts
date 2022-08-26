@@ -2,7 +2,7 @@
 import {User} from './user.entity'
 
 
-export class Ladder {
+export class Rank {
   id: number ;
 date: Date ;
 position: number ;
