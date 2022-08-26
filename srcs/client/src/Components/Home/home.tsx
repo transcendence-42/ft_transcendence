@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import Play from "./Play"
 import './home.css';
 import "../Tools/Box.css"
+import PongIMG from './Pong.jpg';
 import Header from "../../Header"
 
 export default function Home () {
@@ -36,32 +37,21 @@ export default function Home () {
     getUser();
   }, []);
     return (
-        <div >
-            <Play />
-
-            {/* <h2 className="blueText" style={{fontSize: "50px"}}> ABCD </h2>
-            <h2 className="yellowText" style={{fontSize: "50px"}} > ABCD </h2>
-            <h2 className="pinkText" style={{fontSize: "70px"}}> ABCD </h2> */}
-
-            {/* <div className="yellowBox"
-                style={{
-                  width: "200px",
-                  height: "200px",
-                  left: "200px",
-                  top: "550px"
-                  }}>
-                  <h2 className="pinkText" style={{fontSize: "40px"}}> ABCD </h2>
+        <div className="home" >
+          <div className="homeElement">
+            <h2 className="pinkText" style={{fontSize: "5vw"}}> ENTER THE PONG CONTEST </h2>
+            </div>
+            <div className="homeElement">
+            <h2 className="blueText" style={{fontSize: "2vw"}}>  Confront other players
+                                                                  online and become the best at Pong! </h2>
+            </div>
+            {/* <div className="homeElementIMG">
+              <img src={PongIMG} alt="Pong"/>
+            </div> */}
+            <div className="homeElement">
+            <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
             </div>
 
-            <div className="yellowBox2"
-                style={{
-                  width: "200px",
-                  height: "200px",
-                  left: "500px",
-                  top: "550px"
-              }}>
-              <h2 className="pinkText" style={{fontSize: "40px"}}> ABCD </h2>
-            </div> */}
         </div>
     );
 }

@@ -1,19 +1,29 @@
-.one {
-    float: left;
-    width: 50%;
-    height: 100%;
-    color: rebeccapurple;
+.home {
+    width: auto;
+    height: auto;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-direction: column;
     align-items: center;
-    
+
   }
-  
-  .two {
-    width: 50%;
-    float: right;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+  .homeElement{
+    padding: 2vw;
   }
+
+  .homeElementIMG{
+      width: 10%;
+      height: 10%;
+  }
+
+  /* Resize une image
+  * Faire une div de la taille desirer
+  * puis dans le style de l image mettre
+      style={{
+      resizeMode: "cover",
+      width: "100%",
+      height: "100%",
+    }}
+    afin que l'image cover bien la taille de la div
+  */
