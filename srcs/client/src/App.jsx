@@ -2,13 +2,14 @@ import Navbar from "./components/Navbar";
 import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
+import Logout from "./components/logout";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [loginOrRegister, setAuthState]= useState(null);
+  const [loginOrRegister, setAuthState] = useState(null);
   useEffect(() => {
     const getUser = () => {
       fetch("http://127.0.0.1:4200/auth/success", {
@@ -43,6 +44,7 @@ const App = () => {
       <div>
         <Navbar user={user} />
         <Routes>
+          <Route path="/logout" element={<Logout />} />
           <Route
             path="/"
             element={<Home user={user} loginOrRegister={loginOrRegister} />}
@@ -51,10 +53,7 @@ const App = () => {
             path="/login"
             element={user ? <Navigate to="/" /> : <Login />}
           />
-          <Route
-          path="/register"
-          element={<Register user={user} />}
-          />
+          <Route path="/register" element={<Register user={user} />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -122,4 +122,12 @@ export class AuthService {
     );
     return createdUser;
   }
+
+  async handleLogout(req, res) {
+    if (req.session) {
+      req.session.destroy((err) => {if (err) console.log(err)});
+      res.clearCookie('auth_session', {path: '/'});
+      return { message: 'user logged-out successfuly' };
+    }
+  }
 }

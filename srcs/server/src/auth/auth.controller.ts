@@ -1,6 +1,8 @@
 import {
   Body,
+  Catch,
   Controller,
+  ForbiddenException,
   Get,
   Post,
   Request,
@@ -48,6 +50,13 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   LocalRegister(@Body() payload: LocalRegisterUserDto, @Response() res) {
     return this.authService.handleLocalRegister(payload, res);
+  }
+
+  /**** Logout flow  ****/
+  @UseGuards(LoggedInGuard)
+  @Get('logout')
+  Logout(@Request() req, @Response() res) {
+    return this.authService.handleLogout(req, res);
   }
 
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
