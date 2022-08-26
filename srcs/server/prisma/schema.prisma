@@ -38,8 +38,8 @@ model User {
   rankingHistory      Rank[]
   ownedChannels       Channel[]
   channels            UserOnChannel[]
-  friendshipRequested UserFriendship[]  @relation("requester")
-  friendshipAddressed UserFriendship[]  @relation("addressee")
+  friendshipRequested Friendship[]  @relation("requester")
+  friendshipAddressed Friendship[]  @relation("addressee")
   matches             PlayerOnMatch[]
   achievements        UserAchievement[]
 }
@@ -123,7 +123,7 @@ model UserAchievement {
   @@id([achievementId, userId])
 }
 
-model UserFriendship {
+model Friendship {
   requester   User     @relation(name: "requester", fields: [requesterId], references: [id], onDelete: Cascade)
   requesterId Int
   addressee   User     @relation(name: "addressee", fields: [addresseeId], references: [id], onDelete: Cascade)

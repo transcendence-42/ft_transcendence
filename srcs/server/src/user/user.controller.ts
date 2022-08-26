@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -24,6 +25,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
 import { User } from './entities/user.entity';
+import { UserFriendship } from 'src/generated/nestjs-dto/userFriendship.entity';
+import { CreateFriendshipDto } from './dto/create-friendship.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -77,6 +80,28 @@ export class UserController {
   })
   async findOne(@Param('id') id: number) {
     const res = await this.userService.findOne(id);
+    return res;
+  }
+
+  // Add a friend to a user
+  @Put()
+  @ApiOperation({ summary: 'request a friendship' })
+  @ApiCreatedResponse({
+    description: 'New friendship requested',
+    type: UserFriendship,
+    isArray: false,
+  })
+  @ApiOkResponse({
+    description: 'Existing friendship request accepted',
+    type: UserFriendship,
+    isArray: false,
+  })
+  @ApiConflictResponse({
+    description: 'Friendship already requested',
+    type: BaseApiException,
+  })
+  async createFriendship(@Body() createFriendshipDto: CreateFriendshipDto) {
+    const res = await this.userService.createFriendship(createFriendshipDto);
     return res;
   }
 

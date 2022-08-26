@@ -4,7 +4,7 @@ import { Rank } from '../../generated/nestjs-dto/rank.entity';
 import { Channel } from '../../generated/nestjs-dto/channel.entity';
 import { UserOnChannel } from '../../generated/nestjs-dto/userOnChannel.entity';
 import { PlayerOnMatch } from '../../generated/nestjs-dto/playerOnMatch.entity';
-import { UserFriendship } from '../../generated/nestjs-dto/userFriendship.entity';
+import { Friendship } from '../../generated/nestjs-dto/friendship.entity';
 import { UserAchievement } from '../../generated/nestjs-dto/userAchievement.entity';
 
 export class User {
@@ -21,8 +21,8 @@ export class User {
   rankingHistory?: Rank[];
   ownedChannels?: Channel[];
   channels?: UserOnChannel[];
-  friendshipRequested?: UserFriendship[];
-  friendshipAddressed?: UserFriendship[];
+  friendshipRequested?: Friendship[];
+  friendshipAddressed?: Friendship[];
   matches?: PlayerOnMatch[];
   achievements?: UserAchievement[];
 }
