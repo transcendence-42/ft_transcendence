@@ -1,4 +1,4 @@
-import { User } from './user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 export class Friendship {
   requester?: User;

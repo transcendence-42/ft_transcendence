@@ -25,7 +25,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
 import { User } from './entities/user.entity';
-import { Friendship } from './entities/friendship.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
 
 @Controller('users')

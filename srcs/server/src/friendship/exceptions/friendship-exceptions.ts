@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { DeleteFriendshipDto } from '../dto/delete-friendship.dto';
 
 export class FriendshipAlreadyExistsException extends HttpException {
   constructor(requester: number, addressee: number) {
@@ -23,6 +24,15 @@ export class FriendshipRequestedException extends HttpException {
     super(
       `User #${addressee} has already requested to be friend with #${requester}`,
       HttpStatus.OK,
+    );
+  }
+}
+
+export class FriendshipNotFoundException extends HttpException {
+  constructor(deleteUserDto: DeleteFriendshipDto) {
+    super(
+      `Friendship between #${deleteUserDto.requesterId} and #${deleteUserDto.addresseeId} not found`,
+      HttpStatus.NOT_FOUND,
     );
   }
 }
