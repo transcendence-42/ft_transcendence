@@ -31,20 +31,4 @@ export class CreateUserDto {
     example: 'http://site.com/image.png',
   })
   readonly profilePicture?: string;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiProperty({
-    description: 'status of the user : 1: online, 0: offline, 2: in game)',
-    example: 1,
-  })
-  readonly currentStatus?: number;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiProperty({
-    description: 'current position in the ladder',
-    example: 17,
-  })
-  readonly currentLadder?: number;
 }

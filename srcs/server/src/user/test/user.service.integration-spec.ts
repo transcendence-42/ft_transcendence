@@ -52,14 +52,12 @@ describe('User service integration tests', () => {
         username: mockUserDto.username,
         email: mockUserDto.email,
         profilePicture: mockUserDto.profilePicture,
-        currentStatus: mockUserDto.currentStatus,
-        currentLadder: mockUserDto.currentLadder,
       };
       const response: User = await userService.create(data);
       expect(response.id).toBeDefined();
       expect(response.createdAt).toBeDefined();
-      expect(response.currentStatus).toBe(data.currentStatus);
-      expect(response.currentLadder).toBe(data.currentLadder);
+      expect(response.currentStatus).toBe(0);
+      expect(response.currentLadder).toBe(0);
       expect(response.profilePicture).toBe(data.profilePicture);
       expect(response.username).toBe(data.username);
       expect(response.email).toBe(data.email);
@@ -169,8 +167,6 @@ describe('User service integration tests', () => {
       const updateData: UpdateUserDto = {
         username: mockUserDto.username,
         email: mockUserDto.email,
-        currentStatus: 5,
-        currentLadder: 2,
       };
       const response: User = await userService.update(
         createResponse.id,
@@ -178,8 +174,6 @@ describe('User service integration tests', () => {
       );
       expect(response.username).toBe(updateData.username);
       expect(response.email).toBe(updateData.email);
-      expect(response.currentLadder).toBe(updateData.currentLadder);
-      expect(response.currentStatus).toBe(updateData.currentStatus);
       expect(response.id).toBe(createResponse.id);
     });
 
@@ -191,8 +185,6 @@ describe('User service integration tests', () => {
       const updateData: UpdateUserDto = {
         username: mockUserDto.username,
         email: mockUserDto.email,
-        currentStatus: 5,
-        currentLadder: 2,
       };
       await expect(
         userService.update(createResponse.id + 1, updateData),

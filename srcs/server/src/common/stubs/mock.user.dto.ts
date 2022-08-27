@@ -12,8 +12,6 @@ export const mockUserDto: CreateUserDto = {
   username: 'homer',
   email: 'homer@springfield.com',
   profilePicture: 'http://site.com/image.png',
-  currentStatus: 1,
-  currentLadder: 17,
 };
 
 export const fakeUser: User = {

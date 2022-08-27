@@ -27,6 +27,7 @@ import { BaseApiException } from 'src/common/exceptions/baseApiException.entity'
 import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
+import { Rank } from 'src/generated/nestjs-dto/rank.entity';
 
 @Controller('users')
 export class UserController {
@@ -135,6 +136,29 @@ export class UserController {
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const res = await this.userService.findUserFriends(id, paginationQuery);
+    return res;
+  }
+
+  // Get rank history for a user
+  @ApiTags('Ranks')
+  @Get(':id/ranks')
+  @ApiOperation({ summary: 'history of all ranks of a user' })
+  @ApiOkResponse({
+    description: 'Array of all rank',
+    type: Rank,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  async getUserRanks(
+    @Param('id') id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    const res = await this.userService.findUserRanks(id, paginationQuery);
     return res;
   }
 

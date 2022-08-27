@@ -1,4 +1,4 @@
-import { Controller, Param, Delete, Body } from '@nestjs/common';
+import { Controller, Delete, Body } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Credentials, Friendship, User } from '@prisma/client';
+import { Credentials, Friendship, Rank, Stats, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -30,6 +30,10 @@ export class UserService {
     REJECTED: 2,
   });
 
+  private async _calculateRank(wins: number, losses: number): Promise<number> {
+    return wins + losses + 1; // fake return before real function
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
       where: { username: createUserDto.username },
@@ -37,11 +41,17 @@ export class UserService {
     if (maybeUser != null)
       throw new UserAlreadyExistsException(createUserDto.username);
     const userStat = { wins: 0, losses: 0 };
+    const rank = await this._calculateRank(0, 0);
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         stats: {
           create: userStat,
+        },
+        rankingHistory: {
+          create: {
+            position: rank,
+          },
         },
       },
     });
@@ -309,6 +319,33 @@ export class UserService {
       },
     });
     if (result.length == 0) throw new NoUsersInDatabaseException();
+    return result;
+  }
+
+  async findUserRanks(
+    id: number,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<Rank[]> {
+    // check if user exists
+    const isUser: User | null = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (isUser == null) throw new UserNotFoundException(id);
+    // query ranks
+    const { limit, offset } = paginationQuery;
+    const pagination = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+    };
+    const result: Rank[] = await this.prisma.rank.findMany({
+      ...pagination,
+      where: {
+        userId: id,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
     return result;
   }
 }
