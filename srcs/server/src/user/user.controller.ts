@@ -114,6 +114,30 @@ export class UserController {
     return res;
   }
 
+  // Get all friends of a user
+  @ApiTags('Friends')
+  @Get(':id/friends')
+  @ApiOperation({ summary: 'get all friends of a users' })
+  @ApiOkResponse({
+    description: 'Array of all friends',
+    type: User,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  @ApiNoContentResponse({ description: 'No friends', type: BaseApiException })
+  async getUserFriends(
+    @Param('id') id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    const res = await this.userService.findUserFriends(id, paginationQuery);
+    return res;
+  }
+
   // Update
   @ApiTags('Users')
   @Patch(':id')

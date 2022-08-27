@@ -251,4 +251,64 @@ export class UserService {
       return result;
     }
   }
+
+  async findUserFriends(
+    id: number,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<User[]> {
+    // check if user exists
+    const isUser: User | null = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (isUser == null) throw new UserNotFoundException(id);
+    // query friends
+    const { limit, offset } = paginationQuery;
+    const pagination = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+    };
+    const result: User[] = await this.prisma.user.findMany({
+      ...pagination,
+      where: {
+        OR: [
+          {
+            AND: [
+              {
+                friendshipAddressed: {
+                  some: {
+                    AND: [
+                      { status: this.friendshipStatus.ACCEPTED },
+                      {
+                        OR: [{ requesterId: id }, { addresseeId: id }],
+                      },
+                    ],
+                  },
+                },
+              },
+              { NOT: { id: id } },
+            ],
+          },
+          {
+            AND: [
+              {
+                friendshipRequested: {
+                  some: {
+                    AND: [
+                      { status: this.friendshipStatus.ACCEPTED },
+                      {
+                        OR: [{ requesterId: id }, { addresseeId: id }],
+                      },
+                    ],
+                  },
+                },
+              },
+              { NOT: { id: id } },
+            ],
+          },
+        ],
+      },
+    });
+    if (result.length == 0) throw new NoUsersInDatabaseException();
+    return result;
+  }
 }
