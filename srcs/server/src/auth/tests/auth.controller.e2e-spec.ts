@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
 import { AuthController } from '../auth.controller';
 import * as request from 'supertest';
 import { HttpServer } from '@nestjs/common';
-import { mockValidRegisterUserDto, fakeUser } from './mock.user.dto';
+import { mockValidRegisterUserDto } from 'src/common/stubs/mock.user.dto';
 
 describe('AuthController e2e test', () => {
   let controller: AuthController;
@@ -42,14 +41,8 @@ describe('AuthController e2e test', () => {
         email: mockValidRegisterUserDto.email,
       });
     });
-    it(
+    it.todo(
       'should return 200 ok if user is already in the database and a message saying user already exists if email',
-      async () => {
-        await postRegisterUser();
-        const response = await postRegisterUser();
-        expect(response.status).toBe(401);
-        expect(response.body.message).toBe('User already exists')
-      },
     );
     it.todo(
       'should return 200 ok if user is already in the database and a message saying user already exists if username is taken',

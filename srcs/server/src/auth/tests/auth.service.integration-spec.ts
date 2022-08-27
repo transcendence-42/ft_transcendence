@@ -28,7 +28,7 @@ describe('AuthService integration test', () => {
       const user = await authService.localRegisterUser(userInfo);
       expect(user.email).toBe(userInfo.email);
       expect(user.username).toBe(userInfo.username);
-      expect(user.created_at).toBeDefined();
+      expect(user.createdAt).toBeDefined();
       expect(user.id).toBeDefined();
     });
     it('Should throw an error when trying to create a user that already exists ', async () => {

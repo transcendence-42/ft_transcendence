@@ -35,4 +35,4 @@
 
 # env files
 .env
-.env.*
+*.env.*

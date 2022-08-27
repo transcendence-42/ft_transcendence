@@ -14,7 +14,9 @@ import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto, TwoFactorDto } from './dto/index';
 import { TwoFactorGuard } from './guards/twoFa.auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

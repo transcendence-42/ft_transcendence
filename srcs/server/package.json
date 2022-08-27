@@ -19,12 +19,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test": "jest",
     "test:int": "jest -i --no-cache --config ./test/jest-integration.json",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest -i --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/mapped-types": "^1.1.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.0.5",
@@ -38,6 +39,7 @@
     "cors": "^2.8.5",
     "express-session": "^1.17.3",
     "otplib": "^12.0.1",
+    "helmet": "^5.1.1",
     "passport": "^0.6.0",
     "passport-42": "^1.2.6",
     "passport-local": "^1.0.0",
@@ -57,6 +59,7 @@
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vegardit/prisma-generator-nestjs-dto": "^1.5.1",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

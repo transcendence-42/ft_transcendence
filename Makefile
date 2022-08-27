@@ -152,7 +152,7 @@ stop:
 					--env-file $(SRCS)/$(ENVFILE) $(DOWN)
 
 .PHONY:			clean
-clean:
+clean:			getenv
 				# Stops containers and remove images + volumes
 				$(DCOMPOSE) -f $(SRCS)/$(DCOMPOSEFILE) \
 					--env-file $(SRCS)/$(ENVFILE) $(DOWN) $(REMOVEALL)	
