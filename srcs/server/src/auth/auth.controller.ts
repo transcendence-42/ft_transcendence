@@ -13,6 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
 import { LocalRegisterUserDto, TwoFactorDto } from './dto/index';
+import { TwoFactorGuard } from './guards/twoFa.auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +24,7 @@ export class AuthController {
   @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   ftRedirec(@Response() res, @Request() req) {
-    return this.authService.handleFtRedirect(res, req);
+    return this.authService.handleFtRedirect(res, req.user);
   }
 
   @UseGuards(FtAuthGuard)
@@ -38,6 +39,7 @@ export class AuthController {
     return this.authService.handleLocalLogin(req, res);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('register')
   @UsePipes(ValidationPipe)
   localRegister(@Body() payload: LocalRegisterUserDto, @Response() res) {
@@ -59,37 +61,39 @@ export class AuthController {
   }
 
   /**** 2fa flow  ****/
-  @UseGuards(LoggedInGuard)
+  @UseGuards(TwoFactorGuard)
   @Get('2fa/generate')
   async generateTwoFa(@Request() req, @Response() res) {
     const { otpAuthUrl } = await this.authService.generateTwoFactorCode(
       req.user,
     );
+    req.user.isTwoFactorAuthenticated = true;
     return this.authService.pipeQrCodeStream(res, otpAuthUrl);
   }
 
-  @UseGuards(LoggedInGuard)
+  @UseGuards(TwoFactorGuard)
   @Post('2fa/activate')
   activateTwoFactorAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
     this.authService.turnOnTwoFactorAuth(req.user, twoFactorCode.code);
     return { message: '2FA activated!' };
   }
 
-  @UseGuards(LoggedInGuard)
+  @UseGuards(TwoFactorGuard)
   @Post('2fa/authenticate')
-  validateTwoAuthAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {}
+  validateTwoAuthAuth(
+    @Request() req,
+    @Response() res,
+    @Body() twoFactorCode: TwoFactorDto,
+  ) {
+    return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
+  }
 
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
 
   @UseGuards(LoggedInGuard)
   @Get('status')
   isLoggedIn(@Session() session, @Request() req) {
+    console.debug(`This is user ${JSON.stringify(req, null, 4)}`);
     return `User is logged in with session' ${JSON.stringify(session)}`;
-  }
-
-  @Get('activate')
-  activateTwoFa(@Request() req) {
-    const ret = this.authService.activateTwoFa(req.user, false);
-    return { message: ret };
   }
 }

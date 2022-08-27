@@ -7,6 +7,7 @@ export class FtAuthGuard extends AuthGuard('42') {
     console.debug('\x1b[32m%s\x1b[0m', `FtAuthGuard activated.`);
     const result = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
+    // if (request.user.two_fa_activated === false)
     await super.logIn(request);
     console.debug(
       '\x1b[32m%s\x1b[0m',

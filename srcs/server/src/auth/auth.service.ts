@@ -11,7 +11,7 @@ import { BadCredentialsException, userAlreadyRegistered } from './exceptions';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
-import { TwoFactorDto } from './dto';
+import { RequestUser } from './requestUser.entity';
 
 @Injectable()
 export class AuthService {
@@ -72,12 +72,21 @@ export class AuthService {
     return user;
   }
 
-  handleFtRedirect(res, req) {
-    if (req.user.two_fa_activated)
-      res.redirect('http://127.0.0.1:4200/auth/2fa/authenticate');
-    return res.redirect(this.HOME_PAGE);
+  handleFtRedirect(res, user: RequestUser) {
+    console.debug(`Inside ftREdirect ${JSON.stringify(user, null, 4)}`);
+    if (
+      user.isTwoFactorActivated === true &&
+      user.isTwoFactorAuthenticated === false
+    ) {
+      console.debug(`redirecting to 2fa`);
+      res.redirect('http://127.0.0.1:3042/2fa');
+      // res.redirect('http://127.0.0.1:4200/auth/2fa/authenticate');
+      // res.redirect('http://127.0.0.1:4200/auth/2fa/generate');
+    } else return res.redirect(this.HOME_PAGE);
+    console.debug(`redirecting to home`);
   }
 
+  // to do ann requestUser and delete authMessage to put it in body
   handleSuccessLogin(user) {
     /* this function is called upon successful login and deletes the authMessage property
      * which contains either: "User Logged-in" or "User Registered" type message.
@@ -138,9 +147,7 @@ export class AuthService {
     }
   }
 
-  async handleTwoFa() {}
-
-  async generateTwoFactorCode(user) {
+  async generateTwoFactorCode(user: RequestUser) {
     const secret = authenticator.generateSecret();
     const otpAuthUrl = authenticator.keyuri(
       user.username,
@@ -149,11 +156,13 @@ export class AuthService {
     );
     console.log(`settig userid ${user.id}`);
     const res = await this.userService.setTwofaSecret(user.id, secret);
-    console.log(`This is the result I got from res ${JSON.stringify(res, null, 4)}`);
+    console.log(
+      `This is the result I got from res ${JSON.stringify(res, null, 4)}`,
+    );
     return { secret, otpAuthUrl };
   }
 
-  async turnOnTwoFactorAuth(user: User, twoFactorCode: string) {
+  async turnOnTwoFactorAuth(user: RequestUser, twoFactorCode: string) {
     const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
     if (isCodeValid) return await this.userService.updateTwoAuth(user.id, true);
 
@@ -164,14 +173,24 @@ export class AuthService {
     return toFileStream(stream, otpAuthUrl);
   }
 
-  async verifyTwoFactorCode(twoFactorCode: string, user: User) {
+  async verifyTwoFactorCode(twoFactorCode: string, user: RequestUser) {
+    const userDb: User = await this.userService.getUserByEmail(user.email);
     return authenticator.verify({
       token: twoFactorCode,
-      secret: user.two_fa_secret,
+      secret: userDb.two_fa_secret,
     });
   }
 
-  async activateTwoFa(user, value) {
-    return await this.userService.updateTwoAuth(user.id, value);
+  async handleTwoFactorLoggin(twoFactorCode: string, user: RequestUser) {
+    const isCodeValid: boolean = await this.verifyTwoFactorCode(
+      twoFactorCode,
+      user,
+    );
+    if (!isCodeValid)
+      throw new UnauthorizedException('bad code in HandleTwoFactorLoggin');
+
+    user.isTwoFactorAuthenticated = true;
+    return { message: 'Two factor registered successfully!' };
+    // res.redirect(this.HOME_PAGE);
   }
 }

@@ -1,13 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
-import { Observable } from "rxjs";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class TwoFactorAuthGuard extends AuthGuard('42') {
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-        const result = (await super.canActivate(context)) as boolean;
-        const request = context.switchToHttp().getRequest();
-        await super.logIn(request);
-        return result;
-    }
+export class TwoFactorGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+    console.debug('TwoFactorGuard in guard activatead');
+    const request = context.switchToHttp().getRequest();
+    const result = request.isAuthenticated();
+    console.log(
+      `This is user in TwoFactorGuard${JSON.stringify(request.user, null, 4)}`,
+    );
+    if (result) console.debug('TwoFactorGuard accepted user!');
+    else console.debug('Guard TwoFactorGuard Rejected user!');
+    return result;
+  }
 }

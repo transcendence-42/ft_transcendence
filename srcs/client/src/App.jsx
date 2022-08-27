@@ -3,6 +3,7 @@ import Home from "./Home";
 import Login from "./Login";
 import Register from "./Register";
 import Logout from "./components/logout";
+import TwoFactorLogin from "./components/TwoFactorLogin";
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -54,6 +55,7 @@ const App = () => {
             element={user ? <Navigate to="/" /> : <Login />}
           />
           <Route path="/register" element={<Register user={user} />} />
+          <Route path="/2fa" element={<TwoFactorLogin />} />
         </Routes>
       </div>
     </BrowserRouter>
