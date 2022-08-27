@@ -19,7 +19,7 @@ services:
       test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
       interval: 30s
       timeout: 30s
-      retries: 4
+      retries: 8
       start_period: 1m30s
 
   server:
@@ -44,7 +44,7 @@ services:
       test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
       interval: 30s
       timeout: 30s
-      retries: 4
+      retries: 8
       start_period: 1m30s
     
   database:

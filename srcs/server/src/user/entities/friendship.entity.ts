@@ -1,6 +1,6 @@
 import { User } from './user.entity';
 
-export class UserFriendship {
+export class Friendship {
   requester?: User;
   requesterId: number;
   addressee?: User;

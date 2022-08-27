@@ -14,11 +14,21 @@ import {
   UserNotFoundException,
 } from './exceptions/user-exceptions';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
-import { FriendshipAlreadyExistsException, FriendshipRejectedException } from './exceptions/friendship-exceptions';
+import {
+  FriendshipAlreadyExistsException,
+  FriendshipRejectedException,
+  FriendshipRequestedException,
+} from './exceptions/friendship-exceptions';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
+
+  readonly friendshipStatus = Object.freeze({
+    REQUESTED: 0,
+    ACCEPTED: 1,
+    REJECTED: 2,
+  });
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
@@ -148,62 +158,97 @@ export class UserService {
     return user;
   }
 
+  private async _handleExistingFriendship(
+    requesterId: number,
+    friendship: Friendship,
+    friendshipRequest: CreateFriendshipDto,
+  ): Promise<Friendship> {
+    switch (friendship.status) {
+      // Already friends
+      case this.friendshipStatus.ACCEPTED:
+        throw new FriendshipAlreadyExistsException(
+          requesterId,
+          friendshipRequest.addresseeId,
+        );
+      // Friendship already rejected or requested
+      case this.friendshipStatus.REQUESTED:
+      case this.friendshipStatus.REJECTED:
+        if (friendship.requesterId === requesterId) {
+          // same requester : no change
+          if (friendship.status === this.friendshipStatus.REJECTED)
+            throw new FriendshipRejectedException(
+              requesterId,
+              friendshipRequest.addresseeId,
+            );
+          if (friendship.status === this.friendshipStatus.REQUESTED)
+            throw new FriendshipRequestedException(
+              requesterId,
+              friendshipRequest.addresseeId,
+            );
+        } else {
+          // reverse : accept
+          const result: Friendship = await this.prisma.friendship.update({
+            where: {
+              requesterId_addresseeId: {
+                addresseeId: friendship.addresseeId,
+                requesterId: friendship.requesterId,
+              },
+            },
+            data: { status: this.friendshipStatus.ACCEPTED, date: new Date() },
+          });
+          return result;
+        }
+    }
+  }
+
   async createFriendship(
+    id: number,
     createFriendshipDto: CreateFriendshipDto,
   ): Promise<Friendship> {
-    const maybeFriendship = await this.prisma.friendship.findMany({
+    // check if requester and addressee exists
+    const areUsers: User[] | null = await this.prisma.user.findMany({
+      where: {
+        OR: [{ id: id }, { id: createFriendshipDto.addresseeId }],
+      },
+    });
+    if (areUsers.length != 2)
+      throw new UserNotFoundException(
+        areUsers.filter((user) => user.id === id).length > 0
+          ? createFriendshipDto.addresseeId
+          : id,
+      );
+    // check if friendship already exists
+    const maybeFriendship = await this.prisma.friendship.findFirst({
       where: {
         OR: [
           {
-            requesterId: createFriendshipDto.requesterId,
+            requesterId: id,
             addresseeId: createFriendshipDto.addresseeId,
           },
           {
             requesterId: createFriendshipDto.addresseeId,
-            addresseeId: createFriendshipDto.requesterId,
+            addresseeId: id,
           },
         ],
       },
     });
-    if (maybeFriendship.length !== 0) {
-      // Already friends
-      if (maybeFriendship[0].status === 1)
-        throw new FriendshipAlreadyExistsException(
-          createFriendshipDto.requesterId,
-          createFriendshipDto.addresseeId,
-        );
-      // Friendship rejected once
-      if (
-        maybeFriendship[0].status === 0 &&
-        maybeFriendship[0].addresseeId === createFriendshipDto.addresseeId
-      )
-        throw new FriendshipRejectedException(
-          createFriendshipDto.requesterId,
-          createFriendshipDto.addresseeId,
-        );
-      if (
-        maybeFriendship[0].status === 0 &&
-        maybeFriendship[0].addresseeId === createFriendshipDto.requesterId
-      )
-        throw new FriendshipRejectedException(
-          createFriendshipDto.requesterId,
-          createFriendshipDto.addresseeId,
-        );
-      // accept if dto requester === addressee + update status to accepted
-      // already exists if dto requester === requester
-      // already exists if status === accepted
-      // rejected if requester === requester and status === rejected
-    }
-    throw new UserAlreadyExistsException(createUserDto.username);
-    const userStat = { wins: 0, losses: 0 };
-    const user = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        stats: {
-          create: userStat,
+    if (maybeFriendship != null) {
+      // friendship exists, update it or throw
+      const result = await this._handleExistingFriendship(
+        id,
+        maybeFriendship,
+        createFriendshipDto,
+      );
+      return result;
+    } else {
+      // friendship don't exists, create it with status requested
+      const result = await this.prisma.friendship.create({
+        data: {
+          requesterId: id,
+          ...createFriendshipDto,
         },
-      },
-    });
-    return user;
+      });
+      return result;
+    }
   }
 }
