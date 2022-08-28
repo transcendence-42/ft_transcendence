@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthController } from '../auth.controller';
 import * as request from 'supertest';
 import { HttpServer } from '@nestjs/common';
-import { mockValidRegisterUserDto } from 'src/common/stubs/mock.user.dto';
+import { mockValidRegisterUserDto } from 'src/user/test/stubs/mock.user.dto';
 
 describe('AuthController e2e test', () => {
   let controller: AuthController;

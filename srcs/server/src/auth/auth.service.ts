@@ -7,11 +7,16 @@ import {
 import { Credentials, User } from '@prisma/client';
 import * as Bcrypt from 'bcryptjs';
 import { UserLoginDto } from './dto/login.dto';
-import { BadCredentialsException, userAlreadyRegistered } from './exceptions';
+import {
+  BadCredentialsException,
+  userAlreadyRegisteredException,
+  CredentialsTakenException,
+} from './exceptions';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
-import { RequestUser } from './requestUser.entity';
+import { RequestUser } from '../common/entities/requestUser.entity';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -22,92 +27,80 @@ export class AuthService {
   private readonly LOGIN_PAGE: string = this.config.get('LOGIN_PAGE');
   private readonly HOME_PAGE: string = this.config.get('HOME_PAGE');
 
-  async validateFtUser(userInfo: FtRegisterUserDto): Promise<[User, string]> {
-    /* this functions goal is to check whether a user has already registered
-     * using a local authentication method (email + password)
-     * if user exists in Credentials table it means that a user has already registered
-     * with his email using local authentification and thus we should deny access
-     * if the user is not registered we create a new account else we just log the user in
-     */
-    const emailAndUsernameTaken = await this.isUserRegisteredByCredentials(
-      userInfo.email,
-      userInfo.username,
-    );
-    if (emailAndUsernameTaken) return [null, 'Credentials taken'];
+  /******************************* 42 Oauth2 Flow ******************************/
 
-    const userAlreadyRegistered = await this.userService.getUserByEmail(
-      userInfo.email,
-    );
-    if (userAlreadyRegistered) return [userAlreadyRegistered, 'Logged in'];
-    const user = await this.ftRegisteruser(userInfo);
-    return [user, 'Registered'];
-  }
-
-  async isUserRegisteredByCredentials(
-    username: string,
-    email: string,
-  ): Promise<boolean> {
-    /* Checks if the user registered using credentials (username, email and password) */
-    const foundUserEmail = await this.userService.getUserCredentialsByEmail(
-      email,
-    );
-    if (foundUserEmail) return true;
-
-    const foundUserName = await this.userService.getUserCredentialsByUsername(
-      username,
-    );
-    if (foundUserName) return true;
-
-    return false;
-  }
-
-  async ftRegisteruser(userInfo: FtRegisterUserDto): Promise<User> {
-    /* creates a user using the information from FortyTwo Oauth2 flow
-     * this means that the user doesn't get a credentials table in the database
-     */
-
-    const user: User = await this.userService.createUserWithoutCredentials(
-      userInfo,
-    );
-    return user;
-  }
-
-  handleFtRedirect(res, user: RequestUser) {
-    console.debug(`Inside ftREdirect ${JSON.stringify(user, null, 4)}`);
+  handleFtRedirect(user: RequestUser, res: Response) {
     if (
       user.isTwoFactorActivated === true &&
       user.isTwoFactorAuthenticated === false
     ) {
       console.debug(`redirecting to 2fa`);
       res.redirect('http://127.0.0.1:3042/2fa');
-      // res.redirect('http://127.0.0.1:4200/auth/2fa/authenticate');
-      // res.redirect('http://127.0.0.1:4200/auth/2fa/generate');
-    } else return res.redirect(this.HOME_PAGE);
-    console.debug(`redirecting to home`);
+    } else {
+      console.debug(`redirecting to Home`);
+      return res.redirect(this.HOME_PAGE);
+    }
   }
 
-  // to do ann requestUser and delete authMessage to put it in body
-  handleSuccessLogin(user) {
-    /* this function is called upon successful login and deletes the authMessage property
-     * which contains either: "User Logged-in" or "User Registered" type message.
+  async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
+    /* this function validates the user by doing two things:
+     * 1- Checks whether the user already has an account
+     * using the local authentication method. If so, it throws and exception.
+     * 2- Creates a new user if the user is not registered
+     * returns an object containing a RequestUser and a message to specify if the user
+     * logged in or signed up
      */
-    const message: string = user.authMessage;
-    delete user.authMessage;
-    return { message: message, user: user };
+    const credentialsByEmail: Credentials =
+      await this.userService.getUserCredentialsByEmail(userInfo.email);
+    if (credentialsByEmail !== null && credentialsByEmail.password !== null)
+      throw new CredentialsTakenException();
+    const credentialsByUsername: Credentials =
+      await this.userService.getUserCredentialsByUsername(userInfo.username);
+    if (
+      credentialsByUsername !== null &&
+      credentialsByUsername.password !== null
+    )
+      throw new CredentialsTakenException();
+
+    /* this means that the user doesn't have an account
+     * (we checked if the email and username exist and we didn't find any)
+     * so we need to create one
+     */
+    if (credentialsByEmail === null && credentialsByUsername === null) {
+      const createdUser = await this.ftRegisterUser(userInfo);
+      const user: RequestUser = this.createRequestUserFromCredentials(
+        createdUser.credentials,
+      );
+      user.authentication = 'Registered';
+      return user;
+    }
+    const user = this.createRequestUserFromCredentials(credentialsByEmail);
+    user.authentication = 'Logged-in';
+    return user;
   }
 
-  handleLocalLogin(req, res) {
+  async ftRegisterUser(userInfo: FtRegisterUserDto) {
+    /* creates a user using the information from FortyTwo Oauth2 flow
+     * this means that the user doesn't have a password in the Credentials table
+     */
+    const user = await this.userService.createUserWithoutPassword(userInfo);
+    return user;
+  }
+
+  /******************************* Local Auth Flow ****************************/
+
+  handleLocalLogin(req: Request, res: Response) {
     return res.redirect(this.HOME_PAGE);
   }
 
-  handleLocalRegister(payload: LocalRegisterUserDto, res) {
+  handleLocalRegister(payload: LocalRegisterUserDto, res: Response) {
     const user = this.localRegisterUser(payload);
     if (user) return res.redirect(this.HOME_PAGE);
     else return res.redirect(this.LOGIN_PAGE);
   }
 
   async validateUserCredentials(payload: UserLoginDto): Promise<User> {
-    const userCredentials: Credentials | null =
+    const userCredentials: Credentials =
       await this.userService.getUserCredentialsByEmail(payload.email);
     if (!userCredentials) throw new BadCredentialsException('Invalid email!');
 
@@ -123,29 +116,44 @@ export class AuthService {
   async localRegisterUser(userInfo: LocalRegisterUserDto): Promise<User> {
     /* Check if the user already exists */
     const userDb = await this.userService.getUserByEmail(userInfo.email);
-    if (userDb) throw new userAlreadyRegistered();
+    if (userDb) throw new userAlreadyRegisteredException();
 
     /* the strenght of the hashing algorithm */
     const saltRounds: number = 10;
     const salt: string = await Bcrypt.genSalt(saltRounds);
     const hash: string = await Bcrypt.hash(userInfo.password, salt);
 
-    const createdUser = await this.userService.createUserWithCredentials(
+    const createdUser = await this.userService.createUserWithPassword(
       userInfo,
       hash,
     );
     return createdUser;
   }
 
-  async handleLogout(req, res) {
+  /********************************** Successful Login *****************************/
+
+  async handleSuccessLogin(requestUser: RequestUser) {
+    /* this function is called upon successful login and deletes the authMessage property
+     * which contains either: "User Logged-in" or "User Registered" type message.
+     */
+    const message: string = requestUser.authentication;
+    delete requestUser.authentication;
+    const user: User = await this.userService.findOne(requestUser.id);
+    return { message: message, user: user };
+  }
+
+  /********************************** Logout **********************************/
+
+  async handleLogout(req: Request, res: Response) {
     if (req.session) {
-      req.session.destroy((err) => {
-        if (err) console.log(err);
-      });
+      req.session.destroy();
       res.clearCookie('auth_session', { path: '/' });
+      console.debug(`Logout User ${req.user}`);
       return { message: 'user logged-out successfuly' };
     }
   }
+
+  /********************************** 2FA Flow ********************************/
 
   async generateTwoFactorCode(user: RequestUser) {
     const secret = authenticator.generateSecret();
@@ -154,8 +162,7 @@ export class AuthService {
       this.config.get('TWO_FA_APP_NAME'),
       secret,
     );
-    console.log(`settig userid ${user.id}`);
-    const res = await this.userService.setTwofaSecret(user.id, secret);
+    const res = await this.userService.setTwoFactorSecret(user.id, secret);
     console.log(
       `This is the result I got from res ${JSON.stringify(res, null, 4)}`,
     );
@@ -164,20 +171,23 @@ export class AuthService {
 
   async turnOnTwoFactorAuth(user: RequestUser, twoFactorCode: string) {
     const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
-    if (isCodeValid) return await this.userService.updateTwoAuth(user.id, true);
+    if (isCodeValid)
+      return await this.userService.setTwoFactorAuthentification(user.id, true);
 
     throw new UnauthorizedException('Bad 2FA Code');
   }
 
   async pipeQrCodeStream(stream: Response, otpAuthUrl: string) {
+    /* returns a Generated Qr Code as a stream for Two Factor Auth */
     return toFileStream(stream, otpAuthUrl);
   }
 
   async verifyTwoFactorCode(twoFactorCode: string, user: RequestUser) {
-    const userDb: User = await this.userService.getUserByEmail(user.email);
+    const userDb: Credentials =
+      await this.userService.getUserCredentialsByEmail(user.email);
     return authenticator.verify({
       token: twoFactorCode,
-      secret: userDb.two_fa_secret,
+      secret: userDb.twoFactorSecret,
     });
   }
 
@@ -191,6 +201,33 @@ export class AuthService {
 
     user.isTwoFactorAuthenticated = true;
     return { message: 'Two factor registered successfully!' };
-    // res.redirect(this.HOME_PAGE);
+  }
+  /********************************** Helpers ********************************/
+
+  createRequestUserFromCredentials(credentials: Credentials): RequestUser {
+    /* Creates a RequestUser object from credentials object. Used mainly to save
+     * space and for clarity of code */
+    const requestUser: RequestUser = {
+      id: credentials.userId,
+      username: credentials.username,
+      email: credentials.email,
+      isTwoFactorActivated: credentials.twoFactorActivated,
+      isTwoFactorAuthenticated: false,
+    };
+    return requestUser;
+  }
+
+  async areCredentialsTaken(username: string, email: string) {
+    /* Checks if username and email are taken
+     * we do this by checking if the username and the password exist in the database */
+    const userCredentialsByEmail: Credentials =
+      await this.userService.getUserCredentialsByEmail(email);
+    if (userCredentialsByEmail !== null) return true;
+
+    const userCredentialsByUsername: Credentials =
+      await this.userService.getUserCredentialsByUsername(username);
+    if (userCredentialsByEmail !== null) return true;
+
+    return false;
   }
 }

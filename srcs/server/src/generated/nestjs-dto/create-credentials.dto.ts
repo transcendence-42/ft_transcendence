@@ -7,5 +7,6 @@
 export class CreateCredentialsDto {
   email: string;
 username: string;
-password: string;
+password?: string;
+twoFactorSecret?: string;
 }

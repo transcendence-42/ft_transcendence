@@ -4,4 +4,5 @@ export class RequestUser {
     email: string;
     isTwoFactorAuthenticated: boolean;
     isTwoFactorActivated: boolean;
+    authentication?: string;
 }

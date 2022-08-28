@@ -10,7 +10,7 @@ import {
   UserNotFoundException,
 } from '../exceptions/user-exceptions';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { mockUserDto } from 'src/common/stubs/mock.user.dto';
+import { mockUserDto } from 'src/user/test/stubs/mock.user.dto';
 
 describe('User service integration tests', () => {
   let userService: UserService;

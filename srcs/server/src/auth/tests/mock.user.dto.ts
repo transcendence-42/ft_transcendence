@@ -11,8 +11,9 @@ export const fakeUser: User = {
   id: null,
   email: mockValidRegisterUserDto.email,
   username: mockValidRegisterUserDto.username,
-  profile_picture: null,
-  created_at: null,
-  two_fa_secret: '7987',
-  two_fa_activated: false,
+  profilePicture: null,
+  createdAt: null,
+  hasActivated2fa: false,
+  currentLadder: 1,
+  currentStatus: 2,
 };

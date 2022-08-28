@@ -79,34 +79,25 @@ export class UserService {
   }
 
   async getUserCredentialsByEmail(email: string): Promise<Credentials> {
-    try {
-      const user = await this.prisma.credentials.findUnique({
-        where: {
-          email: email,
-        },
-      });
-      return user;
-    } catch (err) {
-      return null;
-    }
+    const userCredentials = this.prisma.credentials.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    return userCredentials;
   }
 
   async getUserCredentialsByUsername(username: string): Promise<Credentials> {
-    try {
-      const user = await this.prisma.credentials.findUnique({
-        where: {
-          username: username,
-        },
-      });
-      return user;
-    } catch (err) {
-      return null;
-    }
+    const user = this.prisma.credentials.findUnique({
+      where: {
+        username: username,
+      },
+    });
+    return user;
   }
 
-  /* don't need this anymore. Use getOne and insert email instead of id */
   async getUserByEmail(email: string): Promise<User> {
-    const user: User | null = await this.prisma.user.findUnique({
+    const user: User = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
@@ -114,20 +105,29 @@ export class UserService {
     return user;
   }
 
-  async createUserWithoutCredentials(
+  async createUserWithoutPassword(
     userInfo: FtRegisterUserDto,
-  ): Promise<User> {
-    const user: User = await this.prisma.user.create({
+  ): Promise<User & { credentials: Credentials }> {
+    const user = await this.prisma.user.create({
       data: {
         email: userInfo.email,
         username: userInfo.username,
-        profilePicture: userInfo.profile_image_url,
+        profilePicture: userInfo.profileImageUrl,
+        credentials: {
+          create: {
+            email: userInfo.email,
+            username: userInfo.username,
+          },
+        },
+      },
+      include: {
+        credentials: true,
       },
     });
     return user;
   }
 
-  async createUserWithCredentials(
+  async createUserWithPassword(
     userInfo: LocalRegisterUserDto,
     hash: string,
   ): Promise<User> {
@@ -140,7 +140,6 @@ export class UserService {
             username: userInfo.username,
             email: userInfo.email,
             password: hash,
-            two_fa_activated: false,
           },
         },
       },
@@ -148,27 +147,34 @@ export class UserService {
     return user;
   }
 
-  async setTwofaSecret(userId: number, secret: string) {
-    console.debug(`this is user id ${userId}`);
-    const updated = await this.prisma.user.update({
+  async setTwoFactorSecret(
+    userId: number,
+    secret: string,
+  ): Promise<Credentials> {
+    console.log(`Updating UserId ${userId} TwoFactorSecret ${secret}`);
+    const updated = await this.prisma.credentials.update({
       where: {
-        id: userId,
+        userId: userId,
       },
       data: {
-        two_fa_secret: secret,
+        twoFactorSecret: secret,
       },
     });
     return updated;
   }
 
-  async updateTwoAuth(userId: number, onOrOff: boolean) {
-    const updated = await this.prisma.user.update({
+  async setTwoFactorAuthentification(
+    userId: number,
+    onOrOff: boolean,
+  ): Promise<Credentials> {
+    const updated = await this.prisma.credentials.update({
       where: {
-        id: userId
+        userId: userId,
       },
       data: {
-        two_fa_activated: onOrOff,
-      }
+        twoFactorActivated: onOrOff,
+      },
     });
+    return updated;
   }
 }

@@ -61,5 +61,5 @@ export class FtRegisterUserDto {
 
   @IsUrl()
   @IsOptional()
-  profile_image_url: string;
+  profileImageUrl: string;
 }

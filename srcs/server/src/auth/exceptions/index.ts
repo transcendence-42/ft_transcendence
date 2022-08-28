@@ -1,4 +1,5 @@
 export * from "./badCredentials.exception";
 export * from "./shouldBeLogged-in.exception";
-export * from "./return200.exception";
-export * from "./userAlreadyRegistered.exceptions";
+export * from "./internalAuth.exception";
+export * from "./userAlreadyRegistered.exception";
+export * from "./credentialsTaken.exception";

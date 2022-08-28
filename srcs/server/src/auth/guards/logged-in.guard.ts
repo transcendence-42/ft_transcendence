@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { RequestUser } from '../requestUser.entity';
+import { RequestUser } from '../../common/entities/requestUser.entity';
 
 @Injectable()
 export class LoggedInGuard implements CanActivate {
