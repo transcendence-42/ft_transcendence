@@ -6,12 +6,12 @@ function Play() {
 
 		
 		<div className="blueBox"
-		style={{
-		  width: "227px",
-		  height: "82px",
-		  left: "500px",
-		  top: "350px",
-		  }}> <div className="playFlickering" > PLAY </div> </div>
+			style={{
+		  	width: "25%",
+		  	height: "12%",
+		  	left: "40%",
+		  	top: "40%",
+		  	}}> <div className="playFlickering" > PLAY </div> </div>
 	);
 }
 

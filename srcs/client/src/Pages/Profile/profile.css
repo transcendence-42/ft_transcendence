@@ -1,0 +1,43 @@
+.title
+{
+    font-family: 'Montserrat', normal;
+    font-style: sans-serif;
+    font-weight: 500;
+    font-size: 40px;
+    animation: flicker 2.5s infinite alternate;
+    color: #FFE710;
+    left: 35%;
+    text-align: center;
+
+}
+
+.id
+{
+    font-family: 'Montserrat', normal;
+    font-style: sans-serif;
+    font-weight: var(--weight);
+    line-height: var(--height);
+    /* identical to box height */
+  
+    text-align: center;
+    color: #FF80F2;
+    text-shadow:	0px 0px 17.49518px #FF6ADE,
+                    0px 0px 16.9904px #EA3DEE,
+                  0px 0px 55.6977px #CA18A3;
+}
+
+.choice
+{
+    font-family: 'Montserrat', sans-serif;
+    font-style: sans-serif;
+  
+    /* identical to box height */
+
+    text-align: center;
+  
+    color: #FFE710;
+  
+    text-shadow:	0px 0px 7.49518px #FF6ADE,
+                    0px 0px 14.9904px #EA3DEE,
+
+}

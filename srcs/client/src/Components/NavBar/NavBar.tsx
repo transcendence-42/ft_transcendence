@@ -38,6 +38,7 @@ export default function NavBar()
             <span></span>
             Welcome
         </a>
+      <a className="elementBlock" href="/home">Home</a>
       <a className="elementBlock" href="/about">About</a>
       <a className="elementBlock" href="/chat">Chat</a>
       <a className="elementBlock" href="/leaderboard">Leaderboard</a>

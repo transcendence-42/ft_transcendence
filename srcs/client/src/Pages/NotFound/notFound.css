@@ -5,18 +5,22 @@ body
 
 .message
 {
+    position: relative;
     text-align: center;
+    overflow: hidden;
     background-color: blue;
     color: red;
 }
 
 .button
 {
+    position: relative;
     /* text-align: center; */
-    float: left;
+    text-align: center;
     /* width: 50%; */
     /* height: 100%; */
-    display: flex;
     justify-content: center;
     align-items: center;
+    left: 46%;
+
 }

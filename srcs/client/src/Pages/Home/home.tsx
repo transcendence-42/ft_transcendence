@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 import Play from "./Play"
 import './home.css';
 import "../../Components/Tools/Box.css"
-import NavBar from "../../Components/NavBar/NavBar";
 
 
 export default function Home () {
@@ -10,8 +9,7 @@ export default function Home () {
     const [loginOrRegister, setAuthState]= useState(null);
 
     return (
-        <>
-          <NavBar />      
+        <> 
           <Play />
         </>
     );

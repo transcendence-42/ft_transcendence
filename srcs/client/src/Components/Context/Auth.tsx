@@ -5,6 +5,6 @@ import React from "react";
     It serves as a "log in/log out" 
 */
 export default React.createContext({
-    isAuthenticated: true ,
+    isAuthenticated: false ,
     setIsAuthenticated: (value : boolean) => {}
 });

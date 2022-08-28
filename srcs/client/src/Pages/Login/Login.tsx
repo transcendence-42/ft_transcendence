@@ -8,7 +8,6 @@ const Login = () => {
   };
   return (
     <>
-         <NavBar />
          <div className="login">
           <h1 className="loginTitle">Choose your Login Method:</h1>
             <div className="wrapper">
