@@ -17,6 +17,7 @@ import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
 import { RequestUser } from '../common/entities/requestUser.entity';
 import { Request, Response } from 'express';
+import * as Session from 'express-session';
 
 @Injectable()
 export class AuthService {
@@ -142,14 +143,14 @@ export class AuthService {
     return { message: message, user: user };
   }
 
-  /********************************** Logout **********************************/
+  /******************************** Logout Flow *******************************/
 
-  async handleLogout(req: Request, res: Response) {
-    if (req.session) {
-      req.session.destroy();
+  handleLogout(user: RequestUser, res: Response, session: Session) {
+    if (session) {
+      session.destroy();
       res.clearCookie('auth_session', { path: '/' });
-      console.debug(`Logout User ${req.user}`);
-      return { message: 'user logged-out successfuly' };
+      console.debug(`Logout User ${JSON.stringify(user, null, 4)}`);
+      res.send({ message: 'user logged-out successfuly' });
     }
   }
 

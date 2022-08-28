@@ -59,7 +59,7 @@ export class AuthController {
   @UseGuards(LoggedInGuard)
   @Get('logout')
   logout(@Request() req, @Response() res) {
-    return this.authService.handleLogout(req, res);
+    return this.authService.handleLogout(req.user, res, req.session);
   }
 
   /*************************** 2 Factor Auth Flow *****************************/

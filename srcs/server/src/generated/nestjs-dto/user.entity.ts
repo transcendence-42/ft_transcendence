@@ -17,7 +17,6 @@ createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
 currentLadder: number ;
-hasActivated2fa: boolean ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
 rankingHistory?: Rank[] ;
