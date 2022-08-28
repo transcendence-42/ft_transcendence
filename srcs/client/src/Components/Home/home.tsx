@@ -39,15 +39,15 @@ export default function Home () {
     return (
         <div className="home" >
           <div className="homeElement">
-            <h2 className="pinkText" style={{fontSize: "5vw"}}> ENTER THE PONG CONTEST </h2>
+            <h2 className="pinkText" style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST </h2>
             </div>
             <div className="homeElement">
-            <h2 className="blueText" style={{fontSize: "2vw"}}>  Confront other players
+            <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
                                                                   online and become the best at Pong! </h2>
             </div>
-            {/* <div className="homeElementIMG">
-              <img src={PongIMG} alt="Pong"/>
-            </div> */}
+            <div className="homeElementIMG" >
+              <img src={PongIMG} width="608vw" height="345vw" alt="Pong"/>
+            </div>
             <div className="homeElement">
             <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
             </div>
@@ -55,3 +55,5 @@ export default function Home () {
         </div>
     );
 }
+
+// mettre le titre en plus petit et augmenter la taille de l image

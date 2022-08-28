@@ -13,8 +13,7 @@
   }
 
   .homeElementIMG{
-      width: 10%;
-      height: 10%;
+    object-fit: fill;
   }
 
   /* Resize une image
