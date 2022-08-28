@@ -3,7 +3,7 @@
 {
 	box-sizing: border-box;
 	position: absolute;
-
+	
 	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import './Components/Tools/App.css';
 import {Routes, Route} from 'react-router-dom';
-import Home from './Components/Home/home'
-import Profile from './Components/Profile/Profile'
-import Notfound from './Components/NotFound/notFound';
-import NavBar from './Components/Tools/NavBar/NavBar';
+import Home from './Pages/Home/home'
+import Profile from './Pages/Profile/Profile'
+import Notfound from './Pages/NotFound/notFound';
+import NavBar from './Components/NavBar/NavBar';
 import { hasAuthenticated } from './Components/services/authApi';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import setIsAuthenticated from './Components/services/authenticatedRoute';
+import Login from './Pages/Login/Login';
+import Auth from './Components/Context/Auth';
 
 
 function App() {
@@ -17,9 +19,10 @@ function App() {
   return (
 
         <div className="main">
-          <NavBar />
+
             <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
             <Route  path='/' element={<AuthenticatedRoute setIsAuthenticated/>}>
               < Route path="/profile/:id" element={<Profile />} />
             </Route>

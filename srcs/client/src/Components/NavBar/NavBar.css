@@ -1,27 +1,26 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,900');
 @import url(http://fonts.googleapis.com/css?family=Advent+Pro:400,200,700);
-/* A regarder pour faire nav bar simple: https://www.youtube.com/watch?v=2R7r6mh-pb0 */
 
-ul{
-    list-style: none;
+*, ::before, ::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-li  {
+.navBar  {
   
-    font-family: 'Advent Pro', sans-serif;
-    text-align: center;
-    padding: 14px 16px;
-    float:right;
+  overflow: hidden;
+  position:relative;
+  top: 25px;
+  height: 40%;
+  z-index: 1;
 
     /* list-style: none; */
   }
 
-  .elementBlock a{
+  .navBar a {
      font-family: 'Advent Pro', sans-serif;
-    position: relative;
-    top: 70px ;
     display: inline-block;
-    right: 300px;
     color: #FFE710;
     font-weight: normal;
     font-size: 35px;
@@ -31,13 +30,42 @@ li  {
 
   }
 
-.elementSignIn a
-{
+  .navBar .elementHome
+  {
+  position: relative;
+  float:left;
+  left: 1%;
+  top: 8%;
+  font-weight: 400px;
+  font-size: 50px;
+  line-height: 53px;
+  text-align: center;
+  color: #80FFFF;
+  text-shadow: 0px 0px 50px #6ABDFF;
+  }
+
+  .navBar .elementBlock {
+    font-family: 'Advent Pro', sans-serif;
+   position: relative;
+   top: 10%;
+   left: 32%;
+   display: inline-block;
+   right: 300px;
+   color: #FFE710;
+   font-weight: normal;
+   font-size: 35px;
+   line-height: 53px;
+   text-shadow: 0px 0px 20px  #FFE710, 0px 0px 60px #FF80F2;   
+   padding: 0px 40px 0px 30px;
+
+ }
+
+.elementSignIn{
   font-family: 'Advent Pro', sans-serif;
   position: relative;
-  left: 600px;
-  top: 70px;
-  float:left;
+  float:right;
+  top: 10%;
+  right: 1%;
   margin: 0px;
   font-weight: 400px;
   font-size: 50px;
@@ -48,8 +76,9 @@ li  {
   padding: 1px 10px 10px 10px;
   transition: .5s all;
   overflow: hidden;
-
 }
+
+
 
 .elementSignIn a:hover{
   background-color: #80FFFF;
@@ -57,12 +86,13 @@ li  {
   
 }
 
-.elementSignIn a span{
+.elementSignIn span{
   position: absolute;
 
 }
 
-.elementSignIn a span:nth-child(1)
+
+.elementSignIn span:nth-child(1)
 {
   top: 0;
   left: 0;
@@ -82,7 +112,7 @@ li  {
   }
 }
 
-.elementSignIn a span:nth-child(2)
+.elementSignIn  span:nth-child(2)
 {
   top: -100%;
   right: 0;
@@ -103,7 +133,7 @@ li  {
   }
 }
 
-.elementSignIn a span:nth-child(3)
+.elementSignIn  span:nth-child(3)
 {
   bottom:0;
   right: 0;
@@ -124,7 +154,7 @@ li  {
   }
 }
 
-.elementSignIn a span:nth-child(4)
+.elementSignIn  span:nth-child(4)
 {
   bottom: -100%;
   left: 0;
@@ -145,18 +175,4 @@ li  {
   }
 }
 
-.element a{
-  position: absolute;
-  left: 80px;
-  top: 80px;
-  float:left;
-  margin: 0px;
-  font-weight: 400px;
-  font-size: 50px;
-  line-height: 53px;
-  text-align: center;
-  color: #80FFFF;
-  text-shadow: 0px 0px 50px #6ABDFF, 0px 0px 50px #6ABDFF, 0px 0px 50px #6ABDFF;
-}
-
-li a {text-decoration: none;} 
+.navBar a {text-decoration: none;} 

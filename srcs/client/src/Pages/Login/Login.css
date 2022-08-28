@@ -1,0 +1,31 @@
+*, ::before, ::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.login
+{
+    position: relative;
+    top: 1%;
+    width: 100%;
+    left: 1%;
+
+}
+
+
+.wrapper
+{
+    position: absolute;
+    height: 70%;
+    box-sizing: border-box;
+    border: 3px solid #9f2478;
+	box-shadow: 0px 0px 7.49518px #FF6ADE,
+				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
+	border-radius: 40px;
+	margin: 2px;
+	padding: 2px;
+    
+   
+}
