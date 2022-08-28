@@ -115,7 +115,7 @@ export class AuthService {
   }
 
   async localRegisterUser(userInfo: LocalRegisterUserDto): Promise<User> {
-    /* Check if the user already exists */
+    /* Registers the user with a username, email and password */
     const userDb = await this.userService.getUserByEmail(userInfo.email);
     if (userDb) throw new userAlreadyRegisteredException();
 
@@ -133,9 +133,12 @@ export class AuthService {
 
   /********************************** Successful Login *****************************/
 
-  async handleSuccessLogin(requestUser: RequestUser) {
-    /* this function is called upon successful login and deletes the authMessage property
-     * which contains either: "User Logged-in" or "User Registered" type message.
+  async handleSuccessLogin(
+    requestUser: RequestUser,
+  ): Promise<{ message: string; user: User }> {
+    /* this function is called upon successful login and deletes
+     * the authMessage property which contains either:
+     * "User Logged-in" or "User Registered" type message.
      */
     const message: string = requestUser.authentication;
     delete requestUser.authentication;
@@ -156,16 +159,23 @@ export class AuthService {
 
   /********************************** 2FA Flow ********************************/
 
-  async generateTwoFactorCode(user: RequestUser) {
-    const secret = authenticator.generateSecret();
-    const otpAuthUrl = authenticator.keyuri(
+  async generateTwoFactorCode(user: RequestUser): Promise<{
+    secret: string;
+    otpAuthUrl: string;
+  }> {
+    /* Genereates A two factor authentification secret for the user and
+     * adds it to the database and generates a Qr Code to be used by the user
+     * to sync their google auth app with our application
+     */
+    const secret: string = authenticator.generateSecret();
+    const otpAuthUrl: string = authenticator.keyuri(
       user.username,
       this.config.get('TWO_FA_APP_NAME'),
       secret,
     );
-    const res = await this.userService.setTwoFactorSecret(user.id, secret);
-    console.log(
-      `This is the result I got from res ${JSON.stringify(res, null, 4)}`,
+    const credentials: Credentials = await this.userService.setTwoFactorSecret(
+      user.id,
+      secret,
     );
     return { secret, otpAuthUrl };
   }
@@ -198,10 +208,10 @@ export class AuthService {
       user,
     );
     if (!isCodeValid)
-      throw new UnauthorizedException('bad code in HandleTwoFactorLoggin');
+      throw new UnauthorizedException('Bad 2FA Code!');
 
     user.isTwoFactorAuthenticated = true;
-    return { message: 'Two factor registered successfully!' };
+    return { message: 'Logged in with Two factor successfully!' };
   }
   /********************************** Helpers ********************************/
 

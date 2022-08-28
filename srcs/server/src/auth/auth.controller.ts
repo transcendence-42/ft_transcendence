@@ -49,6 +49,7 @@ export class AuthController {
   }
 
   /****************************** Succesful Login *****************************/
+
   @UseGuards(LoggedInGuard)
   @Get('success')
   successLogin(@Request() req) {
@@ -56,6 +57,7 @@ export class AuthController {
   }
 
   /******************************* Logout Flow ********************************/
+
   @UseGuards(LoggedInGuard)
   @Get('logout')
   logout(@Request() req, @Response() res) {
@@ -63,13 +65,13 @@ export class AuthController {
   }
 
   /*************************** 2 Factor Auth Flow *****************************/
+
   @UseGuards(TwoFactorGuard)
   @Get('2fa/generate')
   async generateTwoFa(@Request() req, @Response() res) {
     const { otpAuthUrl } = await this.authService.generateTwoFactorCode(
       req.user,
     );
-    req.user.isTwoFactorAuthenticated = true;
     return this.authService.pipeQrCodeStream(res, otpAuthUrl);
   }
 

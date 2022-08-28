@@ -65,8 +65,32 @@ describe('AuthController e2e test', () => {
     it.todo('login user using valid session');
     it.todo('login user using invalid session');
   });
+  describe('GET auth/logout', () => {
+    it.todo('should return successful message if user has correct session');
+    it.todo('should throw forbidden exception if user has wrong or no session');
+  })
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  describe('GET auth/2fa/generate', () => {
+    it.todo('should generate Two Factor Code as a QR code if the user is'
+            + ' logged in and has 2FA deactivated ');
+    it.todo('should throw a Unauthorized Exception 2FA Already Activated if the user is '
+            + 'logged in with 2FA activated');
+    it.todo('should throw a Unaunthorized Exception User is already 2FA authenticated'
+            + 'if the user is logged in with 2FA');
+    it.todo('should throw a Forbidden Exception if the user is not logged in');
+  });
+
+  describe('POST auth/2fa/activate', () => {
+    it.todo('should activate authentication in the user credentials table if'
+    + ' the code is valid and the user is logged in');
+    it.todo('should throw Unauthorized Exception Bad 2FA Code if the code is wrong');
+    it.todo('should throw Forbidden Exception if the user is not logged in');
+  });
+
+  describe('POST auth/2fa/authenticate', () => {
+    it.todo('should return 200 : Logged in with Two factor successfully!'
+    + 'if correct 2fa code was supplied');
+    it.todo('should throw Unauthorized Exception Bad 2FA Code if the code is wrong');
+    it.todo('should throw Forbidden Exception if the user is not logged in');
   });
 });
