@@ -4,18 +4,29 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthController } from '../auth.controller';
 import * as request from 'supertest';
 import { HttpServer } from '@nestjs/common';
-import { LocalRegisterUserDto } from '../dto';
-import { UserAlreadyExistsException } from 'src/user/exceptions/user-exceptions';
+import { LocalLoginUserDto, LocalRegisterUserDto } from '../dto';
 import {
+  invalidEmailLoginUserInfo,
+  invalidPwdLoginUserInfo,
+  mockLoginUserInfo,
   mockRegisterUserInfo,
   mockRegisterUserInfoDiffEmail,
   mockRegisterUserInfoDiffUsername,
 } from './mock.user.dto';
+import { ConfigService } from '@nestjs/config';
+import * as Session from 'express-session';
+import * as Passport from 'passport';
+import * as Redis from 'redis';
+import * as ConnectRedis from 'connect-redis';
+import { stat } from 'fs';
 
 describe('AuthController e2e test', () => {
   let controller: AuthController;
   let prisma: PrismaService;
   let httpServer: HttpServer;
+  let config: ConfigService;
+  let redisClient;
+  let app;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -23,6 +34,28 @@ describe('AuthController e2e test', () => {
     }).compile();
 
     const app = moduleRef.createNestApplication();
+    config = app.get(ConfigService);
+    redisClient = Redis.createClient({
+      url: config.get('REDIS_URL'),
+      legacyMode: true,
+    }) as any;
+    const redisStore = await ConnectRedis(Session);
+    await redisClient.connect();
+    app.use(
+      Session({
+        saveUninitialized: false,
+        secret: config.get('SESSION_SECRET'),
+        resave: false,
+        name: 'auth_session',
+        cookie: {
+          maxAge: 60000 * 60 * 24 * 30 * 3, // 3 months as per RGPD
+        },
+        store: new redisStore({ client: redisClient }),
+      }),
+    );
+
+    app.use(Passport.initialize());
+    app.use(Passport.session());
     controller = moduleRef.get<AuthController>(AuthController);
     prisma = moduleRef.get<PrismaService>(PrismaService);
     httpServer = app.getHttpServer();
@@ -30,13 +63,26 @@ describe('AuthController e2e test', () => {
   });
 
   beforeEach(async () => {
+    await redisClient.flushall('ASYNC');
     await prisma.cleanDatabase();
   });
 
+  afterAll(async () => {
+    await redisClient.disconnect();
+  });
+
+  function postRegisterUser(mock: LocalRegisterUserDto) {
+    return request(httpServer).post('/auth/local/register').send(mock);
+  }
+  function postLoginUser(mock: LocalLoginUserDto) {
+    return request(httpServer).post('/auth/local/login').send(mock);
+  }
+  function makeGet(path: string, session?: string) {
+    if (session) return request(httpServer).get(path).set('Cookie', session);
+    else return request(httpServer).get(path);
+  }
+
   describe('POST /auth/local/register/', () => {
-    function postRegisterUser(mock: LocalRegisterUserDto) {
-      return request(httpServer).post('/auth/local/register').send(mock);
-    }
     it('should return 201 created if we successfully created the user', async () => {
       const response = await postRegisterUser(mockRegisterUserInfo);
       expect(response.statusCode).toBe(201);
@@ -67,67 +113,93 @@ describe('AuthController e2e test', () => {
         `User \"${mockRegisterUserInfoDiffUsername.email}\" already exists`,
       );
     });
-    it.todo(
-      'should return 400 bad request if user is already in the database and a message saying user already exists if username is taken',
-    );
   });
 
   describe('POST auth/local/login', () => {
-    it.todo(
-      'should return 200 ok and the user (class User) as JSON if the user is already registered',
-    );
-    it.todo(
-      'should return 200 ok when bad email and a message saying bad credentials',
-    );
-    it.todo(
-      'should return 200 ok when bad password and a message saying bad credentials',
-    );
-    it.todo('login user using valid session');
-    it.todo('login user using invalid session');
+    it('should return 200 ok and the user (class User) as JSON if the user is already registered', async () => {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(mockLoginUserInfo);
+      expect(logged.statusCode).toBe(302);
+      expect(logged.header['set-cookie'][0]).toBeDefined();
+    });
+    it('should return 401 Unauthorized when bad email and a message saying bad credentials', async () => {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(invalidEmailLoginUserInfo);
+      expect(logged.statusCode).toBe(401);
+      expect(logged.body.message).toBe('Bad credentials');
+    });
+    it('should return 401 Unauthorized when bad password and a message saying bad credentials', async () => {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(invalidPwdLoginUserInfo);
+      expect(logged.statusCode).toBe(401);
+      expect(logged.body.message).toBe('Bad credentials');
+    });
   });
   describe('GET auth/logout', () => {
-    function getLogout() {
-      return request(httpServer).get('/auth/logout').send();
+    function getLogout(sessionCookie: string) {
+      return request(httpServer)
+        .get('/auth/logout')
+        .set('Cookie', sessionCookie);
     }
-    it('should return successful message if user has correct session', async () => {});
-    it.todo('should throw forbidden exception if user has wrong or no session');
+    it('should return successful message if user has correct session', async () => {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(mockLoginUserInfo);
+      expect(logged.statusCode).toBe(302);
+      expect(logged.header['set-cookie'][0]).toBeDefined();
+
+      const session = logged.header['set-cookie'][0];
+      const logout = await getLogout(session);
+      expect(logout.statusCode).toBe(200);
+      expect(logout.body.message).toBe('user logged-out successfuly');
+    });
+    it('should throw forbidden exception if user has wrong', async () => {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(mockLoginUserInfo);
+      expect(logged.statusCode).toBe(302);
+      expect(logged.header['set-cookie'][0]).toBeDefined();
+
+      const logout = await getLogout('');
+      expect(logout.statusCode).toBe(403);
+      expect(logout.body.message).toBe('Forbidden resource');
+    });
   });
 
   describe('GET auth/2fa/generate', () => {
-    it.todo(
+    async function createUserAndLogIn() {
+      const created = await postRegisterUser(mockRegisterUserInfo);
+      expect(created.statusCode).toBe(201);
+      expect(created.body.message).toMatch('Account created successfully!');
+      const logged = await postLoginUser(mockLoginUserInfo);
+      expect(logged.statusCode).toBe(302);
+      expect(logged.header['set-cookie'][0]).toBeDefined();
+      return logged.header['set-cookie'][0];
+    }
+    const path = '/auth/2fa/generate';
+    it(
       'should generate Two Factor Code as a QR code if the user is' +
         ' logged in and has 2FA deactivated ',
+      async () => {
+        const userSession = await createUserAndLogIn();
+        const response = await makeGet(path, userSession);
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toBeDefined();
+      },
     );
-    it.todo(
-      'should throw a Unauthorized Exception 2FA Already Activated if the user is ' +
-        'logged in with 2FA activated',
-    );
-    it.todo(
-      'should throw a Unaunthorized Exception User is already 2FA authenticated' +
-        'if the user is logged in with 2FA',
-    );
-    it.todo('should throw a Forbidden Exception if the user is not logged in');
-  });
-
-  describe('POST auth/2fa/activate', () => {
-    it.todo(
-      'should activate authentication in the user credentials table if' +
-        ' the code is valid and the user is logged in',
-    );
-    it.todo(
-      'should throw Unauthorized Exception Bad 2FA Code if the code is wrong',
-    );
-    it.todo('should throw Forbidden Exception if the user is not logged in');
-  });
-
-  describe('POST auth/2fa/authenticate', () => {
-    it.todo(
-      'should return 200 : Logged in with Two factor successfully!' +
-        'if correct 2fa code was supplied',
-    );
-    it.todo(
-      'should throw Unauthorized Exception Bad 2FA Code if the code is wrong',
-    );
-    it.todo('should throw Forbidden Exception if the user is not logged in');
+    it('should throw a Forbidden Exception user is not logged in ', async () => {
+      const userSession = await createUserAndLogIn();
+      const response = await makeGet(path);
+      expect(response.statusCode).toBe(403);
+      expect(response.body.message).toBe('Forbidden resource');
+    });
   });
 });

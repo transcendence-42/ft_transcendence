@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpStatus,
   Post,
   Request,
   Response,
@@ -44,9 +45,10 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('local/login')
-  localLogin(@Body() payload: LocalLoginUserDto, @Response() res) {
-    return this.authService.handleLocalLogin(res);
+  localLogin(@Request() req, @Body() payload: LocalLoginUserDto, @Response() res) {
+    return this.authService.handleLocalLogin(req.user, res);
   }
 
   /****************************** Succesful Login *****************************/

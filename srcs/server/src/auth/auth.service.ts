@@ -34,16 +34,16 @@ export class AuthService {
   /******************************* 42 Oauth2 Flow ******************************/
 
   handleFtRedirect(user: RequestUser, res: Response) {
-    if (
-      user.isTwoFactorActivated === true &&
-      user.isTwoFactorAuthenticated === false
-    ) {
-      console.debug(`redirecting to 2fa`);
-      res.redirect('http://127.0.0.1:3042/2fa');
-    } else {
-      console.debug(`redirecting to Home`);
-      return res.redirect(this.HOME_PAGE);
-    }
+      if (
+        user.isTwoFactorActivated === true &&
+        user.isTwoFactorAuthenticated === false
+      ) {
+        console.debug(`redirecting to 2fa`);
+        res.redirect('http://127.0.0.1:3042/2fa');
+      } else {
+        console.debug(`redirecting to Home`);
+        return res.redirect(this.HOME_PAGE);
+      }
   }
 
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
@@ -100,19 +100,17 @@ export class AuthService {
 
   async handleLocalRegister(payload: LocalRegisterUserDto, res: Response) {
     const user: User = await this.localRegisterUser(payload);
-    if (user) return res.send({message:'Account created successfully!'});
+    if (user) return res.send({ message: 'Account created successfully!' });
   }
 
   async localRegisterUser(userInfo: LocalRegisterUserDto): Promise<User> {
     /* Registers the user with a username, email and password */
     const userCredentialsByEmail: Credentials =
       await this.userService.getUserCredentialsByEmail(userInfo.email);
-    console.log(` ${userInfo.email} This is is userCredentialsByEmail ${userCredentialsByEmail} ${JSON.stringify(userCredentialsByEmail, null, 4)}`);
     if (userCredentialsByEmail)
       throw new UserAlreadyExistsException(userInfo.email);
     const userCredentialsByUsername: Credentials =
       await this.userService.getUserCredentialsByUsername(userInfo.username);
-    console.log(` ${userInfo.username} This is is userCredentialsByUsername ${userCredentialsByUsername} `);
     if (userCredentialsByUsername)
       throw new UserAlreadyExistsException(userInfo.username);
 
@@ -128,8 +126,17 @@ export class AuthService {
     return createdUser;
   }
 
-  handleLocalLogin(res: Response) {
-    return res.redirect(this.HOME_PAGE);
+  async handleLocalLogin(user: RequestUser, res: Response) {
+    if (
+      user.isTwoFactorActivated === true &&
+      user.isTwoFactorAuthenticated === false
+    ) {
+      console.debug(`redirecting to 2fa`);
+      res.redirect('http://127.0.0.1:3042/2fa');
+    } else {
+      console.debug(`redirecting to Home`);
+      return res.redirect(this.HOME_PAGE);
+    }
   }
 
   async validateLocalUser(payload: LocalLoginUserDto): Promise<RequestUser> {
