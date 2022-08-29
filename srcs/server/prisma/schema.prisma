@@ -32,14 +32,13 @@ model User {
   profilePicture      String?
   currentStatus       Int               @default(0)
   currentLadder       Int               @default(0)
-  hasActivated2fa     Boolean           @default(false)
   credentials         Credentials?
   stats               Stats?
   rankingHistory      Rank[]
   ownedChannels       Channel[]
   channels            UserOnChannel[]
-  friendshipRequested Friendship[]  @relation("requester")
-  friendshipAddressed Friendship[]  @relation("addressee")
+  friendshipRequested Friendship[]      @relation("requester")
+  friendshipAddressed Friendship[]      @relation("addressee")
   matches             PlayerOnMatch[]
   achievements        UserAchievement[]
 }
@@ -77,11 +76,13 @@ model Credentials {
 }
 
 model Stats {
-  id     Int  @id @default(autoincrement())
-  wins   Int  @default(0)
-  losses Int  @default(0)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int  @unique
+  id                 Int     @id @default(autoincrement())
+  wins               Int     @default(0)
+  losses             Int     @default(0)
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int     @unique
+  twoFactorActivated Boolean @default(false)
+  twoFactorSecret    String?
 }
 
 model Rank {
