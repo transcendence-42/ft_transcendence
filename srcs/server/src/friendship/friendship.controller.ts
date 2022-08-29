@@ -16,6 +16,8 @@ import { FriendshipService } from './friendship.service';
 export class FriendshipController {
   constructor(private readonly friendshipService: FriendshipService) {}
 
+  // FRIENDSHIP CRUD OPERATIONS ------------------------------------------------
+  /** Delete a friendship */
   @Delete(':id')
   @ApiOperation({ summary: 'delete a friendship' })
   @ApiOkResponse({
@@ -32,7 +34,7 @@ export class FriendshipController {
     return res;
   }
 
-  // Update
+  /** Update a friendship */
   @Patch(':id')
   @ApiOperation({ summary: 'update a friendship' })
   @ApiOkResponse({

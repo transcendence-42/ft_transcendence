@@ -10,6 +10,8 @@ import { FriendshipNotFoundException } from './exceptions/friendship-exceptions'
 export class FriendshipService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // FRIENDSHIP CRUD OPERATIONS ------------------------------------------------
+  /** Remove a friendship */
   async remove(deleteUserDto: DeleteFriendshipDto) {
     try {
       const result: Friendship = await this.prisma.friendship.delete({
@@ -29,6 +31,7 @@ export class FriendshipService {
     }
   }
 
+  /** Update a friendship */
   async update(updateFrienshipDto: UpdateFriendshipDto): Promise<Friendship> {
     try {
       const result: Friendship = await this.prisma.friendship.update({
@@ -49,6 +52,7 @@ export class FriendshipService {
     }
   }
 
+  /** Find a friendship by id (requester / addressee) */
   async findOne(findFriendshipDto: FindFriendshipDto): Promise<Friendship> {
     const result: Friendship | null = await this.prisma.friendship.findUnique({
       where: {

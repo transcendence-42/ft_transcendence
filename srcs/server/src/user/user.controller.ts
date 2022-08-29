@@ -33,7 +33,8 @@ import { Rank } from 'src/generated/nestjs-dto/rank.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // Creation
+  // USER CRUD OPERATIONS ------------------------------------------------------
+  /** Create a new user */
   @ApiTags('Users')
   @Post()
   @ApiOperation({ summary: 'create a new user' })
@@ -51,7 +52,7 @@ export class UserController {
     return res;
   }
 
-  // Get all
+  /** Get all users */
   @ApiTags('Users')
   @Get()
   @ApiOperation({ summary: 'get all users' })
@@ -68,7 +69,7 @@ export class UserController {
     return res;
   }
 
-  // Get by id
+  /** Get user by id */
   @ApiTags('Users')
   @Get(':id')
   @ApiOperation({ summary: 'get user by id' })
@@ -86,7 +87,44 @@ export class UserController {
     return res;
   }
 
-  // Add a friend to a user
+  /** Update user by id */
+  @ApiTags('Users')
+  @Patch(':id')
+  @ApiOperation({ summary: 'update a user' })
+  @ApiOkResponse({
+    description: 'Updated user',
+    type: User,
+    isArray: false,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    const res = await this.userService.update(+id, updateUserDto);
+    return res;
+  }
+
+  /** Delete user */
+  @ApiTags('Users')
+  @Delete(':id')
+  @ApiOperation({ summary: 'delete a user' })
+  @ApiOkResponse({
+    description: 'Deleted user',
+    type: User,
+    isArray: false,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  async remove(@Param('id') id: number) {
+    const res = await this.userService.remove(+id);
+    return res;
+  }
+
+  // FRIENDSHIP OPERATIONS -----------------------------------------------------
+  /** Request a friendship */
   @ApiTags('Friends')
   @Put(':id/friends')
   @ApiOperation({ summary: 'request a friendship' })
@@ -115,7 +153,7 @@ export class UserController {
     return res;
   }
 
-  // Get all friends of a user
+  /** Get all friends for a user */
   @ApiTags('Friends')
   @Get(':id/friends')
   @ApiOperation({ summary: 'get all friends of a users' })
@@ -139,7 +177,8 @@ export class UserController {
     return res;
   }
 
-  // Get rank history for a user
+  // RANK OPERATIONS -----------------------------------------------------------
+  /** Get rank history for a user */
   @ApiTags('Ranks')
   @Get(':id/ranks')
   @ApiOperation({ summary: 'history of all ranks of a user' })
@@ -159,42 +198,6 @@ export class UserController {
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const res = await this.userService.findUserRanks(id, paginationQuery);
-    return res;
-  }
-
-  // Update
-  @ApiTags('Users')
-  @Patch(':id')
-  @ApiOperation({ summary: 'update a user' })
-  @ApiOkResponse({
-    description: 'Updated user',
-    type: User,
-    isArray: false,
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found',
-    type: BaseApiException,
-  })
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    const res = await this.userService.update(+id, updateUserDto);
-    return res;
-  }
-
-  // Delete
-  @ApiTags('Users')
-  @Delete(':id')
-  @ApiOperation({ summary: 'delete a user' })
-  @ApiOkResponse({
-    description: 'Deleted user',
-    type: User,
-    isArray: false,
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found',
-    type: BaseApiException,
-  })
-  async remove(@Param('id') id: number) {
-    const res = await this.userService.remove(+id);
     return res;
   }
 }

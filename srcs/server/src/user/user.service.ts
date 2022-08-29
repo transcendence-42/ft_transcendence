@@ -24,16 +24,8 @@ import {
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  readonly friendshipStatus = Object.freeze({
-    REQUESTED: 0,
-    ACCEPTED: 1,
-    REJECTED: 2,
-  });
-
-  private async _calculateRank(wins: number, losses: number): Promise<number> {
-    return wins + losses + 1; // fake return before real function
-  }
-
+  // USER CRUD OPERATIONS ------------------------------------------------------
+  /** Create a new user */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
       where: { username: createUserDto.username },
@@ -58,6 +50,7 @@ export class UserService {
     return user;
   }
 
+  /** Find all users */
   async findAll(paginationQuery: PaginationQueryDto): Promise<User[]> {
     const { limit, offset } = paginationQuery;
     const query = {
@@ -69,6 +62,7 @@ export class UserService {
     return result;
   }
 
+  /** Find one user */
   async findOne(id: number): Promise<User> {
     const result: User | null = await this.prisma.user.findUnique({
       where: { id: id },
@@ -77,6 +71,7 @@ export class UserService {
     return result;
   }
 
+  /** Update one user */
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const result: User = await this.prisma.user.update({
@@ -89,6 +84,7 @@ export class UserService {
     }
   }
 
+  /** Remove one user */
   async remove(id: number): Promise<User> {
     try {
       const result: User = await this.prisma.user.delete({
@@ -100,6 +96,8 @@ export class UserService {
     }
   }
 
+  // USER AUTH OPERATIONS ------------------------------------------------------
+  /** Get user credentials by email */
   async getUserCredentialsByEmail(email: string): Promise<Credentials> {
     try {
       const user = await this.prisma.credentials.findUnique({
@@ -113,6 +111,7 @@ export class UserService {
     }
   }
 
+  /** Get user credentials by username */
   async getUserCredentialsByUsername(username: string): Promise<Credentials> {
     try {
       const user = await this.prisma.credentials.findUnique({
@@ -126,6 +125,7 @@ export class UserService {
     }
   }
 
+  /** Get user by email */
   async getUserByEmail(email: string): Promise<User> {
     const user: User | null = await this.prisma.user.findUnique({
       where: {
@@ -135,6 +135,7 @@ export class UserService {
     return user;
   }
 
+  /** Create user */
   async createUserWithoutCredentials(
     userInfo: FtRegisterUserDto,
   ): Promise<User> {
@@ -148,6 +149,7 @@ export class UserService {
     return user;
   }
 
+  /** Create user without credentials */
   async createUserWithCredentials(
     userInfo: LocalRegisterUserDto,
     hash: string,
@@ -168,6 +170,14 @@ export class UserService {
     return user;
   }
 
+  // FRIENDSHIP OPERATIONS -----------------------------------------------------
+  readonly friendshipStatus = Object.freeze({
+    REQUESTED: 0,
+    ACCEPTED: 1,
+    REJECTED: 2,
+  });
+
+  /** Handle the case where we try to update an existing friendship */
   private async _handleExistingFriendship(
     requesterId: number,
     friendship: Friendship,
@@ -211,6 +221,7 @@ export class UserService {
     }
   }
 
+  /** Create a new friendship */
   async createFriendship(
     id: number,
     createFriendshipDto: CreateFriendshipDto,
@@ -262,6 +273,7 @@ export class UserService {
     }
   }
 
+  /** Find all friends of a user */
   async findUserFriends(
     id: number,
     paginationQuery: PaginationQueryDto,
@@ -322,6 +334,13 @@ export class UserService {
     return result;
   }
 
+  // RANK OPERATIONS -----------------------------------------------------------
+  /** Calculate the rank of a user based on its stats and last match result */
+  private async _calculateRank(wins: number, losses: number): Promise<number> {
+    return wins + losses + 1; // fake return before real function
+  }
+
+  /** Find all user ranks through history */
   async findUserRanks(
     id: number,
     paginationQuery: PaginationQueryDto,
