@@ -3,7 +3,7 @@ import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppModule } from 'src/app.module';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { User } from '@prisma/client';
+import { Friendship, User } from '@prisma/client';
 import {
   NoUsersInDatabaseException,
   UserAlreadyExistsException,
@@ -11,9 +11,18 @@ import {
 } from '../exceptions/user-exceptions';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { mockUserDto } from 'src/common/stubs/mock.user.dto';
+import { CreateFriendshipDto } from '../dto/create-friendship.dto';
+import {
+  FriendshipAlreadyExistsException,
+  FriendshipRejectedException,
+  FriendshipRequestedException,
+} from 'src/friendship/exceptions/friendship-exceptions';
+import { UpdateFriendshipDto } from 'src/friendship/dto/update-friendship.dto';
+import { FriendshipService } from 'src/friendship/friendship.service';
 
 describe('User service integration tests', () => {
   let userService: UserService;
+  let friendshipService: FriendshipService;
   let prisma: PrismaService;
 
   // setup modules for test
@@ -23,6 +32,7 @@ describe('User service integration tests', () => {
     }).compile();
 
     userService = moduleRef.get<UserService>(UserService);
+    friendshipService = moduleRef.get<FriendshipService>(FriendshipService);
     prisma = moduleRef.get(PrismaService);
   });
 
@@ -217,6 +227,135 @@ describe('User service integration tests', () => {
       await expect(userService.remove(createResponse.id + 1)).rejects.toThrow(
         UserNotFoundException,
       );
+    });
+  });
+
+  // Add a friend
+  describe('Request a friendship', () => {
+    beforeEach(async () => {
+      await prisma.cleanDatabase();
+    });
+
+    it('should create a new friendship with status "requested"', async () => {
+      // create 2 users
+      const { id: id1 } = await userService.create({
+        username: 'homer',
+        email: 'homer@mail.com',
+      });
+      const { id: id2 } = await userService.create({
+        username: 'marge',
+        email: 'marge@mail.com',
+      });
+      // friendship them
+      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
+      const createResponse: Friendship = await userService.createFriendship(
+        id1,
+        createFriendshipDto,
+      );
+      expect(createResponse.requesterId).toBe(id1);
+      expect(createResponse.addresseeId).toBe(id2);
+      expect(createResponse.status).toBe(
+        userService.friendshipStatus.REQUESTED,
+      );
+    });
+
+    it('should accept a friendship if the requester is the addressee of a requested friendship with the same other person', async () => {
+      // create 2 users
+      const { id: id1 } = await userService.create({
+        username: 'homer',
+        email: 'homer@mail.com',
+      });
+      const { id: id2 } = await userService.create({
+        username: 'marge',
+        email: 'marge@mail.com',
+      });
+      // friendship them
+      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
+      const createResponse: Friendship = await userService.createFriendship(
+        id1,
+        createFriendshipDto,
+      );
+      // previous addressee is now requester
+      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id1 };
+      const createResponse2: Friendship = await userService.createFriendship(
+        id2,
+        createFriendshipDto2,
+      );
+      expect(createResponse2.requesterId).toBe(id1);
+      expect(createResponse2.addresseeId).toBe(id2);
+      expect(createResponse2.status).toBe(
+        userService.friendshipStatus.ACCEPTED,
+      );
+      expect(createResponse2.date).not.toBe(createResponse.date);
+    });
+
+    it('should throw "FriendshipRequestedException" if the friendship has already been requested', async () => {
+      // create 2 users
+      const { id: id1 } = await userService.create({
+        username: 'homer',
+        email: 'homer@mail.com',
+      });
+      const { id: id2 } = await userService.create({
+        username: 'marge',
+        email: 'marge@mail.com',
+      });
+      // friendship them
+      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
+      await userService.createFriendship(id1, createFriendshipDto);
+      // same request
+      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id2 };
+      await expect(
+        userService.createFriendship(id1, createFriendshipDto2),
+      ).rejects.toThrow(FriendshipRequestedException);
+    });
+
+    it('should throw "FriendshipRejectedException" if the friendship has already been rejected', async () => {
+      // create 2 users
+      const { id: id1 } = await userService.create({
+        username: 'homer',
+        email: 'homer@mail.com',
+      });
+      const { id: id2 } = await userService.create({
+        username: 'marge',
+        email: 'marge@mail.com',
+      });
+      // 1 asks 2 to be friends
+      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
+      await userService.createFriendship(id1, createFriendshipDto);
+      // 2 rejects
+      const updateFriendshipDto: UpdateFriendshipDto = {
+        requesterId: id1,
+        addresseeId: id2,
+        status: 2, // rejected
+      };
+      await friendshipService.update(updateFriendshipDto);
+      // same request from 1
+      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id2 };
+      await expect(
+        userService.createFriendship(id1, createFriendshipDto2),
+      ).rejects.toThrow(FriendshipRejectedException);
+    });
+
+    it('should throw "FriendshipAlreadyExistsException" if the friendship has already been accepted', async () => {
+      // create 2 users
+      const { id: id1 } = await userService.create({
+        username: 'homer',
+        email: 'homer@mail.com',
+      });
+      const { id: id2 } = await userService.create({
+        username: 'marge',
+        email: 'marge@mail.com',
+      });
+      // friendship them
+      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
+      await userService.createFriendship(id1, createFriendshipDto);
+      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id1 };
+      await userService.createFriendship(id2, createFriendshipDto2);
+      // same request
+      const createFriendshipDto3: CreateFriendshipDto = { addresseeId: id2 };
+      await expect(
+        userService.createFriendship(id1, createFriendshipDto3),
+      ).rejects.toThrow(FriendshipAlreadyExistsException);
     });
   });
 });
