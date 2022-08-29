@@ -32,6 +32,7 @@ model User {
   profilePicture      String?
   currentStatus       Int               @default(0)
   currentLadder       Int               @default(0)
+  eloRating           Int               @default(1000)
   credentials         Credentials?
   stats               Stats?
   rankingHistory      Rank[]
@@ -46,7 +47,7 @@ model User {
 model Match {
   id      Int             @id @default(autoincrement())
   date    DateTime        @default(now())
-  status  Int             @default(0)
+  status  Int             @default(1)
   players PlayerOnMatch[]
 }
 
@@ -104,12 +105,13 @@ model UserOnChannel {
 }
 
 model PlayerOnMatch {
-  match       Match @relation(fields: [matchId], references: [id])
-  matchId     Int
-  player      User  @relation(fields: [playerId], references: [id])
-  playerId    Int
-  playerNum   Int   @default(1)
-  playerScore Int   @default(0)
+  match          Match @relation(fields: [matchId], references: [id])
+  matchId        Int
+  player         User  @relation(fields: [playerId], references: [id])
+  playerId       Int
+  playerNum      Int   @default(1)
+  playerScore    Int   @default(0)
+  winProbability Float
 
   @@id([matchId, playerId])
 }

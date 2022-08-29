@@ -17,6 +17,7 @@ createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
 currentLadder: number ;
+eloRating: number ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
 rankingHistory?: Rank[] ;

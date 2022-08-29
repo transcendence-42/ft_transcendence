@@ -3,9 +3,9 @@ import { Stats } from '../../generated/nestjs-dto/stats.entity';
 import { Rank } from '../../generated/nestjs-dto/rank.entity';
 import { Channel } from '../../generated/nestjs-dto/channel.entity';
 import { UserOnChannel } from '../../generated/nestjs-dto/userOnChannel.entity';
-import { PlayerOnMatch } from '../../generated/nestjs-dto/playerOnMatch.entity';
-import { Friendship } from '../../generated/nestjs-dto/friendship.entity';
 import { UserAchievement } from '../../generated/nestjs-dto/userAchievement.entity';
+import { PlayerOnMatch } from 'src/match/entities/playerOnMatch.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 
 export class User {
   id: number;
@@ -15,6 +15,7 @@ export class User {
   profilePicture: string | null;
   currentStatus: number;
   currentLadder: number;
+  eloRating: number;
   credentials?: Credentials | null;
   stats?: Stats | null;
   rankingHistory?: Rank[];

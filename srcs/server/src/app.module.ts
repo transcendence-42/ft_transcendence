@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { FriendshipModule } from './friendship/friendship.module';
+import { MatchModule } from './match/match.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { FriendshipModule } from './friendship/friendship.module';
     PrismaModule,
     UserModule,
     FriendshipModule,
+    MatchModule,
   ],
   controllers: [],
   providers: [],
