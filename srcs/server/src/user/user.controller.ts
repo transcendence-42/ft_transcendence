@@ -61,9 +61,9 @@ export class UserController {
     type: User,
     isArray: true,
   })
+  @ApiNoContentResponse({ description: 'No users' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiNoContentResponse({ description: 'No users', type: BaseApiException })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     const res = await this.userService.findAll(paginationQuery);
     return res;
@@ -166,9 +166,9 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
+  @ApiNoContentResponse({ description: 'No friends' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  @ApiNoContentResponse({ description: 'No friends', type: BaseApiException })
   async getUserFriends(
     @Param('id') id: number,
     @Query() paginationQuery: PaginationQueryDto,

@@ -25,6 +25,17 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   // USER CRUD OPERATIONS ------------------------------------------------------
+  readonly includedUserRelations: object = {
+    stats: true,
+    rankingHistory: true,
+    ownedChannels: true,
+    channels: true,
+    friendshipRequested: true,
+    friendshipAddressed: true,
+    matches: true,
+    achievements: true,
+  };
+
   /** Create a new user */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
@@ -53,9 +64,10 @@ export class UserService {
   /** Find all users */
   async findAll(paginationQuery: PaginationQueryDto): Promise<User[]> {
     const { limit, offset } = paginationQuery;
-    const query = {
+    const query: object = {
       ...(limit && { take: +limit }),
       ...(offset && { skip: +offset }),
+      include: this.includedUserRelations,
     };
     const result: User[] = await this.prisma.user.findMany(query);
     if (result.length == 0) throw new NoUsersInDatabaseException();
@@ -66,6 +78,7 @@ export class UserService {
   async findOne(id: number): Promise<User> {
     const result: User | null = await this.prisma.user.findUnique({
       where: { id: id },
+      include: this.includedUserRelations,
     });
     if (result == null) throw new UserNotFoundException(id);
     return result;
@@ -171,6 +184,11 @@ export class UserService {
   }
 
   // FRIENDSHIP OPERATIONS -----------------------------------------------------
+  readonly includedFriendshipRelations: object = {
+    requester: true,
+    addressee: true,
+  };
+
   readonly friendshipStatus = Object.freeze({
     REQUESTED: 0,
     ACCEPTED: 1,
@@ -291,6 +309,7 @@ export class UserService {
     };
     const result: User[] = await this.prisma.user.findMany({
       ...pagination,
+      include: this.includedUserRelations,
       where: {
         OR: [
           {
