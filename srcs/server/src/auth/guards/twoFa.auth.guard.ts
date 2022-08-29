@@ -17,13 +17,6 @@ export class TwoFactorGuard implements CanActivate {
     );
     if (result) console.debug('TwoFactorGuard accepted user!');
     else console.debug('Guard TwoFactorGuard Rejected user!');
-    if (request.user.isTwoFactorActivated)
-      throw new UnauthorizedException(
-        '2FA is already activated!' +
-          'Deactivate it before attempting to generate a new code',
-      );
-    if (request.user.isTwoFactorAuthenticated)
-      throw new UnauthorizedException('User is already 2FA authenticated!');
     return result;
   }
 }

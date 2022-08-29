@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from '../auth.service';
-import { UserLoginDto } from '../dto/login.dto';
+import { LocalLoginUserDto } from '../dto/login.dto';
 import { LocalRegisterUserDto } from '../dto/registerUser.dto';
 
 describe('AuthService integration test', () => {
@@ -48,15 +48,15 @@ describe('AuthService integration test', () => {
       username: 'nammari',
       password: 'mypass2L8*dsjl',
     };
-    const validUserInfo: UserLoginDto = {
+    const validUserInfo: LocalLoginUserDto = {
       email: 'noufel@ammari.com',
       password: 'mypass2L8*dsjl',
     };
-    const invalidEmailUserInfo: UserLoginDto = {
+    const invalidEmailUserInfo: LocalLoginUserDto = {
       email: 'znoufel@ammari.com',
       password: 'mypass2L8*dsjl',
     };
-    const invalidPwdUserInfo: UserLoginDto = {
+    const invalidPwdUserInfo: LocalLoginUserDto = {
       email: 'noufel@ammari.com',
       password: 'zzzzmypass2L8*dsjl',
     };

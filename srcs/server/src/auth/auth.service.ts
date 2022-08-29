@@ -6,10 +6,9 @@ import {
 } from './dto/registerUser.dto';
 import { Credentials, User } from '@prisma/client';
 import * as Bcrypt from 'bcryptjs';
-import { UserLoginDto } from './dto/login.dto';
+import { LocalLoginUserDto } from './dto/login.dto';
 import {
   BadCredentialsException,
-  userAlreadyRegisteredException,
   CredentialsTakenException,
 } from './exceptions';
 import { ConfigService } from '@nestjs/config';
@@ -18,6 +17,10 @@ import { toFileStream } from 'qrcode';
 import { RequestUser } from '../common/entities/requestUser.entity';
 import { Request, Response } from 'express';
 import * as Session from 'express-session';
+import {
+  UserAlreadyExistsException,
+  UserNotFoundException,
+} from '../user/exceptions/user-exceptions';
 
 @Injectable()
 export class AuthService {
@@ -90,34 +93,28 @@ export class AuthService {
 
   /******************************* Local Auth Flow ****************************/
 
-  handleLocalLogin(req: Request, res: Response) {
-    return res.redirect(this.HOME_PAGE);
-  }
+  //localRegisterUser → Check for the existence of the user in credentials:
+  // if the email exists and the username exists on the same account → check if
+  // they have a password: if yes, already have an account, if no, credentials taken
+  //(check both username and email)
 
-  handleLocalRegister(payload: LocalRegisterUserDto, res: Response) {
-    const user = this.localRegisterUser(payload);
-    if (user) return res.redirect(this.HOME_PAGE);
-    else return res.redirect(this.LOGIN_PAGE);
-  }
-
-  async validateUserCredentials(payload: UserLoginDto): Promise<User> {
-    const userCredentials: Credentials =
-      await this.userService.getUserCredentialsByEmail(payload.email);
-    if (!userCredentials) throw new BadCredentialsException('Invalid email!');
-
-    const validUser: boolean = await Bcrypt.compare(
-      payload.password,
-      userCredentials.password,
-    );
-    if (!validUser) throw new BadCredentialsException('Invalid password!');
-    const user: User = await this.userService.getUserByEmail(payload.email);
-    return user;
+  async handleLocalRegister(payload: LocalRegisterUserDto, res: Response) {
+    const user: User = await this.localRegisterUser(payload);
+    if (user) return res.send({message:'Account created successfully!'});
   }
 
   async localRegisterUser(userInfo: LocalRegisterUserDto): Promise<User> {
     /* Registers the user with a username, email and password */
-    const userDb = await this.userService.getUserByEmail(userInfo.email);
-    if (userDb) throw new userAlreadyRegisteredException();
+    const userCredentialsByEmail: Credentials =
+      await this.userService.getUserCredentialsByEmail(userInfo.email);
+    console.log(` ${userInfo.email} This is is userCredentialsByEmail ${userCredentialsByEmail} ${JSON.stringify(userCredentialsByEmail, null, 4)}`);
+    if (userCredentialsByEmail)
+      throw new UserAlreadyExistsException(userInfo.email);
+    const userCredentialsByUsername: Credentials =
+      await this.userService.getUserCredentialsByUsername(userInfo.username);
+    console.log(` ${userInfo.username} This is is userCredentialsByUsername ${userCredentialsByUsername} `);
+    if (userCredentialsByUsername)
+      throw new UserAlreadyExistsException(userInfo.username);
 
     /* the strenght of the hashing algorithm */
     const saltRounds: number = 10;
@@ -129,6 +126,28 @@ export class AuthService {
       hash,
     );
     return createdUser;
+  }
+
+  handleLocalLogin(res: Response) {
+    return res.redirect(this.HOME_PAGE);
+  }
+
+  async validateLocalUser(payload: LocalLoginUserDto): Promise<RequestUser> {
+    const userDb: Credentials =
+      await this.userService.getUserCredentialsByEmail(payload.email);
+    if (!userDb) throw new BadCredentialsException('Invalid email!');
+    if (userDb.password === null)
+      throw new BadCredentialsException('User doesnt have local account!');
+
+    const validUser: boolean = await Bcrypt.compare(
+      payload.password,
+      userDb.password,
+    );
+    if (!validUser) throw new BadCredentialsException('Invalid password!');
+
+    const user: RequestUser = this.createRequestUserFromCredentials(userDb);
+    user.authentication = 'Logged-in';
+    return user;
   }
 
   /********************************** Successful Login *****************************/
@@ -159,10 +178,12 @@ export class AuthService {
 
   /********************************** 2FA Flow ********************************/
 
-  async generateTwoFactorCode(user: RequestUser): Promise<{
-    secret: string;
-    otpAuthUrl: string;
-  }> {
+  async handleTwoFactorCodeGen(user: RequestUser, res: Response) {
+    const otpAuthUrl: string = await this.generateTwoFactorCode(user);
+    return this.pipeQrCodeStream(res, otpAuthUrl);
+  }
+
+  async generateTwoFactorCode(user: RequestUser): Promise<string> {
     /* Genereates A two factor authentification secret for the user and
      * adds it to the database and generates a Qr Code to be used by the user
      * to sync their google auth app with our application
@@ -173,18 +194,22 @@ export class AuthService {
       this.config.get('TWO_FA_APP_NAME'),
       secret,
     );
-    const credentials: Credentials = await this.userService.setTwoFactorSecret(
-      user.id,
-      secret,
-    );
-    return { secret, otpAuthUrl };
+    await this.userService.setTwoFactorSecret(user.id, secret);
+    return otpAuthUrl;
   }
 
-  async turnOnTwoFactorAuth(user: RequestUser, twoFactorCode: string) {
+  async turnOnTwoFactorAuth(
+    user: RequestUser,
+    twoFactorCode: string,
+  ): Promise<{ message: string }> {
+    /* In order to turn on Two Factor Authentication, we need to validate
+     * the user's code against our own to see if the secret matches
+     */
     const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
-    if (isCodeValid)
-      return await this.userService.setTwoFactorAuthentification(user.id, true);
-
+    if (isCodeValid) {
+      await this.userService.setTwoFactorAuthentification(user.id, true);
+      return { message: '2FA activated!' };
+    }
     throw new UnauthorizedException('Bad 2FA Code');
   }
 
@@ -207,8 +232,7 @@ export class AuthService {
       twoFactorCode,
       user,
     );
-    if (!isCodeValid)
-      throw new UnauthorizedException('Bad 2FA Code!');
+    if (!isCodeValid) throw new UnauthorizedException('Bad 2FA Code!');
 
     user.isTwoFactorAuthenticated = true;
     return { message: 'Logged in with Two factor successfully!' };

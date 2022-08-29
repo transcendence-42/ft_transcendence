@@ -2,17 +2,20 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Request,
   Response,
   Session,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
-import { LocalRegisterUserDto, TwoFactorDto } from './dto/index';
+import {
+  LocalLoginUserDto,
+  LocalRegisterUserDto,
+  TwoFactorDto,
+} from './dto/index';
 import { TwoFactorGuard } from './guards/twoFa.auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -35,17 +38,15 @@ export class AuthController {
 
   /******************************* Local Auth Flow ****************************/
 
-  @UseGuards(LocalAuthGuard)
-  @Post('register')
-  @UsePipes(ValidationPipe)
+  @Post('local/register')
   localRegister(@Body() payload: LocalRegisterUserDto, @Response() res) {
     return this.authService.handleLocalRegister(payload, res);
   }
 
   @UseGuards(LocalAuthGuard)
-  @Post('login')
-  localLogin(@Request() req, @Response() res) {
-    return this.authService.handleLocalLogin(req, res);
+  @Post('local/login')
+  localLogin(@Body() payload: LocalLoginUserDto, @Response() res) {
+    return this.authService.handleLocalLogin(res);
   }
 
   /****************************** Succesful Login *****************************/
@@ -69,20 +70,19 @@ export class AuthController {
   @UseGuards(TwoFactorGuard)
   @Get('2fa/generate')
   async generateTwoFa(@Request() req, @Response() res) {
-    const { otpAuthUrl } = await this.authService.generateTwoFactorCode(
-      req.user,
-    );
-    return this.authService.pipeQrCodeStream(res, otpAuthUrl);
+    res.setHeader('content-type', 'image/png');
+    return this.authService.handleTwoFactorCodeGen(req.user, res);
   }
 
   @UseGuards(TwoFactorGuard)
+  @HttpCode(200)
   @Post('2fa/activate')
   activateTwoFactorAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
-    this.authService.turnOnTwoFactorAuth(req.user, twoFactorCode.code);
-    return { message: '2FA activated!' };
+    return this.authService.turnOnTwoFactorAuth(req.user, twoFactorCode.code);
   }
 
   @UseGuards(TwoFactorGuard)
+  @HttpCode(200)
   @Post('2fa/authenticate')
   validateTwoAuthAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);

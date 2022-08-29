@@ -60,13 +60,15 @@ async function bootstrap() {
   app.use(Passport.initialize());
   app.use(Passport.session());
   app.enableCors({
-    origin: [
-      config.get('WEBSITE_URL')
-    ],
+    origin: [config.get('WEBSITE_URL')],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });
   await app.listen(config.get('SERVER_PORT'));
-  console.debug('\x1b[32m%s\x1b[0m', 'Listening on port:', config.get('SERVER_PORT'));
+  console.debug(
+    '\x1b[32m%s\x1b[0m',
+    'Listening on port:',
+    config.get('SERVER_PORT'),
+  );
 }
 bootstrap();
