@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div className="main">
-      <NavBar />
+      <NavBar authorize={false}/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile/:id" element={<Profile />}>

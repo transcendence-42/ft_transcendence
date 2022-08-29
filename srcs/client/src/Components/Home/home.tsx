@@ -45,9 +45,9 @@ export default function Home () {
             <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
                                                                   online and become the best at Pong! </h2>
             </div>
-            <div className="homeElementIMG" >
-              <img src={PongIMG} width="608vw" height="345vw" alt="Pong"/>
-            </div>
+            {/* <div className="homeElementIMG" > */}
+              <img src={PongIMG} alt="Pong" className="pongImage"/>
+            {/* </div> */}
             <div className="homeElement">
             <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
             </div>

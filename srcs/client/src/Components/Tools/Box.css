@@ -44,6 +44,22 @@
 	padding: 2px;
 }
 
+.profilBox
+{
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	border: 3px solid #DCCA2A;
+	box-shadow: 0px 0px 7.49518px #FF6ADE,
+				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
+	border-radius: 50%;
+	margin: 2px;
+	padding: 2px;
+}
+
 /* Custom your Box
 * add into your div
 *           style={{

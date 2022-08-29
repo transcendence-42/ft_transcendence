@@ -12,8 +12,10 @@
     padding: 2vw;
   }
 
-  .homeElementIMG{
-    object-fit: fill;
+  .pongImage{
+    width: 80%;
+    max-width: 90vh;
+    max-height: 90vh;
   }
 
   /* Resize une image
