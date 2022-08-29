@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { Match } from '@prisma/client';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserNotFoundException } from 'src/user/exceptions/user-exceptions';
 import { UserService } from 'src/user/user.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
+import { UpdateScoresDto } from './dto/update-scores.dto';
+import { Match } from './entities/match.entity';
+import { PlayerOnMatch } from './entities/playerOnMatch.entity';
 import {
   MatchAlreadyExistsException,
+  MatchNotFoundException,
   MatchWithOnePlayerException,
+  NoMatchesInDatabaseException,
   PlayersNotAvailableException,
 } from './exceptions/match-exception';
 
@@ -20,6 +25,14 @@ export class MatchService {
   ) {}
 
   // MATCH CRUD OPERATIONS -----------------------------------------------------
+  readonly includedMatchRelations: object = {
+    players: {
+      include: {
+        player: true,
+      },
+    },
+  };
+
   readonly matchStatus = Object.freeze({
     CREATED: 0,
     STARTED: 1,
@@ -141,19 +154,101 @@ export class MatchService {
     return match;
   }
 
-  findAll() {
-    return `This action returns all match`;
+  /** Find all matches */
+  async findAll(paginationQuery: PaginationQueryDto): Promise<Match[]> {
+    const { limit, offset } = paginationQuery;
+    const query: object = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+      include: this.includedMatchRelations,
+    };
+    const result: Match[] = await this.prisma.match.findMany(query);
+    if (result.length == 0) throw new NoMatchesInDatabaseException();
+    return result;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} match`;
+  /** Find one match */
+  async findOne(id: number): Promise<Match> {
+    const result: Match | null = await this.prisma.match.findUnique({
+      where: { id: id },
+      include: this.includedMatchRelations,
+    });
+    if (result == null) throw new MatchNotFoundException(id);
+    return result;
   }
 
-  update(id: number, updateMatchDto: UpdateMatchDto) {
-    return `This action updates a #${id} match`;
+  /** Update players ranking after a match */
+  async _updatePlayersRanking(match: Match) {
+    let p1NewElo: number;
+    let p2NewElo: number;
+
+    const player1: PlayerOnMatch = match.players[0];
+    const player2: PlayerOnMatch = match.players[1];
+    if (player1.playerScore > player2.playerScore) {
+      // Player 1 wins
+      p1NewElo = player1.player.eloRating + 32 * (1 - player1.winProbability);
+      p2NewElo = player2.player.eloRating + 32 * (0 - player2.winProbability);
+    } else if (player2.playerScore > player1.playerScore) {
+      // Player 2 wins
+      p1NewElo = player1.player.eloRating + 32 * (0 - player1.winProbability);
+      p2NewElo = player2.player.eloRating + 32 * (1 - player2.winProbability);
+    } else {
+      // Draw
+      p1NewElo = player1.player.eloRating + 32 * (0.5 - player1.winProbability);
+      p2NewElo = player2.player.eloRating + 32 * (0.5 - player2.winProbability);
+    }
+    await this.userService.update(player1.playerId, { eloRating: p1NewElo });
+    await this.userService.update(player2.playerId, { eloRating: p2NewElo });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} match`;
+  /** Update one match */
+  async update(id: number, updateMatchDto: UpdateMatchDto): Promise<Match> {
+    try {
+      // Update match in database
+      const result: Match = await this.prisma.match.update({
+        where: { id: id },
+        data: { ...updateMatchDto },
+        include: this.includedMatchRelations,
+      });
+      // Update players ranking
+      if (
+        updateMatchDto.status &&
+        updateMatchDto.status == this.matchStatus.FINISHED
+      )
+        await this._updatePlayersRanking(result);
+      return result;
+    } catch (e) {
+      throw new MatchNotFoundException(id);
+    }
+  }
+
+  /** Update match scores */
+  async updateScores(
+    id: number,
+    updateScoresDto: UpdateScoresDto,
+  ): Promise<Match> {
+    try {
+      // Update match scores in database
+      const result: Match = await this.prisma.match.update({
+        where: { id: id },
+        data: { ...updateScoresDto },
+        include: this.includedMatchRelations,
+      });
+      return result;
+    } catch (e) {
+      throw new MatchNotFoundException(id);
+    }
+  }
+
+  /** Remove one match */
+  async remove(id: number): Promise<Match> {
+    try {
+      const result: Match = await this.prisma.match.delete({
+        where: { id: id },
+      });
+      return result;
+    } catch (e) {
+      throw new MatchNotFoundException(id);
+    }
   }
 }

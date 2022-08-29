@@ -2,6 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 import { DeleteFriendshipDto } from './delete-friendship.dto';
 
+enum FriendshipStatus {
+  REQUESTED,
+  ACCEPTED,
+  REJECTED,
+}
+
 export class UpdateFriendshipDto extends DeleteFriendshipDto {
   @IsNumber()
   @ApiProperty({
@@ -9,5 +15,5 @@ export class UpdateFriendshipDto extends DeleteFriendshipDto {
       'status of the friendship: 0=requested, 1=accepted, 2=rejected',
     example: '2',
   })
-  readonly status: number;
+  readonly status?: FriendshipStatus;
 }

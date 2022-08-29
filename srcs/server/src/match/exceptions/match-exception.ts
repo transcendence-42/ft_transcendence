@@ -8,13 +8,13 @@ export class MatchAlreadyExistsException extends HttpException {
 
 export class NoMatchesInDatabaseException extends HttpException {
   constructor() {
-    super(`No users in database`, HttpStatus.NO_CONTENT);
+    super(`No matches in database`, HttpStatus.NO_CONTENT);
   }
 }
 
 export class MatchNotFoundException extends HttpException {
-  constructor() {
-    super(`Match not found`, HttpStatus.NOT_FOUND);
+  constructor(id: number) {
+    super(`Match #${id} not found`, HttpStatus.NOT_FOUND);
   }
 }
 

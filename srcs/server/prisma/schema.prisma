@@ -30,8 +30,8 @@ model User {
   email               String            @unique
   createdAt           DateTime          @default(now())
   profilePicture      String?
-  currentStatus       Int               @default(0)
-  currentLadder       Int               @default(0)
+  currentStatus       Int               @default(1)
+  currentRank         Int               @default(0)
   eloRating           Int               @default(1000)
   credentials         Credentials?
   stats               Stats?
@@ -47,7 +47,7 @@ model User {
 model Match {
   id      Int             @id @default(autoincrement())
   date    DateTime        @default(now())
-  status  Int             @default(1)
+  status  Int             @default(0)
   players PlayerOnMatch[]
 }
 

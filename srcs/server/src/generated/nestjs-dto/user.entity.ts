@@ -16,7 +16,7 @@ email: string ;
 createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
-currentLadder: number ;
+currentRank: number ;
 eloRating: number ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
