@@ -19,6 +19,7 @@ import * as Passport from 'passport';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
 import { stat } from 'fs';
+import { User } from 'src/user/entities/user.entity';
 
 describe('AuthController e2e test', () => {
   let controller: AuthController;
@@ -81,6 +82,15 @@ describe('AuthController e2e test', () => {
     if (session) return request(httpServer).get(path).set('Cookie', session);
     else return request(httpServer).get(path);
   }
+  async function createUserAndLogIn(): Promise<string> {
+    const created = await postRegisterUser(mockRegisterUserInfo);
+    expect(created.statusCode).toBe(201);
+    expect(created.body.message).toMatch('Account created successfully!');
+    const logged = await postLoginUser(mockLoginUserInfo);
+    expect(logged.statusCode).toBe(302);
+    expect(logged.header['set-cookie'][0]).toBeDefined();
+    return logged.header['set-cookie'][0];
+  }
 
   describe('POST /auth/local/register/', () => {
     it('should return 201 created if we successfully created the user', async () => {
@@ -141,6 +151,22 @@ describe('AuthController e2e test', () => {
       expect(logged.body.message).toBe('Bad credentials');
     });
   });
+  describe('GET auth/success', () => {
+    const path = '/auth/success';
+    it('should return user data associated with the auth session', async () => {
+      const session = await createUserAndLogIn();
+      const response = await makeGet(path, session);
+      expect(response.statusCode).toBe(200);
+      expect(response.body.user.email).toBe(mockLoginUserInfo.email);
+      expect(response.body.user.id).toBeDefined();
+    }),
+    it('should return 403 forbidden ressources if no session', async () => {
+      await createUserAndLogIn();
+      const response = await makeGet(path);
+      expect(response.statusCode).toBe(403);
+      expect(response.body.message).toBe('Forbidden resource');
+    })
+  });
   describe('GET auth/logout', () => {
     function getLogout(sessionCookie: string) {
       return request(httpServer)
@@ -175,15 +201,6 @@ describe('AuthController e2e test', () => {
   });
 
   describe('GET auth/2fa/generate', () => {
-    async function createUserAndLogIn() {
-      const created = await postRegisterUser(mockRegisterUserInfo);
-      expect(created.statusCode).toBe(201);
-      expect(created.body.message).toMatch('Account created successfully!');
-      const logged = await postLoginUser(mockLoginUserInfo);
-      expect(logged.statusCode).toBe(302);
-      expect(logged.header['set-cookie'][0]).toBeDefined();
-      return logged.header['set-cookie'][0];
-    }
     const path = '/auth/2fa/generate';
     it(
       'should generate Two Factor Code as a QR code if the user is' +

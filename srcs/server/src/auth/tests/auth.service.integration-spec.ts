@@ -1,17 +1,12 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserAlreadyExistsException } from 'src/user/exceptions/user-exceptions';
 import { AuthService } from '../auth.service';
-import { LocalLoginUserDto, LocalRegisterUserDto } from '../dto';
-import { BadCredentialsException } from '../exceptions';
 import {
   invalidEmailLoginUserInfo,
   invalidPwdLoginUserInfo,
   mockLoginUserInfo,
   mockRegisterUserInfo,
-  mockRegisterUserInfoDiffEmail,
-  mockRegisterUserInfoDiffUsername,
 } from './mock.user.dto';
 
 describe('AuthService integration test', () => {

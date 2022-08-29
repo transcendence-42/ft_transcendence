@@ -15,11 +15,10 @@ import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
 import { RequestUser } from '../common/entities/requestUser.entity';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as Session from 'express-session';
 import {
   UserAlreadyExistsException,
-  UserNotFoundException,
 } from '../user/exceptions/user-exceptions';
 
 @Injectable()
@@ -223,6 +222,8 @@ export class AuthService {
   async verifyTwoFactorCode(twoFactorCode: string, user: RequestUser) {
     const userDb: Credentials =
       await this.userService.getUserCredentialsByEmail(user.email);
+    if (!userDb.twoFactorSecret)
+      return false;
     return authenticator.verify({
       token: twoFactorCode,
       secret: userDb.twoFactorSecret,
