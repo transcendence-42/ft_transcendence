@@ -1,15 +1,11 @@
 import React, { useContext } from "react"; 
 import "./NavBar.css"
 import Auth from "../Context/Auth";
+import Login from "../../Pages/Login/Login";
 
 export default function NavBar()
 {
-  const fortyTwoLogin = () => {
-
-   // window.open("http://127.0.0.1:4200/auth/42/register", "_self");
-   //console.group();
-   return (1);
-  }
+ 
   const {isAuthenticated } = useContext(Auth);
 
     return (
@@ -18,7 +14,7 @@ export default function NavBar()
   <>
       <div className="navBar">
             <a className="elementHome" href="/">PONG</a>
-            <a href="login" className="elementSignIn" onClick={fortyTwoLogin}>
+            <a href="login" className="elementSignIn" onClick={Login}>
               <span></span>
               <span></span>
               <span></span>
@@ -31,7 +27,7 @@ export default function NavBar()
   <>
       <div className="navBar">
           <a className="elementHome" href="/">PONG</a>
-          <a href="login" className="elementSignIn" onClick={fortyTwoLogin}>
+          <a href="login" className="elementSignIn" onClick={Login}>
             <span></span>
             <span></span>
             <span></span>
@@ -147,3 +143,4 @@ export default function NavBar()
     )
   }
     </> */}
+
