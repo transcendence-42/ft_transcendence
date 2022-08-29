@@ -93,11 +93,6 @@ export class AuthService {
 
   /******************************* Local Auth Flow ****************************/
 
-  //localRegisterUser → Check for the existence of the user in credentials:
-  // if the email exists and the username exists on the same account → check if
-  // they have a password: if yes, already have an account, if no, credentials taken
-  //(check both username and email)
-
   async handleLocalRegister(payload: LocalRegisterUserDto, res: Response) {
     const user: User = await this.localRegisterUser(payload);
     if (user) return res.send({ message: 'Account created successfully!' });
