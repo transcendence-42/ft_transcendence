@@ -2,10 +2,11 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
+  Length,
   Matches,
 } from 'class-validator';
 
-export class UserLoginDto {
+export class LocalLoginUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -13,13 +14,8 @@ export class UserLoginDto {
   @IsNotEmpty()
   @IsString()
   // No need to allow users to submit passwords that do not match our policy
-  @Matches(
-    (/^(?=.{12,36}$)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\'";.,/#@!%^&*()\][{}])((.)\2?(?!\2))+$/g),
-    {
-      message:
-        'Password must be between 12 and 36 characters long and must contain atleat: one Upper Case' +
-        ' letter, one lower case letter, a digit and a special character and must not contain more than 2 consecutive characters.',
-    },
-  )
+  @Length(12, 36, {
+    message: 'password should be between 12 and 36 characters in length',
+  })
   password: string;
 }

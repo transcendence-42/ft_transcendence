@@ -2,8 +2,12 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from '../auth.service';
-import { UserLoginDto } from '../dto/login.dto';
-import { LocalRegisterUserDto } from '../dto/registerUser.dto';
+import {
+  invalidEmailLoginUserInfo,
+  invalidPwdLoginUserInfo,
+  mockLoginUserInfo,
+  mockRegisterUserInfo,
+} from './mock.user.dto';
 
 describe('AuthService integration test', () => {
   let prisma: PrismaService;
@@ -20,68 +24,51 @@ describe('AuthService integration test', () => {
   });
   describe('localRegisterUser() -> Create User using email and password', () => {
     it('it should create a user using an email, password and username', async () => {
-      const userInfo: LocalRegisterUserDto = {
-        email: 'noufel@ammari.com',
-        username: 'nammari',
-        password: 'mypass2L8*dsjl',
-      };
-      const user = await authService.localRegisterUser(userInfo);
-      expect(user.email).toBe(userInfo.email);
-      expect(user.username).toBe(userInfo.username);
+      const user = await authService.localRegisterUser(mockRegisterUserInfo);
+      expect(user.email).toBe(mockRegisterUserInfo.email);
+      expect(user.username).toBe(mockRegisterUserInfo.username);
       expect(user.createdAt).toBeDefined();
       expect(user.id).toBeDefined();
     });
     it('Should throw an error when trying to create a user that already exists ', async () => {
-      const userInfo: LocalRegisterUserDto = {
-        email: 'noufel@ammari.com',
-        username: 'nammari',
-        password: 'mypass2L8*dsjl',
-      };
-      const user = await authService
-        .localRegisterUser(userInfo)
-        .catch((error) => expect(error.status).toBe(401));
+      const user = await authService.localRegisterUser(mockRegisterUserInfo);
+      await authService
+        .localRegisterUser(mockRegisterUserInfo)
+        .catch((error) =>
+          expect(error.message).toBe(
+            `User \"${mockRegisterUserInfo.email}\" already exists`,
+          ),
+        );
     });
   });
-  describe('validateUserCredentials() -> Checks if the user trying to login has the correct credentials', () => {
-    const createUser: LocalRegisterUserDto = {
-      email: 'noufel@ammari.com',
-      username: 'nammari',
-      password: 'mypass2L8*dsjl',
-    };
-    const validUserInfo: UserLoginDto = {
-      email: 'noufel@ammari.com',
-      password: 'mypass2L8*dsjl',
-    };
-    const invalidEmailUserInfo: UserLoginDto = {
-      email: 'znoufel@ammari.com',
-      password: 'mypass2L8*dsjl',
-    };
-    const invalidPwdUserInfo: UserLoginDto = {
-      email: 'noufel@ammari.com',
-      password: 'zzzzmypass2L8*dsjl',
-    };
+  describe('validateLocalUser() -> Checks if the user trying to login has the correct credentials', () => {
     it('Valid User: Should say that the credentials are valid', async () => {
-      const createdUser = await authService.localRegisterUser(createUser);
-      const user = await authService.validateUserCredentials(validUserInfo);
+      const createdUser = await authService.localRegisterUser(
+        mockRegisterUserInfo,
+      );
+      const user = await authService.validateLocalUser(mockLoginUserInfo);
       expect(user).toBeDefined();
-      expect(user.email).toBe(validUserInfo.email);
+      expect(user.email).toBe(mockLoginUserInfo.email);
+      expect(user.authentication).toBe('Logged-in');
     });
     it('Invalid User email: Should say that the email is invalid', async () => {
-      const createdUser = await authService.localRegisterUser(createUser);
+      const createdUser = await authService.localRegisterUser(
+        mockRegisterUserInfo,
+      );
       const user = await authService
-        .validateUserCredentials(invalidEmailUserInfo)
+        .validateLocalUser(invalidEmailLoginUserInfo)
         .catch((error) => {
           expect(error.message).toBe('Invalid email!');
-          expect(error.status).toBe(401);
         });
     });
     it('Invalid User password: Should say that the password is invalid', async () => {
-      const createdUser = await authService.localRegisterUser(createUser);
+      const createdUser = await authService.localRegisterUser(
+        mockRegisterUserInfo,
+      );
       const user = await authService
-        .validateUserCredentials(invalidPwdUserInfo)
+        .validateLocalUser(invalidPwdLoginUserInfo)
         .catch((error) => {
           expect(error.message).toBe('Invalid password!');
-          expect(error.status).toBe(401);
         });
     });
   });

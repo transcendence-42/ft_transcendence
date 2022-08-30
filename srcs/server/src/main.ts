@@ -19,7 +19,7 @@ async function bootstrap() {
   const redisStore = await ConnectRedis(Session);
   redisClient.connect();
   redisClient.on('connect', () => {
-    console.log('Connected to Redis');
+    console.debug('\x1b[32m%s\x1b[0m', 'Connected to', 'Redis');
   });
 
   // For DTO validation
@@ -59,8 +59,16 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
+  app.enableCors({
+    origin: [config.get('WEBSITE_URL')],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
   await app.listen(config.get('SERVER_PORT'));
-  console.log(`Listening on port ${config.get('SERVER_PORT')}`);
+  console.debug(
+    '\x1b[32m%s\x1b[0m',
+    'Listening on port:',
+    config.get('SERVER_PORT'),
+  );
 }
-
 bootstrap();

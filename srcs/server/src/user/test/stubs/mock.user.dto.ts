@@ -24,5 +24,4 @@ export const fakeUser: User = {
   createdAt: null,
   currentStatus: 0,
   currentLadder: 0,
-  hasActivated2fa: false,
 };
