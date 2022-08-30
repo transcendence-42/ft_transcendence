@@ -1,4 +1,5 @@
 import React from 'react';
+import {useState, useEffect} from "react";
 import './Components/Tools/App.css';
 import {Routes, Route} from 'react-router-dom';
 import Home from './Components/Home/home'
@@ -10,7 +11,7 @@ function App() {
 
   return (
     <div className="main">
-      <NavBar authorize={false}/>
+      <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile/:id" element={<Profile />}>
