@@ -19,7 +19,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     const payload: LocalLoginUserDto = { email: email, password: password };
     console.debug('User trying to log in: ', { payload });
     try {
-      const user: RequestUser = await this.authService.validateLocalUser(payload);
+      const user: RequestUser = await this.authService.validateLocalUser(
+        payload,
+      );
       return user;
     } catch (err) {
       throw new UnauthorizedException('Bad credentials');

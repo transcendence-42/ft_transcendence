@@ -17,9 +17,7 @@ import { toFileStream } from 'qrcode';
 import { RequestUser } from '../common/entities/requestUser.entity';
 import { Response } from 'express';
 import * as Session from 'express-session';
-import {
-  UserAlreadyExistsException,
-} from '../user/exceptions/user-exceptions';
+import { UserAlreadyExistsException } from '../user/exceptions/user-exceptions';
 
 @Injectable()
 export class AuthService {
@@ -33,16 +31,16 @@ export class AuthService {
   /******************************* 42 Oauth2 Flow ******************************/
 
   handleFtRedirect(user: RequestUser, res: Response) {
-      if (
-        user.isTwoFactorActivated === true &&
-        user.isTwoFactorAuthenticated === false
-      ) {
-        console.debug(`redirecting to 2fa`);
-        res.redirect('http://127.0.0.1:3042/2fa');
-      } else {
-        console.debug(`redirecting to Home`);
-        return res.redirect(this.HOME_PAGE);
-      }
+    if (
+      user.isTwoFactorActivated === true &&
+      user.isTwoFactorAuthenticated === false
+    ) {
+      console.debug(`redirecting to 2fa`);
+      res.redirect('http://127.0.0.1:3042/2fa');
+    } else {
+      console.debug(`redirecting to Home`);
+      return res.redirect(this.HOME_PAGE);
+    }
   }
 
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
@@ -222,8 +220,7 @@ export class AuthService {
   async verifyTwoFactorCode(twoFactorCode: string, user: RequestUser) {
     const userDb: Credentials =
       await this.userService.getUserCredentialsByEmail(user.email);
-    if (!userDb.twoFactorSecret)
-      return false;
+    if (!userDb.twoFactorSecret) return false;
     return authenticator.verify({
       token: twoFactorCode,
       secret: userDb.twoFactorSecret,
