@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/user/entities/user.entity';
-import { UserNotFoundException } from 'src/user/exceptions/user-exceptions';
+import { UserNotFoundException } from 'src/user/exceptions/';
 import { UserService } from 'src/user/user.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
@@ -15,7 +15,7 @@ import {
   MatchWithOnePlayerException,
   NoMatchesInDatabaseException,
   PlayersNotAvailableException,
-} from './exceptions/match-exception';
+} from './exceptions/';
 
 @Injectable()
 export class MatchService {

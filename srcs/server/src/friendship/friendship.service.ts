@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { DeleteFriendshipDto } from './dto/delete-friendship.dto';
 import { FindFriendshipDto } from './dto/find-friendship.dto';
 import { UpdateFriendshipDto } from './dto/update-friendship.dto';
-import { FriendshipNotFoundException } from './exceptions/friendship-exceptions';
+import { FriendshipNotFoundException } from './exceptions/';
 
 @Injectable()
 export class FriendshipService {

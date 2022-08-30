@@ -12,7 +12,7 @@ import {
   NoUsersInDatabaseException,
   UserAlreadyExistsException,
   UserNotFoundException,
-} from './exceptions/user-exceptions';
+} from './exceptions/';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
 import {
   FriendshipAlreadyExistsException,
