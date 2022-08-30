@@ -1,7 +1,7 @@
 
 import {Credentials} from './credentials.entity'
 import {Stats} from './stats.entity'
-import {Rank} from './rank.entity'
+import {Rating} from './rating.entity'
 import {Channel} from './channel.entity'
 import {UserOnChannel} from './userOnChannel.entity'
 import {Friendship} from './friendship.entity'
@@ -16,11 +16,10 @@ email: string ;
 createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
-currentRank: number ;
 eloRating: number ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
-rankingHistory?: Rank[] ;
+ratingHistory?: Rating[] ;
 ownedChannels?: Channel[] ;
 channels?: UserOnChannel[] ;
 friendshipRequested?: Friendship[] ;

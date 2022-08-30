@@ -27,7 +27,7 @@ import { BaseApiException } from 'src/common/exceptions/baseApiException.entity'
 import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { CreateFriendshipDto } from './dto/create-friendship.dto';
-import { Rank } from 'src/generated/nestjs-dto/rank.entity';
+import { Rating } from './entities/rating.entity';
 
 @Controller('users')
 export class UserController {
@@ -177,14 +177,14 @@ export class UserController {
     return res;
   }
 
-  // RANK OPERATIONS -----------------------------------------------------------
-  /** Get rank history for a user */
-  @ApiTags('Ranks')
-  @Get(':id/ranks')
-  @ApiOperation({ summary: 'History of all ranks of a user' })
+  // RATING OPERATIONS ---------------------------------------------------------
+  /** Get rating history for a user */
+  @ApiTags('Elo ratings')
+  @Get(':id/ratings')
+  @ApiOperation({ summary: 'History of all ratings of a user' })
   @ApiOkResponse({
-    description: 'Array of all rank',
-    type: Rank,
+    description: 'Array of all ratings',
+    type: Rating,
     isArray: true,
   })
   @ApiNotFoundResponse({
@@ -193,11 +193,11 @@ export class UserController {
   })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  async getUserRanks(
+  async getUserRatings(
     @Param('id') id: number,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    const res = await this.userService.findUserRanks(id, paginationQuery);
+    const res = await this.userService.findUserRatings(id, paginationQuery);
     return res;
   }
 }

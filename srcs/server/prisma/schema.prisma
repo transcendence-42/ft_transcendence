@@ -31,11 +31,10 @@ model User {
   createdAt           DateTime          @default(now())
   profilePicture      String?
   currentStatus       Int               @default(1)
-  currentRank         Int               @default(0)
   eloRating           Int               @default(1000)
   credentials         Credentials?
   stats               Stats?
-  rankingHistory      Rank[]
+  ratingHistory       Rating[]
   ownedChannels       Channel[]
   channels            UserOnChannel[]
   friendshipRequested Friendship[]      @relation("requester")
@@ -86,10 +85,10 @@ model Stats {
   userId Int  @unique
 }
 
-model Rank {
+model Rating {
   id       Int      @id @default(autoincrement())
   date     DateTime @default(now())
-  position Int
+  rating   Int
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int      @unique
 }

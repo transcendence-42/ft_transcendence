@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Credentials, Friendship, Rank, User } from '@prisma/client';
+import { Credentials, Friendship, Rating, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -27,7 +27,7 @@ export class UserService {
   // USER CRUD OPERATIONS ------------------------------------------------------
   readonly includedUserRelations: object = {
     stats: true,
-    rankingHistory: true,
+    ratingHistory: true,
     ownedChannels: true,
     channels: true,
     friendshipRequested: true,
@@ -50,16 +50,15 @@ export class UserService {
     if (maybeUser != null)
       throw new UserAlreadyExistsException(createUserDto.username);
     const userStat = { wins: 0, losses: 0 };
-    const rank = await this._calculateRank(0, 0);
     const user = await this.prisma.user.create({
       data: {
         ...createUserDto,
         stats: {
           create: userStat,
         },
-        rankingHistory: {
+        ratingHistory: {
           create: {
-            position: rank,
+            rating: 1000,
           },
         },
       },
@@ -366,22 +365,22 @@ export class UserService {
   }
 
   /** Find all user ranks through history */
-  async findUserRanks(
+  async findUserRatings(
     id: number,
     paginationQuery: PaginationQueryDto,
-  ): Promise<Rank[]> {
+  ): Promise<Rating[]> {
     // check if user exists
     const isUser: User | null = await this.prisma.user.findUnique({
       where: { id: id },
     });
     if (isUser == null) throw new UserNotFoundException(id);
-    // query ranks
+    // query ratings
     const { limit, offset } = paginationQuery;
     const pagination = {
       ...(limit && { take: +limit }),
       ...(offset && { skip: +offset }),
     };
-    const result: Rank[] = await this.prisma.rank.findMany({
+    const result: Rating[] = await this.prisma.rating.findMany({
       ...pagination,
       where: {
         userId: id,

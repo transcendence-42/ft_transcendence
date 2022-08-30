@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { RatingService } from 'src/rating/rating.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserNotFoundException } from 'src/user/exceptions/';
 import { UserService } from 'src/user/user.service';
@@ -22,6 +23,7 @@ export class MatchService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
+    private readonly ratingService: RatingService,
   ) {}
 
   // MATCH CRUD OPERATIONS -----------------------------------------------------
@@ -197,6 +199,11 @@ export class MatchService {
       p1NewElo = player1.player.eloRating + 32 * (0.5 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (0.5 - player2.winProbability);
     }
+    // Create a new entry in user's rating history after each match
+    await this.ratingService.create({
+      userId: player1.playerId,
+      rating: p1NewElo,
+    });
     await this.userService.update(player1.playerId, { eloRating: p1NewElo });
     await this.userService.update(player2.playerId, { eloRating: p2NewElo });
   }

@@ -1,6 +1,6 @@
 import { Credentials } from '../../generated/nestjs-dto/credentials.entity';
 import { Stats } from '../../generated/nestjs-dto/stats.entity';
-import { Rank } from '../../generated/nestjs-dto/rank.entity';
+import { Rating } from '../../generated/nestjs-dto/rating.entity';
 import { Channel } from '../../generated/nestjs-dto/channel.entity';
 import { UserOnChannel } from '../../generated/nestjs-dto/userOnChannel.entity';
 import { UserAchievement } from '../../generated/nestjs-dto/userAchievement.entity';
@@ -14,11 +14,10 @@ export class User {
   createdAt: Date;
   profilePicture: string | null;
   currentStatus: number;
-  currentRank: number;
   eloRating: number;
   credentials?: Credentials | null;
   stats?: Stats | null;
-  rankingHistory?: Rank[];
+  ratingHistory?: Rating[];
   ownedChannels?: Channel[];
   channels?: UserOnChannel[];
   friendshipRequested?: Friendship[];
