@@ -14,13 +14,13 @@ function Login ()  {
   
   const[isAuthenticated, setIsAuthenticated] = useState(hasAuthenticated);
  
-  useEffect(() => {
-    setIsAuthenticated(JSON.parse(window.localStorage.getItem('isAuthenticated') || '{}'));
-  }, []);
+  // useEffect(() => {
+  //   setIsAuthenticated(JSON.parse(window.localStorage.getItem('isAuthenticated') || '{}'));
+  // }, []);
 
-  useEffect(() => {
-    window.localStorage.setItem('isAuthenticated', isAuthenticated.toString() ) ;
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   window.localStorage.setItem('isAuthenticated', isAuthenticated.toString() ) ;
+  // }, [isAuthenticated]);
 
 
   const fortyTwoLogin = () => 

@@ -1,178 +1,31 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,900');
-@import url(http://fonts.googleapis.com/css?family=Advent+Pro:400,200,700);
 
-*, ::before, ::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-.navBar  {
-  
-  overflow: hidden;
-  position:relative;
-  top: 25px;
-  height: 40%;
-  z-index: 1;
-
-    /* list-style: none; */
+.navBar{
+	height: 8vw;
+	width: auto;
+	display: flex;
+	flex-direction: row;
+	/* border: 5px solid white; */
+	align-items: center;
   }
 
-  .navBar a {
-     font-family: 'Advent Pro', sans-serif;
-    display: inline-block;
-    color: #FFE710;
-    font-weight: normal;
-    font-size: 35px;
-    line-height: 53px;
-    text-shadow: 0px 0px 20px  #FFE710, 0px 0px 60px #FF80F2;   
-    padding: 0px 40px 0px 30px;
-
+.menuInNavBar{
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	font-size: 1vw;
+	flex-direction: row;
+	align-items: center;
   }
 
-  .navBar .elementHome
-  {
-  position: relative;
-  float:left;
-  left: 1%;
-  top: 8%;
-  font-weight: 400px;
-  font-size: 50px;
-  line-height: 53px;
-  text-align: center;
-  color: #80FFFF;
-  text-shadow: 0px 0px 50px #6ABDFF;
+.boutonsInNavBar{
+	color: white;
+	margin-left: 2vw;
+	margin-right: 2vw;
   }
 
-  .navBar .elementBlock {
-    font-family: 'Advent Pro', sans-serif;
-   position: relative;
-   top: 10%;
-   left: 22%;
-   display: inline-block;
-   right: 300px;
-   color: #FFE710;
-   font-weight: normal;
-   font-size: 35px;
-   line-height: 53px;
-   text-shadow: 0px 0px 20px  #FFE710, 0px 0px 60px #FF80F2;   
-   padding: 0px 40px 0px 30px;
-
- }
-
-.elementSignIn{
-  font-family: 'Advent Pro', sans-serif;
-  position: relative;
-  float:right;
-  top: 10%;
-  right: 1%;
-  margin: 0px;
-  font-weight: 400px;
-  font-size: 50px;
-  line-height: 53px;
-  text-align: center;
-  color: #FFE710;
-  text-shadow:  0px 0px 10px #FF80F2;  
-  padding: 1px 10px 10px 10px;
-  transition: .5s all;
-  overflow: hidden;
-}
-
-
-
-.elementSignIn a:hover{
-  background-color: #80FFFF;
-  color: black;
-  
-}
-
-.elementSignIn span{
-  position: absolute;
-
-}
-
-
-.elementSignIn span:nth-child(1)
-{
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #80FFFF);
-  animation: animate1 1s linear infinite
-}
-
-
-@keyframes animate1 {
-  0%{
-    left: -100%
+  .boutonsInNavBar:first-child{
+	color: rgb(8, 218, 255);
+	margin-right: auto;
+	margin-left: 2%;
+	font-size: 2vw;
   }
- 50%, 100%{
-    left:100%
-  }
-}
-
-.elementSignIn  span:nth-child(2)
-{
-  top: -100%;
-  right: 0;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(180deg, transparent, #80FFFF);
-  animation: animate2 1s linear infinite;
-  animation-delay: .25s;
-}
-
-
-@keyframes animate2 {
-  0%{
-    top: -100%
-  }
-  50%, 100%{
-    top:100%
-  }
-}
-
-.elementSignIn  span:nth-child(3)
-{
-  bottom:0;
-  right: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(270deg, transparent, #80FFFF);
-  animation: animate3 1s linear infinite;
-  animation-delay: .50s;
-}
-
-
-@keyframes animate3 {
-  0%{
-    right: -100%
-  }
-  50%, 100%{
-    right:100%
-  }
-}
-
-.elementSignIn  span:nth-child(4)
-{
-  bottom: -100%;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(360deg, transparent, #80FFFF);
-  animation: animate4 1s linear infinite;
-  animation-delay: 0.75s;
-}
-
-
-@keyframes animate4 {
-  0%{
-    bottom: -100%
-  }
-  50%, 100% {
-    bottom: 100%
-  }
-}
-
-.navBar a {text-decoration: none;} 

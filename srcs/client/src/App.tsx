@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import {useState, useEffect} from "react";
 import './Components/Tools/App.css';
 import {Routes, Route} from 'react-router-dom';
 import Home from './Pages/Home/home'
@@ -16,8 +17,6 @@ import Chat from './Pages/Chat/chat';
 
 
 function App() {
-  
-  const[isAuthenticated, setIsAuthenticated] = useState(hasAuthenticated);
 
   return (
 
