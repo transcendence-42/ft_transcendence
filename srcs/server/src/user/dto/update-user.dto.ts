@@ -1,11 +1,35 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsNumber, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsNumber,
+  IsObject,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
 enum UserStatus {
   AWAY,
   HERE,
   PLAYING,
+}
+
+export class UpdateStatsDto {
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({
+    description: 'number of wins of a player',
+    example: '8',
+  })
+  wins?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({
+    description: 'number of losses of a player',
+    example: '2',
+  })
+  losses?: number;
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -29,4 +53,15 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     example: '1550',
   })
   readonly eloRating?: number;
+
+  @IsObject()
+  @IsOptional()
+  @Type(() => UpdateStatsDto)
+  @ValidateNested()
+  @ApiProperty({
+    description: 'stats of the player',
+    type: UpdateStatsDto,
+    isArray: false,
+  })
+  readonly stats?: UpdateStatsDto;
 }

@@ -180,9 +180,11 @@ export class MatchService {
   }
 
   /** Update players ranking after a match */
-  async _updatePlayersRanking(match: Match) {
+  async _updatePlayersRankingAndStats(match: Match) {
     let p1NewElo: number;
     let p2NewElo: number;
+    let p1NewStats: object;
+    let p2NewStats: object;
 
     const player1: PlayerOnMatch = match.players[0];
     const player2: PlayerOnMatch = match.players[1];
@@ -190,22 +192,34 @@ export class MatchService {
       // Player 1 wins
       p1NewElo = player1.player.eloRating + 32 * (1 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (0 - player2.winProbability);
+      p1NewStats = { update: { wins: { increment: 1 } } };
+      p2NewStats = { update: { losses: { increment: 1 } } };
     } else if (player2.playerScore > player1.playerScore) {
       // Player 2 wins
       p1NewElo = player1.player.eloRating + 32 * (0 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (1 - player2.winProbability);
+      p1NewStats = { update: { losses: { increment: 1 } } };
+      p2NewStats = { update: { wins: { increment: 1 } } };
     } else {
       // Draw
       p1NewElo = player1.player.eloRating + 32 * (0.5 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (0.5 - player2.winProbability);
+      p1NewStats = {};
+      p2NewStats = {};
     }
     // Create a new entry in user's rating history after each match
     await this.ratingService.create({
       userId: player1.playerId,
       rating: p1NewElo,
     });
-    await this.userService.update(player1.playerId, { eloRating: p1NewElo });
-    await this.userService.update(player2.playerId, { eloRating: p2NewElo });
+    await this.userService.update(player1.playerId, {
+      eloRating: p1NewElo,
+      stats: p1NewStats,
+    });
+    await this.userService.update(player2.playerId, {
+      eloRating: p2NewElo,
+      stats: p2NewStats,
+    });
   }
 
   /** Update one match */
@@ -217,12 +231,12 @@ export class MatchService {
         data: { ...updateMatchDto },
         include: this.includedMatchRelations,
       });
-      // Update players ranking
+      // Update players ranking & stats
       if (
         updateMatchDto.status &&
         updateMatchDto.status == this.matchStatus.FINISHED
       )
-        await this._updatePlayersRanking(result);
+        await this._updatePlayersRankingAndStats(result);
       return result;
     } catch (e) {
       throw new MatchNotFoundException(id);
