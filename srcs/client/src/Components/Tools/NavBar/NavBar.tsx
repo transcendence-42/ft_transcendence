@@ -23,10 +23,10 @@ export default function NavBar(props: any)
              <a  href="/about"><h2 className="yellowText" > About </h2> </a>
              </div>
              <div className="buttonInNavBar">
-                <h2 className="yellowText" > Chat </h2>
+             <a  href="/chat">  <h2 className="yellowText" > Chat </h2> </a>
              </div>
              <div className="buttonInNavBar">
-                 <h2 className="yellowText" > Leaderboard </h2>
+             <a  href="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </a>
              </div>
              <div className="buttonInNavBar">
                 <ProfilNavBar />

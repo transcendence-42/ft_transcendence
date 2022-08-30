@@ -77,7 +77,6 @@ export default function Home () {
             <div className="homeElement">
             <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
             </div>
-            <button className="bidule" onClick={fortyTwoLogin}>TRY ME</button>
         </div>
          </>
     );
