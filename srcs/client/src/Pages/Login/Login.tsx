@@ -1,5 +1,6 @@
-import NavBar from "../../Components/NavBar/NavBar";
-import "./Login.css"
+import NavBar from "../../Components/Tools/NavBar/NavBar";
+
+import  "../../App.css"
 import "../../Components/Context/Auth"
 import { useContext, useEffect, useState, Component } from "react";
 import { Navigate, Outlet } from "react-router-dom";
@@ -45,7 +46,7 @@ function Login ()  {
 
   
   return (
-    <>
+    <div>
           <h1 className="loginTitle">Choose your Login Method:</h1>
             <div className="wrapper">
               <div className="left">
@@ -61,7 +62,7 @@ function Login ()  {
                 <button className="submit">Login</button>
               </div>
             </div>
-    </>
+    </div>
   );
 };
 

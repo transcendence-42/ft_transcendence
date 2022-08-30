@@ -36,7 +36,7 @@ export class AuthController {
     return req.user;
   }
 
-  // @UseGuards(LoggedInGuard)
+  @UseGuards(LoggedInGuard)
   @Get('success')
   handleSuccess(@Request() req, @Response() res, @Session() ses) {
     console.log(

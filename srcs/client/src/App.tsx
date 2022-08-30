@@ -1,11 +1,11 @@
 import React from 'react';
 import {useState, useEffect} from "react";
-import './Components/Tools/App.css';
+import './App.css';
 import {Routes, Route} from 'react-router-dom';
 import Home from './Pages/Home/home'
 import Profile from './Pages/Profile/Profile'
 import Notfound from './Pages/NotFound/notFound';
-import NavBar from './Components/NavBar/NavBar';
+import NavBar from './Components/Tools/NavBar/NavBar';
 import { hasAuthenticated } from './Components/services/authApi';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import setIsAuthenticated from './Components/services/authenticatedRoute';
@@ -21,7 +21,7 @@ function App() {
   return (
 
         <div className="main">
-          <NavBar />
+          <NavBar authorize={false}/>
             <Routes>
             <Route path="*" element={<Notfound />} />
             <Route path="/" element={<Home />} />

@@ -12,22 +12,23 @@ export default function NavBar(props: any)
         return (
             <div className="navBar">
             <div className="menuInNavBar">
-            <div className="boutonsInNavBar">
-                <h2 className="blueText"> PONG </h2>
+            <div className="buttonInNavBar">
+            <a  href="/"> <h2 className="blueText"> PONG </h2> </a>
              </div>
-              <div className="boutonsInNavBar">
-                <h2 className="yellowText" > Home </h2>
+              <div className="buttonInNavBar">
+              <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>
+                
              </div>
-             <div className="boutonsInNavBar">
-                <h2 className="yellowText" > About </h2>
+             <div className="buttonInNavBar">
+             <a  href="/about"><h2 className="yellowText" > About </h2> </a>
              </div>
-             <div className="boutonsInNavBar">
+             <div className="buttonInNavBar">
                 <h2 className="yellowText" > Chat </h2>
              </div>
-             <div className="boutonsInNavBar">
+             <div className="buttonInNavBar">
                  <h2 className="yellowText" > Leaderboard </h2>
              </div>
-             <div className="boutonsInNavBar">
+             <div className="buttonInNavBar">
                 <ProfilNavBar />
             </div>
             </div>
@@ -39,19 +40,19 @@ export default function NavBar(props: any)
         return (
             <div className="navBar">
             <div className="menuInNavBar">
-            <div className="boutonsInNavBar">
+            <div className="buttonInNavBar">
                 <h2 className="blueText"> PONG </h2>
             </div>
-            <div className="boutonsInNavBar">
+            <div className="buttonInNavBar">
                 <h2 className="yellowText" > Home </h2>
             </div>
-            <div className="boutonsInNavBar">
+            <div className="buttonInNavBar">
                 <h2 className="yellowText" > About </h2>
             </div>
-            <div className="boutonsInNavBar">
+            <div className="buttonInNavBar">
                 <h2 className="yellowText" > Leaderboard </h2>
             </div>
-            <div className="boutonsInNavBar">
+            <div className="buttonInNavBar">
                 <SignIn />
             </div>
             </div>
