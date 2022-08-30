@@ -264,7 +264,6 @@ export class MatchService {
       });
       return result;
     } catch (e) {
-      console.log(e);
       throw new MatchNotFoundException(id);
     }
   }
