@@ -26,7 +26,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
 import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
-import { CreateFriendshipDto } from './dto/create-friendship.dto';
+import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { Rating } from './entities/rating.entity';
 
 @Controller('users')
@@ -142,13 +142,13 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async createFriendship(
+  async requestFriendship(
     @Param('id') id: number,
-    @Body() createFriendshipDto: CreateFriendshipDto,
+    @Body() requestFriendshipDto: RequestFriendshipDto,
   ) {
-    const res = await this.userService.createFriendship(
+    const res = await this.userService.requestFriendship(
       id,
-      createFriendshipDto,
+      requestFriendshipDto,
     );
     return res;
   }

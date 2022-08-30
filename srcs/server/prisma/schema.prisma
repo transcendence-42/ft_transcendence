@@ -62,7 +62,7 @@ model Channel {
   channelMode Int             @default(0)
   password    String?
   owner       User            @relation(fields: [ownerId], references: [id])
-  ownerId     Int             @unique
+  ownerId     Int
   users       UserOnChannel[]
 }
 
@@ -90,7 +90,7 @@ model Rating {
   date     DateTime @default(now())
   rating   Int
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int      @unique
+  userId   Int 
 }
 
 model UserOnChannel {

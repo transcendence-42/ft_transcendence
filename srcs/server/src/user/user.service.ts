@@ -13,16 +13,15 @@ import {
   UserAlreadyExistsException,
   UserNotFoundException,
 } from './exceptions/';
-import { CreateFriendshipDto } from './dto/create-friendship.dto';
-import {
-  FriendshipAlreadyExistsException,
-  FriendshipRejectedException,
-  FriendshipRequestedException,
-} from 'src/friendship/exceptions/';
+import { RequestFriendshipDto } from './dto/request-friendship.dto';
+import { FriendshipService } from 'src/friendship/friendship.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly friendshipService: FriendshipService,
+  ) {}
 
   // USER CRUD OPERATIONS ------------------------------------------------------
   readonly includedUserRelations: object = {
@@ -200,100 +199,17 @@ export class UserService {
     REJECTED: 2,
   });
 
-  /** Handle the case where we try to update an existing friendship */
-  private async _handleExistingFriendship(
-    requesterId: number,
-    friendship: Friendship,
-    friendshipRequest: CreateFriendshipDto,
-  ): Promise<Friendship> {
-    switch (friendship.status) {
-      // Already friends
-      case this.friendshipStatus.ACCEPTED:
-        throw new FriendshipAlreadyExistsException(
-          requesterId,
-          friendshipRequest.addresseeId,
-        );
-      // Friendship already rejected or requested
-      case this.friendshipStatus.REQUESTED:
-      case this.friendshipStatus.REJECTED:
-        if (friendship.requesterId === requesterId) {
-          // same requester : no change
-          if (friendship.status === this.friendshipStatus.REJECTED)
-            throw new FriendshipRejectedException(
-              requesterId,
-              friendshipRequest.addresseeId,
-            );
-          if (friendship.status === this.friendshipStatus.REQUESTED)
-            throw new FriendshipRequestedException(
-              requesterId,
-              friendshipRequest.addresseeId,
-            );
-        } else {
-          // reverse : accept
-          const result: Friendship = await this.prisma.friendship.update({
-            where: {
-              requesterId_addresseeId: {
-                addresseeId: friendship.addresseeId,
-                requesterId: friendship.requesterId,
-              },
-            },
-            data: { status: this.friendshipStatus.ACCEPTED, date: new Date() },
-          });
-          return result;
-        }
-    }
-  }
-
-  /** Create a new friendship */
-  async createFriendship(
+  /** Request a new friendship */
+  async requestFriendship(
     id: number,
-    createFriendshipDto: CreateFriendshipDto,
+    requestFriendshipDto: RequestFriendshipDto,
   ): Promise<Friendship> {
-    // check if requester and addressee exists
-    const areUsers: User[] | null = await this.prisma.user.findMany({
-      where: {
-        OR: [{ id: id }, { id: createFriendshipDto.addresseeId }],
-      },
-    });
-    if (areUsers.length != 2)
-      throw new UserNotFoundException(
-        areUsers.filter((user) => user.id === id).length > 0
-          ? createFriendshipDto.addresseeId
-          : id,
-      );
-    // check if friendship already exists
-    const maybeFriendship = await this.prisma.friendship.findFirst({
-      where: {
-        OR: [
-          {
-            requesterId: id,
-            addresseeId: createFriendshipDto.addresseeId,
-          },
-          {
-            requesterId: createFriendshipDto.addresseeId,
-            addresseeId: id,
-          },
-        ],
-      },
-    });
-    if (maybeFriendship != null) {
-      // friendship exists, update it or throw
-      const result = await this._handleExistingFriendship(
-        id,
-        maybeFriendship,
-        createFriendshipDto,
-      );
-      return result;
-    } else {
-      // friendship don't exists, create it with status requested
-      const result = await this.prisma.friendship.create({
-        data: {
-          requesterId: id,
-          ...createFriendshipDto,
-        },
-      });
-      return result;
-    }
+    // calling create friendship of friendshipService with the proper DTO
+    const createFriendshipDto = { requesterId: id, ...requestFriendshipDto };
+    const result: Friendship = await this.friendshipService.create(
+      createFriendshipDto,
+    );
+    return result;
   }
 
   /** Find all friends of a user */

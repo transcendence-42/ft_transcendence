@@ -239,14 +239,7 @@ export class MatchService {
       where: { playerId: number };
       data: { playerScore: number };
     }>;
-    if (updateScoresDto.players[0]) {
-      updateData = [
-        {
-          where: { playerId: updateScoresDto.players[0].playerId },
-          data: { playerScore: updateScoresDto.players[0].playerScore },
-        },
-      ];
-    } else if (updateScoresDto.players[1]) {
+    if (updateScoresDto.players[1]) {
       updateData = [
         {
           where: { playerId: updateScoresDto.players[0].playerId },
@@ -257,6 +250,13 @@ export class MatchService {
           data: { playerScore: updateScoresDto.players[1].playerScore },
         },
       ];
+    } else if (updateScoresDto.players[0]) {
+      updateData = [
+        {
+          where: { playerId: updateScoresDto.players[0].playerId },
+          data: { playerScore: updateScoresDto.players[0].playerScore },
+        },
+      ];
     }
     try {
       // Update match scores in database
@@ -264,7 +264,7 @@ export class MatchService {
         where: { id: id },
         data: {
           players: {
-            updateMany: [...updateData],
+            updateMany: updateData,
           },
         },
         include: this.includedMatchRelations,
