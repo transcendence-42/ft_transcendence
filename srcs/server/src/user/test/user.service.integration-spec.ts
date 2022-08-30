@@ -10,8 +10,7 @@ import {
   UserNotFoundException,
 } from '../exceptions/';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { mockUserDto } from 'src/common/stubs/mock.user.dto';
-import { CreateFriendshipDto } from '../dto/create-friendship.dto';
+import { mockUserDto } from './stubs/mock.user.dto';
 import {
   FriendshipAlreadyExistsException,
   FriendshipRejectedException,
@@ -19,6 +18,7 @@ import {
 } from 'src/friendship/exceptions/';
 import { UpdateFriendshipDto } from 'src/friendship/dto/update-friendship.dto';
 import { FriendshipService } from 'src/friendship/friendship.service';
+import { RequestFriendshipDto } from '../dto/request-friendship.dto';
 
 describe('User service integration tests', () => {
   let userService: UserService;
@@ -224,10 +224,10 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      const createResponse: Friendship = await userService.createFriendship(
+      const requestFriendshipDto: RequestFriendshipDto = { addresseeId: id2 };
+      const createResponse: Friendship = await userService.requestFriendship(
         id1,
-        createFriendshipDto,
+        requestFriendshipDto,
       );
       expect(createResponse.requesterId).toBe(id1);
       expect(createResponse.addresseeId).toBe(id2);
@@ -241,16 +241,16 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      const createResponse: Friendship = await userService.createFriendship(
+      const requestFriendshipDto: RequestFriendshipDto = { addresseeId: id2 };
+      const createResponse: Friendship = await userService.requestFriendship(
         id1,
-        createFriendshipDto,
+        requestFriendshipDto,
       );
       // previous addressee is now requester
-      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id1 };
-      const createResponse2: Friendship = await userService.createFriendship(
+      const requestFriendshipDto2: RequestFriendshipDto = { addresseeId: id1 };
+      const createResponse2: Friendship = await userService.requestFriendship(
         id2,
-        createFriendshipDto2,
+        requestFriendshipDto2,
       );
       expect(createResponse2.requesterId).toBe(id1);
       expect(createResponse2.addresseeId).toBe(id2);
@@ -265,12 +265,12 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      await userService.createFriendship(id1, createFriendshipDto);
+      const requestFriendshipDto: RequestFriendshipDto = { addresseeId: id2 };
+      await userService.requestFriendship(id1, requestFriendshipDto);
       // same request
-      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id2 };
+      const requestFriendshipDto2: RequestFriendshipDto = { addresseeId: id2 };
       await expect(
-        userService.createFriendship(id1, createFriendshipDto2),
+        userService.requestFriendship(id1, requestFriendshipDto2),
       ).rejects.toThrow(FriendshipRequestedException);
     });
 
@@ -279,8 +279,8 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // 1 asks 2 to be friends
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      await userService.createFriendship(id1, createFriendshipDto);
+      const requestFriendshipDto: RequestFriendshipDto = { addresseeId: id2 };
+      await userService.requestFriendship(id1, requestFriendshipDto);
       // 2 rejects
       const updateFriendshipDto: UpdateFriendshipDto = {
         requesterId: id1,
@@ -289,9 +289,9 @@ describe('User service integration tests', () => {
       };
       await friendshipService.update(updateFriendshipDto);
       // same request from 1
-      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id2 };
+      const requestFriendshipDto2: RequestFriendshipDto = { addresseeId: id2 };
       await expect(
-        userService.createFriendship(id1, createFriendshipDto2),
+        userService.requestFriendship(id1, requestFriendshipDto2),
       ).rejects.toThrow(FriendshipRejectedException);
     });
 
@@ -300,14 +300,14 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      await userService.createFriendship(id1, createFriendshipDto);
-      const createFriendshipDto2: CreateFriendshipDto = { addresseeId: id1 };
-      await userService.createFriendship(id2, createFriendshipDto2);
+      const requestFriendshipDto: RequestFriendshipDto = { addresseeId: id2 };
+      await userService.requestFriendship(id1, requestFriendshipDto);
+      const requestFriendshipDto2: RequestFriendshipDto = { addresseeId: id1 };
+      await userService.requestFriendship(id2, requestFriendshipDto2);
       // same request
-      const createFriendshipDto3: CreateFriendshipDto = { addresseeId: id2 };
+      const requestFriendshipDto3: RequestFriendshipDto = { addresseeId: id2 };
       await expect(
-        userService.createFriendship(id1, createFriendshipDto3),
+        userService.requestFriendship(id1, requestFriendshipDto3),
       ).rejects.toThrow(FriendshipAlreadyExistsException);
     });
   });

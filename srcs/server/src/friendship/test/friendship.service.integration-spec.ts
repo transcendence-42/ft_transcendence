@@ -3,12 +3,12 @@ import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppModule } from 'src/app.module';
 import { FriendshipService } from 'src/friendship/friendship.service';
-import { CreateFriendshipDto } from 'src/user/dto/create-friendship.dto';
+import { CreateFriendshipDto } from '../dto/create-friendship.dto';
 import { DeleteFriendshipDto } from '../dto/delete-friendship.dto';
 import { FriendshipNotFoundException } from '../exceptions/';
 import { UpdateFriendshipDto } from '../dto/update-friendship.dto';
 import { Friendship } from '@prisma/client';
-import { mockUserDto } from 'src/common/stubs/mock.user.dto';
+import { mockUserDto } from 'src/user/test/stubs/mock.user.dto';
 
 describe('User service integration tests', () => {
   let userService: UserService;
@@ -37,8 +37,11 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      await userService.createFriendship(id1, createFriendshipDto);
+      const createFriendshipDto: CreateFriendshipDto = {
+        requesterId: id1,
+        addresseeId: id2,
+      };
+      await friendshipService.create(createFriendshipDto);
       // delete the friendship
       const deleteFriendshipDto: DeleteFriendshipDto = {
         requesterId: id1,
@@ -74,9 +77,11 @@ describe('User service integration tests', () => {
       const { id: id1 } = await userService.create(mockUserDto[0]);
       const { id: id2 } = await userService.create(mockUserDto[1]);
       // friendship them
-      const createFriendshipDto: CreateFriendshipDto = { addresseeId: id2 };
-      const initialFriendship = await userService.createFriendship(
-        id1,
+      const createFriendshipDto: CreateFriendshipDto = {
+        requesterId: id1,
+        addresseeId: id2,
+      };
+      const initialFriendship = await friendshipService.create(
         createFriendshipDto,
       );
       // update the friendship

@@ -70,7 +70,7 @@ model Credentials {
   id                 Int     @id @default(autoincrement())
   email              String  @unique
   username           String  @unique
-  password           String
+  password           String?
   user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             Int     @unique
   twoFactorActivated Boolean @default(false)

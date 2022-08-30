@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
-import { UserLoginDto } from '../dto/login.dto';
-import { User } from '@prisma/client';
+import { LocalLoginUserDto } from '../dto/login.dto';
+import { RequestUser } from 'src/common/entities';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,13 +13,16 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<User> {
-    const payload: UserLoginDto = { email: email, password: password };
-    console.log('User trying to log in: ', { payload });
-    const user = await this.authService.validateUserCredentials(payload);
-    console.log('Trying to get the correct credentials', {user});
-    if (!user)
-      throw new UnauthorizedException('Invalid Credentials from user!');
-    return user;
+  async validate(email: string, password: string): Promise<RequestUser> {
+    const payload: LocalLoginUserDto = { email: email, password: password };
+    console.debug('User trying to log in: ', { payload });
+    try {
+      const user: RequestUser = await this.authService.validateLocalUser(
+        payload,
+      );
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException('Bad credentials');
+    }
   }
 }

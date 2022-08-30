@@ -5,8 +5,4 @@
 
 */
 -- AlterTable
-ALTER TABLE "Stats" ADD COLUMN     "twoFactorActivated" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "twoFactorSecret" TEXT;
-
--- AlterTable
 ALTER TABLE "User" DROP COLUMN "hasActivated2fa";

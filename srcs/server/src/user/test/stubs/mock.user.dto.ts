@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import { LocalRegisterUserDto } from 'src/auth/dto/registerUser.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
@@ -19,9 +20,19 @@ export const mockValidRegisterUserDto: LocalRegisterUserDto = {
   password: 'jfs+-lkjfas/d8Bkjdf*',
 };
 
-let mockUserDto: CreateUserDto[];
-userData.forEach((user, i) => {
-  mockUserDto[i] = { username: user.username, email: user.email };
+const mockUserDto: CreateUserDto[] = [];
+userData.forEach((user) => {
+  mockUserDto.push({ username: user.username, email: user.email });
 });
+
+export const fakeUser: User = {
+  id: null,
+  email: mockValidRegisterUserDto.email,
+  username: mockValidRegisterUserDto.username,
+  profilePicture: null,
+  createdAt: null,
+  currentStatus: 0,
+  eloRating: 1000,
+};
 
 export { mockUserDto };

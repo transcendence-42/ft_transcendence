@@ -7,7 +7,7 @@ import { UserService } from 'src/user/user.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LocalAuthGuard, LoggedInGuard } from './guards';
-import { Serialization } from './serialization/SessionSerialization';
+import { Serialization } from './serialization/sessionSerialization';
 import { FtStrategy } from './strategies/ft.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 

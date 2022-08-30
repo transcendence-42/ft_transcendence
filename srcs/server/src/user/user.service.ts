@@ -116,35 +116,27 @@ export class UserService {
   // USER AUTH OPERATIONS ------------------------------------------------------
   /** Get user credentials by email */
   async getUserCredentialsByEmail(email: string): Promise<Credentials> {
-    try {
-      const user = await this.prisma.credentials.findUnique({
-        where: {
-          email: email,
-        },
-      });
-      return user;
-    } catch (err) {
-      return null;
-    }
+    const userCredentials = this.prisma.credentials.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    return userCredentials;
   }
 
   /** Get user credentials by username */
   async getUserCredentialsByUsername(username: string): Promise<Credentials> {
-    try {
-      const user = await this.prisma.credentials.findUnique({
-        where: {
-          username: username,
-        },
-      });
-      return user;
-    } catch (err) {
-      return null;
-    }
+    const user = this.prisma.credentials.findUnique({
+      where: {
+        username: username,
+      },
+    });
+    return user;
   }
 
   /** Get user by email */
   async getUserByEmail(email: string): Promise<User> {
-    const user: User | null = await this.prisma.user.findUnique({
+    const user: User = await this.prisma.user.findUnique({
       where: {
         email: email,
       },
@@ -152,22 +144,29 @@ export class UserService {
     return user;
   }
 
-  /** Create user */
-  async createUserWithoutCredentials(
+  async createUserWithoutPassword(
     userInfo: FtRegisterUserDto,
-  ): Promise<User> {
-    const user: User = await this.prisma.user.create({
+  ): Promise<User & { credentials: Credentials }> {
+    const user = await this.prisma.user.create({
       data: {
         email: userInfo.email,
         username: userInfo.username,
-        profilePicture: userInfo.profile_image_url,
+        profilePicture: userInfo.profileImageUrl,
+        credentials: {
+          create: {
+            email: userInfo.email,
+            username: userInfo.username,
+          },
+        },
+      },
+      include: {
+        credentials: true,
       },
     });
     return user;
   }
 
-  /** Create user without credentials */
-  async createUserWithCredentials(
+  async createUserWithPassword(
     userInfo: LocalRegisterUserDto,
     hash: string,
   ): Promise<User> {
@@ -306,5 +305,36 @@ export class UserService {
       },
     });
     return result;
+  }
+
+  async setTwoFactorSecret(
+    userId: number,
+    secret: string,
+  ): Promise<Credentials> {
+    console.log(`Updating UserId ${userId} TwoFactorSecret ${secret}`);
+    const updated = await this.prisma.credentials.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        twoFactorSecret: secret,
+      },
+    });
+    return updated;
+  }
+
+  async setTwoFactorAuthentification(
+    userId: number,
+    onOrOff: boolean,
+  ): Promise<Credentials> {
+    const updated = await this.prisma.credentials.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        twoFactorActivated: onOrOff,
+      },
+    });
+    return updated;
   }
 }

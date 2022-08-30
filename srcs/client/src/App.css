@@ -1,38 +1,127 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.navbar {
+  height: 50px;
+  color: white;
+  background-color: rgb(25, 110, 143);
+  justify-content: space-around;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  display: flex;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.list {
+  display: flex;
+  align-items: center;
+  list-style: none;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.listItem {
+  margin-right: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.login, .register {
+  height: calc(100vh - 50px); /* to avoid overflow with navbar*/
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.wrapper {
+  height: 75%;
+  width: 60%;
+  box-shadow: 0px 5px 33px -21px rgba(66, 68, 65);
+  -webkit-box-shadow: -4px 5px 15px 5px rgba(0, 0, 0, 0.87);
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+}
+
+.left,
+.right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.center {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.or {
+  border: 2px solid rgb(207, 199, 199);
+  border-radius: 50%;
+  padding: 10px;
+  color: rgb(187, 182, 182);
+  background-color: rgb(255, 255, 255);
+  font-weight: bold;
+}
+
+.line {
+  width: 0.5px;
+  height: 70%;
+  background-color: rgb(171, 151, 151);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: -1;
+}
+
+.loginButton, .registerButton {
+  width: 150px;
+  padding: 15px 25px;
+  border-radius: 5px;
+  color: white;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.fortyTwo {
+  background-color: black;
+}
+
+.icon {
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+}
+
+.input {
+  width: 200px;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.loginTitle, .registerTitle {
+  position: absolute;
+  top: 150px;
+  color: lightgray;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
 }
