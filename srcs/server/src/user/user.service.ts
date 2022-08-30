@@ -18,7 +18,7 @@ import {
   FriendshipAlreadyExistsException,
   FriendshipRejectedException,
   FriendshipRequestedException,
-} from 'src/friendship/exceptions/friendship-exceptions';
+} from 'src/friendship/exceptions/';
 
 @Injectable()
 export class UserService {

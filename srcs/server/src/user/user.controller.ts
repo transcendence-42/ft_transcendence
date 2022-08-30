@@ -37,7 +37,7 @@ export class UserController {
   /** Create a new user */
   @ApiTags('Users')
   @Post()
-  @ApiOperation({ summary: 'create a new user' })
+  @ApiOperation({ summary: 'Create a new user' })
   @ApiCreatedResponse({
     description: 'Created user',
     type: User,
@@ -55,7 +55,7 @@ export class UserController {
   /** Get all users */
   @ApiTags('Users')
   @Get()
-  @ApiOperation({ summary: 'get all users' })
+  @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse({
     description: 'Array of all users',
     type: User,
@@ -72,7 +72,7 @@ export class UserController {
   /** Get user by id */
   @ApiTags('Users')
   @Get(':id')
-  @ApiOperation({ summary: 'get user by id' })
+  @ApiOperation({ summary: 'Get user by id' })
   @ApiOkResponse({
     description: 'Found User',
     type: User,
@@ -90,7 +90,7 @@ export class UserController {
   /** Update user by id */
   @ApiTags('Users')
   @Patch(':id')
-  @ApiOperation({ summary: 'update a user' })
+  @ApiOperation({ summary: 'Update a user' })
   @ApiOkResponse({
     description: 'Updated user',
     type: User,
@@ -108,7 +108,7 @@ export class UserController {
   /** Delete user */
   @ApiTags('Users')
   @Delete(':id')
-  @ApiOperation({ summary: 'delete a user' })
+  @ApiOperation({ summary: 'Delete a user' })
   @ApiOkResponse({
     description: 'Deleted user',
     type: User,
@@ -127,7 +127,7 @@ export class UserController {
   /** Request a friendship */
   @ApiTags('Friends')
   @Put(':id/friends')
-  @ApiOperation({ summary: 'request a friendship' })
+  @ApiOperation({ summary: 'Request a friendship' })
   @ApiCreatedResponse({
     description: 'New friendship requested, or previous request accepted',
     type: Friendship,
@@ -156,7 +156,7 @@ export class UserController {
   /** Get all friends for a user */
   @ApiTags('Friends')
   @Get(':id/friends')
-  @ApiOperation({ summary: 'get all friends of a users' })
+  @ApiOperation({ summary: 'Get all friends of a users' })
   @ApiOkResponse({
     description: 'Array of all friends',
     type: User,
@@ -181,7 +181,7 @@ export class UserController {
   /** Get rank history for a user */
   @ApiTags('Ranks')
   @Get(':id/ranks')
-  @ApiOperation({ summary: 'history of all ranks of a user' })
+  @ApiOperation({ summary: 'History of all ranks of a user' })
   @ApiOkResponse({
     description: 'Array of all rank',
     type: Rank,

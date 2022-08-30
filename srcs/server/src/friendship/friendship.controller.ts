@@ -19,7 +19,7 @@ export class FriendshipController {
   // FRIENDSHIP CRUD OPERATIONS ------------------------------------------------
   /** Delete a friendship */
   @Delete(':id')
-  @ApiOperation({ summary: 'delete a friendship' })
+  @ApiOperation({ summary: 'Delete a friendship' })
   @ApiOkResponse({
     description: 'Deleted user',
     type: Friendship,
@@ -36,7 +36,7 @@ export class FriendshipController {
 
   /** Update a friendship */
   @Patch(':id')
-  @ApiOperation({ summary: 'update a friendship' })
+  @ApiOperation({ summary: 'Update a friendship' })
   @ApiOkResponse({
     description: 'Updated friendship',
     type: Friendship,

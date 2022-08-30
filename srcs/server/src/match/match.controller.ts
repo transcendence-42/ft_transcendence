@@ -35,7 +35,7 @@ export class MatchController {
   // USER CRUD OPERATIONS ------------------------------------------------------
   /** Create a new match */
   @Post()
-  @ApiOperation({ summary: 'create a new match' })
+  @ApiOperation({ summary: 'Create a new match' })
   @ApiCreatedResponse({
     description: 'Created match',
     type: Match,
@@ -64,7 +64,7 @@ export class MatchController {
 
   /** Get all matches */
   @Get()
-  @ApiOperation({ summary: 'get all matches' })
+  @ApiOperation({ summary: 'Get all matches' })
   @ApiOkResponse({
     description: 'Array of all matches',
     type: Match,
@@ -80,7 +80,7 @@ export class MatchController {
 
   /** Get match by id */
   @Get(':id')
-  @ApiOperation({ summary: 'get match by id' })
+  @ApiOperation({ summary: 'Get match by id' })
   @ApiOkResponse({
     description: 'Found Match',
     type: Match,
@@ -97,7 +97,7 @@ export class MatchController {
 
   /** Update match by id */
   @Patch(':id')
-  @ApiOperation({ summary: 'update a match' })
+  @ApiOperation({ summary: 'Update a match' })
   @ApiOkResponse({
     description: 'Updated match',
     type: Match,
@@ -117,7 +117,7 @@ export class MatchController {
 
   /** Update score of players in a match by id */
   @Patch(':id/scores')
-  @ApiOperation({ summary: 'update a match score' })
+  @ApiOperation({ summary: 'Update a match score' })
   @ApiOkResponse({
     description: 'Updated score',
     type: Match,
@@ -137,7 +137,7 @@ export class MatchController {
 
   /** Delete match */
   @Delete(':id')
-  @ApiOperation({ summary: 'delete a match' })
+  @ApiOperation({ summary: 'Delete a match' })
   @ApiOkResponse({
     description: 'Deleted match',
     type: Match,
