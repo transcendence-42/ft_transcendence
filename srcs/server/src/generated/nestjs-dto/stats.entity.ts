@@ -8,6 +8,4 @@ wins: number ;
 losses: number ;
 user?: User ;
 userId: number ;
-twoFactorActivated: boolean ;
-twoFactorSecret: string  | null;
 }

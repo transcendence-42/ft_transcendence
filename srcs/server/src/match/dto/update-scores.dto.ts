@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNumber, ValidateNested } from 'class-validator';
 
-class UpdatePlayersOnMatchDto {
+export class UpdatePlayersOnMatchDto {
   @IsNumber()
   @ApiProperty({
     description: 'id of player',
@@ -18,11 +19,13 @@ class UpdatePlayersOnMatchDto {
 }
 
 export class UpdateScoresDto {
-  @IsNumber()
+  @IsArray()
+  @Type(() => UpdatePlayersOnMatchDto)
+  @ValidateNested()
   @ApiProperty({
     description: 'players on the match',
-    example: '2',
     type: UpdatePlayersOnMatchDto,
+    isArray: true,
   })
   readonly players: UpdatePlayersOnMatchDto[];
 }

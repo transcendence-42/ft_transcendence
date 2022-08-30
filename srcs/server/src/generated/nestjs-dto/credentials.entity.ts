@@ -9,4 +9,6 @@ username: string ;
 password: string ;
 user?: User ;
 userId: number ;
+twoFactorActivated: boolean ;
+twoFactorSecret: string  | null;
 }

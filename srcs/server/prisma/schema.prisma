@@ -68,22 +68,22 @@ model Channel {
 }
 
 model Credentials {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  username String @unique
-  password String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int    @unique
-}
-
-model Stats {
   id                 Int     @id @default(autoincrement())
-  wins               Int     @default(0)
-  losses             Int     @default(0)
+  email              String  @unique
+  username           String  @unique
+  password           String
   user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             Int     @unique
   twoFactorActivated Boolean @default(false)
   twoFactorSecret    String?
+}
+
+model Stats {
+  id     Int  @id @default(autoincrement())
+  wins   Int  @default(0)
+  losses Int  @default(0)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
 }
 
 model Rank {

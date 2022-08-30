@@ -227,15 +227,44 @@ export class MatchService {
     id: number,
     updateScoresDto: UpdateScoresDto,
   ): Promise<Match> {
+    // update data
+    let updateData: Array<{
+      where: { playerId: number };
+      data: { playerScore: number };
+    }>;
+    if (updateScoresDto.players[0]) {
+      updateData = [
+        {
+          where: { playerId: updateScoresDto.players[0].playerId },
+          data: { playerScore: updateScoresDto.players[0].playerScore },
+        },
+      ];
+    } else if (updateScoresDto.players[1]) {
+      updateData = [
+        {
+          where: { playerId: updateScoresDto.players[0].playerId },
+          data: { playerScore: updateScoresDto.players[0].playerScore },
+        },
+        {
+          where: { playerId: updateScoresDto.players[1].playerId },
+          data: { playerScore: updateScoresDto.players[1].playerScore },
+        },
+      ];
+    }
     try {
       // Update match scores in database
       const result: Match = await this.prisma.match.update({
         where: { id: id },
-        data: { ...updateScoresDto },
+        data: {
+          players: {
+            updateMany: [...updateData],
+          },
+        },
         include: this.includedMatchRelations,
       });
       return result;
     } catch (e) {
+      console.log(e);
       throw new MatchNotFoundException(id);
     }
   }
