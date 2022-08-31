@@ -20,7 +20,7 @@ function App() {
 
   return (
         <div className="main">
-          <NavBar authorize={true}/>
+          <NavBar　/>
             <Routes>
             <Route path="*" element={<Notfound />} />
             <Route path="/" element={<Home />} />

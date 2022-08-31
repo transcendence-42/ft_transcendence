@@ -13,38 +13,10 @@ import { hasAuthenticated } from "../../Components/services/authApi";
 
 function Login ()  {
   
-  const[isAuthenticated, setIsAuthenticated] = useState(hasAuthenticated);
- 
-  // useEffect(() => {
-  //   setIsAuthenticated(JSON.parse(window.localStorage.getItem('isAuthenticated') || '{}'));
-  // }, []);
+	const fortyTwoLogin = () => {
+		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
+	}
 
-  // useEffect(() => {
-  //   window.localStorage.setItem('isAuthenticated', isAuthenticated.toString() ) ;
-  // }, [isAuthenticated]);
-
-
-  const fortyTwoLogin = () => 
-  {
-    if(isAuthenticated === false)
-    {
-     
-      console.log("ta mere");
-      setIsAuthenticated((true))
-    }
-    if(isAuthenticated === true)
-    {
-     
-      console.log("ta grand mere");
-      setIsAuthenticated((false))
-    }
-
-    
-    
-    console.log(isAuthenticated);
-  }
-
-  
   return (
     <div>
           <h1 className="loginTitle">Choose your Login Method:</h1>

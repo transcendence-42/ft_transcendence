@@ -1,19 +1,21 @@
+import {Link} from 'react-router-dom'
 import '../Text.css';
 import '../Box.css';
 
 function SignIn() {
-	const fortyTwoLogin = () => {
-		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
-	}
+
 	return (
+		<>
+		<Link to="/login">
 		<div className="blueBox"
 		style={{
 		  width: "10vw",
 		  height: "5vwpx",
 		  }}> <div className="playFlickering"
-		  		onClick={fortyTwoLogin}
 				style={{cursor:"pointer"}}
 			> Sign In </div> </div>
+		</Link>
+		</>
 	);
 }
 
