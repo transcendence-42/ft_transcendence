@@ -10,6 +10,7 @@ import {
   Response,
   Session,
   UnauthorizedException,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -35,6 +36,7 @@ import {
   AuthResponse,
   AuthSuccessResponse,
 } from 'src/common/entities/response.entity';
+import { FtExceptionFilter } from './filters/ftAuthException.filter';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -44,6 +46,7 @@ export class AuthController {
   /******************************* 42 OAuth Flow ******************************/
 
   @UseGuards(FtAuthGuard)
+  @UseFilters(FtExceptionFilter)
   @Get('42/redirect')
   @ApiExcludeEndpoint()
   ftRedirec(@Request() req, @Response() res) {

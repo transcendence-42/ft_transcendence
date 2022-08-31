@@ -28,7 +28,7 @@ import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { UpdateScoresDto } from './dto/update-scores.dto';
 
 @ApiTags('Matches')
-@Controller('match')
+@Controller('matches')
 export class MatchController {
   constructor(private readonly matchService: MatchService) {}
 

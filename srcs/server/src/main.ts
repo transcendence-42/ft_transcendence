@@ -10,6 +10,7 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 
 async function bootstrap() {
+  console.debug = function () {}; // used to silence console.debugs
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   const redisClient = Redis.createClient({

@@ -7,7 +7,7 @@ export class LoggedInGuard implements CanActivate {
     console.debug('Logged in guard activatead');
     const request = context.switchToHttp().getRequest();
     const result = request.isAuthenticated();
-    console.log(
+    console.debug(
       `This is user in LoggedInGuard ${JSON.stringify(request.user, null, 4)}`,
     );
     if (!result) {

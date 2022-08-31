@@ -94,9 +94,9 @@ model Rating {
 }
 
 model UserOnChannel {
-  channel   Channel @relation(fields: [channelId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   mode      Int     @default(0)
 
@@ -104,9 +104,9 @@ model UserOnChannel {
 }
 
 model PlayerOnMatch {
-  match          Match @relation(fields: [matchId], references: [id])
+  match          Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
   matchId        Int
-  player         User  @relation(fields: [playerId], references: [id])
+  player         User  @relation(fields: [playerId], references: [id], onDelete: Cascade)
   playerId       Int
   playerNum      Int   @default(1)
   playerScore    Int   @default(0)
@@ -116,9 +116,9 @@ model PlayerOnMatch {
 }
 
 model UserAchievement {
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   achievementId Int
-  user          User        @relation(fields: [userId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
   date          DateTime    @default(now())
 
