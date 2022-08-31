@@ -143,7 +143,7 @@ export default function NavBar()
              <a href="/about">   <h2 className="yellowText" > About </h2> </a>
                 </div>
                 <div className="buttonInNavBar">
-                <a href="/leaderboard">    <h2 className="yellowText" > Leaderboard </h2> </a>
+                <a href="/leaderboard"> <h2 className="yellowText" > Leaderboard </h2> </a>
                 </div>
                 <div className="buttonInNavBar">
                 <Link to="/login" className="playFlickering">Login</Link>
