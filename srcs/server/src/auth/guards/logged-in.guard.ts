@@ -1,18 +1,28 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { RequestUser } from '../../common/entities/requestUser.entity';
 
 @Injectable()
 export class LoggedInGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    console.log('Logged in guard activatead');
+    console.debug('Logged in guard activatead');
     const request = context.switchToHttp().getRequest();
     const result = request.isAuthenticated();
-    if (result)
-      console.log("Guard Accepeted user!")
-    else
-      console.log("Guard Rejected user!")
-    // console.dir(request)
-    console.log(`This is headers from request ${JSON.stringify(request.headers, null, 4)}`)
-    return result;
+    console.debug(
+      `This is user in LoggedInGuard ${JSON.stringify(request.user, null, 4)}`,
+    );
+    if (!result) {
+      console.debug('Guard Rejected user because of isAutehnticated()!');
+      return result;
+    }
+    const user: RequestUser = request.user;
+    if (
+      user.isTwoFactorActivated === true &&
+      user.isTwoFactorAuthenticated === false
+    ) {
+      console.debug('Guard Rejected user! because of isTwoFactorAuthenticated');
+      return false;
+    }
+    console.debug('Guard Accepeted user!');
+    return true;
   }
 }

@@ -5,9 +5,12 @@ import * as Passport from 'passport';
 import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
-import { cors } from 'cors';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
+  console.debug = function () {}; // used to silence console.debugs
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   const redisClient = Redis.createClient({
@@ -17,8 +20,31 @@ async function bootstrap() {
   const redisStore = await ConnectRedis(Session);
   redisClient.connect();
   redisClient.on('connect', () => {
-    console.log('Connected to Redis');
+    console.debug('\x1b[32m%s\x1b[0m', 'Connected to', 'Redis');
   });
+
+  // For DTO validation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // do not handle properties not defined in dto
+      transform: true, // transform payloads to dto instances
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // For setting secure HTTP Headers
+  app.use(helmet());
+
+  // For Swagger UI
+  const options = new DocumentBuilder()
+    .setTitle('Transcendence API')
+    .setDescription('The transcendence API description')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('/', app, document);
 
   app.use(
     Session({
@@ -34,9 +60,16 @@ async function bootstrap() {
   );
   app.use(Passport.initialize());
   app.use(Passport.session());
-  app.enableCors({origin: [/api\/.intra.42\.fr$/, 'http://localhost:3042', 'http://127.0.0.1:3042', 'https://api.intra.42.fr/oauth/authorize'], credentials: true, methods: "GET,HEAD,PUT,PATCH,POST,DELETE"});
+  app.enableCors({
+    origin: [config.get('WEBSITE_URL')],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
   await app.listen(config.get('SERVER_PORT'));
-  console.log(`Listening on port ${config.get('SERVER_PORT')}`);
+  console.debug(
+    '\x1b[32m%s\x1b[0m',
+    'Listening on port:',
+    config.get('SERVER_PORT'),
+  );
 }
-
 bootstrap();
