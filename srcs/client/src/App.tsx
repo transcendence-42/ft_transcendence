@@ -15,23 +15,21 @@ import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
 import Chat from './Pages/Chat/chat';
 
-
 function App() {
 
   return (
-        <div className="main">
+    <div className="main">
           <NavBar authorize={true}/>
             <Routes>
             <Route path="*" element={<Notfound />} />
-            <Route path="/" element={<Home />} />
+            <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route  path='/' element={<AuthenticatedRoute setIsAuthenticated/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
               < Route path="/leaderboard" element={<Leaderboard />} />
-              < Route path="/profile/:id" element={<Profile />} />
-              <Route path="/profile/:id/friends" element={<Profile />} />
+              < Route path="/profile" element={<Profile />} />
             </Route>
           </Routes>
         </div>

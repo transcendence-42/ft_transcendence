@@ -1,5 +1,4 @@
 import React from "react";
-
 import {useState, useEffect} from "react";
 import './home.css';
 import "../../Components/Tools/Box.css"
@@ -13,13 +12,11 @@ export default function Home () {
   {
     if(isAuthenticated === false)
     {
-
       console.log("ta mere");
       setIsAuthenticated((true))
     }
     if(isAuthenticated === true)
     {
-
       console.log("ta grand mere");
       setIsAuthenticated((false))
     }

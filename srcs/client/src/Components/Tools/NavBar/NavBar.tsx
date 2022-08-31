@@ -1,35 +1,38 @@
 import React from "react";
+import {Link, Outlet} from 'react-router-dom'
 import "./NavBar.css"
 import "./ProfilNavBar.tsx"
 import "../Text.css"
 import ProfilNavBar from "./ProfilNavBar"
 import SignIn from "./SignIn"
+import {useState, useEffect} from "react"
 
 export default function NavBar(props: any)
 {
+    const [userID, setUserID] = useState(50);
+
     if (props.authorize)
     {
         return (
             <div className="navBar">
             <div className="menuInNavBar">
             <div className="buttonInNavBar">
-            <a  href="/"> <h2 className="blueText"> PONG </h2> </a>
+            <Link  to="/"> <h2 className="blueText"> PONG </h2> </Link>
              </div>
               <div className="buttonInNavBar">
-              <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>
-                
+              <Link  to="/home"> <h2 className="yellowText"  > Home </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/about"><h2 className="yellowText" > About </h2> </a>
+             <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/chat">  <h2 className="yellowText" > Chat </h2> </a>
+             <Link  to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </a>
+             <Link  to="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-                <ProfilNavBar />
+             <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
             </div>
             </div>
           </div>
