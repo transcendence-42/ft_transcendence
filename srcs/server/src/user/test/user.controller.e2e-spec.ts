@@ -62,14 +62,15 @@ describe('User API e2e test', () => {
   });
 
   describe('GET /users', () => {
+    beforeEach(async () => {
+      await userService.create(mockUserDto[0]);
+      await userService.create(mockUserDto[1]);
+      await userService.create(mockUserDto[2]);
+      await userService.create(mockUserDto[3]);
+      await userService.create(mockUserDto[4]);
+    });
+
     it('should return 200 and an array of users if successfull', async () => {
-      // create few users
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[1]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[2]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[3]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[4]);
-      // get all
       const result = await request(app.getHttpServer()).get('/users');
       expect(result.statusCode).toBe(200);
       expect(result.body).toBeInstanceOf(Array);
@@ -80,13 +81,6 @@ describe('User API e2e test', () => {
     });
 
     it('should return 200 and a limited array of users with "limit" set', async () => {
-      // create few users
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[1]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[2]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[3]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[4]);
-      // get all
       const result = await request(app.getHttpServer())
         .get('/users')
         .query({ limit: 3 });
@@ -99,13 +93,6 @@ describe('User API e2e test', () => {
     });
 
     it('should return 200 and an offseted array of users with "offset" set', async () => {
-      // create few users
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[1]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[2]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[3]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[4]);
-      // get all
       const result = await request(app.getHttpServer())
         .get('/users')
         .query({ offset: 3 });
@@ -118,13 +105,6 @@ describe('User API e2e test', () => {
     });
 
     it('should return 200 and an offseted and limited array of users with "offset" and "limit" set', async () => {
-      // create few users
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[1]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[2]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[3]);
-      await request(app.getHttpServer()).post('/users').send(mockUserDto[4]);
-      // get all
       const result = await request(app.getHttpServer())
         .get('/users')
         .query({ offset: 1, limit: 3 });
@@ -137,6 +117,7 @@ describe('User API e2e test', () => {
     });
 
     it('should return 204 and an empty object if user table is empty', async () => {
+      await prisma.cleanDatabase();
       const result = await request(app.getHttpServer()).get('/users');
       expect(result.statusCode).toBe(204);
       expect(result.body).toStrictEqual({});
@@ -252,71 +233,58 @@ describe('User API e2e test', () => {
   });
 
   describe('PUT /users/:id/friends', () => {
+    let user1: User;
+    let user2: User;
+
+    beforeEach(async () => {
+      user1 = await userService.create(mockUserDto[0]);
+      user2 = await userService.create(mockUserDto[1]);
+    });
+
     it('should return 200 and Friendship objects if successfull', async () => {
-      // create two users
-      const user1 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[0]);
-      const user2 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[1]);
       // user1 request user2 to be his friend
       const result = await request(app.getHttpServer())
-        .put('/users/' + user1.body.id + '/friends')
-        .send({ addresseeId: +user2.body.id });
+        .put('/users/' + user1.id + '/friends')
+        .send({ addresseeId: +user2.id });
       expect(result.statusCode).toBe(200);
       expect(result.body).toMatchObject(Friendship.prototype);
     });
 
     it('should return 200 and specific message if friendship request already exist from the same requester ', async () => {
-      // create two users
-      const user1 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[0]);
-      const user2 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[1]);
       // user1 request user2 to be his friend
       await request(app.getHttpServer())
-        .put('/users/' + user1.body.id + '/friends')
-        .send({ addresseeId: user2.body.id });
+        .put('/users/' + user1.id + '/friends')
+        .send({ addresseeId: user2.id });
       // and again
       const result = await request(app.getHttpServer())
-        .put('/users/' + user1.body.id + '/friends')
-        .send({ addresseeId: user2.body.id });
+        .put('/users/' + user1.id + '/friends')
+        .send({ addresseeId: user2.id });
       expect(result.statusCode).toBe(200);
       expect(result.body).toMatchObject(BaseApiException.prototype);
       expect(result.body.message).toBe(
-        `User #${user1.body.id} has already requested to be friend with #${user2.body.id}`,
+        `User #${user1.id} has already requested to be friend with #${user2.id}`,
       );
     });
 
     it('should return 200 and specific message if friendship request already rejected before', async () => {
-      // create two users
-      const user1 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[0]);
-      const user2 = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[1]);
       // user1 request user2 to be his friend
       await request(app.getHttpServer())
-        .put('/users/' + user1.body.id + '/friends')
-        .send({ addresseeId: user2.body.id });
+        .put('/users/' + user1.id + '/friends')
+        .send({ addresseeId: user2.id });
       // Update the friendship with status rejected
       await request(app.getHttpServer()).patch('/friendship').send({
-        requesterId: user1.body.id,
-        addresseeId: user2.body.id,
+        requesterId: user1.id,
+        addresseeId: user2.id,
         status: 2,
       });
       // ask again
       const result = await request(app.getHttpServer())
-        .put('/users/' + user1.body.id + '/friends')
-        .send({ addresseeId: user2.body.id });
+        .put('/users/' + user1.id + '/friends')
+        .send({ addresseeId: user2.id });
       expect(result.statusCode).toBe(200);
       expect(result.body).toMatchObject(BaseApiException.prototype);
       expect(result.body.message).toBe(
-        `User #${user2.body.id} has already refused to be friend with #${user1.body.id}`,
+        `User #${user2.id} has already refused to be friend with #${user1.id}`,
       );
     });
 
