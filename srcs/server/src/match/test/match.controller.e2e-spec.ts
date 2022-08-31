@@ -8,7 +8,10 @@ import { User } from 'src/user/entities/user.entity';
 import { mockUserDto } from 'src/user/test/stubs/mock.user.dto';
 import { Match } from '../entities/match.entity';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
-import { createMockScoresDto, mockMatchUpdateDto } from './stubs/mock.match.dto';
+import {
+  createMockScoresDto,
+  mockMatchUpdateDto,
+} from './stubs/mock.match.dto';
 import { UpdateScoresDto } from '../dto/update-scores.dto';
 
 describe('Match API e2e test', () => {
