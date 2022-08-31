@@ -3,18 +3,24 @@ import "./NavBar.css"
 import "./ProfilNavBar.tsx"
 import "../Text.css"
 import ProfilNavBar from "./ProfilNavBar"
+import '../Text.css';
+import '../Box.css';
 import SignIn from "./SignIn"
 import { json } from "stream/consumers";
+import Login from "../../../Pages/Login/Login";
+import { Link } from "react-router-dom";
+import { wait } from "@testing-library/user-event/dist/utils";
 
 export default function NavBar()
 {
- //   let logged = false;
     const [user, setUser] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
-  // const [loginOrRegister, setAuthState]= useState(null);
 
+    /*
+    ** Fetching data and allow the user to connect using "useState" to true
+    */
     const getUser = () => {
-       fetch("http://127.0.0.1:4200/auth/success", {
+        fetch("http://127.0.0.1:4200/auth/success", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -28,6 +34,7 @@ export default function NavBar()
             {
                 return response.json();
             }
+            console.log(response.status);
            throw console.log("Fail parsing 42auth");
         })
         .then((responseObject) => {
@@ -41,12 +48,58 @@ export default function NavBar()
             }
         })
         .catch((err) => console.log(err));
-        return(false)
     };
+    const deco = () => {
+        fetch("http://127.0.0.1:4200/auth/logout", {
+         method: "GET",
+         credentials: "include",
+         headers: {
+           Accept: "application/json",
+           "Content-Type": "application/json",
+           "Access-Control-Allow-Credentials": "true",
+         }
+       })
+         .then((response) => {
+                 return response.json();
+         })
+         .then((responseObject) => {
+            console.log(responseObject)
+            if (responseObject.message)
+            {
+                setUser(null);
+                console.log("Disconnect from our services");
+                setIsLogged(false);
+                return;
+            }
+         })
+         .catch((err) => console.log(err));
+     };
+
+   /*
+    ** Here it allows us to access the data into the local storage and not loosing our state "connected"
+    */
     useEffect(() => {
-        getUser();
-    },[isLogged]);
-    
+        const data = localStorage.getItem("StillConnected");
+        if (data)
+        {
+            setIsLogged(JSON.parse(data));
+        }
+
+      }, []);
+
+    /*
+    ** Here it allows us to create the data into the local storage
+    */
+    useEffect(() => {
+        localStorage.setItem("StillConnected", JSON.stringify(isLogged));
+    });
+
+    /*
+    ** Here this function allows us to fetch our first data and start the connection flow 
+    */
+     useEffect(() => {
+         getUser()
+     });
 
     if (isLogged)
     {
@@ -56,6 +109,7 @@ export default function NavBar()
             <div className="buttonInNavBar">
             <a  href="/"> <h2 className="blueText"> PONG  </h2> </a>
              </div>
+             
               <div className="buttonInNavBar">
               <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>
                 
@@ -70,7 +124,7 @@ export default function NavBar()
              <a  href="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </a>
              </div>
              <div className="buttonInNavBar">
-                <ProfilNavBar />
+             <button onClick={deco} className="playFlickering"> DECO  </button>
             </div>
             </div>
           </div>
@@ -93,29 +147,12 @@ export default function NavBar()
                 <div className="buttonInNavBar">
                     <h2 className="yellowText" > Leaderboard </h2>
                 </div>
-                <div className="playFlickering" >
-                    < SignIn />
-                </div>
+                <div className="buttonInNavBar">
+                <Link to="/login" className="playFlickering">Login</Link>
+                 </div>
+
             </div>
         </div>
         )
     }
 }
-
-
-// <ul>
-// <li className="element" ><a href="Pong">PONG</a></li>
-// <li className="elementBlock"><a href="News">Leaderboard</a></li>
-// <li className="elementBlock"><a href="Contact">About</a></li>
-// <li className="elementBlock"><a href="About">Home</a></li>
-// <li className="elementSignIn">
-//         <span></span>
-//         <span></span>
-//         <span></span>
-//         <span></span>
-//         <button className="signinButton" onClick={fortyTwoLogin}>
-//         Sign In
-//         </button>
-//         </li>
-// < Header />
-// </ul>

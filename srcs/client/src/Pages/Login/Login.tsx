@@ -6,6 +6,7 @@ import { useContext, useEffect, useState, Component } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import Auth from "../../Components/Context/Auth";
 import { hasAuthenticated } from "../../Components/services/authApi";
+import { getSuggestedQuery } from "@testing-library/react";
 
 
 
@@ -37,5 +38,6 @@ function Login ()  {
     </div>
   );
 };
+
 
 export default Login;
