@@ -14,7 +14,7 @@ enum UserStatus {
   PLAYING,
 }
 
-export class UpdateStatsDto {
+export class StatsDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({
@@ -32,6 +32,17 @@ export class UpdateStatsDto {
   losses?: number;
 }
 
+export class UpdateStatsDto {
+  @IsObject()
+  @IsOptional()
+  @ApiProperty({
+    description: 'update of the stats of the player',
+    type: StatsDto,
+    isArray: false,
+  })
+  update?: StatsDto;
+}
+
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsNumber()
   @IsOptional()
@@ -40,11 +51,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     example: '1',
   })
   readonly currentStatus?: UserStatus;
-
-  @IsNumber()
-  @IsOptional()
-  @ApiProperty({ description: 'current rank of the user', example: '38' })
-  readonly currentRank?: number;
 
   @IsNumber()
   @IsOptional()

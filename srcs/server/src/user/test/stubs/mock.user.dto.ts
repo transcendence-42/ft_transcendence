@@ -1,8 +1,9 @@
 import { User } from '@prisma/client';
 import { LocalRegisterUserDto } from 'src/auth/dto/registerUser.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 
-const userData = [
+export const mockUserDto: CreateUserDto[] = [
   { username: 'homer', email: 'homer@springfield.com' },
   { username: 'marge', email: 'marge@springfield.com' },
   { username: 'bart', email: 'bart@springfield.com' },
@@ -14,16 +15,33 @@ const userData = [
   { username: 'flanders', email: 'flanders@springfield.com' },
 ];
 
+export const mockUserUpdateDto: UpdateUserDto[] = [
+  {
+    username: 'updated',
+    email: 'lisa@updated.com',
+    currentStatus: 2,
+    eloRating: 1250,
+    stats: {
+      update: {
+        wins: 25,
+        losses: 12,
+      },
+    },
+  },
+  { username: 'updated' },
+  { email: 'marge@updated.com' },
+  { currentStatus: 0 },
+  { eloRating: 1250 },
+  { stats: { update: { wins: 35 } } },
+  { stats: { update: { losses: 8 } } },
+  { stats: { update: { wins: 35, losses: 8 } } },
+];
+
 export const mockValidRegisterUserDto: LocalRegisterUserDto = {
   username: 'nammari',
   email: 'nammari@student.42.fr',
   password: 'jfs+-lkjfas/d8Bkjdf*',
 };
-
-const mockUserDto: CreateUserDto[] = [];
-userData.forEach((user) => {
-  mockUserDto.push({ username: user.username, email: user.email });
-});
 
 export const fakeUser: User = {
   id: null,
@@ -34,5 +52,3 @@ export const fakeUser: User = {
   currentStatus: 0,
   eloRating: 1000,
 };
-
-export { mockUserDto };

@@ -132,7 +132,7 @@ export class UserController {
   @ApiTags('Friends')
   @Put(':id/friends')
   @ApiOperation({ summary: 'Request a friendship' })
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'New friendship requested, or previous request accepted',
     type: Friendship,
     isArray: false,

@@ -129,7 +129,7 @@ export class FriendshipService {
   /** Create a new friendship */
   async create(createFriendshipDto: CreateFriendshipDto): Promise<Friendship> {
     // check if requester and addressee exists
-    const areUsers: User[] | null = await this.prisma.user.findMany({
+    const areUsers: User[] = await this.prisma.user.findMany({
       where: {
         OR: [
           { id: createFriendshipDto.requesterId },
