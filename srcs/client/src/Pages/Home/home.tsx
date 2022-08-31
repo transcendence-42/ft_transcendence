@@ -8,26 +8,23 @@ import PongIMG from "./Pong.jpg";
 import { hasAuthenticated } from "../../Components/services/authApi";
 
 export default function Home () {
-  var a : number;
-  let htmlBut = document.querySelector('.bidule') as HTMLElement;
-
   const[isAuthenticated, setIsAuthenticated] = useState(hasAuthenticated);
-   const fortyTwoLogin = () => 
+   const fortyTwoLogin = () =>
   {
     if(isAuthenticated === false)
     {
-     
+
       console.log("ta mere");
       setIsAuthenticated((true))
     }
     if(isAuthenticated === true)
     {
-     
+
       console.log("ta grand mere");
       setIsAuthenticated((false))
     }
     fetch("http://127.0.0.1:4200/auth/logout")
-    
+
     console.log(isAuthenticated);
   }
     const [user, setUser] = useState(null);
@@ -62,7 +59,7 @@ export default function Home () {
     },[isAuthenticated]);
 
     return (
-        <> 
+        <>
         <div className="home" >
           <div className="homeElement">
             <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST </h2>
@@ -82,4 +79,3 @@ export default function Home () {
     );
 }
 
-  

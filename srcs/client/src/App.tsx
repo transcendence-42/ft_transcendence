@@ -19,9 +19,8 @@ import Chat from './Pages/Chat/chat';
 function App() {
 
   return (
-
         <div className="main">
-          <NavBar authorize={false}/>
+          <NavBar authorize={true}/>
             <Routes>
             <Route path="*" element={<Notfound />} />
             <Route path="/" element={<Home />} />
@@ -36,7 +35,7 @@ function App() {
             </Route>
           </Routes>
         </div>
-      
+
   );
 }
 
