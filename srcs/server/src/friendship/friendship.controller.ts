@@ -18,15 +18,15 @@ export class FriendshipController {
 
   // FRIENDSHIP CRUD OPERATIONS ------------------------------------------------
   /** Delete a friendship */
-  @Delete(':id')
+  @Delete()
   @ApiOperation({ summary: 'Delete a friendship' })
   @ApiOkResponse({
-    description: 'Deleted user',
+    description: 'Deleted friendship',
     type: Friendship,
     isArray: false,
   })
   @ApiNotFoundResponse({
-    description: 'User not found',
+    description: 'Friendship not found',
     type: BaseApiException,
   })
   async remove(@Body() deleteFriendshipDto: DeleteFriendshipDto) {
@@ -35,7 +35,7 @@ export class FriendshipController {
   }
 
   /** Update a friendship */
-  @Patch(':id')
+  @Patch()
   @ApiOperation({ summary: 'Update a friendship' })
   @ApiOkResponse({
     description: 'Updated friendship',
