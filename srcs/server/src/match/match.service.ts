@@ -117,7 +117,7 @@ export class MatchService {
       include: { matches: true },
     });
     const p2: User = await this.prisma.user.findUnique({
-      where: { id: createMatchDto.idPlayer1 },
+      where: { id: createMatchDto.idPlayer2 },
       include: { matches: true },
     });
     if (!p1 || !p2)

@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   Put,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -82,7 +83,7 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     const res = await this.userService.findOne(id);
     return res;
   }
@@ -100,7 +101,10 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     const res = await this.userService.update(+id, updateUserDto);
     return res;
   }
@@ -118,7 +122,7 @@ export class UserController {
     description: 'User not found',
     type: BaseApiException,
   })
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     const res = await this.userService.remove(+id);
     return res;
   }
@@ -143,7 +147,7 @@ export class UserController {
     type: BaseApiException,
   })
   async requestFriendship(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() requestFriendshipDto: RequestFriendshipDto,
   ) {
     const res = await this.userService.requestFriendship(
@@ -170,7 +174,7 @@ export class UserController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
   async getUserFriends(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const res = await this.userService.findUserFriends(id, paginationQuery);
@@ -194,7 +198,7 @@ export class UserController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
   async getUserRatings(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const res = await this.userService.findUserRatings(id, paginationQuery);

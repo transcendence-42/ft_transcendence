@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { MatchService } from './match.service';
 import { CreateMatchDto } from './dto/create-match.dto';
@@ -90,7 +91,7 @@ export class MatchController {
     description: 'Match not found',
     type: BaseApiException,
   })
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     const res = await this.matchService.findOne(id);
     return res;
   }
@@ -108,7 +109,7 @@ export class MatchController {
     type: BaseApiException,
   })
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateMatchDto: UpdateMatchDto,
   ) {
     const res = await this.matchService.update(+id, updateMatchDto);
@@ -128,7 +129,7 @@ export class MatchController {
     type: BaseApiException,
   })
   async updateScores(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateScoresDto: UpdateScoresDto,
   ) {
     const res = await this.matchService.updateScores(+id, updateScoresDto);
@@ -147,7 +148,7 @@ export class MatchController {
     description: 'Match not found',
     type: BaseApiException,
   })
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     const res = await this.matchService.remove(+id);
     return res;
   }
