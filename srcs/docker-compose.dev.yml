@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: server
     restart: always
-    ports: ['${SERVER_PORT}:4200']
+    ports: ['${SERVER_PORT}:4200', '4343:4343']
     volumes:
       - ./server/:/app
     depends_on:
