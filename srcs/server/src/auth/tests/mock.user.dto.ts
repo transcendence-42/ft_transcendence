@@ -48,5 +48,5 @@ export const fakeUser: User = {
   profilePicture: null,
   createdAt: null,
   currentStatus: 0,
-  currentLadder: 0,
+  eloRating: 1000,
 };

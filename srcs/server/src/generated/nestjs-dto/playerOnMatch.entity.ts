@@ -10,4 +10,5 @@ player?: User ;
 playerId: number ;
 playerNum: number ;
 playerScore: number ;
+winProbability: number ;
 }

@@ -3,8 +3,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
 import { LocalLoginUserDto } from '../dto/login.dto';
-import { User } from '@prisma/client';
-import { BadCredentialsException } from '../exceptions';
 import { RequestUser } from 'src/common/entities';
 
 @Injectable()

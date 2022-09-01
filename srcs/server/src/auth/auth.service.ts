@@ -17,7 +17,7 @@ import { toFileStream } from 'qrcode';
 import { RequestUser } from '../common/entities/requestUser.entity';
 import { Response } from 'express';
 import * as Session from 'express-session';
-import { UserAlreadyExistsException } from '../user/exceptions/user-exceptions';
+import { UserAlreadyExistsException } from '../user/exceptions/';
 
 @Injectable()
 export class AuthService {
