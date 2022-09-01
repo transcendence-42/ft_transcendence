@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
 import "./ProfilNavBar.tsx"
 import "../Text.css"
@@ -8,7 +8,8 @@ import { Link } from "react-router-dom";
 
 import { useCookies } from 'react-cookie';
 
-export default function NavBar()
+
+export default function NavBar ()
 {
     // eslint-disable-next-line
     const [user, setUser] = useState(null);
@@ -58,6 +59,7 @@ export default function NavBar()
                 console.log(responseObject);
                 console.log("Success parsing 42auth");
                 setIsLogged(true);
+                localStorage.setItem("pathIsFree", JSON.stringify(true));
                 return;
             }
             throw new Error('Something went wrong');
@@ -65,6 +67,9 @@ export default function NavBar()
         .catch((err) => console.log(err));
     };
 
+    /*
+    ** Fetching data for disconnect the user
+    */
     const deco = () => {
         fetch("http://127.0.0.1:4200/auth/logout", {
          method: "GET",
@@ -85,6 +90,7 @@ export default function NavBar()
                 setUser(null);
                 console.log("Disconnect from our services");
                 setIsLogged(false);
+                localStorage.removeItem("pathIsFree");
                 return;
             }
          })
@@ -95,7 +101,7 @@ export default function NavBar()
     ** Here it allows us to access the data into the local storage and not loosing our state "connected"
     */
     useEffect(() => {
-        const data = localStorage.getItem("StillConnected");
+        const data = window.localStorage.getItem("StillConnected");
         if (data)
         {
             setIsLogged(JSON.parse(data));
@@ -107,12 +113,12 @@ export default function NavBar()
     ** Here it allows us to create the data into the local storage
     */
     useEffect(() => {
-        localStorage.setItem("StillConnected", JSON.stringify(isLogged));
+        window.localStorage.setItem("StillConnected", JSON.stringify(isLogged));
     });
 
  
    /*
-    ** Here it allows us to access the data into the local storage and not loosing our state "connected"
+    ** Here it allows us to access the data into the local storage and not loosing our state from "auth42"
     */
     useEffect(() => {
         const data = localStorage.getItem("fromAuth");
@@ -124,14 +130,14 @@ export default function NavBar()
       }, []);
 
     /*
-    ** Here it allows us to create the data into the local storage
+    ** Here it create the data to be into the local storage
     */
     useEffect(() => {
         localStorage.setItem("fromAuth", JSON.stringify(fromAuth));
     });
 
     /*
-    ** Here this function allows us to fetch our first data and start the connection flow 
+    ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
      useEffect(() => {
         if (cookies !== undefined && fromAuth === true)
@@ -166,6 +172,7 @@ export default function NavBar()
             </div>
             </div>
           </div>
+    
         )
     }
     else 
@@ -193,3 +200,5 @@ export default function NavBar()
         )
     }
 }
+
+

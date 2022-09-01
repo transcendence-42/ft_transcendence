@@ -5,7 +5,6 @@ import { Link, Outlet ,useParams } from "react-router-dom";
 /* Pour exporter l'id on include UseParams and we call it with the variable.id */
 export default function Profile () {
     const params = useParams();
-    console.log(params);
     return (
         <div>
             <h1 className="title"> Profile of </h1>

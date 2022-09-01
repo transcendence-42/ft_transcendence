@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import './home.css';
 import "../../components/Tools/Box.css"
 import "../../components/Tools/Text.css"

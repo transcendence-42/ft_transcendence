@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import './App.css';
 import {Routes, Route} from 'react-router-dom';
 import Home from './Pages/Home/home'
@@ -9,55 +9,21 @@ import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
 import Chat from './Pages/Chat/chat';
 import NavBar from './components/Tools/NavBar/NavBar';
+import Auth from './components/Context/Auth';
+import AuthenticatedRoute from './components/services/authenticatedRoute';
 
 
 function App() {
-      //  const [user, setUser] = useState(null);
-      //  const [isLogged, setIsLogged] = useState(false);
-
-   
-      //  const getUser = () => {
-      //     fetch("http://127.0.0.1:4200/auth/logout'", {
-      //      method: "GET",
-      //      credentials: "include",
-      //      headers: {
-      //        Accept: "application/json",
-      //        "Content-Type": "application/json",
-      //        "Access-Control-Allow-Credentials": "true",
-      //      }
-      //    })
-      //      .then((response) => {
-      //          if (response.status === 200)
-      //          {
-      //              return response.json();
-      //          }
-      //         throw console.log("Fail parsing 42auth");
-      //      })
-      //      .then((responseObject) => {
-      //          if (responseObject.message)
-      //          {
-      //              setUser((responseObject));
-      //              console.log(responseObject);
-      //              console.log("Success parsing 42auth");
-      //              setIsLogged(true);
-      //              return;
-      //          }
-      //      })
-      //      .catch((err) => console.log(err));
-      //      return(false)
-      //  };
-      //  useEffect(() => {
-      //      getUser();
-      //  },[isLogged]);
-       
+  
+  
   return (
         <div className="main">
-          <NavBar  />
+          <NavBar />
             <Routes>
             <Route path="*" element={<Notfound />} />
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route  path='/'>
+            <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
