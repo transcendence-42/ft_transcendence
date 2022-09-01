@@ -1,38 +1,37 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { SocketContext } from '../socket';
+import { Stage, Layer, Rect, Circle } from 'react-konva';
 
 const Game = () => {
   const socket = useContext(SocketContext);
-  const [joined, setJoined] = useState(false);
+  const [players, setPlayers] = useState([]);
 
-  const handleInviteAccepted = useCallback(() => {
-    setJoined(true);
+  const handleConnect = useCallback(() => {
+    console.log('connection from client');
   }, []);
 
-  const handleJoinChat = useCallback(() => {
-    socket.emit("SEND_JOIN_REQUEST");
+  const handleBroadcast = useCallback((data: any) => {
+    console.log('Broadcasted : ' + data.message );
+    setPlayers(data.clients);
   }, []);
-
+  
   useEffect(() => {
-    socket.emit("USER_ONLINE", "toto"); 
-    socket.on("JOIN_REQUEST_ACCEPTED", handleInviteAccepted); 
-    socket.on("WELCOME", () => console.log('welcome'));
-    return () => {
-      // before the component is destroyed
-      socket.off("JOIN_REQUEST_ACCEPTED", handleInviteAccepted);
-    };
-  }, [socket, handleInviteAccepted]);
+    socket.on('broadcast', handleBroadcast);
+    socket.on('connect', handleConnect);
+  }, []);
 
+  const playersRect = players.map((player: any, index: number) => <Rect key={player.socketId} width={50} height={50} x={100 * (index + 1)} fill="red" />) 
+  
   return (
     <div>
-      {
-        joined
-        ? <h1>joined</h1>
-        : <h1>not joined</h1>
-      }
-      <button onClick={handleJoinChat}>
-        Join Chat
-      </button>
+      <Stage width={600} height={600}>
+        <Layer name="background">
+          <Rect width={600} height={600} fill="blue" />
+        </Layer>
+        <Layer>
+          {playersRect}
+        </Layer>
+      </Stage>
     </div>
   )
 }
