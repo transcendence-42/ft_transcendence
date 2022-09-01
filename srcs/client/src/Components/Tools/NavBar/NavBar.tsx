@@ -9,7 +9,7 @@ import {useState, useEffect} from "react"
 
 export default function NavBar(props: any)
 {
-    const [userID, setUserID] = useState(50);
+    const [userID, setUserID] = useState(1);
 
     if (props.authorize)
     {
@@ -63,7 +63,6 @@ export default function NavBar(props: any)
         )
     }
 }
-
 
 // <ul>
 // <li className="element" ><a href="Pong">PONG</a></li>
