@@ -1,43 +1,62 @@
-.title
-{
-    font-family: 'Montserrat', normal;
-    font-style: sans-serif;
-    font-weight: 500;
-    font-size: 40px;
-    animation: flicker 2.5s infinite alternate;
-    color: #FFE710;
-    left: 35%;
-    text-align: center;
-
+.profilAndLadder{
+    width: auto;
+    height: 40%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
 }
 
-.id
-{
-    font-family: 'Montserrat', normal;
-    font-style: sans-serif;
-    font-weight: var(--weight);
-    line-height: var(--height);
-    /* identical to box height */
-  
-    text-align: center;
-    color: #FF80F2;
-    text-shadow:	0px 0px 17.49518px #FF6ADE,
-                    0px 0px 16.9904px #EA3DEE,
-                  0px 0px 55.6977px #CA18A3;
+.profil{
+    width: 65%;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
 }
 
-.choice
-{
-    font-family: 'Montserrat', sans-serif;
-    font-style: sans-serif;
-  
-    /* identical to box height */
-
-    text-align: center;
-  
-    color: #FFE710;
-  
-    text-shadow:	0px 0px 7.49518px #FF6ADE,
-                    0px 0px 14.9904px #EA3DEE,
-
+.picture{
+    width: 30%;
+    height: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
 }
+
+.status{
+    width: 20%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+   margin: 1vw;
+}
+
+.infoProfil{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+   margin: 1vw;
+}
+
+.ladder{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+
+  img{
+    display: flex;
+    justify-content: center;
+    width: 70%;
+  }

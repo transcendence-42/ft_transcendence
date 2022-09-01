@@ -9,7 +9,7 @@ import {useState, useEffect} from "react"
 
 export default function NavBar(props: any)
 {
-    const [userID, setUserID] = useState(1);
+    const [userID, setUserID] = useState<number>(1);
 
     if (props.authorize)
     {

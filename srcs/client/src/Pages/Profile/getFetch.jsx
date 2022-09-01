@@ -1,11 +1,11 @@
 
-
- export async function getFetch(props){
+export async function getFetch(props){
 	try{
 		const response = await
 		fetch(props.url, {
 	  method: "GET",
 	  credentials: "include",
+	//   redirect: "follow",
 	  headers: {
 		Accept: "application/json",
 		"Content-Type": "application/json",
@@ -19,7 +19,7 @@
 		})
 		return response;
 	}
-	catch(error) { // Renvoyer sur home ou errorPage avec useHistory ?
+	catch(error) { // Mettre un potentiel message d'erreur ?
 		console.error(error);
  };
 }

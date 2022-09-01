@@ -16,7 +16,6 @@ import Leaderboard from './Pages/Leaderboard/leaderboard';
 import Chat from './Pages/Chat/chat';
 
 function App() {
-
   return (
     <div className="main">
           <NavBar authorize={true}/>
@@ -33,7 +32,6 @@ function App() {
             </Route>
           </Routes>
         </div>
-
   );
 }
 
