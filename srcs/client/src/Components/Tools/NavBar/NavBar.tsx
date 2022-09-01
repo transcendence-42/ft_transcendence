@@ -22,23 +22,36 @@ export default function NavBar()
     /*
     ** Fetching data and allow the user to connect using "useState" to true
     */
-    const getUser = () => {
-        fetch("http://127.0.0.1:4200/auth/success", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Credentials": "true",
-        }
-      })
+    const getUser = async () => {
+        
+        await  fetch("http://127.0.0.1:4200/auth/success", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Credentials": "true",
+            }
+        })
         .then((response) => {
+            if(!response.ok)
+            {
+                console.log("!response");
+                throw new Error('Something went wrong');
+            }
             if (response.status === 200)
             {
+                console.log("response 200");
                 return response.json();
             }
-            console.log(response.status);
-           throw console.log("Fail parsing 42auth");
+            else if (response.status == 403)
+            {
+                console.log("response 403");
+                return Promise.reject();
+
+            }
+            console.log("ici end");
+            throw console.log("Fail parsing 42auth");
         })
         .then((responseObject) => {
             if (responseObject.message)
@@ -49,8 +62,8 @@ export default function NavBar()
                 setIsLogged(true);
                 return;
             }
+            throw new Error('Something went wrong');
         })
-        
         .catch((err) => console.log(err));
     };
 
@@ -123,7 +136,6 @@ export default function NavBar()
     ** Here this function allows us to fetch our first data and start the connection flow 
     */
      useEffect(() => {
-        console.log(cookies);
         if (cookies !== undefined && fromAuth === true)
         {
             getUser();

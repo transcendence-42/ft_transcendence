@@ -16,6 +16,7 @@ function Login ()  {
   
   
 	const fortyTwoLogin = () => {
+    
 		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
     localStorage.setItem("fromAuth", JSON.stringify(true));
 	}
