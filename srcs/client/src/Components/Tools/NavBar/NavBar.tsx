@@ -10,11 +10,14 @@ import { json } from "stream/consumers";
 import Login from "../../../Pages/Login/Login";
 import { Link } from "react-router-dom";
 import { wait } from "@testing-library/user-event/dist/utils";
+import { CookiesProvider, useCookies } from 'react-cookie';
 
 export default function NavBar()
 {
     const [user, setUser] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
+    const [cookies, setCookie] = useCookies(undefined);
+    const [fromAuth, setFromAuth] = useState(false);
 
     /*
     ** Fetching data and allow the user to connect using "useState" to true
@@ -47,8 +50,10 @@ export default function NavBar()
                 return;
             }
         })
+        
         .catch((err) => console.log(err));
     };
+
     const deco = () => {
         fetch("http://127.0.0.1:4200/auth/logout", {
          method: "GET",
@@ -94,11 +99,36 @@ export default function NavBar()
         localStorage.setItem("StillConnected", JSON.stringify(isLogged));
     });
 
+ 
+   /*
+    ** Here it allows us to access the data into the local storage and not loosing our state "connected"
+    */
+    useEffect(() => {
+        const data = localStorage.getItem("fromAuth");
+        if (data)
+        {
+            setFromAuth(JSON.parse(data));
+        }
+
+      }, []);
+
+    /*
+    ** Here it allows us to create the data into the local storage
+    */
+    useEffect(() => {
+        localStorage.setItem("fromAuth", JSON.stringify(fromAuth));
+    });
+
     /*
     ** Here this function allows us to fetch our first data and start the connection flow 
     */
      useEffect(() => {
-         getUser()
+        console.log(cookies);
+        if (cookies !== undefined && fromAuth === true)
+        {
+            getUser();
+            setFromAuth(false);
+        }
      });
 
     if (isLogged)
@@ -148,7 +178,6 @@ export default function NavBar()
                 <div className="buttonInNavBar">
                 <Link to="/login" className="playFlickering">Login</Link>
                  </div>
-
             </div>
         </div>
         )

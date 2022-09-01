@@ -1,5 +1,4 @@
 import NavBar from "../../Components/Tools/NavBar/NavBar";
-
 import  "../../App.css"
 import "../../Components/Context/Auth"
 import { useContext, useEffect, useState, Component } from "react";
@@ -12,11 +11,20 @@ import { getSuggestedQuery } from "@testing-library/react";
 
 
 
+
 function Login ()  {
+  
   
 	const fortyTwoLogin = () => {
 		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
+    localStorage.setItem("fromAuth", JSON.stringify(true));
 	}
+
+/*
+** Here it allows us to create the data into the local storage
+*/
+
+
 
   return (
     <div>
@@ -41,3 +49,5 @@ function Login ()  {
 
 
 export default Login;
+
+
