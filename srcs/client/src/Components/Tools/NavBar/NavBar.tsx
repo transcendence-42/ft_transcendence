@@ -2,20 +2,18 @@ import React, { useEffect, useState } from "react";
 import "./NavBar.css"
 import "./ProfilNavBar.tsx"
 import "../Text.css"
-import ProfilNavBar from "./ProfilNavBar"
 import '../Text.css';
 import '../Box.css';
-import SignIn from "./SignIn"
-import { json } from "stream/consumers";
-import Login from "../../../Pages/Login/Login";
 import { Link } from "react-router-dom";
-import { wait } from "@testing-library/user-event/dist/utils";
-import { CookiesProvider, useCookies } from 'react-cookie';
+
+import { useCookies } from 'react-cookie';
 
 export default function NavBar()
 {
+    // eslint-disable-next-line
     const [user, setUser] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
+    // eslint-disable-next-line
     const [cookies, setCookie] = useCookies(undefined);
     const [fromAuth, setFromAuth] = useState(false);
 
@@ -37,14 +35,14 @@ export default function NavBar()
             if(!response.ok)
             {
                 console.log("!response");
-                throw new Error('Something went wrong');
+                throw new Error('Fail parsing 42auth you probably denied auth42');
             }
             if (response.status === 200)
             {
                 console.log("response 200");
                 return response.json();
             }
-            else if (response.status == 403)
+            else if (response.status === 403)
             {
                 console.log("response 403");
                 return Promise.reject();
@@ -139,9 +137,9 @@ export default function NavBar()
         if (cookies !== undefined && fromAuth === true)
         {
             getUser();
-            setFromAuth(false);
+            setFromAuth(false) ;
         }
-     });
+     }, [cookies, fromAuth]);
 
     if (isLogged)
     {

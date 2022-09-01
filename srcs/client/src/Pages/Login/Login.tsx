@@ -1,21 +1,7 @@
-import NavBar from "../../Components/Tools/NavBar/NavBar";
 import  "../../App.css"
-import "../../Components/Context/Auth"
-import { useContext, useEffect, useState, Component } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import Auth from "../../Components/Context/Auth";
-import { hasAuthenticated } from "../../Components/services/authApi";
-import { getSuggestedQuery } from "@testing-library/react";
-
-
-
-
-
 
 function Login ()  {
-  
-  
-	const fortyTwoLogin = () => {
+  const fortyTwoLogin = () => {
     
 		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
     localStorage.setItem("fromAuth", JSON.stringify(true));
@@ -24,9 +10,6 @@ function Login ()  {
 /*
 ** Here it allows us to create the data into the local storage
 */
-
-
-
   return (
     <div>
           <h1 className="loginTitle">Choose your Login Method:</h1>
