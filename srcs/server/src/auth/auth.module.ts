@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { FriendshipService } from 'src/friendship/friendship.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { AuthController } from './auth.controller';
@@ -19,6 +20,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     LocalStrategy,
     FtAuthGuard,
     UserService,
+    FriendshipService,
     PrismaService,
     Serialization,
     LoggedInGuard,
