@@ -22,7 +22,7 @@ export default function NavBar ()
     ** Fetching data and allow the user to connect using "useState" to true
     */
     const getUser = async () => {
-        
+
         await  fetch("http://127.0.0.1:4200/auth/success", {
             method: "GET",
             credentials: "include",
@@ -116,7 +116,7 @@ export default function NavBar ()
         window.localStorage.setItem("StillConnected", JSON.stringify(isLogged));
     });
 
- 
+
    /*
     ** Here it allows us to access the data into the local storage and not loosing our state from "auth42"
     */
@@ -153,29 +153,33 @@ export default function NavBar ()
             <div className="navBar">
             <div className="menuInNavBar">
             <div className="buttonInNavBar">
-            <a  href="/"> <h2 className="blueText"> PONG  </h2> </a>
+            <Link  to="/"> <h2 className="blueText"> PONG  </h2> </Link>
              </div>
               <div className="buttonInNavBar">
-              <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>  
+              <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/about"><h2 className="yellowText" > About </h2> </a>
+             <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/chat">  <h2 className="yellowText" > Chat </h2> </a>
+             <Link  to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
              </div>
              <div className="buttonInNavBar">
-             <a  href="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </a>
+             <Link  to="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </Link>
              </div>
              <div className="buttonInNavBar">
              <button onClick={deco} className="playFlickering"> DECO  </button>
             </div>
+             <div className="buttonInNavBar">
+             <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+            </div>
+
             </div>
           </div>
-    
+
         )
     }
-    else 
+    else
     {
         return (
             <div className="navBar">

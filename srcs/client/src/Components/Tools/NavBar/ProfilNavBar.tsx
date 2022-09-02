@@ -1,4 +1,5 @@
 import {Link} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import '../Text.css';
 import '../Box.css';
 
@@ -10,7 +11,7 @@ function ProfilNavBar() {
 		style={{
 		  width: "5vw",
 		  height: "5vw",
-		  }}> DECO </div> 
+		  }}> DECO </div>
 		</Link>
 		</>
 	);

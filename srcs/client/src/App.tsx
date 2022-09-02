@@ -21,7 +21,7 @@ function App() {
           <NavBar />
             <Routes>
             <Route path="*" element={<Notfound />} />
-            <Route path="/" element={<Home />} />
+            <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
             <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
@@ -33,7 +33,6 @@ function App() {
             </Route>
           </Routes>
         </div>
-
   );
 }
 
