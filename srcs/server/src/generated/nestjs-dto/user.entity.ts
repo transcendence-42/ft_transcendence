@@ -1,10 +1,10 @@
 
 import {Credentials} from './credentials.entity'
 import {Stats} from './stats.entity'
-import {Rank} from './rank.entity'
+import {Rating} from './rating.entity'
 import {Channel} from './channel.entity'
 import {UserOnChannel} from './userOnChannel.entity'
-import {UserFriendship} from './userFriendship.entity'
+import {Friendship} from './friendship.entity'
 import {PlayerOnMatch} from './playerOnMatch.entity'
 import {UserAchievement} from './userAchievement.entity'
 
@@ -16,14 +16,14 @@ email: string ;
 createdAt: Date ;
 profilePicture: string  | null;
 currentStatus: number ;
-currentLadder: number ;
+eloRating: number ;
 credentials?: Credentials  | null;
 stats?: Stats  | null;
-rankingHistory?: Rank[] ;
+ratingHistory?: Rating[] ;
 ownedChannels?: Channel[] ;
 channels?: UserOnChannel[] ;
-friendshipRequested?: UserFriendship[] ;
-friendshipAddressed?: UserFriendship[] ;
+friendshipRequested?: Friendship[] ;
+friendshipAddressed?: Friendship[] ;
 matches?: PlayerOnMatch[] ;
 achievements?: UserAchievement[] ;
 }

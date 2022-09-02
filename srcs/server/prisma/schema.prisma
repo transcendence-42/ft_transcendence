@@ -30,15 +30,15 @@ model User {
   email               String            @unique
   createdAt           DateTime          @default(now())
   profilePicture      String?
-  currentStatus       Int               @default(0)
-  currentLadder       Int               @default(0)
+  currentStatus       Int               @default(1)
+  eloRating           Int               @default(1000)
   credentials         Credentials?
   stats               Stats?
-  rankingHistory      Rank[]
+  ratingHistory       Rating[]
   ownedChannels       Channel[]
   channels            UserOnChannel[]
-  friendshipRequested UserFriendship[]  @relation("requester")
-  friendshipAddressed UserFriendship[]  @relation("addressee")
+  friendshipRequested Friendship[]      @relation("requester")
+  friendshipAddressed Friendship[]      @relation("addressee")
   matches             PlayerOnMatch[]
   achievements        UserAchievement[]
 }
@@ -62,19 +62,19 @@ model Channel {
   channelMode Int             @default(0)
   password    String?
   owner       User            @relation(fields: [ownerId], references: [id])
-  ownerId     Int             @unique
+  ownerId     Int
   users       UserOnChannel[]
 }
 
 model Credentials {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  username String @unique
-  password String?
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int    @unique
+  id                 Int     @id @default(autoincrement())
+  email              String  @unique
+  username           String  @unique
+  password           String?
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int     @unique
   twoFactorActivated Boolean @default(false)
-  twoFactorSecret String?
+  twoFactorSecret    String?
 }
 
 model Stats {
@@ -85,18 +85,18 @@ model Stats {
   userId Int  @unique
 }
 
-model Rank {
+model Rating {
   id       Int      @id @default(autoincrement())
   date     DateTime @default(now())
-  position Int
+  rating   Int
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int      @unique
+  userId   Int 
 }
 
 model UserOnChannel {
-  channel   Channel @relation(fields: [channelId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   mode      Int     @default(0)
 
@@ -104,27 +104,28 @@ model UserOnChannel {
 }
 
 model PlayerOnMatch {
-  match       Match @relation(fields: [matchId], references: [id])
-  matchId     Int
-  player      User  @relation(fields: [playerId], references: [id])
-  playerId    Int
-  playerNum   Int   @default(1)
-  playerScore Int   @default(0)
+  match          Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  matchId        Int
+  player         User  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId       Int
+  playerNum      Int   @default(1)
+  playerScore    Int   @default(0)
+  winProbability Float
 
   @@id([matchId, playerId])
 }
 
 model UserAchievement {
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   achievementId Int
-  user          User        @relation(fields: [userId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
   date          DateTime    @default(now())
 
   @@id([achievementId, userId])
 }
 
-model UserFriendship {
+model Friendship {
   requester   User     @relation(name: "requester", fields: [requesterId], references: [id], onDelete: Cascade)
   requesterId Int
   addressee   User     @relation(name: "addressee", fields: [addresseeId], references: [id], onDelete: Cascade)

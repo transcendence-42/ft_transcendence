@@ -26,7 +26,6 @@ import {
   ApiCreatedResponse,
   ApiExcludeEndpoint,
   ApiForbiddenResponse,
-  ApiHideProperty,
   ApiOAuth2,
   ApiOkResponse,
   ApiOperation,

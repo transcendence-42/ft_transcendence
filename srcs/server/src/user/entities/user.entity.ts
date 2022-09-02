@@ -1,11 +1,11 @@
 import { Credentials } from '../../generated/nestjs-dto/credentials.entity';
 import { Stats } from '../../generated/nestjs-dto/stats.entity';
-import { Rank } from '../../generated/nestjs-dto/rank.entity';
+import { Rating } from '../../generated/nestjs-dto/rating.entity';
 import { Channel } from '../../generated/nestjs-dto/channel.entity';
 import { UserOnChannel } from '../../generated/nestjs-dto/userOnChannel.entity';
-import { PlayerOnMatch } from '../../generated/nestjs-dto/playerOnMatch.entity';
-import { UserFriendship } from '../../generated/nestjs-dto/userFriendship.entity';
 import { UserAchievement } from '../../generated/nestjs-dto/userAchievement.entity';
+import { PlayerOnMatch } from 'src/match/entities/playerOnMatch.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 
 export class User {
   id: number;
@@ -14,15 +14,14 @@ export class User {
   createdAt: Date;
   profilePicture: string | null;
   currentStatus: number;
-  currentLadder: number;
-  hasActivated2fa: boolean;
+  eloRating: number;
   credentials?: Credentials | null;
   stats?: Stats | null;
-  rankingHistory?: Rank[];
+  ratingHistory?: Rating[];
   ownedChannels?: Channel[];
   channels?: UserOnChannel[];
-  friendshipRequested?: UserFriendship[];
-  friendshipAddressed?: UserFriendship[];
+  friendshipRequested?: Friendship[];
+  friendshipAddressed?: Friendship[];
   matches?: PlayerOnMatch[];
   achievements?: UserAchievement[];
 }

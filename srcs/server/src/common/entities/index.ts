@@ -1,1 +1,1 @@
-export {RequestUser} from './requestUser.entity';
+export { RequestUser } from './requestUser.entity';

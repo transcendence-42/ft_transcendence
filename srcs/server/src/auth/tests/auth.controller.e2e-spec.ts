@@ -18,8 +18,6 @@ import * as Session from 'express-session';
 import * as Passport from 'passport';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
-import { stat } from 'fs';
-import { User } from 'src/user/entities/user.entity';
 
 describe('AuthController e2e test', () => {
   let controller: AuthController;
@@ -27,7 +25,6 @@ describe('AuthController e2e test', () => {
   let httpServer: HttpServer;
   let config: ConfigService;
   let redisClient;
-  let app;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -160,12 +157,12 @@ describe('AuthController e2e test', () => {
       expect(response.body.user.email).toBe(mockLoginUserInfo.email);
       expect(response.body.user.id).toBeDefined();
     }),
-    it('should return 403 forbidden ressources if no session', async () => {
-      await createUserAndLogIn();
-      const response = await makeGet(path);
-      expect(response.statusCode).toBe(403);
-      expect(response.body.message).toBe('Forbidden resource');
-    })
+      it('should return 403 forbidden ressources if no session', async () => {
+        await createUserAndLogIn();
+        const response = await makeGet(path);
+        expect(response.statusCode).toBe(403);
+        expect(response.body.message).toBe('Forbidden resource');
+      });
   });
   describe('GET auth/logout', () => {
     function getLogout(sessionCookie: string) {
