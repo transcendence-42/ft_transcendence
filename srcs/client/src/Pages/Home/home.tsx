@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './home.css';
-import "../../components/Tools/Box.css"
-import "../../components/Tools/Text.css"
+import "../../Components/Tools/Box.css"
+import "../../Components/Tools/Text.css"
 import PongIMG from "./Pong.jpg";
 
 
