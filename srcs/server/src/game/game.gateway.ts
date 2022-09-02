@@ -94,7 +94,7 @@ export class GameGateway
   handleDisconnect(client: Socket) {
     console.log(`client ${client.id} disconnected`);
     this.game.players = this.game.players.map((player) => {
-      if (player && player.socketId !== client.id) return null;
+      if (player && player.socketId === client.id) return null;
       else return player;
     });
     this.server.emit('broadcast', {
