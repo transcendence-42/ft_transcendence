@@ -24,9 +24,6 @@ export default function Profile () {
 
     if(user)
     {
-        console.log("This is");
-        console.log(user);
-        console.log(user.id);
         return (
             <>
             <div className="profilAndLadder">
@@ -39,9 +36,8 @@ export default function Profile () {
                     </div>
                     <div className="infoProfil">
                         <div className="blueBox">
-                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> {user.email}</h1>
+                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {user.email}</h1>
                         </div>
-
                     </div>
                 </div>
             </div>
