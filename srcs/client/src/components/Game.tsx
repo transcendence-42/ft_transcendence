@@ -40,21 +40,33 @@ const Game = () => {
   }, []);
 
   let playersRect = [];
-  if (game && game.players)
-    playersRect = game.players.map((player: any, index: number) => {
-      if (player)
-        return (
-          <Rect
-            key={player.socketId}
-            width={10}
-            height={50}
-            y={player.y}
-            x={player.x}
-            fill="red"
-          />
-        );
-      else return;
-    });
+  let gameBall;
+  if (game) {
+    if (game.players)
+      playersRect = game.players.map((player: any, index: number) => {
+        if (player)
+          return (
+            <Rect
+              key={player.socketId}
+              width={10}
+              height={50}
+              y={player.y}
+              x={player.x}
+              fill="red"
+            />
+          );
+        else return;
+      });
+    if (game.ball)
+      gameBall =
+        <Circle
+          x={game.ball.x}
+          y={game.ball.y}
+          radius={game.ball.radius}
+          fill="yellow"
+        />
+
+  }
 
   return (
     <div>
@@ -62,7 +74,10 @@ const Game = () => {
         <Layer name="background">
           <Rect width={600} height={600} fill="blue" />
         </Layer>
-        <Layer>{playersRect}</Layer>
+        <Layer>
+          {playersRect}
+          {gameBall}
+        </Layer>
       </Stage>
     </div>
   );
