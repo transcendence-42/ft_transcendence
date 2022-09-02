@@ -14,6 +14,26 @@ export default function Profile () {
     const {userID} : any  = location.state; //Destructuring
     const [user, setUser] : any = useState(null);
 
+    const [test, setTest] : any = useState(
+        {
+            "id": 1,
+            "username": "fmonbeig",
+            "email": "fmonbeig@student.42.fr",
+            "createdAt": "2022-09-02T13:22:33.662Z",
+            "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
+            "currentStatus": 1,
+            "eloRating": 1000,
+            "stats": null,
+            "ratingHistory": [],
+            "ownedChannels": [],
+            "channels": [],
+            "friendshipRequested": [],
+            "friendshipAddressed": [],
+            "matches": [],
+            "achievements": []
+          }
+    )
+
     useEffect(() => {
         console.log(userID);
         let request = "http://127.0.0.1:4200/users/" + userID;
@@ -24,6 +44,8 @@ export default function Profile () {
     })
     },[userID]);
 
+    console.log(test);
+    //Pré remplir les variables pour stats
     if(user)
     {
         return (
@@ -31,14 +53,21 @@ export default function Profile () {
             <div className="profilAndLadder">
                 <div className="profil">
                     <div className="picture">
-                        <img src={user.profilePicture} alt="profil_picture"></img>
+                        <img src={test.profilePicture} alt="profil_picture"></img>
                     </div>
                     <div className="status">
-                        <h1 className="yellowText" style={{fontSize: "3vw", fontWeight: "bold"}}> {user.username}</h1>
+                        <h1 className="yellowText" style={{fontSize: "3vw", fontWeight: "bold"}}> {test.username}</h1>
                     </div>
                     <div className="infoProfil">
                         <div className="blueBox">
-                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {user.email}</h1>
+                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {test.email}</h1>
+                        <h1 className="blueText" style={{fontSize: "1.5"}}> __________________ {test.friendshipRequested.lenght}</h1>
+                        </div>
+                    </div>
+                    <div className="ladder">
+                        <div className="blueBox">
+                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {test.email}</h1>
+                        <h1 className="blueText" style={{fontSize: "1.5"}}> __________________ {test.friendshipRequested.lenght}</h1>
                         </div>
                     </div>
                 </div>
@@ -49,6 +78,27 @@ export default function Profile () {
     }
     return(<></>);
 }
+
+// chaque variable avec [] possede une variable lenght qui sera egale a 0 s'il n'y a rien
+// ex : user.friendshipRequested.lenght  ? affiche ca : sinon affiche ca
+// SANS RIEN DEDANS
+// {
+//     "id": 1,
+//     "username": "fmonbeig",
+//     "email": "fmonbeig@student.42.fr",
+//     "createdAt": "2022-09-02T13:22:33.662Z",
+//     "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
+//     "currentStatus": 1,
+//     "eloRating": 1000,
+//     "stats": null,
+//     "ratingHistory": [],
+//     "ownedChannels": [],
+//     "channels": [],
+//     "friendshipRequested": [],
+//     "friendshipAddressed": [],
+//     "matches": [],
+//     "achievements": []
+//   }
 
     // USER
 //{id: 1, username: 'fmonbeig', email: 'fmonbeig@student.42.fr',

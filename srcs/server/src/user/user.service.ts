@@ -92,7 +92,23 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const result: User = await this.prisma.user.update({
-        where: { id: id updated
+        where: { id: id },
+        data: { ...updateUserDto },
+      });
+      return result;
+    } catch (e) {
+      throw new UserNotFoundException(id);
+    }
+  }
+
+  /** Remove one user */
+  async remove(id: number): Promise<User> {
+    try {
+      const result: User = await this.prisma.user.delete({
+        where: { id: id },
+      });
+      return result;
+    } catch (e) {
       throw new UserNotFoundException(id);
     }
   }
@@ -289,7 +305,7 @@ export class UserService {
       },
     });
     return result;
-6  }
+  }
 
   async setTwoFactorSecret(
     userId: number,
