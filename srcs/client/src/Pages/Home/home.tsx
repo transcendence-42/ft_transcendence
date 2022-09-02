@@ -11,7 +11,7 @@ export default function Home () {
         <>
         <div className="home" >
           <div className="homeElement">
-            <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST </h2>
+            <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>
             </div>
             <div className="homeElement">
             <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
