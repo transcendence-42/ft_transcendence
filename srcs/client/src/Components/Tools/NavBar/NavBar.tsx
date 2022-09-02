@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
-import "./ProfilNavBar.tsx"
+import ProfilNavBar from "./ProfilNavBar";
 import "../Text.css"
 import '../Text.css';
 import '../Box.css';
@@ -17,12 +17,12 @@ export default function NavBar ()
     // eslint-disable-next-line
     const [cookies, setCookie] = useCookies(undefined);
     const [fromAuth, setFromAuth] = useState(false);
+    const [userID, setUserID] = useState<number>(1);
 
     /*
     ** Fetching data and allow the user to connect using "useState" to true
     */
     const getUser = async () => {
-
         await  fetch("http://127.0.0.1:4200/auth/success", {
             method: "GET",
             credentials: "include",
@@ -151,28 +151,29 @@ export default function NavBar ()
     {
         return (
             <div className="navBar">
-            <div className="menuInNavBar">
-            <div className="buttonInNavBar">
-            <Link  to="/"> <h2 className="blueText"> PONG  </h2> </Link>
-             </div>
-              <div className="buttonInNavBar">
-              <a  href="/home"> <h2 className="yellowText"  > Home </h2> </a>
-             </div>
-             <div className="buttonInNavBar">
-             <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
-             </div>
-             <div className="buttonInNavBar">
-             <Link  to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
-             </div>
-             <div className="buttonInNavBar">
-             <Link  to="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </Link>
-             </div>
-             <div className="buttonInNavBar">
-             <button onClick={deco} className="playFlickering"> DECO  </button>
-            </div>
-             <div className="buttonInNavBar">
-             <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
-            </div>
+                <div className="menuInNavBar">
+                    <div className="buttonInNavBar">
+                        <Link  to="/"> <h2 className="blueText"> PONG  </h2> </Link>
+                    </div>
+
+                    <div className="buttonInNavBar">
+                        <Link  to="/home"> <h2 className="yellowText"  > Home </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
+                    </div>
+                <div className="buttonInNavBar">
+                <Link  to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
+                </div>
+                <div className="buttonInNavBar">
+                <Link  to="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </Link>
+                </div>
+                <div className="buttonInNavBar">
+                <button onClick={deco} className="playFlickering"> DECO  </button>
+                </div>
+                <div className="buttonInNavBar">
+                <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+                </div>
 
             </div>
           </div>
@@ -185,16 +186,16 @@ export default function NavBar ()
             <div className="navBar">
             <div className="menuInNavBar">
                 <div className="buttonInNavBar">
-                   <a href="/"> <h2 className="blueText"> PONG </h2> </a>
+                   <Link to="/"> <h2 className="blueText"> PONG </h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
-                <a href="/">   <h2 className="yellowText" > Home </h2> </a>
+                <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
                 </div>
              <div className="buttonInNavBar">
-             <a href="/about">   <h2 className="yellowText" > About </h2> </a>
+             <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
-                <a href="/leaderboard"> <h2 className="yellowText" > Leaderboard </h2> </a>
+                <Link to="/leaderboard"> <h2 className="yellowText" > Leaderboard </h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
                 <Link to="/login" className="playFlickering">Login</Link>
