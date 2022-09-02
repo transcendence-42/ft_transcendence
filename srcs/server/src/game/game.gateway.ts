@@ -7,6 +7,7 @@ import {
   SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import * as Matter from 'matter-js';
 
 class Game {
   constructor() {
@@ -63,9 +64,56 @@ export class GameGateway
 
   @WebSocketServer()
   server: Server;
+  /*
+Matter.Bodies.rectangle(x, y, width, height, [options]) → Body
+Creates a new rigid body model with a rectangle hull. The options parameter is 
+an object that specifies any properties you wish to override the defaults. 
+See the properties section of the Matter.Body module for detailed information 
+on what you can pass via the options object.
 
+Parameters
+x Number
+y Number
+width Number
+height Number
+[options] Object optional
+Returns
+Body A new rectangle body
+*/
   onModuleInit() {
     console.log('Websocket server is up...');
+  }
+
+  private _gameInit() {
+    const matterEngine = Matter.Engine;
+    const bodies = Matter.Bodies;
+    const composite = Matter.Composite;
+
+    // create an engine
+    const engine = matterEngine.create();
+
+    // create two boxes and a ground
+    this.game.players[PlayerPosition.LEFT] = bodies.rectangle(50, 275, 10, 50);
+    this.game.players[PlayerPosition.RIGHT] = bodies.rectangle(
+      550,
+      275,
+      10,
+      50,
+    );
+    const leftWall = bodies.rectangle(0, 0, 1, 600, { isStatic: true });
+    const rightWall = bodies.rectangle(600, 0, 1, 600, { isStatic: true });
+    const topWall = bodies.rectangle(0, 600, 600, 1, { isStatic: true });
+    const bottomWall = bodies.rectangle(600, 0, 600, 1, { isStatic: true });
+
+    // add all of the bodies to the world
+    composite.add(engine.world, [
+      this.game.players[0],
+      this.game.players[1],
+      leftWall,
+      rightWall,
+      topWall,
+      bottomWall,
+    ]);
   }
 
   handleConnection(client: Socket, payload: any) {
@@ -87,6 +135,8 @@ export class GameGateway
         });
     if (this.game.players[0] && this.game.players[1])
       setInterval(() => {
+        
+        this.game.ball = this._ballPhysics(this.game.ball);
         this.server.emit('updateGame', this.game);
       }, 1000 / 60);
   }
@@ -117,9 +167,10 @@ export class GameGateway
     server.emit('updateGame', this.game);
   }
 
-  private _ballPhysics(clients: Player[]) {
+  private _ballPhysics(ball: Ball): Ball {
     // apply physics.js
     //
+    return new Ball();
   }
 
   private _physicsEngine(client: Player, move: number): Player {
