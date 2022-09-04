@@ -33,6 +33,7 @@
     "@nestjs/websockets": "^9.0.11",
     "@prisma/client": "^4.2.1",
     "@types/bcryptjs": "^2.4.2",
+    "@types/matter-js": "^0.18.1",
     "@types/passport-local": "^1.0.34",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
@@ -50,7 +51,8 @@
     "redis": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "socket.io": "^4.5.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

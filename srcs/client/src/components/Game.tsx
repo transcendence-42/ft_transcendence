@@ -1,84 +1,113 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { SocketContext } from "../socket";
+import { useCallback, useEffect, useState } from "react";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 
-enum movement {
-  UP = 0,
-  DOWN
-}
+const Game = (props: any) => {
+  // Enum
+  enum movement {
+    UP = 0,
+    DOWN,
+  }
 
-const Game = () => {
-  const socket = useContext(SocketContext);
-  const [game, setGame] = useState({} as any);
+  // States
+  const socket = props.socket;
+  const [canvas, setCanvas] = useState({} as any);
+  const [params, setParams] = useState({} as any);
 
+  // Init
+  const initGame = () => {
+    if (props.action === props.type.CREATE_GAME)
+      socket.emit("createGame", { players: { socketId: socket.id } });
+    else if (props.action === props.type.JOIN_GAME)
+      socket.emit("updateGame", {
+        param: { roomId: props.room },
+        data: { players: { add: { socketId: socket.id } } },
+      });
+    else if (props.action === props.type.SPECTATE_GAME)
+      socket.emit("updateGame", {
+        param: { roomId: props.room },
+        data: { viewers: { add: { socketId: socket.id } } },
+      });
+  };
+
+  // Handlers
   const handleMove = (event: any) => {
     if (event.key === "w" || event.key === "W") {
-      socket.emit("move", { move: movement.UP });
+      socket.emit("updateGame", { socketId: socket.id, move: movement.UP });
     }
     if (event.key === "s" || event.key === "S") {
-      socket.emit("move", { move: movement.DOWN });
+      socket.emit("updateGame", { socketId: socket.id, move: movement.DOWN });
     }
   };
-  const handleGameUpdate = useCallback((gameData: any) => {
-    setGame(gameData);
+
+  const handleBackToLobby = () => {
+    props.setRoom({ id: props.lobby, type: props.type.LOBBY });
+  };
+
+  const handleCanvasUpdate = useCallback((canvasUpdate: any) => {
+    setCanvas(canvasUpdate);
   }, []);
 
-  const handleConnect = useCallback(() => {
-    console.log(`connection from client: ${socket.id}`);
+  const handleInit = useCallback((data: any) => {
+    console.log("Game initialization...");
+    setCanvas(data.canvasUpdate);
   }, []);
 
-  const handleBroadcast = useCallback((data: any) => {
-    console.log("recieved broadcast: " + data.message);
-    setGame(data.game);
+  const handleParams = useCallback((params: any) => {
+    setParams(params);
   }, []);
 
   useEffect(() => {
-    socket.on("broadcast", handleBroadcast);
-    socket.on("updateGame", handleGameUpdate);
-    socket.on("connect", handleConnect);
+    initGame();
+    socket.on("init", handleInit);
+    socket.on("updateCanvas", handleCanvasUpdate);
+    socket.on("gameParams", handleParams);
     document.addEventListener("keydown", handleMove);
-  }, []);
+  });
 
   let playersRect = [];
   let gameBall;
-  if (game) {
-    if (game.players)
-      playersRect = game.players.map((player: any, index: number) => {
-        if (player)
-          return (
+  if (canvas) {
+    if (canvas.players)
+      playersRect = canvas.players.map(
+        (player: any, index: number) =>
+          player && (
             <Rect
-              key={player.socketId}
-              width={10}
-              height={50}
-              y={player.y}
+              key={index}
+              width={params.barWitdth}
+              height={params.barHeight}
               x={player.x}
-              fill="red"
+              y={player.y}
+              fill={params.barFill}
             />
-          );
-        else return;
-      });
-    if (game.ball)
-      gameBall =
+          )
+      );
+    if (canvas.ball)
+      gameBall = (
         <Circle
-          x={game.ball.x}
-          y={game.ball.y}
-          radius={game.ball.radius}
-          fill="yellow"
+          x={canvas.ball.x}
+          y={canvas.ball.y}
+          radius={params.ballRadius}
+          fill={params.ballFill}
         />
-
+      );
   }
 
   return (
     <div>
-      <Stage width={600} height={600}>
+      <Stage width={params.canvasW} height={params.canvasH}>
         <Layer name="background">
-          <Rect width={600} height={600} fill="blue" />
+          <Rect
+            width={params.canvasW}
+            height={params.canvasH}
+            fill={params.bgFill}
+          />
         </Layer>
         <Layer>
           {playersRect}
           {gameBall}
         </Layer>
       </Stage>
+      <button onClick={handleBackToLobby}>Go back to lobby</button>
     </div>
   );
 };

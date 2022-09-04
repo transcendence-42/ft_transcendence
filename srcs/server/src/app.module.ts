@@ -6,7 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { FriendshipModule } from './friendship/friendship.module';
 import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
-import { GameGateway } from './game/game.gateway';
+import { GameModule } from './game/game.module';
+import { TempModule } from './temp/temp.module';
 
 @Module({
   imports: [
@@ -17,8 +18,10 @@ import { GameGateway } from './game/game.gateway';
     FriendshipModule,
     MatchModule,
     RatingModule,
+    GameModule,
+    TempModule,
   ],
   controllers: [],
-  providers: [GameGateway],
+  providers: [],
 })
 export class AppModule {}
