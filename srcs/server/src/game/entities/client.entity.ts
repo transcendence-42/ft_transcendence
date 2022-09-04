@@ -1,4 +1,4 @@
 export class Client {
   socketId: string;
-  userId: number;
+  userId?: number;
 }

@@ -20,7 +20,8 @@ const GameLobby = () => {
   // Handlers
   const handleConnect = useCallback(() => {
     console.log(`connection from client: ${socket.id}`);
-    setRoom({type: type.LOBBY, id: 'lobby'})
+    setRoom({type: type.LOBBY, id: 'lobby'});
+    socket.emit('findAllGame');
   }, [socket, type]);
 
   const handleGameList = useCallback((gameList: any) => {

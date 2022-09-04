@@ -3,7 +3,7 @@ const GameList = (props: any) => {
     <ul>
       {props.games.map((game: any, index: number) => (
         <li key={index}>
-          Game : {game.roomId}
+          Game #{game.roomId}
           {game.players.length === 2 && (
             <button
               onClick={props.setRoom({

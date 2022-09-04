@@ -3,71 +3,46 @@ import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsString,
   ValidateNested,
 } from 'class-validator';
 
 export class Client {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: 'socket id of player' })
+  @ApiProperty({ description: 'socket id of client' })
   socketId: string;
-}
-
-export class AddPlayer {
-  @IsObject()
-  @IsNotEmpty()
-  @ValidateNested()
-  @ApiProperty({
-    description: 'add a player to the game',
-    type: AddPlayer,
-    isArray: false,
-  })
-  add: Client;
-}
-
-export class AddViewer {
-  @IsObject()
-  @IsNotEmpty()
-  @ValidateNested()
-  @ApiProperty({
-    description: 'add a viewer to the game',
-    type: AddViewer,
-    isArray: false,
-  })
-  add: Client;
 }
 
 export class UpdateGameDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: 'room id to update', example: 'userXXgame' })
-  readonly roomId: string;
+  readonly id: string;
 
-  @IsNumber()
+  @IsString()
   @ApiProperty({ description: 'user id of player', example: '88' })
-  readonly playerId?: number;
+  readonly playerId?: string;
 
   @IsNumber()
   @ApiProperty({ description: 'move of the user : 0=up, 1=down', example: '0' })
   readonly move?: number;
 
-  @Type(() => AddPlayer)
+  @Type(() => Client)
   @ValidateNested()
   @ApiProperty({
-    description: 'playes of the game',
-    type: AddPlayer,
+    description: 'add a player to the game',
+    type: Client,
     isArray: false,
   })
-  readonly players?: AddPlayer;
+  readonly player?: Client;
 
-  @Type(() => AddViewer)
+  @Type(() => Client)
   @ValidateNested()
   @ApiProperty({
-    description: 'viewers of the game',
-    type: AddViewer,
+    description: 'add a viewer to the game',
+    type: Client,
     isArray: false,
   })
-  readonly viewers?: AddViewer;
+  readonly viewer?: Client;
 }

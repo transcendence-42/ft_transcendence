@@ -19,13 +19,11 @@ const Game = (props: any) => {
       socket.emit("createGame", { players: { socketId: socket.id } });
     else if (props.action === props.type.JOIN_GAME)
       socket.emit("updateGame", {
-        param: { roomId: props.room },
-        data: { players: { add: { socketId: socket.id } } },
+        id: props.room, player: { socketId: socket.id }
       });
     else if (props.action === props.type.SPECTATE_GAME)
       socket.emit("updateGame", {
-        param: { roomId: props.room },
-        data: { viewers: { add: { socketId: socket.id } } },
+        id: props.room, viewer: { socketId: socket.id }
       });
   };
 
@@ -47,9 +45,9 @@ const Game = (props: any) => {
     setCanvas(canvasUpdate);
   }, []);
 
-  const handleInit = useCallback((data: any) => {
+  const handleInit = useCallback((initialCanvas: any) => {
     console.log("Game initialization...");
-    setCanvas(data.canvasUpdate);
+    setCanvas(initialCanvas);
   }, []);
 
   const handleParams = useCallback((params: any) => {

@@ -7,7 +7,6 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
-import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket } from 'socket.io';
 import { Server } from 'http';
@@ -54,30 +53,28 @@ export class GameGateway
   /** Create a new game */
   @SubscribeMessage('createGame')
   create(client: Socket) {
-    this.gameService.create(client);
+    this.gameService.create(client, this.gameService.serverData);
   }
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
-  findAll() {
-    return this.gameService.findAll();
-  }
-
-  /** Find one game with its roomId */
-  @SubscribeMessage('findOneGame')
-  findOne(@MessageBody() id: number) {
-    return this.gameService.findOne(id);
+  findAll(client: Socket) {
+    this.gameService.findAll(client, this.gameService.serverData);
   }
 
   /** Update game (players, viewers, params, canvas) */
   @SubscribeMessage('updateGame')
   update(@MessageBody() updateGameDto: UpdateGameDto) {
-    return this.gameService.update(updateGameDto.roomId, updateGameDto);
+    this.gameService.update(
+      updateGameDto.id,
+      updateGameDto,
+      this.gameService.serverData,
+    );
   }
 
   /** End a game */
   @SubscribeMessage('removeGame')
   remove(@MessageBody() id: string) {
-    return this.gameService.remove(id);
+    return this.gameService.remove(id, this.gameService.serverData);
   }
 }

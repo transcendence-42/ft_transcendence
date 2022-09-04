@@ -7,7 +7,6 @@ import { FriendshipModule } from './friendship/friendship.module';
 import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
 import { GameModule } from './game/game.module';
-import { TempModule } from './temp/temp.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { TempModule } from './temp/temp.module';
     MatchModule,
     RatingModule,
     GameModule,
-    TempModule,
   ],
   controllers: [],
   providers: [],
