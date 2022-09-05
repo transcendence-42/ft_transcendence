@@ -15,14 +15,14 @@ const Game = (props: any) => {
 
   // Init
   const initGame = () => {
-    if (props.action === props.type.CREATE_GAME)
+    if (props.action === props.actionVal.CREATE_GAME)
       socket.emit("createGame", { players: { socketId: socket.id } });
-    else if (props.action === props.type.JOIN_GAME)
-      socket.emit("updateGame", {
+    else if (props.action === props.actionVal.JOIN_GAME)
+      socket.emit("joinGame", {
         id: props.room, player: { socketId: socket.id }
       });
-    else if (props.action === props.type.SPECTATE_GAME)
-      socket.emit("updateGame", {
+    else if (props.action === props.actionVal.VIEW_GAME)
+      socket.emit("viewGame", {
         id: props.room, viewer: { socketId: socket.id }
       });
   };
@@ -30,10 +30,10 @@ const Game = (props: any) => {
   // Handlers
   const handleMove = (event: any) => {
     if (event.key === "w" || event.key === "W") {
-      socket.emit("updateGame", { socketId: socket.id, move: movement.UP });
+      socket.emit("updateGame", { move: movement.UP });
     }
     if (event.key === "s" || event.key === "S") {
-      socket.emit("updateGame", { socketId: socket.id, move: movement.DOWN });
+      socket.emit("updateGame", { move: movement.DOWN });
     }
   };
 
@@ -41,24 +41,24 @@ const Game = (props: any) => {
     props.setRoom({ id: props.lobby, type: props.type.LOBBY });
   };
 
-  const handleCanvasUpdate = useCallback((canvasUpdate: any) => {
+  const handleGridUpdate = useCallback((canvasUpdate: any) => {
     setCanvas(canvasUpdate);
-  }, []);
-
-  const handleInit = useCallback((initialCanvas: any) => {
-    console.log("Game initialization...");
-    setCanvas(initialCanvas);
   }, []);
 
   const handleParams = useCallback((params: any) => {
     setParams(params);
   }, []);
 
+  const handlePlayerLeft = useCallback((params: any) => {
+    console.log(`Info : ${params.message}`);
+  }, []);
+
+
   useEffect(() => {
     initGame();
-    socket.on("init", handleInit);
-    socket.on("updateCanvas", handleCanvasUpdate);
+    socket.on("updateGrid", handleGridUpdate);
     socket.on("gameParams", handleParams);
+    socket.on("playerLeft", handlePlayerLeft);
     document.addEventListener("keydown", handleMove);
   });
 

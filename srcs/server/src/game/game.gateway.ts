@@ -8,9 +8,10 @@ import {
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { Socket } from 'socket.io';
-import { Server } from 'http';
+import { Socket, Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
+import { JoinGameDto } from './dto/join-game.dto';
+import { ViewGameDto } from './dto/view-game.dto';
 
 @WebSocketGateway()
 export class GameGateway
@@ -27,37 +28,28 @@ export class GameGateway
 
   /** Handle new clients connection to the game */
   handleConnection(client: Socket) {
-    // join default lobby socket
-    client.join('lobby');
-    // get query information
-    const userId = client.handshake.query.userId;
-    console.log(`user number : ${userId} (${client.id}) connected !`);
-    // if the user id is in a game, force the client to rejoin the game
-    const game = this.gameService.serverData.find(
-      (game) =>
-        game.players.filter((player) => player.userId === +userId).length === 1,
+    this.gameService.clientConnection(
+      client,
+      this.server,
+      this.gameService.serverData,
     );
-    if (game) {
-      client.leave('lobby');
-      client.join(game.roomId);
-      client.emit('reconnect', game.roomId);
-    }
   }
 
   /** Handle client disconnection from the game */
   handleDisconnect(client: Socket) {
-    const userId = client.handshake.query.userId;
-    console.log(`user : ${userId} (${client.id}) disconnected`);
-    // Broadcast that user left
-    this.server.emit('broadcast', {
-      message: `user : ${userId} left the server`,
-    });
+    this.gameService.clientDisconnection(
+      client,
+      this.server,
+      this.gameService.serverData,
+    );
   }
 
   /** Create a new game */
   @SubscribeMessage('createGame')
   create(client: Socket) {
-    this.gameService.create(client, this.gameService.serverData);
+    // add the client socket to a socket array
+    const players: Socket[] = [client];
+    this.gameService.create(players, this.server, this.gameService.serverData);
   }
 
   /** Find all games */
@@ -66,19 +58,31 @@ export class GameGateway
     this.gameService.findAll(client, this.gameService.serverData);
   }
 
-  /** Update game (players, viewers, params, canvas) */
+  /** Update game grid by movement */
   @SubscribeMessage('updateGame')
-  update(@MessageBody() updateGameDto: UpdateGameDto) {
+  update(client: Socket, @MessageBody() updateGameDto: UpdateGameDto) {
     this.gameService.update(
+      client,
       updateGameDto.id,
       updateGameDto,
       this.gameService.serverData,
     );
   }
 
-  /** End a game */
-  @SubscribeMessage('removeGame')
-  remove(@MessageBody() id: string) {
-    return this.gameService.remove(id, this.gameService.serverData);
+  /** join game (new player) */
+  @SubscribeMessage('joinGame')
+  join(client: Socket, @MessageBody() joinGameDto: JoinGameDto) {
+    this.gameService.join(
+      client,
+      this.server,
+      joinGameDto.id,
+      this.gameService.serverData,
+    );
+  }
+
+  /** view game (new viewer) */
+  @SubscribeMessage('viewGame')
+  view(client: Socket, @MessageBody() viewGameDto: ViewGameDto) {
+    this.gameService.view(client, viewGameDto.id, this.gameService.serverData);
   }
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsNumber, ValidateNested } from 'class-validator';
 
-export class CreatePlayer {
+export class CreatePlayerDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({ description: 'id of player', example: '8' })
@@ -11,12 +11,12 @@ export class CreatePlayer {
 
 export class CreateGameDto {
   @IsArray()
-  @Type(() => CreatePlayer)
+  @Type(() => CreatePlayerDto)
   @ValidateNested()
   @ApiProperty({
     description: 'players on the game',
-    type: CreatePlayer,
+    type: CreatePlayerDto,
     isArray: true,
   })
-  readonly players: CreatePlayer[];
+  readonly players: CreatePlayerDto[];
 }

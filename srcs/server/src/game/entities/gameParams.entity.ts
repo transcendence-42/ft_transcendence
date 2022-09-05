@@ -11,7 +11,7 @@ export class GameParams {
     this.ballFill = 'yellow';
     this.ballBorder = 'yellow';
     this.bgFill = 'black';
-		this.wallSize = 10;
+    this.wallSize = 10;
   }
 
   canvasW: number;
@@ -25,5 +25,5 @@ export class GameParams {
   ballFill: string;
   ballBorder: string;
   bgFill: string;
-	wallSize: number;
+  wallSize: number;
 }

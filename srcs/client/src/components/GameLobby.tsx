@@ -5,11 +5,11 @@ import Game from "./Game";
 
 const GameLobby = () => {
   // Enums
-  enum type {
-    LOBBY = 0,
+  enum action {
+    GO_LOBBY = 0,
     CREATE_GAME,
     JOIN_GAME,
-    SPECTATE_GAME,
+    VIEW_GAME,
 		RECO_GAME,
   }
 
@@ -21,48 +21,53 @@ const GameLobby = () => {
   // Handlers
   const handleConnect = useCallback(() => {
     console.log(`connection from client: ${socket.id}`);
-    setRoom({type: type.LOBBY, id: 'lobby'});
+    setRoom({action: action.GO_LOBBY, id: 'lobby'});
     socket.emit('findAllGame');
-  }, [socket, type]);
+  }, [socket, action]);
 
   const handleGameList = useCallback((gameList: any) => {
     setGames(gameList);
   }, []);
 
   const handleNewGame = () => {
-    setRoom({ id: "0", type: type.CREATE_GAME });
+    setRoom({ id: "0", action: action.CREATE_GAME });
   };
 
 	const handleReconnect = (gameId: any) => {
-    setRoom({ id: gameId, type: type.RECO_GAME });
+    setRoom({ id: gameId, action: action.RECO_GAME });
+  };
+
+  const handleInfo = (info: any) => {
+    console.log(`Info: ${info.message}`);
   };
 
   useEffect(() => {
     socket.on("connect", handleConnect);
     socket.on("gameList", handleGameList);
     socket.on("reconnect", handleReconnect);
+    socket.on("info", handleInfo);
   });
 
   // Render
   return (
     <div>
       <div>
-        {room && room.type === type.LOBBY 
+        {room && room.action === action.GO_LOBBY 
         && games ? (
-          <GameList games={games} setRoom={setRoom} type={type} />
+          <GameList games={games} setRoom={setRoom} actionVal={action} />
         ) : (
           <p>No games</p>
         )
         && <button onClick={handleNewGame}>Create New Game</button>}
       </div>
       {room &&
-        room.type > 0 && (
+        room.action > 0 && (
           <Game
             socket={socket}
             room={room.id}
             action={room.type}
             setRoom={setRoom}
-            type={type}
+            actionVal={action}
           />
         )}
     </div>

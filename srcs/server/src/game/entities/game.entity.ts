@@ -1,4 +1,4 @@
-import { GameCanvas } from './gameCanvas.entity';
+import { GameGrid } from './gameGrid.entity';
 import { GameParams } from './gameParams.entity';
 import { Player } from './player.entity';
 import { Client } from './client.entity';
@@ -6,7 +6,7 @@ import { GamePhysics } from './gamePhysics.entity';
 
 export class Game {
   constructor() {
-    this.gameCanvas = new GameCanvas();
+    this.gameGrid = {} as any;
     this.gameParams = new GameParams();
     this.gamePhysics = new GamePhysics();
   }
@@ -15,6 +15,6 @@ export class Game {
   players: Player[];
   viewers?: Client[];
   gameParams?: GameParams;
-  gameCanvas?: GameCanvas;
+  gameGrid?: GameGrid;
   gamePhysics?: GamePhysics;
 }

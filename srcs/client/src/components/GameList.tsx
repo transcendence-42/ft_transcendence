@@ -8,7 +8,7 @@ const GameList = (props: any) => {
             <button
               onClick={props.setRoom({
                 id: game.roomId,
-                type: props.type.SPECTATE_GAME,
+                action: props.actionVal.SPECTATE_GAME,
               })}
             >
               Spectate
@@ -18,7 +18,7 @@ const GameList = (props: any) => {
             <button
               onClick={props.setRoom({
                 id: game.roomId,
-                type: props.type.PLAY_GAME,
+                action: props.actionVal.PLAY_GAME,
               })}
             >
               Join
