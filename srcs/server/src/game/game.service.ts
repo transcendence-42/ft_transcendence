@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { WebSocketServer } from '@nestjs/websockets';
-import Matter, { Bodies, Composite } from 'matter-js';
+import Matter, { Bodies, Composite, Engine } from 'matter-js';
 import { Socket, Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateGameDto } from './dto/update-game.dto';
@@ -69,18 +69,6 @@ export class GameService {
       });
   }
 
-  /** Create the game list from the global server data */
-  private _createGameList(serverData: Game[]): object {
-    const games = serverData.map((game) => {
-      return {
-        roomId: game.roomId,
-        players: game.players,
-        viewers: game.viewers,
-      };
-    });
-    return games;
-  }
-
   /** Init game physics */
   private _initPhysics(game: Game): Game {
     enum walls {
@@ -138,6 +126,7 @@ export class GameService {
       );
     });
     // Add all bodies to the world
+    game.gamePhysics.engine = Engine.create();
     game.gamePhysics.composite = Composite.add(game.gamePhysics.engine.world, [
       game.gamePhysics.players[players.LEFT],
       game.gamePhysics.players[players.RIGHT],
@@ -179,15 +168,15 @@ export class GameService {
   /** Create a new game in dedicated room with 1 player */
   create(players: Socket[], server: Server, serverData: Game[]) {
     // create a new game
-    const len = serverData.push({
-      roomId: 'game-' + players[0].id,
-      players: [],
-    });
+    const newGame: Game = new Game();
+    newGame.roomId = players[0].id;
+    newGame.players = [];
+    const len = serverData.push(newGame);
     // add players to the game and emit initial grid
     players.forEach((player, index) => {
       const side = index ? Side.RIGHT : Side.LEFT;
       this._addPlayerToGame(player, side, serverData, len - 1);
-      player.emit('gridUpdate', serverData[len - 1].gameGrid);
+      player.emit('newGameId', serverData[len - 1].roomId);
     });
     // Broadcast new gamelist to the lobby
     const games = this._createGameList(serverData);
@@ -244,23 +233,26 @@ export class GameService {
       return;
     }
     // Update user coordinates (let the physic engine blocks the players)
-    const move =
+    const move: number =
       updateGameDto.move === Move.UP
         ? serverData[index].gameParams.moveSpeed * -1
         : serverData[index].gameParams.moveSpeed;
     serverData[index].gameGrid.playersCoordinates = serverData[
       index
-    ].gameGrid.playersCoordinates.map((player) =>
-      player.playerId === client.id
-        ? {
-            coordinates: {
-              x: player.coordinates.x,
-              y: player.coordinates.y + move,
-            },
-            ...player,
-          }
-        : player,
-    );
+    ].gameGrid.playersCoordinates.map((player) => {
+      if (player.playerId === client.id) {
+        console.log(player.coordinates.y + move);
+        return {
+          coordinates: {
+            x: player.coordinates.x,
+            y: player.coordinates.y + move,
+          },
+          ...player,
+        };
+      } else return player;
+    });
+    console.log(serverData[index].gameGrid.playersCoordinates[0]);
+    client.emit('updateGrid', serverData[index].gameGrid);
   }
 
   /** join a game (player) */
@@ -274,7 +266,7 @@ export class GameService {
     this._addPlayerToGame(client, Side.RIGHT, serverData, index);
     server
       .to(serverData[index].roomId)
-      .emit('gridUpdate', serverData[index].gameGrid);
+      .emit('updateGrid', serverData[index].gameGrid);
     // Check if the game has 2 players
     if (serverData[index].players.length >= 2) {
       this._startGame(server, serverData, index);
@@ -291,7 +283,61 @@ export class GameService {
     // add new viewer to the game and push him a grid update
     const userId: number = +client.handshake.query.userId;
     serverData[index].viewers.push({ userId: userId, socketId: client.id });
-    client.emit('gridUpdate', serverData[index].gameGrid);
+    client.emit('updateGrid', serverData[index].gameGrid);
+  }
+
+  /** reconnect a game (existing player) */
+  reconnect(client: Socket, id: string, serverData: Game[]) {
+    const userId: number = +client.handshake.query.userId;
+    const index = serverData.findIndex((game) => game.roomId === id);
+    if (index === -1) {
+      console.log('Error : wrong game id');
+      return;
+    }
+    // get old socket id
+    const oldSocketId = serverData[index].players.find(
+      (player) => player.userId === userId,
+    ).socketId;
+    // update player socket on player list
+    serverData[index].players = serverData[index].players.map((player) =>
+      player.userId === userId ? { socketId: client.id, ...player } : player,
+    );
+    // update player socket on grid
+    serverData[index].gameGrid.playersCoordinates = serverData[
+      index
+    ].gameGrid.playersCoordinates.map((player) =>
+      player.playerId === oldSocketId
+        ? { playerId: client.id, ...player }
+        : player,
+    );
+    // send the grid and params to the player
+    client.emit('updateGrid', serverData[index].gameGrid);
+    client.emit('gameParams', serverData[index].gameParams);
+    client.emit('gameId', serverData[index].roomId);
+  }
+
+  /** Create the game list from the global server data */
+  private _createGameList(serverData: Game[]): object {
+    const games = serverData.map((game) => {
+      return {
+        roomId: game.roomId,
+        players: game.players,
+        viewers: game.viewers,
+      };
+    });
+    return games;
+  }
+
+  /** get game grid and param on request */
+  getGameInfo(client: Socket, id: string, serverData: Game[]) {
+    const index = serverData.findIndex((game) => game.roomId === id);
+    if (index === -1) {
+      console.log('Error : wrong game id');
+      return;
+    }
+    // add new viewer to the game and push him a grid update
+    client.emit('updateGrid', serverData[index].gameGrid);
+    client.emit('gameParams', serverData[index].gameParams);
   }
 
   /** Find all created games */

@@ -5,11 +5,11 @@ import GameLobby from './components/GameLobby';
 
 const App = () => {
   return (
-    <SocketContext.Provider value={socket}>
-      <div className="App">
-        <GameLobby />
-      </div>
-    </SocketContext.Provider>
+      <SocketContext.Provider value={socket}>
+        <div className="App">
+          <GameLobby />
+        </div>
+      </SocketContext.Provider>
   );
 }
 

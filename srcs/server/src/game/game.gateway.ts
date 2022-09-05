@@ -5,6 +5,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
@@ -12,8 +13,10 @@ import { Socket, Server } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 import { JoinGameDto } from './dto/join-game.dto';
 import { ViewGameDto } from './dto/view-game.dto';
+import { ReconnectGameDto } from './dto/reconnect-game.dto';
+import { GetGameInfoDto } from './dto/get-gameInfo.dto';
 
-@WebSocketGateway()
+@WebSocketGateway(4343, { cors: true })
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
@@ -27,7 +30,7 @@ export class GameGateway
   }
 
   /** Handle new clients connection to the game */
-  handleConnection(client: Socket) {
+  handleConnection(@ConnectedSocket() client: Socket) {
     this.gameService.clientConnection(
       client,
       this.server,
@@ -36,7 +39,7 @@ export class GameGateway
   }
 
   /** Handle client disconnection from the game */
-  handleDisconnect(client: Socket) {
+  handleDisconnect(@ConnectedSocket() client: Socket) {
     this.gameService.clientDisconnection(
       client,
       this.server,
@@ -46,7 +49,7 @@ export class GameGateway
 
   /** Create a new game */
   @SubscribeMessage('createGame')
-  create(client: Socket) {
+  create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
     const players: Socket[] = [client];
     this.gameService.create(players, this.server, this.gameService.serverData);
@@ -54,13 +57,17 @@ export class GameGateway
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
-  findAll(client: Socket) {
+  findAll(@ConnectedSocket() client: Socket) {
     this.gameService.findAll(client, this.gameService.serverData);
   }
 
   /** Update game grid by movement */
   @SubscribeMessage('updateGame')
-  update(client: Socket, @MessageBody() updateGameDto: UpdateGameDto) {
+  update(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateGameDto: UpdateGameDto,
+  ) {
+    console.log(JSON.stringify(updateGameDto, null, 4));
     this.gameService.update(
       client,
       updateGameDto.id,
@@ -71,7 +78,10 @@ export class GameGateway
 
   /** join game (new player) */
   @SubscribeMessage('joinGame')
-  join(client: Socket, @MessageBody() joinGameDto: JoinGameDto) {
+  join(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() joinGameDto: JoinGameDto,
+  ) {
     this.gameService.join(
       client,
       this.server,
@@ -82,7 +92,36 @@ export class GameGateway
 
   /** view game (new viewer) */
   @SubscribeMessage('viewGame')
-  view(client: Socket, @MessageBody() viewGameDto: ViewGameDto) {
+  view(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() viewGameDto: ViewGameDto,
+  ) {
     this.gameService.view(client, viewGameDto.id, this.gameService.serverData);
+  }
+
+  /** reconnect game (existing player) */
+  @SubscribeMessage('reconnectGame')
+  reconnect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() reconnectGameDto: ReconnectGameDto,
+  ) {
+    this.gameService.reconnect(
+      client,
+      reconnectGameDto.id,
+      this.gameService.serverData,
+    );
+  }
+
+  /** reconnect game (existing player) */
+  @SubscribeMessage('getGameInfo')
+  getGameInfo(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() getGameDto: GetGameInfoDto,
+  ) {
+    this.gameService.reconnect(
+      client,
+      getGameDto.id,
+      this.gameService.serverData,
+    );
   }
 }

@@ -1,32 +1,42 @@
 const GameList = (props: any) => {
+
   return (
-    <ul>
-      {props.games.map((game: any, index: number) => (
-        <li key={index}>
-          Game #{game.roomId}
-          {game.players.length === 2 && (
-            <button
-              onClick={props.setRoom({
-                id: game.roomId,
-                action: props.actionVal.SPECTATE_GAME,
-              })}
-            >
-              Spectate
-            </button>
-          )}
-          {game.players.length === 1 && (
-            <button
-              onClick={props.setRoom({
-                id: game.roomId,
-                action: props.actionVal.PLAY_GAME,
-              })}
-            >
-              Join
-            </button>
-          )}
-        </li>
-      ))}
-    </ul>
+    <div>
+      {
+        props.games.length > 0
+        ?
+        <ul>
+          {props.games.map((game: any, index: number) => (
+            <li key={index}>
+              Game #{game.roomId}
+              {game.players.length === 2 && (
+                <button
+                  onClick={() => props.setRoom({
+                    id: game.roomId,
+                    action: props.actionVal.SPECTATE_GAME,
+                  })}
+                >
+                  Spectate
+                </button>
+              )}
+              {game.players.length === 1 && (
+                <button
+                  onClick={() => props.setRoom({
+                    id: game.roomId,
+                    action: props.actionVal.PLAY_GAME,
+                  })}
+                >
+                  Join
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+        :
+        <p>No games...</p>
+      }
+      <button onClick={props.handleNewGame}>Create New Game</button>
+    </div>
   );
 };
 

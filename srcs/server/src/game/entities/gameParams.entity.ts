@@ -3,10 +3,10 @@ export class GameParams {
     this.canvasW = 600;
     this.canvasH = 600;
     this.moveSpeed = 5;
-    this.barWidth = 20;
-    this.barHeight = 10;
-    this.barFill = 'white';
-    this.barBorder = 'white';
+    this.barWidth = 10;
+    this.barHeight = 50;
+    this.barFill = 'yellow';
+    this.barBorder = 'yellow';
     this.ballRadius = 10;
     this.ballFill = 'yellow';
     this.ballBorder = 'yellow';

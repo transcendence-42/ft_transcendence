@@ -6,9 +6,8 @@ import { GamePhysics } from './gamePhysics.entity';
 
 export class Game {
   constructor() {
-    this.gameGrid = {} as any;
+    this.gameGrid = new GameGrid();
     this.gameParams = new GameParams();
-    this.gamePhysics = new GamePhysics();
   }
 
   roomId: string;

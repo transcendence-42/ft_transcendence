@@ -5,7 +5,7 @@ import Game from "./Game";
 
 const GameLobby = () => {
   // Enums
-  enum action {
+  enum Action {
     GO_LOBBY = 0,
     CREATE_GAME,
     JOIN_GAME,
@@ -15,27 +15,39 @@ const GameLobby = () => {
 
   // States
   const socket = useContext(SocketContext);
-  const [games, setGames] = useState({} as any);
-  const [room, setRoom] = useState({} as any);
+  const [games, setGames] = useState([] as any);
+  const [room, setRoom] = useState({action: Action.GO_LOBBY, id: 'lobby'});
 
   // Handlers
   const handleConnect = useCallback(() => {
     console.log(`connection from client: ${socket.id}`);
-    setRoom({action: action.GO_LOBBY, id: 'lobby'});
+    setRoom({action: Action.GO_LOBBY, id: 'lobby'});
     socket.emit('findAllGame');
-  }, [socket, action]);
+  }, [socket, Action]);
 
   const handleGameList = useCallback((gameList: any) => {
+    console.log('get game list');
+    console.log(JSON.stringify(gameList, null, 4));
     setGames(gameList);
   }, []);
 
   const handleNewGame = () => {
-    setRoom({ id: "0", action: action.CREATE_GAME });
+    socket.emit("createGame");
+  };
+
+  const handleNewGameId = (id: string) => {
+    setRoom({ id: id, action: Action.CREATE_GAME });
   };
 
 	const handleReconnect = (gameId: any) => {
-    setRoom({ id: gameId, action: action.RECO_GAME });
+    console.log('reconnect game');
+    setRoom({ id: gameId, action: Action.RECO_GAME });
   };
+
+  const backToLobby = (room: any) => {
+    socket.emit('findAllGame');
+    setRoom(room);
+  }
 
   const handleInfo = (info: any) => {
     console.log(`Info: ${info.message}`);
@@ -45,31 +57,32 @@ const GameLobby = () => {
     socket.on("connect", handleConnect);
     socket.on("gameList", handleGameList);
     socket.on("reconnect", handleReconnect);
+    socket.on('newGameId', handleNewGameId);
     socket.on("info", handleInfo);
-  });
+  }, []);
 
   // Render
   return (
     <div>
       <div>
-        {room && room.action === action.GO_LOBBY 
-        && games ? (
-          <GameList games={games} setRoom={setRoom} actionVal={action} />
-        ) : (
-          <p>No games</p>
-        )
-        && <button onClick={handleNewGame}>Create New Game</button>}
+        {
+          room && room.action === Action.GO_LOBBY 
+          &&
+          <GameList games={games} setRoom={setRoom} handleNewGame={handleNewGame} actionVal={Action} />
+        }
       </div>
-      {room &&
-        room.action > 0 && (
-          <Game
-            socket={socket}
-            room={room.id}
-            action={room.type}
-            setRoom={setRoom}
-            actionVal={action}
-          />
-        )}
+        {
+          room && room.action > Action.GO_LOBBY
+          && (
+            <Game
+              socket={socket}
+              room={room.id}
+              action={room.action}
+              backToLobby={backToLobby}
+              actionVal={Action}
+            />
+          )
+        }
     </div>
   );
 };
