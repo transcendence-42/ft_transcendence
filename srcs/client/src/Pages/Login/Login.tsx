@@ -15,7 +15,7 @@ function Login ()  {
           <h1 className="loginTitle">Choose your Login Method:</h1>
             <div className="wrapper">
               <div className="left">
-                <button className="loginButton fortyTwo" onClick={fortyTwoLogin}>Login 42</button>
+                <button className="loginButton fortyTwo" data-testid="tracker" onClick={fortyTwoLogin}>Login 42</button>
               </div>
               <div className="center">
                 <div className="line" />

@@ -9,7 +9,7 @@ export default function Chat () {
     return (
       <>
       <div className="chat">
-        <p className="text">Chat</p>
+        <p className="text" data-testid="tracker">Chat</p>
         </div>
       </>
     );

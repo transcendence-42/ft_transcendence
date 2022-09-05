@@ -4,6 +4,12 @@
 	--weight: 400;
 	--height: 20px;
 }
+.playFlickering {
+  all: unset;
+  cursor: pointer;
+}
+
+
 
 .blueText{
   font-family: 'Montserrat', sans-serif;

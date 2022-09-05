@@ -7,7 +7,7 @@ export default function Leaderboard () {
     return (
         <>
         <div className="leaderboard">
-          <p className="text">LEADERBOARD</p>
+          <p className="text" data-testid="tracker" >LEADERBOARD</p>
           </div>
         </>
     );

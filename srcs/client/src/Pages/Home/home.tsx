@@ -9,7 +9,7 @@ export default function Home () {
 
     return (
         <>
-        <div className="home" >
+        <div className="home" data-testid="tracker" >
           <div className="homeElement">
             <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>
             </div>

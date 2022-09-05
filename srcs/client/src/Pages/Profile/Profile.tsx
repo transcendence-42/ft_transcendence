@@ -28,7 +28,7 @@ export default function Profile () {
     {
         return (
             <>
-            <div className="profilAndLadder">
+            <div className="profilAndLadder" data-testid="tracker">
                 <div className="profil">
                     <div className="picture">
                         <img src={user.profilePicture} alt="profil_picture"></img>

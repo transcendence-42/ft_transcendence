@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./NavBar.css"
 import ProfilNavBar from "./ProfilNavBar";
 import "../Text.css"
@@ -68,7 +68,7 @@ export default function NavBar ()
     };
 
     /*
-    ** Fetching data for disconnect the user
+    ** Fetching data for logout
     */
     const deco = () => {
         fetch("http://127.0.0.1:4200/auth/logout", {
@@ -155,50 +155,47 @@ export default function NavBar ()
                     <div className="buttonInNavBar">
                         <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
                     </div>
-
                     <div className="buttonInNavBar">
                         <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
                     </div>
                     <div className="buttonInNavBar">
-                        <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
+                        <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
                     </div>
-                <div className="buttonInNavBar">
-                <Link  to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
+                    <div className="buttonInNavBar">
+                        <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <button onClick={deco} className="playFlickering">Logout</button>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+                    </div>
                 </div>
-                <div className="buttonInNavBar">
-                <Link  to="/leaderboard">  <h2 className="yellowText" > Leaderboard </h2> </Link>
-                </div>
-                <div className="buttonInNavBar">
-                <button onClick={deco} className="playFlickering"> DECO  </button>
-                </div>
-                <div className="buttonInNavBar">
-                <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
-                </div>
-
-            </div>
           </div>
-
         )
     }
     else
     {
         return (
             <div className="navBar">
-            <div className="menuInNavBar">
-                <div className="buttonInNavBar">
-                   <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
-                </div>
-                <div className="buttonInNavBar">
-                <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
-                </div>
-             <div className="buttonInNavBar">
-             <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
-                </div>
-                <div className="buttonInNavBar">
-                <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
-                </div>
-                <div className="buttonInNavBar">
-                <Link to="/login" className="playFlickering">Login</Link>
+                <div className="menuInNavBar">
+                    <div className="buttonInNavBar">
+                        <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/login" className="playFlickering">Login</Link>
                  </div>
             </div>
         </div>
