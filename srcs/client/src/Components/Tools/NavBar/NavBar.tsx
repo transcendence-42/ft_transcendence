@@ -153,11 +153,11 @@ export default function NavBar ()
             <div className="navBar">
                 <div className="menuInNavBar">
                     <div className="buttonInNavBar">
-                        <Link  to="/"> <h2 className="blueText"> PONG  </h2> </Link>
+                        <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
                     </div>
 
                     <div className="buttonInNavBar">
-                        <Link  to="/home"> <h2 className="yellowText"  > Home </h2> </Link>
+                        <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
                     </div>
                     <div className="buttonInNavBar">
                         <Link  to="/about"><h2 className="yellowText" > About </h2> </Link>
@@ -186,7 +186,7 @@ export default function NavBar ()
             <div className="navBar">
             <div className="menuInNavBar">
                 <div className="buttonInNavBar">
-                   <Link to="/"> <h2 className="blueText"> PONG </h2> </Link>
+                   <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
                 <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
@@ -195,7 +195,7 @@ export default function NavBar ()
              <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
-                <Link to="/leaderboard"> <h2 className="yellowText" > Leaderboard </h2> </Link>
+                <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
                 </div>
                 <div className="buttonInNavBar">
                 <Link to="/login" className="playFlickering">Login</Link>

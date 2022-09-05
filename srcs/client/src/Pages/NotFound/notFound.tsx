@@ -13,7 +13,8 @@ export default function NotFound()
 
     return (
         <div>
-            <p className="message"> Error unknown path</p> 
+            <h1>Test</h1>
+            <p className="message" data-testid="message"> Error unknown path</p> 
             <button onClick={goHome} className="button">Back to main page</button>
          </div>
     );
