@@ -15,14 +15,12 @@ export class GameService {
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
   ) {
-    this.clientList = [];
     this.serverData = [];
   }
 
   @WebSocketServer()
   server: Server;
 
-  clientList: Client[];
   serverData: Game[];
 
   /** Create the game list from the global server data */
@@ -54,27 +52,27 @@ export class GameService {
       game.gameParams.canvasW / 2,
       0,
       game.gameParams.canvasH,
-      10,
+      game.gameParams.wallSize,
       { isStatic: true },
     );
     game.gamePhysics.walls[walls.RIGHT] = Bodies.rectangle(
-      game.gameParams.canvasW - 10,
+      game.gameParams.canvasW - game.gameParams.wallSize,
       game.gameParams.canvasH / 2,
-      10,
+      game.gameParams.wallSize,
       game.gameParams.canvasH,
       { isStatic: true },
     );
     game.gamePhysics.walls[walls.BOTTOM] = Bodies.rectangle(
       game.gameParams.canvasW / 2,
-      game.gameParams.canvasH - 10,
+      game.gameParams.canvasH - game.gameParams.wallSize,
       game.gameParams.canvasW,
-      10,
+      game.gameParams.wallSize,
       { isStatic: true },
     );
     game.gamePhysics.walls[walls.LEFT] = Bodies.rectangle(
       0,
       game.gameParams.canvasH / 2,
-      10,
+      game.gameParams.wallSize,
       game.gameParams.canvasW,
       { isStatic: true },
     );
@@ -86,8 +84,8 @@ export class GameService {
     );
     // Left Player
     game.gamePhysics.players[players.LEFT] = Bodies.rectangle(
-      game.gameCanvas.playersPosition[players.LEFT].x,
-      game.gameCanvas.playersPosition[players.LEFT].y,
+      game.gameCanvas.playersPosition[players.LEFT].position.x,
+      game.gameCanvas.playersPosition[players.LEFT].position.y,
       game.gameParams.barWidth,
       game.gameParams.barHeight,
     );
@@ -103,7 +101,7 @@ export class GameService {
     return game;
   }
 
-  /** Create a new game in dedicated room with 2 players */
+  /** Create a new game in dedicated room with 1 player */
   create(client: Socket, serverData: Game[]) {
     // get user from client
     const userId = client.handshake.query.userId;
@@ -159,6 +157,9 @@ export class GameService {
         this._launchGame();
     }
     // Move
+		if (updateGameDto.move) {
+
+		}
       // Calculate updated positions
       // Update canvas throught physics
       // broadcast canvas to the room

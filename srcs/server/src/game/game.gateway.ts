@@ -32,18 +32,22 @@ export class GameGateway
     // get query information
     const userId = client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
-    // add the client to a global list
-    this.gameService.clientList.push({ socketId: client.id, userId: +userId });
+    // if the user id is in a game, force the client to rejoin the game
+    const game = this.gameService.serverData.find(
+      (game) =>
+        game.players.filter((player) => player.userId === +userId).length === 1,
+    );
+    if (game) {
+      client.leave('lobby');
+      client.join(game.roomId);
+      client.emit('reconnect', game.roomId);
+    }
   }
 
   /** Handle client disconnection from the game */
   handleDisconnect(client: Socket) {
     const userId = client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
-    // Remove the viewer from the list
-    this.gameService.clientList = this.gameService.clientList.filter(
-      (client) => client.userId !== +userId,
-    );
     // Broadcast that user left
     this.server.emit('broadcast', {
       message: `user : ${userId} left the server`,

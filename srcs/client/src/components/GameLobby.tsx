@@ -10,6 +10,7 @@ const GameLobby = () => {
     CREATE_GAME,
     JOIN_GAME,
     SPECTATE_GAME,
+		RECO_GAME,
   }
 
   // States
@@ -32,9 +33,14 @@ const GameLobby = () => {
     setRoom({ id: "0", type: type.CREATE_GAME });
   };
 
+	const handleReconnect = (gameId: any) => {
+    setRoom({ id: gameId, type: type.RECO_GAME });
+  };
+
   useEffect(() => {
     socket.on("connect", handleConnect);
     socket.on("gameList", handleGameList);
+    socket.on("reconnect", handleReconnect);
   });
 
   // Render
@@ -50,8 +56,7 @@ const GameLobby = () => {
         && <button onClick={handleNewGame}>Create New Game</button>}
       </div>
       {room &&
-        room.type ===
-          (type.CREATE_GAME || type.SPECTATE_GAME || type.JOIN_GAME) && (
+        room.type > 0 && (
           <Game
             socket={socket}
             room={room.id}
