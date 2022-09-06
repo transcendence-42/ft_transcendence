@@ -207,6 +207,17 @@ export class GameService {
     return false;
   }
 
+  /** Check if a viewe is already in a game */
+  private _isViewerInGame(userId: number, games: Game[]): boolean {
+    if (
+      games.find((game) =>
+        game.viewers.find((viewer) => viewer.userId === userId),
+      )
+    )
+      return true;
+    return false;
+  }
+
   /** Create a new game in dedicated room with 1 player */
   create(players: Socket[], server: Server, games: Game[]) {
     // 1 : Chech if one of the user is already in a game
@@ -329,10 +340,12 @@ export class GameService {
   view(client: Socket, id: string, games: Game[]) {
     const index = games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
-    client.join(games[index].roomId);
-    // add new viewer to the game and push him a grid update
     const userId: number = +client.handshake.query.userId;
-    games[index].viewers.push({ userId: userId, socketId: client.id });
+    if (!this._isViewerInGame(userId, games)) {
+      games[index].viewers.push({ userId: userId, socketId: client.id });
+    }
+    client.join(games[index].roomId);
+    client.leave(this.LOBBY);
   }
 
   /** reconnect a game (existing player) */
@@ -364,7 +377,7 @@ export class GameService {
       return {
         roomId: game.roomId,
         players: game.players,
-        viewers: game.viewers,
+        viewersCount: game.viewers.length,
       };
     });
     return gameList;
