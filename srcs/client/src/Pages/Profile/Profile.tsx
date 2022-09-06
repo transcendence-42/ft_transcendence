@@ -4,7 +4,6 @@ import "./profile.css"
 import "../../Components/Tools/Text.css"
 import {getFetch} from './getFetch'
 import { useLocation } from "react-router-dom";
-import { Link, Outlet ,useParams } from "react-router-dom";
 
 /* Pour exporter l'id on include UseParams and we call it with the variable.id */
 export default function Profile () {
