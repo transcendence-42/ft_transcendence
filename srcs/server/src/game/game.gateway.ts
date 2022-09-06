@@ -24,6 +24,7 @@ export class GameGateway
   server: Server;
 
   onModuleInit() {
+    this.server.sockets.disconnectSockets(true);
     console.log('Websocket server is up...');
   }
 

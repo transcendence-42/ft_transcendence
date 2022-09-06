@@ -48,7 +48,8 @@ const Game = (props: any) => {
   // Handlers
   const handleMove = (event: any) => {
     if (event.key === "w" || event.key === "W") {
-      socket.emit("updateGame", { move: movement.UP, id: props.room });
+      console.log(`room id : ${props.room}`);
+      socket.emit("updateGame", { move: movement.UP, id: props.room});
     }
     if (event.key === "s" || event.key === "S") {
       socket.emit("updateGame", { move: movement.DOWN, id: props.room });
@@ -82,6 +83,7 @@ const Game = (props: any) => {
     return () => {
       socket.off("updateGrid", handleGridUpdate);
       socket.off("playerLeft", handlePlayerLeft);
+      document.removeEventListener("keydown", handleMove);
     };
   }, []);
 

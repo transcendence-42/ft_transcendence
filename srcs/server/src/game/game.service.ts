@@ -253,7 +253,6 @@ export class GameService {
   /** start a game */
   private _startGame(server: Server, games: Game[], index: number) {
     games[index] = this._initPhysics(games[index]);
-    console.log('ok');
     const gameInterval = setInterval(() => {
       Engine.update(games[index].gamePhysics.engine);
       this._updateGridCoordinates(games[index]);
@@ -271,10 +270,8 @@ export class GameService {
     games: Game[],
   ) {
     const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) {
-      console.log('Error : wrong game id');
-      return;
-    }
+    if (index === -1) console.log(`bad id : ${id}`);
+    if (index === -1) throw new GameNotFoundException(id);
     // Update user coordinates (let the physic engine blocks the players)
     const i = games[index].gameGrid.playersCoordinates.findIndex(
       (player) => player.playerId === client.id,
@@ -314,10 +311,7 @@ export class GameService {
   /** join a game (player) */
   join(client: Socket, server: Server, id: string, games: Game[]) {
     const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) {
-      console.log('Error : wrong game id');
-      return;
-    }
+    if (index === -1) throw new GameNotFoundException(id);
     // add new player to the game and emit new grid
     games[index] = this._addPlayerToGame(client, Side.RIGHT, games, index);
     // Check if the game has 2 players
@@ -334,10 +328,7 @@ export class GameService {
   /** view a game (viewer) */
   view(client: Socket, id: string, games: Game[]) {
     const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) {
-      console.log('Error : wrong game id');
-      return;
-    }
+    if (index === -1) throw new GameNotFoundException(id);
     client.join(games[index].roomId);
     // add new viewer to the game and push him a grid update
     const userId: number = +client.handshake.query.userId;
@@ -348,10 +339,7 @@ export class GameService {
   reconnect(client: Socket, id: string, games: Game[]) {
     const userId: number = +client.handshake.query.userId;
     const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) {
-      console.log('Error : wrong game id');
-      return;
-    }
+    if (index === -1) throw new GameNotFoundException(id);
     // get old socket id
     const oldSocketId = games[index].players.find(
       (player) => player.userId === userId,
