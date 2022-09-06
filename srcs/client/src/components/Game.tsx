@@ -2,34 +2,47 @@ import { useCallback, useEffect, useState } from "react";
 import { Stage, Layer, Rect, Circle } from "react-konva";
 
 const Game = (props: any) => {
-
   // Enum
   enum movement {
     UP = 0,
     DOWN,
   }
 
+  const params = Object.freeze({
+    CANVASW: 600,
+    CANVASH: 600,
+    MOVESPEED: 5,
+    BARWIDTH: 10,
+    BARHEIGHT: 50,
+    BARFILL: "yellow",
+    BARBORDER: "yellow",
+    BALLRADIUS: 10,
+    BALLFILL: "yellow",
+    BALLBORDER: "yellow",
+    BGFILL: "black",
+    WALLSIZE: 10,
+  });
+
   // States
   const socket = props.socket;
   const [grid, setGrid] = useState({} as any);
-  const [params, setParams] = useState({} as any);
 
   // Init
   const initGame = () => {
-    console.log('init');
+    console.log("init");
     if (props.action === props.actionVal.JOIN_GAME)
-    socket.emit("joinGame", {
-      id: props.room,
-      player: { socketId: socket.id },
-    });
+      socket.emit("joinGame", {
+        id: props.room,
+        player: { socketId: socket.id },
+      });
     else if (props.action === props.actionVal.VIEW_GAME)
-    socket.emit("viewGame", {
-      id: props.room,
-      viewer: { socketId: socket.id },
-    });
+      socket.emit("viewGame", {
+        id: props.room,
+        viewer: { socketId: socket.id },
+      });
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit("reconnectGame", { id: props.room });
-    socket.emit("getGameInfo", { id: props.room });
+    socket.emit("getGameGrid", { id: props.room });
   };
 
   // Handlers
@@ -43,22 +56,17 @@ const Game = (props: any) => {
   };
 
   const handleBackToLobby = () => {
-    if (props.action === props.actionVal.VIEW_GAME) {
-      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-      return;
+    if (
+      props.action !== props.actionVal.VIEW_GAME &&
+      window.confirm("Do you want to abandon the game ?")
+    ) {
+      socket.emit("playerLeave", { id: props.room });
     }
-		if (window.confirm('Do you want to abandon the game ?')) {
-			socket.emit('playerLeave', { id: props.room });
-			props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-		}
+    props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
   };
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {
     setGrid(gridUpdate);
-  }, []);
-
-  const handleParams = useCallback((params: any) => {
-    setParams(params);
   }, []);
 
   const handlePlayerLeft = useCallback((params: any) => {
@@ -68,15 +76,13 @@ const Game = (props: any) => {
   useEffect(() => {
     initGame();
     socket.on("updateGrid", handleGridUpdate);
-    socket.on("gameParams", handleParams);
     socket.on("playerLeft", handlePlayerLeft);
     if (props.action !== props.actionVal.VIEW_GAME)
       document.addEventListener("keydown", handleMove);
     return () => {
       socket.off("updateGrid", handleGridUpdate);
-      socket.off("gameParams", handleParams);
       socket.off("playerLeft", handlePlayerLeft);
-    }
+    };
   }, []);
 
   let playersRect = [];
@@ -88,11 +94,11 @@ const Game = (props: any) => {
           player && (
             <Rect
               key={index}
-              width={params.barWidth}
-              height={params.barHeight}
+              width={params.BARWIDTH}
+              height={params.BARHEIGHT}
               x={player.coordinates.x}
               y={player.coordinates.y}
-              fill={params.barFill}
+              fill={params.BARFILL}
             />
           )
       );
@@ -101,8 +107,8 @@ const Game = (props: any) => {
         <Circle
           x={grid.ball.x}
           y={grid.ball.y}
-          radius={params.ballRadius}
-          fill={params.ballFill}
+          radius={params.BALLRADIUS}
+          fill={params.BALLFILL}
         />
       );
   }
@@ -117,12 +123,12 @@ const Game = (props: any) => {
 
   return (
     <div style={styles}>
-      <Stage width={params.canvasW} height={params.canvasH}>
+      <Stage width={params.CANVASW} height={params.CANVASH}>
         <Layer name="background">
           <Rect
-            width={params.canvasW}
-            height={params.canvasH}
-            fill={params.bgFill}
+            width={params.CANVASW}
+            height={params.CANVASH}
+            fill={params.BGFILL}
           />
         </Layer>
         <Layer>

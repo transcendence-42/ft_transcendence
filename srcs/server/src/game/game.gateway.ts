@@ -6,13 +6,14 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
-  BaseWsExceptionFilter,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
 import { OnModuleInit, UseFilters } from '@nestjs/common';
+import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 
+@UseFilters(new WsExceptionsFilter())
 @WebSocketGateway(4343, { cors: true })
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
@@ -31,7 +32,7 @@ export class GameGateway
     this.gameService.clientConnection(
       client,
       this.server,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
@@ -40,23 +41,22 @@ export class GameGateway
     this.gameService.clientDisconnection(
       client,
       this.server,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
   /** Create a new game */
-  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('createGame')
   create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
     const players: Socket[] = [client];
-    this.gameService.create(players, this.server, this.gameService.serverData);
+    this.gameService.create(players, this.server, this.gameService.games);
   }
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
   findAll(@ConnectedSocket() client: Socket) {
-    this.gameService.findAll(client, this.gameService.serverData);
+    this.gameService.findAll(client, this.gameService.games);
   }
 
   /** Update game grid by movement */
@@ -70,7 +70,7 @@ export class GameGateway
       this.server,
       updateGameDto.id,
       updateGameDto,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
@@ -84,7 +84,7 @@ export class GameGateway
       client,
       this.server,
       updateGameDto.id,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
@@ -94,14 +94,10 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.view(
-      client,
-      updateGameDto.id,
-      this.gameService.serverData,
-    );
+    this.gameService.view(client, updateGameDto.id, this.gameService.games);
   }
 
-  /** reconnect game (existing player) */
+  /** Reconnect game (existing player) */
   @SubscribeMessage('reconnectGame')
   reconnect(
     @ConnectedSocket() client: Socket,
@@ -110,20 +106,20 @@ export class GameGateway
     this.gameService.reconnect(
       client,
       updateGameDto.id,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
-  /** reconnect game (existing player) */
-  @SubscribeMessage('getGameInfo')
-  getGameInfo(
+  /** Get the game grid */
+  @SubscribeMessage('getGameGrid')
+  getGameGrid(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.getGameInfo(
+    this.gameService.getGameGrid(
       client,
       updateGameDto.id,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 
@@ -137,7 +133,7 @@ export class GameGateway
       client,
       this.server,
       updateGameDto.id,
-      this.gameService.serverData,
+      this.gameService.games,
     );
   }
 }

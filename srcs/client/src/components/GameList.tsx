@@ -1,14 +1,21 @@
 const GameList = (props: any) => {
+  // styles
+  const styles: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+  };
 
   return (
-    <div>
+    <div style={styles}>
       {
         props.games.length > 0
         ?
-        <ul>
+        <ul style={{listStyleType: "none"}}>
           {props.games.map((game: any, index: number) => (
             <li key={index}>
-              Game #{game.roomId}
+              Game #<b>{game.players[0] ? game.players[0].userId : ' ... '}</b> vs #<b>{game.players[1] ? game.players[1].userId : ' ... '}</b>
               {game.players.length === 2 && (
                 <button
                   onClick={() => props.setRoom({
