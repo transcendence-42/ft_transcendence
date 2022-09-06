@@ -5,9 +5,12 @@ import { Client } from './client.entity';
 import { GamePhysics } from './gamePhysics.entity';
 
 export class Game {
-  constructor() {
+  constructor(roomId: string) {
     this.gameGrid = new GameGrid();
     this.gameParams = new GameParams();
+    this.players = [];
+    this.viewers = [];
+    this.roomId = roomId;
   }
 
   roomId: string;

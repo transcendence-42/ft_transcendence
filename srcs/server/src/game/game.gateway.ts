@@ -6,15 +6,12 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  BaseWsExceptionFilter,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
-import { OnModuleInit } from '@nestjs/common';
-import { JoinGameDto } from './dto/join-game.dto';
-import { ViewGameDto } from './dto/view-game.dto';
-import { ReconnectGameDto } from './dto/reconnect-game.dto';
-import { GetGameInfoDto } from './dto/get-gameInfo.dto';
+import { OnModuleInit, UseFilters } from '@nestjs/common';
 
 @WebSocketGateway(4343, { cors: true })
 export class GameGateway
@@ -48,6 +45,7 @@ export class GameGateway
   }
 
   /** Create a new game */
+  @UseFilters(new BaseWsExceptionFilter())
   @SubscribeMessage('createGame')
   create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
@@ -67,9 +65,9 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    console.log(JSON.stringify(updateGameDto, null, 4));
     this.gameService.update(
       client,
+      this.server,
       updateGameDto.id,
       updateGameDto,
       this.gameService.serverData,
@@ -80,12 +78,12 @@ export class GameGateway
   @SubscribeMessage('joinGame')
   join(
     @ConnectedSocket() client: Socket,
-    @MessageBody() joinGameDto: JoinGameDto,
+    @MessageBody() updateGameDto: UpdateGameDto,
   ) {
     this.gameService.join(
       client,
       this.server,
-      joinGameDto.id,
+      updateGameDto.id,
       this.gameService.serverData,
     );
   }
@@ -94,20 +92,24 @@ export class GameGateway
   @SubscribeMessage('viewGame')
   view(
     @ConnectedSocket() client: Socket,
-    @MessageBody() viewGameDto: ViewGameDto,
+    @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.view(client, viewGameDto.id, this.gameService.serverData);
+    this.gameService.view(
+      client,
+      updateGameDto.id,
+      this.gameService.serverData,
+    );
   }
 
   /** reconnect game (existing player) */
   @SubscribeMessage('reconnectGame')
   reconnect(
     @ConnectedSocket() client: Socket,
-    @MessageBody() reconnectGameDto: ReconnectGameDto,
+    @MessageBody() updateGameDto: UpdateGameDto,
   ) {
     this.gameService.reconnect(
       client,
-      reconnectGameDto.id,
+      updateGameDto.id,
       this.gameService.serverData,
     );
   }
@@ -116,11 +118,25 @@ export class GameGateway
   @SubscribeMessage('getGameInfo')
   getGameInfo(
     @ConnectedSocket() client: Socket,
-    @MessageBody() getGameDto: GetGameInfoDto,
+    @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.reconnect(
+    this.gameService.getGameInfo(
       client,
-      getGameDto.id,
+      updateGameDto.id,
+      this.gameService.serverData,
+    );
+  }
+
+  /** One player is leaving the game */
+  @SubscribeMessage('playerLeave')
+  leaveGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateGameDto: UpdateGameDto,
+  ) {
+    this.gameService.leaveGame(
+      client,
+      this.server,
+      updateGameDto.id,
       this.gameService.serverData,
     );
   }

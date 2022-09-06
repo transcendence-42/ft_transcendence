@@ -17,8 +17,6 @@ const Game = (props: any) => {
   // Init
   const initGame = () => {
     console.log('init');
-    if (props.action === props.actionVal.CREATE_GAME)
-      socket.emit("getGameInfo", { id: props.room });
     if (props.action === props.actionVal.JOIN_GAME)
     socket.emit("joinGame", {
       id: props.room,
@@ -31,7 +29,7 @@ const Game = (props: any) => {
     });
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit("reconnectGame", { id: props.room });
-    
+    socket.emit("getGameInfo", { id: props.room });
   };
 
   // Handlers
@@ -45,11 +43,13 @@ const Game = (props: any) => {
   };
 
   const handleBackToLobby = () => {
+    if (props.action === props.actionVal.VIEW_GAME) {
+      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
+      return;
+    }
 		if (window.confirm('Do you want to abandon the game ?')) {
-			socket.emit('playerLeave');
+			socket.emit('playerLeave', { id: props.room });
 			props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-		} else {
-			console.log('The game continues');
 		}
   };
 
@@ -70,13 +70,18 @@ const Game = (props: any) => {
     socket.on("updateGrid", handleGridUpdate);
     socket.on("gameParams", handleParams);
     socket.on("playerLeft", handlePlayerLeft);
-    document.addEventListener("keydown", handleMove);
+    if (props.action !== props.actionVal.VIEW_GAME)
+      document.addEventListener("keydown", handleMove);
+    return () => {
+      socket.off("updateGrid", handleGridUpdate);
+      socket.off("gameParams", handleParams);
+      socket.off("playerLeft", handlePlayerLeft);
+    }
   }, []);
 
   let playersRect = [];
   let gameBall;
   if (grid) {
-    console.log(JSON.stringify(grid));
     if (grid.playersCoordinates)
       playersRect = grid.playersCoordinates.map(
         (player: any, index: number) =>

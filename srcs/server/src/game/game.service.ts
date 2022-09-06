@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { WebSocketServer } from '@nestjs/websockets';
-import Matter, { Bodies, Composite, Engine } from 'matter-js';
+import { WebSocketServer, WsException } from '@nestjs/websockets';
+import { Bodies, Body, Composite, Engine } from 'matter-js';
 import { Socket, Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
+import { GamePhysics } from './entities/gamePhysics.entity';
 
 // Enums
 enum Side {
@@ -81,6 +82,8 @@ export class GameService {
       LEFT = 0,
       RIGHT,
     }
+    // Init physics
+    game.gamePhysics = new GamePhysics();
     // Walls
     game.gamePhysics.walls[walls.TOP] = Bodies.rectangle(
       game.gameParams.canvasW / 2,
@@ -116,6 +119,10 @@ export class GameService {
       game.gameParams.canvasH / 2,
       game.gameParams.ballRadius,
     );
+    Body.applyForce(game.gamePhysics.ball, game.gamePhysics.ball.position, {
+      x: 0.05,
+      y: 0.0,
+    });
     // Left Player
     game.gameGrid.playersCoordinates.forEach((player) => {
       game.gamePhysics.players[player.playerSide] = Bodies.rectangle(
@@ -127,6 +134,7 @@ export class GameService {
     });
     // Add all bodies to the world
     game.gamePhysics.engine = Engine.create();
+    game.gamePhysics.engine.gravity.y = 0;
     game.gamePhysics.composite = Composite.add(game.gamePhysics.engine.world, [
       game.gamePhysics.players[players.LEFT],
       game.gamePhysics.players[players.RIGHT],
@@ -165,20 +173,35 @@ export class GameService {
     });
   }
 
+  /** Check if a player is already in a game */
+  private _isPlayerInGame(userId: number, serverData: Game[]): boolean {
+    if (
+      serverData.find((game) =>
+        game.players.find((player) => player.userId === userId),
+      )
+    )
+      return true;
+    return false;
+  }
+
   /** Create a new game in dedicated room with 1 player */
   create(players: Socket[], server: Server, serverData: Game[]) {
     // create a new game
-    const newGame: Game = new Game();
-    newGame.roomId = players[0].id;
-    newGame.players = [];
+    const newGame: Game = new Game(players[0].id);
     const len = serverData.push(newGame);
     // add players to the game and emit initial grid
     players.forEach((player, index) => {
+      const userId: number = +player.handshake.query.id;
+      if (this._isPlayerInGame(userId, serverData)) {
+        throw new WsException(
+          `User : ${userId} is already registerd in a game`,
+        );
+      }
       const side = index ? Side.RIGHT : Side.LEFT;
       this._addPlayerToGame(player, side, serverData, len - 1);
-      player.emit('newGameId', serverData[len - 1].roomId);
+      player.emit('newGameId', { id: serverData[len - 1].roomId });
     });
-    // Broadcast new gamelist to the lobby
+    // Broadcast new gamelist to the lobbs
     const games = this._createGameList(serverData);
     server.to('lobby').emit('gameList', games);
     // start game if players > 1
@@ -206,23 +229,22 @@ export class GameService {
 
   /** start a game */
   private _startGame(server: Server, serverData: Game[], index: number) {
-    this._initPhysics(serverData[index]);
+    serverData[index] = this._initPhysics(serverData[index]);
+    console.log('ok');
     const gameInterval = setInterval(() => {
-      console.log(
-        `Inside Set Interval ${serverData[index].gamePhysics.ball.position.x}`,
-      );
-      Matter.Engine.update(serverData[index].gamePhysics.engine);
+      Engine.update(serverData[index].gamePhysics.engine);
       this._updateGridCoordinates(serverData[index]);
       server
         .to(serverData[index].roomId)
         .emit('updateGrid', serverData[index].gameGrid);
     }, 100);
-    clearInterval(gameInterval);
+    //clearInterval(gameInterval);
   }
 
   /** update a game (moves) */
   update(
     client: Socket,
+    server: Server,
     id: string,
     updateGameDto: UpdateGameDto,
     serverData: Game[],
@@ -252,7 +274,9 @@ export class GameService {
         };
       } else return player;
     });
-    client.emit('updateGrid', serverData[index].gameGrid);
+    server
+      .to(serverData[index].roomId)
+      .emit('updateGrid', serverData[index].gameGrid);
   }
 
   /** join a game (player) */
@@ -264,13 +288,14 @@ export class GameService {
     }
     // add new player to the game and emit new grid
     this._addPlayerToGame(client, Side.RIGHT, serverData, index);
-    server
-      .to(serverData[index].roomId)
-      .emit('updateGrid', serverData[index].gameGrid);
     // Check if the game has 2 players
     if (serverData[index].players.length >= 2) {
       this._startGame(server, serverData, index);
     }
+    // update the image with the new player for everyone
+    server
+      .to(serverData[index].roomId)
+      .emit('updateGrid', serverData[index].gameGrid);
   }
 
   /** view a game (viewer) */
@@ -280,10 +305,10 @@ export class GameService {
       console.log('Error : wrong game id');
       return;
     }
+    client.join(serverData[index].roomId);
     // add new viewer to the game and push him a grid update
     const userId: number = +client.handshake.query.userId;
     serverData[index].viewers.push({ userId: userId, socketId: client.id });
-    client.emit('updateGrid', serverData[index].gameGrid);
   }
 
   /** reconnect a game (existing player) */
@@ -310,10 +335,6 @@ export class GameService {
         ? { playerId: client.id, ...player }
         : player,
     );
-    // send the grid and params to the player
-    client.emit('updateGrid', serverData[index].gameGrid);
-    client.emit('gameParams', serverData[index].gameParams);
-    client.emit('gameId', serverData[index].roomId);
   }
 
   /** Create the game list from the global server data */
@@ -346,8 +367,8 @@ export class GameService {
     client.emit('gameList', games);
   }
 
-  /** remove a game */
-  remove(id: string, serverData: Game[]) {
+  /** one client intentionnaly leave the game (abandon) */
+  leaveGame(client: Socket, server: Server, id: string, serverData: Game[]) {
     serverData = serverData.filter((game) => game.roomId !== id);
     // use prisma to update users and match info
   }

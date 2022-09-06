@@ -17,6 +17,7 @@ const GameLobby = () => {
   const socket = useContext(SocketContext);
   const [games, setGames] = useState([] as any);
   const [room, setRoom] = useState({action: Action.GO_LOBBY, id: 'lobby'});
+  const [error, setError] = useState({} as any);
 
   // Handlers
   const handleConnect = useCallback(() => {
@@ -35,8 +36,12 @@ const GameLobby = () => {
     socket.emit("createGame");
   };
 
-  const handleNewGameId = (id: string) => {
-    setRoom({ id: id, action: Action.CREATE_GAME });
+  const handleNewGameId = (data: any) => {
+    if (!data.id) {
+      setError({message: data.message});
+      return;
+    }
+    setRoom({ id: data.id, action: Action.CREATE_GAME });
   };
 
 	const handleReconnect = (gameId: any) => {
@@ -59,6 +64,14 @@ const GameLobby = () => {
     socket.on("reconnect", handleReconnect);
     socket.on('newGameId', handleNewGameId);
     socket.on("info", handleInfo);
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("gameList", handleGameList);
+      socket.off("reconnect", handleReconnect);
+      socket.off('newGameId', handleNewGameId);
+      socket.off("info", handleInfo);
+      socket.close();
+    }
   }, []);
 
   // Render
@@ -85,6 +98,9 @@ const GameLobby = () => {
           )
         }
 			</div>
+      {
+        error && <p>{error.message}</p>
+      }
     </div>
   );
 };
