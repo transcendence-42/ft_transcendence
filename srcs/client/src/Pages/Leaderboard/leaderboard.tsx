@@ -1,7 +1,7 @@
 import './leaderboard.css';
 import {getFetch} from './getFetch'
 import { useLocation } from "react-router-dom";
-import {useState, useEffect} from 'react'
+import {useState, useEffect } from 'react'
 import React from 'react';
 
 export default function Leaderboard () {
@@ -11,17 +11,14 @@ export default function Leaderboard () {
   const [users, setUsers] : any = useState(null);
 
   useEffect(() => {
-      console.log(userID);
+      console.log('test : ' + userID);
       let request = "http://127.0.0.1:4200/users";
       console.log(request);
       const json = getFetch({url : request});
       json.then((responseObject)=> {
-      console.log(responseObject);
-      setUsers(responseObject);
-      console.log("===========");
-      console.log(users.stats.id);
-         
-  });
+        console.log(responseObject);
+        setUsers(responseObject);
+      });
   },[userID]);
   if(users)
   {
@@ -33,27 +30,28 @@ export default function Leaderboard () {
               <h1 className="pinkText " style={{fontSize: "4vw"}}>LEADERBOARD</h1>
             </div>
             <div className='container'>
-              <div className='blueText' style={{fontSize: "2vw"}}>
-                <h2>RANK</h2>
-                {users && users.map((users : any) => (
-                <div className="item-container"> {users.username} 
-                </div>))}
+              {
+                users && users.map((user : any, index: number) => (
+                <div key={index}>
+                <div className='blueText' style={{fontSize: "2vw"}}>
+                  <h2>RANK</h2>
+                  <div className="item-container"> {user.username}</div>
                 <div>
 
+                  </div>
+                </div>
+                <div className='blueText' style={{fontSize: "2vw"}}>
+                  <h2>NAME</h2>
+                  <div className="item-container"> {user.username} 
+                  </div> 
+                </div>
+                <div className='blueText' style={{fontSize: "2vw"}} >
+                  <h2>WINS</h2>
+                  <div className="item-container"> {user.stats && user.stats.wins} 
+                  </div>
                 </div>
               </div>
-              <div className='blueText' style={{fontSize: "2vw"}}>
-                <h2>NAME</h2>
-                {users && users.map((users : any) => (
-                <div className="item-container"> {users.username} 
-                </div>))} 
-              </div>
-              <div className='blueText' style={{fontSize: "2vw"}} >
-                <h2>WINS</h2>
-                {users && users.map((users : any) => (
-                <div className="item-container"> {users.id} 
-                </div>))} 
-              </div>
+                ))} 
             </div>
           </div>
       </div>
