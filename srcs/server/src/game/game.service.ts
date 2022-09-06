@@ -28,6 +28,8 @@ export class GameService {
     this.games = [];
   }
 
+  readonly LOBBY = 'lobby';
+
   readonly params = Object.freeze({
     CANVASW: 600,
     CANVASH: 600,
@@ -59,8 +61,8 @@ export class GameService {
       client.join(game.roomId);
       client.emit('reconnect', game.roomId);
     } else {
-      client.join('lobby');
-      server.to('lobby').emit('info', {
+      client.join(this.LOBBY);
+      server.to(this.LOBBY).emit('info', {
         message: `user ${userId} (${client.id}) joined the lobby`,
       });
     }
@@ -71,7 +73,7 @@ export class GameService {
     const userId = client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
     // Broadcast that user left the lobby
-    server.to('lobby').emit('info', {
+    server.to(this.LOBBY).emit('info', {
       message: `user ${userId} (${client.id}) left the lobby`,
     });
     // Warn the room if the player is in game
@@ -177,7 +179,7 @@ export class GameService {
       throw new UserAlreadyInGameException(userId);
     }
     // in Game
-    player.leave('lobby');
+    player.leave(this.LOBBY);
     player.join(game.roomId);
     game.players.push({
       socketId: player.id,
@@ -224,7 +226,7 @@ export class GameService {
     });
     // Broadcast new gamelist to the lobby
     const gameList = this._createGameList(games);
-    server.to('lobby').emit('gameList', gameList);
+    server.to(this.LOBBY).emit('gameList', gameList);
     // start game if players > 1
     if (games[len - 1].players.length > 1)
       this._startGame(server, games, len - 1);
@@ -324,6 +326,9 @@ export class GameService {
     }
     // update the image with the new player for everyone
     server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
+    // update the lobby with the new player
+    const gameList = this._createGameList(games);
+    server.to(this.LOBBY).emit('gameList', gameList);
   }
 
   /** view a game (viewer) */

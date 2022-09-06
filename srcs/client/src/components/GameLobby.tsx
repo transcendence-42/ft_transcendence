@@ -3,7 +3,7 @@ import { SocketContext } from "../socket";
 import GameList from "./GameList";
 import Game from "./Game";
 
-const GameLobby = () => {
+const  GameLobby = () => {
   // Enums
   enum Action {
     GO_LOBBY = 0,
@@ -12,7 +12,7 @@ const GameLobby = () => {
     VIEW_GAME,
 		RECO_GAME,
   }
-
+  
   // States
   const socket = useContext(SocketContext);
   const [games, setGames] = useState([] as any);
