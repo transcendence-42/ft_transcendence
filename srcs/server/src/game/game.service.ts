@@ -247,11 +247,11 @@ export class GameService {
             x: player.coordinates.x,
             y: player.coordinates.y + move,
           },
-          ...player,
+          playerId: player.playerId,
+          playerSide: player.playerSide,
         };
       } else return player;
     });
-    console.log(serverData[index].gameGrid.playersCoordinates[0]);
     client.emit('updateGrid', serverData[index].gameGrid);
   }
 

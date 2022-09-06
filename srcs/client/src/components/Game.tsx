@@ -45,7 +45,12 @@ const Game = (props: any) => {
   };
 
   const handleBackToLobby = () => {
-    props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
+		if (window.confirm('Do you want to abandon the game ?')) {
+			socket.emit('playerLeave');
+			props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
+		} else {
+			console.log('The game continues');
+		}
   };
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {

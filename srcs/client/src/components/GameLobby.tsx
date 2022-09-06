@@ -71,6 +71,7 @@ const GameLobby = () => {
           <GameList games={games} setRoom={setRoom} handleNewGame={handleNewGame} actionVal={Action} />
         }
       </div>
+			<div>
         {
           room && room.action > Action.GO_LOBBY
           && (
@@ -83,6 +84,7 @@ const GameLobby = () => {
             />
           )
         }
+			</div>
     </div>
   );
 };
