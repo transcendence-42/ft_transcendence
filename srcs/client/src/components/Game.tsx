@@ -11,7 +11,6 @@ const Game = (props: any) => {
   const params = Object.freeze({
     CANVASW: 600,
     CANVASH: 600,
-    MOVESPEED: 5,
     BARWIDTH: 10,
     BARHEIGHT: 50,
     BARFILL: "yellow",
