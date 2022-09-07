@@ -2,16 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { Game } from './entities/game.entity';
+import { Game, Player, Physic, Vector, GamePhysics } from './entities/';
 import { v4 } from 'uuid';
 import {
   UserAlreadyInGameException,
   GameNotFoundException,
   PlayerNotFoundException,
 } from './exceptions/';
-import { Player } from './entities/player.entity';
-import { Physic } from './entities/gamePhysics.entity';
-import { Vector } from './entities/vector.entity';
 
 // Enums
 enum Move {
@@ -484,28 +481,58 @@ export class GameService {
     return updated;
   }
 
+  /** Apply collision effect */
+  private _applyCollisionEffect(object1: Physic, object2: Physic): Physic {
+    // bounce
+    return object1;
+  }
+
+  /** Detects and handle paddle collision */
+  private _handlePaddleCollision(object: Physic, phy: GamePhysics): Physic {
+    let updatedObject: Physic;
+    if (this._isCollision(object, phy.walls[Wall.TOP])) {
+      // top wall
+    } else if (this._isCollision(object, phy.walls[Wall.BOTTOM])) {
+      // bottom wall
+    } else {
+      // no collision
+      updatedObject = this._getUpdatedObject(object);
+    }
+    return updatedObject;
+  }
+
+  /** Detects and handle ball collision */
+  private _handleBallCollision(object: Physic, phy: GamePhysics): Physic {
+    // top wall
+    // bottom wall
+    // left goal
+    // right goal
+    // left paddle
+    // right paddle
+    return object;
+  }
+
+  /** Move object forward */
+  private _moveObjectForward(object: Physic, phy: GamePhysics): Physic {
+    if (object.type === PhyType.RECT)
+      return this._handlePaddleCollision(object, phy);
+    if (object.type === PhyType.CIRCLE)
+      return this._handleBallCollision(object, phy);
+  }
+
   /** Move the ball and players according to directions and speed */
   private _movePhysicsForward(game: Game): Game {
     // Players
-    // hit wall
-    const players: Physic[] = game.gamePhysics.players.map((player) => ({
-      ...player,
-      coordinates: {
-        x: player.coordinates.x,
-        y: player.coordinates.y + player.speed * player.direction.y,
-      },
-      speed: player.speed - 0.1 > 0 ? player.speed - 0.1 : 0,
-    }));
+    const players: Physic[] = game.gamePhysics.players.map((player) =>
+      this._moveObjectForward(player, game.gamePhysics),
+    );
     game.gamePhysics.players = players;
     // Ball
-    // hit wall
-    // hit player
-    // hit goal
-    // no hit
-    game.gamePhysics.ball.coordinates.x +=
-      game.gamePhysics.ball.speed * game.gamePhysics.ball.direction.x;
-    game.gamePhysics.ball.coordinates.y +=
-      game.gamePhysics.ball.speed * game.gamePhysics.ball.direction.y;
+    const ball: Physic = this._moveObjectForward(
+      game.gamePhysics.ball,
+      game.gamePhysics,
+    );
+    game.gamePhysics.ball = ball;
     return game;
   }
 
