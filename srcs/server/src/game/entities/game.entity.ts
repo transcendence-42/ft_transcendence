@@ -10,9 +10,11 @@ export class Game {
     this.players = [];
     this.viewers = [];
     this.roomId = roomId;
+    this.status = 0;
   }
 
   roomId: string;
+  status: number;
   players: Player[];
   viewers?: Client[];
   gameGrid?: GameGrid;

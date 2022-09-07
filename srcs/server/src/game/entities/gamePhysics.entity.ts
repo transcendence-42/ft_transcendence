@@ -4,6 +4,7 @@ import { Vector } from './vector.entity';
 export class Physic {
   coordinates: Vector;
   dimensions: Dimensions;
+  type: number;
   direction?: Vector;
   speed?: number;
   side?: number;

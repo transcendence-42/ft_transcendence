@@ -1,8 +1,7 @@
 import { Vector } from './vector.entity';
 
-export class PlayerCoordinates {
-  playerId: string;
-  playerSide: number;
+export class PlayerGrid {
+  side: number;
   coordinates: Vector;
 }
 
@@ -13,5 +12,5 @@ export class GameGrid {
   }
 
   ball: Vector;
-  players: PlayerCoordinates[];
+  players: PlayerGrid[];
 }
