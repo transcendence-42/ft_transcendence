@@ -29,6 +29,7 @@
 	font-family: 'Montserrat', sans-serif;
 	font-weight: var(--weight);
 	line-height: var(--height);
+	
 	/* identical to box height */
   
 	text-align: center;
@@ -36,16 +37,44 @@
 	text-shadow:	0px 0px 7.49518px #6ABDFF,
 					0px 0px 14.9904px #3D9FEE,
 				  0px 0px 25.6977px #187BCA;
-  }
+}
+
+.column
+{
+	text-decoration: underline;
+}
+
 .frame
 {
+	font-family: 'Montserrat', sans-serif;
 	border-style: outset;
 	border: 3px solid #80FFFF;
 	border-radius: 10px 10px 10px 10px;
 	width: 85%;
+	height: 80vh;
+	overflow: hidden;
+	overflow: scroll;
 	margin: auto; 
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 	
 }
+
+tr
+{
+
+	line-height: var(--height);
+	color: #80FFFF;
+	text-shadow:	0px 0px 7.49518px #6ABDFF,
+					0px 0px 14.9904px #3D9FEE,
+				  0px 0px 25.6977px #187BCA;
+}
+
+td
+{ 
+	margin:auto;
+	width: 10%;
+	text-align:center;
+	padding: 5% 10%; 
+} 
