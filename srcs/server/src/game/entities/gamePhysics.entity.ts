@@ -12,6 +12,7 @@ export class Physic {
 
 export class GamePhysics {
   constructor() {
+    this.ball = new Physic();
     this.players = [];
     this.goals = [];
     this.walls = [];

@@ -7,7 +7,6 @@ export class PlayerGrid {
 
 export class GameGrid {
   constructor() {
-    this.ball = { x: 300, y: 300 };
     this.players = [];
   }
 

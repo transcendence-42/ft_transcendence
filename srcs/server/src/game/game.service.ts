@@ -11,6 +11,7 @@ import {
 } from './exceptions/';
 import { Player } from './entities/player.entity';
 import { Physic } from './entities/gamePhysics.entity';
+import { Vector } from './entities/vector.entity';
 
 // Enums
 enum Move {
@@ -65,6 +66,10 @@ export class GameService {
 
   games: Game[];
 
+  /** *********************************************************************** */
+  /** SOCKET                                                                  */
+  /** *********************************************************************** */
+
   /** client connection */
   clientConnection(client: Socket, server: Server, games: Game[]) {
     // get query information
@@ -105,6 +110,10 @@ export class GameService {
         data: { userId: userId },
       });
   }
+
+  /** *********************************************************************** */
+  /** GAME                                                                    */
+  /** *********************************************************************** */
 
   /** Add player to a game and set his side */
   private _addPlayerToGame(
@@ -152,6 +161,27 @@ export class GameService {
     return false;
   }
 
+  /** Get the side of a player in a game from his id */
+  private _getSideFromUser(game: Game, userId: number): number {
+    const player: Player = game.players.find(
+      (player) => player.userId === userId,
+    );
+    if (!player) throw new PlayerNotFoundException(userId);
+    return player.side;
+  }
+
+  /** Create the game list from the global server data */
+  private _createGameList(games: Game[]): object {
+    const gameList = games.map((game) => {
+      return {
+        roomId: game.roomId,
+        players: game.players,
+        viewersCount: game.viewers.length,
+      };
+    });
+    return gameList;
+  }
+
   /** Create a new game */
   create(players: Socket[], server: Server, games: Game[]) {
     // 1 : Chech if one of the user is already in a game
@@ -176,6 +206,101 @@ export class GameService {
     if (games[len - 1].players.length > 1)
       this._startGame(server, games, len - 1);
   }
+
+  /** Find all created games */
+  findAll(client: Socket, games: Game[]) {
+    const gameList = this._createGameList(games);
+    client.emit('gameList', gameList);
+  }
+
+  /** one client intentionnaly leave the game (abandon) */
+  leaveGame(client: Socket, server: Server, id: string, games: Game[]) {
+    games = games.filter((game) => game.roomId !== id);
+    // use prisma to update users and match info
+  }
+
+  /** join a game (player) */
+  join(client: Socket, server: Server, id: string, games: Game[]) {
+    const index = games.findIndex((game) => game.roomId === id);
+    if (index === -1) throw new GameNotFoundException(id);
+    // add new player to the game and emit new grid
+    games[index] = this._addPlayerToGame(client, Side.RIGHT, games, index);
+    // Check if the game has 2 players
+    if (games[index].players.length >= 2) {
+      this._startGame(server, games, index);
+    }
+    // update the image with the new player for everyone
+    server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
+    // update the lobby with the new player
+    const gameList = this._createGameList(games);
+    server.to(this.LOBBY).emit('gameList', gameList);
+  }
+
+  /** view a game (viewer) */
+  view(client: Socket, id: string, games: Game[]) {
+    const index = games.findIndex((game) => game.roomId === id);
+    if (index === -1) throw new GameNotFoundException(id);
+    const userId: number = +client.handshake.query.userId;
+    if (!this._isViewerInGame(userId, games)) {
+      games[index].viewers.push({ userId: userId, socketId: client.id });
+    }
+    client.join(games[index].roomId);
+    client.leave(this.LOBBY);
+  }
+
+  /** reconnect a game (existing player) */
+  reconnect(client: Socket, id: string, games: Game[]) {
+    const userId: number = +client.handshake.query.userId;
+    const index = games.findIndex((game) => game.roomId === id);
+    if (index === -1) throw new GameNotFoundException(id);
+    // update player socket on player list
+    games[index].players = games[index].players.map((player) =>
+      player.userId === userId ? { socketId: client.id, ...player } : player,
+    );
+  }
+
+  /** *********************************************************************** */
+  /** GAME GRID                                                               */
+  /** *********************************************************************** */
+
+  /** Init game grid */
+  private _initGameGrid(game: Game): Game {
+    // Players
+    game.players.forEach((player) => {
+      game.gameGrid.players.push({
+        coordinates: { x: 0, y: 0 },
+        side: player.side,
+      });
+    });
+    // Ball
+    game.gameGrid.ball = new Vector(0, 0);
+    return game;
+  }
+
+  /** Update grid from physics */
+  private _updateGridFromPhysics(game: Game): Game {
+    // Players
+    game.gamePhysics.players.forEach((playerPhy) => {
+      game.gameGrid.players.forEach((playerGrid, index) => {
+        if (playerGrid.side === playerPhy.side)
+          game.gameGrid.players[index].coordinates = playerPhy.coordinates;
+      });
+    });
+    // Ball
+    game.gameGrid.ball = game.gamePhysics.ball.coordinates;
+    return game;
+  }
+
+  /** get game grid and param on request */
+  getGameGrid(client: Socket, id: string, games: Game[]) {
+    const index = games.findIndex((game) => game.roomId === id);
+    if (index === -1) throw new GameNotFoundException(id);
+    client.emit('updateGrid', games[index].gameGrid);
+  }
+
+  /** *********************************************************************** */
+  /** PHYSICS                                                                 */
+  /** *********************************************************************** */
 
   /** Init game physics from grid */
   private _initGamePhysics(game: Game): Game {
@@ -226,49 +351,15 @@ export class GameService {
       },
     ].forEach((goal) => game.gamePhysics.goals.push(goal));
     // Ball
-    game.gamePhysics.ball.coordinates = game.gameGrid.ball;
+    game.gamePhysics.ball.coordinates = {
+      x: this.params.CANVASW / 2,
+      y: this.params.CANVASH / 2,
+    };
     game.gamePhysics.ball.dimensions = { r: this.params.BALLRADIUS };
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = { x: Math.random(), y: Math.random() };
     game.gamePhysics.ball.speed = this.params.BALLSPEED;
     return game;
-  }
-
-  /** Init game grid */
-  private _initGameGrid(game: Game): Game {
-    // Players
-    game.players.forEach((player) => {
-      game.gameGrid.players.push({
-        coordinates: { x: 0, y: 0 },
-        side: player.side,
-      });
-    });
-    // Ball
-    game.gameGrid.ball = { x: 0, y: 0 };
-    return game;
-  }
-
-  /** Update grid from physics */
-  private _updateGridFromPhysics(game: Game): Game {
-    // Players
-    game.gamePhysics.players.forEach((playerPhy) => {
-      game.gameGrid.players.forEach((playerGrid, index) => {
-        if (playerGrid.side === playerPhy.side)
-          game.gameGrid.players[index].coordinates = playerPhy.coordinates;
-      });
-    });
-    // Ball
-    game.gamePhysics.ball.coordinates = game.gameGrid.ball;
-    return game;
-  }
-
-  /** Get the side of a player in a game from his id */
-  private _getSideFromUser(game: Game, userId: number): number {
-    const player: Player = game.players.find(
-      (player) => player.userId === userId,
-    );
-    if (!player) throw new PlayerNotFoundException(userId);
-    return player.side;
   }
 
   /** Detect collision between 2 physic objects */
@@ -365,9 +456,38 @@ export class GameService {
     return game;
   }
 
+  /** Get updated object */
+  private _getUpdatedObject(object: Physic): Physic {
+    let updated: Physic;
+
+    // Players
+    if (object.type === PhyType.RECT) {
+      updated = {
+        ...object,
+        coordinates: {
+          x: object.coordinates.x,
+          y: object.coordinates.y + object.speed * object.direction.y,
+        },
+        speed: object.speed - 0.1 > 0 ? object.speed - 0.1 : 0,
+      };
+    }
+    // Ball
+    if (object.type === PhyType.CIRCLE) {
+      updated = {
+        ...object,
+        coordinates: {
+          x: object.coordinates.x + object.speed * object.direction.x,
+          y: object.coordinates.y + object.speed * object.direction.y,
+        },
+      };
+    }
+    return updated;
+  }
+
   /** Move the ball and players according to directions and speed */
   private _movePhysicsForward(game: Game): Game {
-    // Players inertia
+    // Players
+    // hit wall
     const players: Physic[] = game.gamePhysics.players.map((player) => ({
       ...player,
       coordinates: {
@@ -378,6 +498,10 @@ export class GameService {
     }));
     game.gamePhysics.players = players;
     // Ball
+    // hit wall
+    // hit player
+    // hit goal
+    // no hit
     game.gamePhysics.ball.coordinates.x +=
       game.gamePhysics.ball.speed * game.gamePhysics.ball.direction.x;
     game.gamePhysics.ball.coordinates.y +=
@@ -387,8 +511,8 @@ export class GameService {
 
   /** Start a game */
   private _startGame(server: Server, games: Game[], index: number) {
-    games[index] = this._initGamePhysics(games[index]);
     games[index] = this._initGameGrid(games[index]);
+    games[index] = this._initGamePhysics(games[index]);
     games[index].status = Status.STARTED;
     const gameInterval = setInterval(() => {
       // move the objects according to their vectors and current speed, with collition detection
@@ -396,7 +520,7 @@ export class GameService {
       // update the grid with new positions
       games[index] = this._updateGridFromPhysics(games[index]);
       server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
-    }, 1000);
+    }, 100);
     //clearInterval(gameInterval);
   }
 
@@ -420,76 +544,5 @@ export class GameService {
         updateGameDto.move,
       );
     }
-  }
-
-  /** join a game (player) */
-  join(client: Socket, server: Server, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    // add new player to the game and emit new grid
-    games[index] = this._addPlayerToGame(client, Side.RIGHT, games, index);
-    // Check if the game has 2 players
-    if (games[index].players.length >= 2) {
-      this._startGame(server, games, index);
-    }
-    // update the image with the new player for everyone
-    server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
-    // update the lobby with the new player
-    const gameList = this._createGameList(games);
-    server.to(this.LOBBY).emit('gameList', gameList);
-  }
-
-  /** view a game (viewer) */
-  view(client: Socket, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    const userId: number = +client.handshake.query.userId;
-    if (!this._isViewerInGame(userId, games)) {
-      games[index].viewers.push({ userId: userId, socketId: client.id });
-    }
-    client.join(games[index].roomId);
-    client.leave(this.LOBBY);
-  }
-
-  /** reconnect a game (existing player) */
-  reconnect(client: Socket, id: string, games: Game[]) {
-    const userId: number = +client.handshake.query.userId;
-    const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    // update player socket on player list
-    games[index].players = games[index].players.map((player) =>
-      player.userId === userId ? { socketId: client.id, ...player } : player,
-    );
-  }
-
-  /** Create the game list from the global server data */
-  private _createGameList(games: Game[]): object {
-    const gameList = games.map((game) => {
-      return {
-        roomId: game.roomId,
-        players: game.players,
-        viewersCount: game.viewers.length,
-      };
-    });
-    return gameList;
-  }
-
-  /** get game grid and param on request */
-  getGameGrid(client: Socket, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    client.emit('updateGrid', games[index].gameGrid);
-  }
-
-  /** Find all created games */
-  findAll(client: Socket, games: Game[]) {
-    const gameList = this._createGameList(games);
-    client.emit('gameList', gameList);
-  }
-
-  /** one client intentionnaly leave the game (abandon) */
-  leaveGame(client: Socket, server: Server, id: string, games: Game[]) {
-    games = games.filter((game) => game.roomId !== id);
-    // use prisma to update users and match info
   }
 }
