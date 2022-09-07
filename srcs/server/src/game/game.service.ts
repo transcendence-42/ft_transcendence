@@ -136,18 +136,31 @@ export class GameService {
       this.params.CANVASW / 2,
       this.params.CANVASW / 2,
       this.params.BALLRADIUS,
+      {
+        inertia: 0,
+        friction: 0,
+        frictionStatic: 0,
+        frictionAir: 0,
+        restitution: 1.05,
+      },
     );
     Body.applyForce(game.gamePhysics.ball, game.gamePhysics.ball.position, {
-      x: 0.05,
-      y: 0.0,
+      x: 0.005,
+      y: 0.003,
     });
-    // Left Player
+    // Players
     game.gameGrid.playersCoordinates.forEach((player) => {
       game.gamePhysics.players[player.playerSide] = Bodies.rectangle(
         game.gameGrid.playersCoordinates[player.playerSide].coordinates.x,
         game.gameGrid.playersCoordinates[player.playerSide].coordinates.y,
         this.params.BARWIDTH,
         this.params.BARHEIGHT,
+        { isStatic: true },
+      );
+      Body.setCentre(
+        game.gamePhysics.players[player.playerSide],
+        { x: this.params.BARWIDTH / 2, y: this.params.BARHEIGHT / 2 },
+        true,
       );
     });
     // Add all bodies to the world

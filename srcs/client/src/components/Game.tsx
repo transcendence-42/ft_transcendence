@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Stage, Layer, Rect, Circle } from "react-konva";
+import { Stage, Layer, Rect, Circle, Line } from "react-konva";
 
 const Game = (props: any) => {
   // Enum
@@ -49,7 +49,7 @@ const Game = (props: any) => {
   const handleMove = (event: any) => {
     if (event.key === "w" || event.key === "W") {
       console.log(`room id : ${props.room}`);
-      socket.emit("updateGame", { move: movement.UP, id: props.room});
+      socket.emit("updateGame", { move: movement.UP, id: props.room });
     }
     if (event.key === "s" || event.key === "S") {
       socket.emit("updateGame", { move: movement.DOWN, id: props.room });
@@ -57,6 +57,9 @@ const Game = (props: any) => {
   };
 
   const handleBackToLobby = () => {
+    // Should remove a viewer and change its room in the server
+    // Should end a match if player with opponent and delete the match
+    // Should cancel and delete a match if player alone
     if (
       props.action !== props.actionVal.VIEW_GAME &&
       window.confirm("Do you want to abandon the game ?")
@@ -132,6 +135,12 @@ const Game = (props: any) => {
             height={params.CANVASH}
             fill={params.BGFILL}
           />
+          <Line
+            name="let"
+            points={[params.CANVASW / 2, 0, params.CANVASW / 2, params.CANVASH]}
+            stroke={params.BALLFILL}
+            dash={[15, 10]}
+          ></Line>
         </Layer>
         <Layer>
           {playersRect}
