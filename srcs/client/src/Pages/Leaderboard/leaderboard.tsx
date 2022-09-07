@@ -21,8 +21,7 @@ export default function Leaderboard () {
         setUsers(responseObject);
       });
   },[userID]);
-
-
+  let i = 1;
 
  if(users)
   {
@@ -55,7 +54,7 @@ export default function Leaderboard () {
                       wins: any; stats: { wins: any; }; },b: {wins: any; stats: { wins: any; };}) => (a.stats && a.stats.wins) < (b.stats && b.stats.wins) ? 1 : -1)
                     .map((user: { id: React.Key; username: string ; stats: { wins: any; }; })  =>
                               <tr key={user.id}>
-                                  <td style={{fontSize: "2vw"}}>{user.id}</td>
+                                  <td style={{fontSize: "2vw"}}>{i++}</td>
                                   <td style={{fontSize: "2vw"}}>{user.username}</td>
                                   <td style={{fontSize: "2vw"}}>{user.stats && user.stats.wins}</td>
                               </tr>
