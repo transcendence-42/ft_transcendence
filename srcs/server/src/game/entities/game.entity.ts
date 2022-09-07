@@ -6,6 +6,7 @@ import { GamePhysics } from './gamePhysics.entity';
 export class Game {
   constructor(roomId: string) {
     this.gameGrid = new GameGrid();
+    this.gamePhysics = new GamePhysics();
     this.players = [];
     this.viewers = [];
     this.roomId = roomId;

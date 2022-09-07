@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Bodies, Body, Collision, Composite, Engine } from 'matter-js';
 import { Socket, Server } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
-import { GamePhysics } from './entities/gamePhysics.entity';
 import { v4 } from 'uuid';
 import {
   UserAlreadyInGameException,
@@ -12,17 +10,12 @@ import {
 } from './exceptions/';
 
 // Enums
-enum Side {
-  LEFT = 0,
-  RIGHT,
-}
-
 enum Move {
   UP = 0,
   DOWN,
 }
 
-enum Walls {
+enum Side {
   TOP = 0,
   RIGHT,
   BOTTOM,
@@ -50,6 +43,7 @@ export class GameService {
     BALLBORDER: 'yellow',
     BGFILL: 'black',
     WALLSIZE: 10,
+    BALLSPEED: 5,
   });
 
   games: Game[];
@@ -95,83 +89,6 @@ export class GameService {
       });
   }
 
-  /** Init game physics */
-  private _initPhysics(game: Game): Game {
-    // Init physics
-    game.gamePhysics = new GamePhysics();
-    // Walls
-    game.gamePhysics.walls[Walls.TOP] = Bodies.rectangle(
-      this.params.CANVASW / 2,
-      0,
-      this.params.CANVASW,
-      this.params.WALLSIZE,
-      { isStatic: true },
-    );
-    game.gamePhysics.walls[Walls.RIGHT] = Bodies.rectangle(
-      this.params.CANVASW - this.params.WALLSIZE,
-      this.params.CANVASW / 2,
-      this.params.WALLSIZE,
-      this.params.CANVASW,
-      { isStatic: true },
-    );
-    game.gamePhysics.walls[Walls.BOTTOM] = Bodies.rectangle(
-      this.params.CANVASW / 2,
-      this.params.CANVASW - this.params.WALLSIZE,
-      this.params.CANVASW,
-      this.params.WALLSIZE,
-      { isStatic: true },
-    );
-    game.gamePhysics.walls[Walls.LEFT] = Bodies.rectangle(
-      0,
-      this.params.CANVASW / 2,
-      this.params.WALLSIZE,
-      this.params.CANVASW,
-      { isStatic: true },
-    );
-    // Ball
-    game.gamePhysics.ball = Bodies.circle(
-      this.params.CANVASW / 2,
-      this.params.CANVASW / 2,
-      this.params.BALLRADIUS,
-      {
-        inertia: 0,
-        friction: 0,
-        frictionStatic: 0,
-        frictionAir: 0,
-        restitution: 1.05,
-        label: `ball`,
-      },
-    );
-    Body.applyForce(game.gamePhysics.ball, game.gamePhysics.ball.position, {
-      x: 0.005,
-      y: 0.003,
-    });
-    // Players
-    game.gameGrid.playersCoordinates.forEach((player) => {
-      game.gamePhysics.players[player.playerSide] = Bodies.rectangle(
-        game.gameGrid.playersCoordinates[player.playerSide].coordinates.x -
-          player.playerSide * this.params.BARWIDTH,
-        game.gameGrid.playersCoordinates[player.playerSide].coordinates.y,
-        this.params.BARWIDTH,
-        this.params.BARHEIGHT,
-        { isStatic: true, label: `player${player.playerSide}` },
-      );
-    });
-    // Add all bodies to the world
-    game.gamePhysics.engine = Engine.create();
-    game.gamePhysics.engine.gravity.y = 0;
-    game.gamePhysics.composite = Composite.add(game.gamePhysics.engine.world, [
-      game.gamePhysics.players[Side.LEFT],
-      game.gamePhysics.players[Side.RIGHT],
-      game.gamePhysics.walls[Walls.TOP],
-      game.gamePhysics.walls[Walls.RIGHT],
-      game.gamePhysics.walls[Walls.BOTTOM],
-      game.gamePhysics.walls[Walls.LEFT],
-      game.gamePhysics.ball,
-    ]);
-    return game;
-  }
-
   /** Add player to a game */
   private _addPlayerToGame(
     player: Socket,
@@ -195,7 +112,7 @@ export class GameService {
     // in Grid
     const pX = side === Side.LEFT ? 50 : this.params.CANVASW - 50;
     const pY = this.params.CANVASW / 2;
-    game.gameGrid.playersCoordinates.push({
+    game.gameGrid.players.push({
       playerId: player.id,
       playerSide: side,
       coordinates: { x: pX, y: pY },
@@ -256,7 +173,7 @@ export class GameService {
     game.gameGrid.ball.x = game.gamePhysics.ball.position.x;
     game.gameGrid.ball.y = game.gamePhysics.ball.position.y;
     // players
-    game.gameGrid.playersCoordinates.forEach((player) => {
+    game.gameGrid.players.forEach((player) => {
       if (player.playerSide === Side.LEFT) {
         player.coordinates.x = game.gamePhysics.players[Side.LEFT].position.x;
         player.coordinates.y = game.gamePhysics.players[Side.LEFT].position.y;
@@ -268,11 +185,60 @@ export class GameService {
     });
   }
 
-  /** start a game */
+  /** Init game physics */
+  private _initGamePhysics(game: Game): Game {
+    // Players
+    game.gameGrid.players.forEach((player) => {
+      game.gamePhysics.players.push({
+        coordinates: player.coordinates,
+        dimensions: { h: this.params.BARHEIGHT, w: this.params.BARWIDTH },
+        direction: { x: 0, y: 0 },
+        speed: 0,
+        side: player.playerSide,
+      });
+    });
+    // Walls
+    [
+      {
+        coordinates: { x: this.params.CANVASW / 2, y: 0 },
+        dimensions: { h: this.params.WALLSIZE, w: this.params.CANVASW },
+        side: Side.TOP,
+      },
+      {
+        coordinates: { x: this.params.CANVASW / 2, y: this.params.CANVASH },
+        dimensions: { h: this.params.WALLSIZE, w: this.params.CANVASW },
+        side: Side.BOTTOM,
+      },
+    ].forEach((wall) => game.gamePhysics.walls.push(wall));
+    // Goals
+    [
+      {
+        coordinates: { x: 0, y: this.params.CANVASH / 2 },
+        dimensions: { h: this.params.CANVASH, w: this.params.WALLSIZE },
+        side: Side.LEFT,
+      },
+      {
+        coordinates: { x: this.params.CANVASW, y: this.params.CANVASH / 2 },
+        dimensions: { h: this.params.CANVASH, w: this.params.WALLSIZE },
+        side: Side.RIGHT,
+      },
+    ].forEach((goal) => game.gamePhysics.goals.push(goal));
+    // Ball
+    game.gamePhysics.ball.coordinates = game.gameGrid.ball;
+    game.gamePhysics.ball.dimensions = { r: this.params.BALLRADIUS };
+    // Ball initial direction and speed
+    game.gamePhysics.ball.direction = { x: Math.random(), y: Math.random() };
+    game.gamePhysics.ball.speed = this.params.BALLSPEED;
+    return game;
+  }
+
+  /** Start a game */
   private _startGame(server: Server, games: Game[], index: number) {
-    games[index] = this._initPhysics(games[index]);
     const gameInterval = setInterval(() => {
-      Engine.update(games[index].gamePhysics.engine);
+      // Initialise game physics
+      games[index] = this._initGamePhysics(games[index]);
+      // move the objects according to their vectors and current speed
+      // update the grid with new ball position
       this._updateGridCoordinates(games[index]);
       server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
     }, 50);
@@ -289,36 +255,9 @@ export class GameService {
   ) {
     const index = games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
-    // if physics engine is up
-    if (games[index].gamePhysics) {
-      const phy = games[index].gamePhysics;
-      const move =
-        updateGameDto.move === Move.UP
-          ? this.params.MOVESPEED * -1
-          : this.params.MOVESPEED;
-      // Update players position
-      games[index].gameGrid.playersCoordinates.forEach((player) => {
-        player.playerId === client.id &&
-          Body.setPosition(
-            games[index].gamePhysics.players[player.playerSide],
-            {
-              x: player.coordinates.x,
-              y: player.coordinates.y + move,
-            },
-          );
-        // Detect collisions
-        const topWallCollision = Collision.collides(
-          phy.players[player.playerSide],
-          phy.walls[Walls.TOP],
-          null,
-        );
-        const bottomWallCollision = Collision.collides(
-          phy.players[player.playerSide],
-          phy.walls[Walls.BOTTOM],
-          null,
-        );
-      });
-    }
+    // Update players positions
+
+    // Broadcast updated grid to all players/ viewers in the game
     server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
   }
 

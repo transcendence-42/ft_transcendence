@@ -1,20 +1,17 @@
-export class Coordinates {
-  x: number;
-  y: number;
-}
+import { Vector } from './vector.entity';
 
 export class PlayerCoordinates {
   playerId: string;
   playerSide: number;
-  coordinates: Coordinates;
+  coordinates: Vector;
 }
 
 export class GameGrid {
   constructor() {
     this.ball = { x: 300, y: 300 };
-    this.playersCoordinates = [];
+    this.players = [];
   }
 
-  ball: Coordinates;
-  playersCoordinates: PlayerCoordinates[];
+  ball: Vector;
+  players: PlayerCoordinates[];
 }

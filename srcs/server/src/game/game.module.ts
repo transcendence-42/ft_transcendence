@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { GameGateway } from './game.gateway';
 import { FriendshipService } from 'src/friendship/friendship.service';
+import { PhysicsService } from 'src/physics/physics.service';
 
 @Module({
   providers: [
@@ -12,6 +13,7 @@ import { FriendshipService } from 'src/friendship/friendship.service';
     PrismaService,
     UserService,
     FriendshipService,
+    PhysicsService,
   ],
 })
 export class GameModule {}
