@@ -92,8 +92,8 @@ const Game = (props: any) => {
   let playersRect = [];
   let gameBall;
   if (grid) {
-    if (grid.playersCoordinates)
-      playersRect = grid.playersCoordinates.map(
+    if (grid.players)
+      playersRect = grid.players.map(
         (player: any, index: number) =>
           player && (
             <Rect

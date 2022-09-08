@@ -265,12 +265,21 @@ export class GameService {
     // Players
     game.players.forEach((player) => {
       game.gameGrid.players.push({
-        coordinates: { x: 0, y: 0 },
+        coordinates: {
+          x:
+            player.side === Side.LEFT
+              ? 50
+              : this.params.CANVASW - 50 - this.params.BARWIDTH,
+          y: this.params.CANVASH / 2 - this.params.BARHEIGHT / 2,
+        },
         side: player.side,
       });
     });
     // Ball
-    game.gameGrid.ball = new Vector(0, 0);
+    game.gameGrid.ball = new Vector(
+      this.params.CANVASW / 2,
+      this.params.CANVASH / 2,
+    );
     return game;
   }
 
@@ -303,13 +312,15 @@ export class GameService {
   private _initGamePhysics(game: Game): Game {
     // Players
     game.players.forEach((player) => {
-      const pY = this.params.CANVASW / 2;
       const pX =
         player.side === Side.RIGHT
           ? this.params.CANVASH - this.params.BARWIDTH - 50
           : 50;
       game.gamePhysics.players.push({
-        coordinates: { x: pX, y: pY },
+        coordinates: {
+          x: pX,
+          y: this.params.CANVASH / 2 - this.params.BARHEIGHT / 2,
+        },
         dimensions: { h: this.params.BARHEIGHT, w: this.params.BARWIDTH },
         direction: { x: 0, y: 0 },
         speed: 0,
@@ -348,6 +359,7 @@ export class GameService {
       },
     ].forEach((goal) => game.gamePhysics.goals.push(goal));
     // Ball
+    game.gamePhysics.ball.type = PhyType.CIRCLE;
     game.gamePhysics.ball.coordinates = {
       x: this.params.CANVASW / 2,
       y: this.params.CANVASH / 2,
@@ -418,54 +430,55 @@ export class GameService {
   }
 
   /** Update the physics from player's move */
-  private _updatePhysicsFromMove(
+  private _movePaddleFromInput(
     game: Game,
     userId: number,
-    move: number,
+    input: number,
   ): Game {
-    // get proper paddle
+    // get the correct paddle
     const side: number = this._getSideFromUser(game, userId);
     const playerIndex = game.gamePhysics.players.findIndex(
       (player) => player.side === side,
     );
-    let paddle: Physic = game.gamePhysics.players[playerIndex];
-    // calculate the Y step
-    const step: number =
-      move === Move.UP ? this.params.PLAYERSPEED * -1 : this.params.PLAYERSPEED;
-    // create a object with updated coordinates to check possible collision
-    const futurePaddle = {
-      ...paddle,
-      coordinates: { x: paddle.coordinates.x, y: paddle.coordinates.y + step },
-      direction:
-        move === Move.UP
-          ? { x: 0, y: this.params.PLAYERSPEED * -1 }
-          : { x: 0, y: this.params.PLAYERSPEED },
-      speed: this.params.PLAYERSPEED,
-    };
-    // if collision
+    const paddle: Physic = game.gamePhysics.players[playerIndex];
+    // calculate the move to apply
+    const move: number =
+      input === Move.UP
+        ? this.params.PLAYERSPEED * -1
+        : this.params.PLAYERSPEED;
+    // handle possible collision
+    let updatedPaddle: Physic = this._getUpdatedObject(paddle, move);
     if (
-      this._isCollision(futurePaddle, game.gamePhysics.walls[Wall.TOP]) ||
-      this._isCollision(futurePaddle, game.gamePhysics.walls[Wall.BOTTOM])
-    )
-      paddle = this._bounce(paddle);
-    else paddle = futurePaddle;
-    game.gamePhysics.players[playerIndex] = paddle;
+      this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.TOP]) ||
+      this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.BOTTOM])
+    ) {
+      updatedPaddle = this._bounce(paddle);
+    }
+    game.gamePhysics.players[playerIndex] = updatedPaddle;
     return game;
   }
 
   /** Get updated object */
-  private _getUpdatedObject(object: Physic): Physic {
+  private _getUpdatedObject(object: Physic, input?: number): Physic {
     let updated: Physic;
-
     // Players
+    const move = input ? input : object.speed * object.direction.y;
     if (object.type === PhyType.RECT) {
       updated = {
         ...object,
         coordinates: {
           x: object.coordinates.x,
-          y: object.coordinates.y + object.speed * object.direction.y,
+          y: object.coordinates.y + move,
         },
-        speed: object.speed - 0.1 > 0 ? object.speed - 0.1 : 0,
+        speed: input
+          ? this.params.PLAYERSPEED
+          : object.speed - 1 > 0
+          ? object.speed - 1
+          : 0,
+        direction: {
+          x: 0,
+          y: input ? (input > 0 ? 1 : -1) : object.direction.y,
+        },
       };
     }
     // Ball
@@ -481,54 +494,47 @@ export class GameService {
     return updated;
   }
 
-  /** Apply collision effect */
-  private _applyCollisionEffect(object1: Physic, object2: Physic): Physic {
-    // bounce
-    return object1;
-  }
-
-  /** Detects and handle paddle collision */
-  private _handlePaddleCollision(object: Physic, phy: GamePhysics): Physic {
-    let updatedObject: Physic;
-    if (this._isCollision(object, phy.walls[Wall.TOP])) {
-      // top wall
-    } else if (this._isCollision(object, phy.walls[Wall.BOTTOM])) {
-      // bottom wall
-    } else {
-      // no collision
-      updatedObject = this._getUpdatedObject(object);
+  /** Move the paddle forward with its speed and direction */
+  private _movePaddleForward(paddle: Physic, world: GamePhysics): Physic {
+    let updatedPaddle: Physic = this._getUpdatedObject(paddle);
+    if (
+      this._isCollision(updatedPaddle, world.walls[Wall.TOP]) ||
+      this._isCollision(updatedPaddle, world.walls[Wall.BOTTOM])
+    ) {
+      updatedPaddle = this._bounce(paddle);
     }
-    return updatedObject;
+    return updatedPaddle;
   }
 
-  /** Detects and handle ball collision */
-  private _handleBallCollision(object: Physic, phy: GamePhysics): Physic {
-    // top wall
-    // bottom wall
-    // left goal
-    // right goal
-    // left paddle
-    // right paddle
-    return object;
-  }
-
-  /** Move object forward */
-  private _moveObjectForward(object: Physic, phy: GamePhysics): Physic {
-    if (object.type === PhyType.RECT)
-      return this._handlePaddleCollision(object, phy);
-    if (object.type === PhyType.CIRCLE)
-      return this._handleBallCollision(object, phy);
+  /** Move the ball forward with its speed and direction */
+  private _moveBallForward(ball: Physic, world: GamePhysics): Physic {
+    let updatedBall: Physic = this._getUpdatedObject(ball);
+    if (this._isCollision(updatedBall, world.goals[Side.LEFT])) {
+      // score for right player
+    }
+    if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
+      // score for left player
+    }
+    if (
+      this._isCollision(updatedBall, world.walls[Wall.TOP]) ||
+      this._isCollision(updatedBall, world.walls[Wall.BOTTOM]) ||
+      this._isCollision(updatedBall, world.players[Side.LEFT]) ||
+      this._isCollision(updatedBall, world.players[Side.RIGHT])
+    ) {
+      updatedBall = this._bounce(ball);
+    }
+    return updatedBall;
   }
 
   /** Move the ball and players according to directions and speed */
-  private _movePhysicsForward(game: Game): Game {
+  private _moveWorldForward(game: Game): Game {
     // Players
     const players: Physic[] = game.gamePhysics.players.map((player) =>
-      this._moveObjectForward(player, game.gamePhysics),
+      this._movePaddleForward(player, game.gamePhysics),
     );
     game.gamePhysics.players = players;
     // Ball
-    const ball: Physic = this._moveObjectForward(
+    const ball: Physic = this._moveBallForward(
       game.gamePhysics.ball,
       game.gamePhysics,
     );
@@ -543,7 +549,7 @@ export class GameService {
     games[index].status = Status.STARTED;
     const gameInterval = setInterval(() => {
       // move the objects according to their vectors and current speed, with collition detection
-      games[index] = this._movePhysicsForward(games[index]);
+      games[index] = this._moveWorldForward(games[index]);
       // update the grid with new positions
       games[index] = this._updateGridFromPhysics(games[index]);
       server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
@@ -565,7 +571,7 @@ export class GameService {
     if (games[index].status === Status.STARTED) {
       // Update move
       const userId: number = +client.handshake.query.userId;
-      games[index] = this._updatePhysicsFromMove(
+      games[index] = this._movePaddleFromInput(
         games[index],
         userId,
         updateGameDto.move,
