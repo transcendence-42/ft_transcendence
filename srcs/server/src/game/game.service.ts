@@ -52,13 +52,8 @@ export class GameService {
     PLAYERSPEED: 10,
     BARWIDTH: 10,
     BARHEIGHT: 50,
-    BARFILL: 'yellow',
-    BARBORDER: 'yellow',
     BALLRADIUS: 10,
-    BALLFILL: 'yellow',
-    BALLBORDER: 'yellow',
-    BGFILL: 'black',
-    WALLSIZE: 10,
+    WALLSIZE: 15,
   });
 
   games: Game[];
@@ -331,14 +326,22 @@ export class GameService {
     // Walls
     [
       {
-        coordinates: { x: this.params.CANVASW / 2, y: 0 },
-        dimensions: { h: this.params.WALLSIZE, w: this.params.CANVASW },
+        coordinates: { x: -this.params.WALLSIZE, y: -this.params.WALLSIZE },
+        dimensions: {
+          h: this.params.WALLSIZE,
+          w: this.params.CANVASW + 2 * this.params.WALLSIZE,
+        },
+        direction: { x: 1, y: 0 },
         side: Wall.TOP,
         type: PhyType.RECT,
       },
       {
-        coordinates: { x: this.params.CANVASW / 2, y: this.params.CANVASH },
-        dimensions: { h: this.params.WALLSIZE, w: this.params.CANVASW },
+        coordinates: { x: -this.params.WALLSIZE, y: this.params.CANVASH },
+        dimensions: {
+          h: this.params.WALLSIZE,
+          w: this.params.CANVASW + 2 * this.params.WALLSIZE,
+        },
+        direction: { x: 1, y: 0 },
         side: Wall.BOTTOM,
         type: PhyType.RECT,
       },
@@ -346,13 +349,13 @@ export class GameService {
     // Goals
     [
       {
-        coordinates: { x: 0, y: this.params.CANVASH / 2 },
+        coordinates: { x: -this.params.WALLSIZE, y: 0 },
         dimensions: { h: this.params.CANVASH, w: this.params.WALLSIZE },
         side: Side.LEFT,
         type: PhyType.RECT,
       },
       {
-        coordinates: { x: this.params.CANVASW, y: this.params.CANVASH / 2 },
+        coordinates: { x: this.params.CANVASW, y: 0 },
         dimensions: { h: this.params.CANVASH, w: this.params.WALLSIZE },
         side: Side.RIGHT,
         type: PhyType.RECT,
@@ -403,7 +406,7 @@ export class GameService {
   }
 
   /** Bounce a physic object by changing its vector */
-  private _bounce(object: Physic): Physic {
+  private _bounce(object: Physic, surface?: Physic): Physic {
     let updatedObject: Physic;
 
     if (object.type === PhyType.RECT) {
@@ -417,13 +420,12 @@ export class GameService {
       };
     } else {
       // Ball
+      const newDir: Vector = object.direction;
+      if (surface.direction.x === 1) newDir.y = newDir.y * -1;
+      if (surface.direction.x === 0) newDir.x = newDir.x * -1;
       updatedObject = {
         ...object,
-        direction: {
-          // A calculer
-          x: 0,
-          y: object.direction.y * -1,
-        },
+        direction: newDir,
       };
     }
     return updatedObject;
@@ -515,14 +517,14 @@ export class GameService {
     if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
       // score for left player
     }
-    if (
-      this._isCollision(updatedBall, world.walls[Wall.TOP]) ||
-      this._isCollision(updatedBall, world.walls[Wall.BOTTOM]) ||
-      this._isCollision(updatedBall, world.players[Side.LEFT]) ||
-      this._isCollision(updatedBall, world.players[Side.RIGHT])
-    ) {
-      updatedBall = this._bounce(ball);
-    }
+    if (this._isCollision(updatedBall, world.walls[Wall.TOP]))
+      updatedBall = this._bounce(ball, world.walls[Wall.TOP]);
+    else if (this._isCollision(updatedBall, world.walls[Wall.BOTTOM]))
+      updatedBall = this._bounce(ball, world.walls[Wall.BOTTOM]);
+    else if (this._isCollision(updatedBall, world.players[Side.LEFT]))
+      updatedBall = this._bounce(ball, world.players[Side.LEFT]);
+    else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
+      updatedBall = this._bounce(ball, world.players[Side.RIGHT]);
     return updatedBall;
   }
 
@@ -553,7 +555,7 @@ export class GameService {
       // update the grid with new positions
       games[index] = this._updateGridFromPhysics(games[index]);
       server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
-    }, 100);
+    }, 20);
     //clearInterval(gameInterval);
   }
 

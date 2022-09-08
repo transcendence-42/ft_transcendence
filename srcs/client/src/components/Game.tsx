@@ -18,6 +18,7 @@ const Game = (props: any) => {
     BALLRADIUS: 10,
     BALLFILL: "yellow",
     BALLBORDER: "yellow",
+    WALLBORDER: "yellow",
     BGFILL: "black",
     WALLSIZE: 10,
   });
@@ -89,6 +90,7 @@ const Game = (props: any) => {
     };
   }, []);
 
+  let wallsRect = [];
   let playersRect = [];
   let gameBall;
   if (grid) {
@@ -114,6 +116,20 @@ const Game = (props: any) => {
           radius={params.BALLRADIUS}
           fill={params.BALLFILL}
         />
+      );
+    if (grid.walls)
+      wallsRect = grid.walls.map(
+        (wall: any, index: number) =>
+          wall && (
+            <Rect
+              key={index}
+              width={wall.side ? params.WALLSIZE : params.CANVASW}
+              height={wall.side ? params.CANVASH : params.WALLSIZE}
+              x={wall.coordinates.x}
+              y={wall.coordinates.y}
+              stroke={params.WALLBORDER}
+            />
+          )
       );
   }
 
@@ -142,6 +158,7 @@ const Game = (props: any) => {
           ></Line>
         </Layer>
         <Layer>
+          {wallsRect}
           {playersRect}
           {gameBall}
         </Layer>
