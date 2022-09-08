@@ -25,25 +25,18 @@ export class GameGateway
 
   onModuleInit() {
     this.server.sockets.disconnectSockets(true);
+    this.gameService.server = this.server;
     console.log('Websocket server is up...');
   }
 
   /** Handle new clients connection to the game */
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.gameService.clientConnection(
-      client,
-      this.server,
-      this.gameService.games,
-    );
+    this.gameService.clientConnection(client);
   }
 
   /** Handle client disconnection from the game */
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.gameService.clientDisconnection(
-      client,
-      this.server,
-      this.gameService.games,
-    );
+    this.gameService.clientDisconnection(client);
   }
 
   /** Create a new game */
@@ -51,13 +44,13 @@ export class GameGateway
   create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
     const players: Socket[] = [client];
-    this.gameService.create(players, this.server, this.gameService.games);
+    this.gameService.create(players);
   }
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
   findAll(@ConnectedSocket() client: Socket) {
-    this.gameService.findAll(client, this.gameService.games);
+    this.gameService.findAll(client);
   }
 
   /** Update game grid by movement */
@@ -66,13 +59,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.update(
-      client,
-      this.server,
-      updateGameDto.id,
-      updateGameDto,
-      this.gameService.games,
-    );
+    this.gameService.update(client, updateGameDto.id, updateGameDto.move);
   }
 
   /** join game (new player) */
@@ -81,12 +68,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.join(
-      client,
-      this.server,
-      updateGameDto.id,
-      this.gameService.games,
-    );
+    this.gameService.join(client, updateGameDto.id);
   }
 
   /** view game (new viewer) */
@@ -95,7 +77,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.view(client, updateGameDto.id, this.gameService.games);
+    this.gameService.view(client, updateGameDto.id);
   }
 
   /** Reconnect game (existing player) */
@@ -104,11 +86,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.reconnect(
-      client,
-      updateGameDto.id,
-      this.gameService.games,
-    );
+    this.gameService.reconnect(client, updateGameDto.id);
   }
 
   /** Get the game grid */
@@ -117,11 +95,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.getGameGrid(
-      client,
-      updateGameDto.id,
-      this.gameService.games,
-    );
+    this.gameService.getGameGrid(client, updateGameDto.id);
   }
 
   /** One player is leaving the game */
@@ -130,11 +104,6 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.leaveGame(
-      client,
-      this.server,
-      updateGameDto.id,
-      this.gameService.games,
-    );
+    this.gameService.leaveGame(client, updateGameDto.id);
   }
 }

@@ -43,8 +43,10 @@ export class GameService {
     this.games = [];
   }
 
-  readonly LOBBY = 'lobby';
+  server: Server;
+  games: Game[];
 
+  readonly LOBBY = 'lobby';
   readonly params = Object.freeze({
     CANVASW: 600,
     CANVASH: 600,
@@ -56,19 +58,17 @@ export class GameService {
     WALLSIZE: 15,
   });
 
-  games: Game[];
-
   /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
 
   /** client connection */
-  clientConnection(client: Socket, server: Server, games: Game[]) {
+  clientConnection(client: Socket) {
     // get query information
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // if the user id is in a game, reconnect the client to the game
-    const game = games.find(
+    const game = this.games.find(
       (game) =>
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
@@ -77,27 +77,27 @@ export class GameService {
       client.emit('reconnect', game.roomId);
     } else {
       client.join(this.LOBBY);
-      server.to(this.LOBBY).emit('info', {
+      this.server.to(this.LOBBY).emit('info', {
         message: `user ${userId} (${client.id}) joined the lobby`,
       });
     }
   }
 
   /** client disconnection */
-  clientDisconnection(client: Socket, server: Server, games: Game[]) {
+  clientDisconnection(client: Socket) {
     const userId: number = +client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
     // Broadcast that user left the lobby
-    server.to(this.LOBBY).emit('info', {
+    this.server.to(this.LOBBY).emit('info', {
       message: `user ${userId} (${client.id}) left the lobby`,
     });
     // Warn the room if the player is in game
-    const maybeGame = games.findIndex(
+    const maybeGame = this.games.findIndex(
       (game) =>
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
     if (maybeGame !== -1)
-      server.to(games[maybeGame].roomId).emit('playerLeft', {
+      this.server.to(this.games[maybeGame].roomId).emit('playerLeft', {
         message: `user ${userId} (${client.id}) left the lobby`,
         data: { userId: userId },
       });
@@ -108,16 +108,11 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private _addPlayerToGame(
-    player: Socket,
-    side: number,
-    games: Game[],
-    index: number,
-  ): Game {
-    const game = games[index];
+  private _addPlayerToGame(player: Socket, side: number, index: number): Game {
+    const game = this.games[index];
     const userId: number = +player.handshake.query.userId;
     // check if user is already in game
-    if (this._isPlayerInGame(userId, games)) {
+    if (this._isPlayerInGame(userId)) {
       throw new UserAlreadyInGameException(userId);
     }
     // Add it to the game and set his side
@@ -133,9 +128,9 @@ export class GameService {
   }
 
   /** Check if a player is already in a game */
-  private _isPlayerInGame(userId: number, games: Game[]): boolean {
+  private _isPlayerInGame(userId: number): boolean {
     if (
-      games.find((game) =>
+      this.games.find((game) =>
         game.players.find((player) => player.userId === userId),
       )
     )
@@ -144,9 +139,9 @@ export class GameService {
   }
 
   /** Check if a viewer is already in a game */
-  private _isViewerInGame(userId: number, games: Game[]): boolean {
+  private _isViewerInGame(userId: number): boolean {
     if (
-      games.find((game) =>
+      this.games.find((game) =>
         game.viewers.find((viewer) => viewer.userId === userId),
       )
     )
@@ -164,8 +159,8 @@ export class GameService {
   }
 
   /** Create the game list from the global server data */
-  private _createGameList(games: Game[]): object {
-    const gameList = games.map((game) => {
+  private _createGameList(): object {
+    const gameList = this.games.map((game) => {
       return {
         roomId: game.roomId,
         players: game.players,
@@ -176,78 +171,80 @@ export class GameService {
   }
 
   /** Create a new game */
-  create(players: Socket[], server: Server, games: Game[]) {
+  create(players: Socket[]) {
     // 1 : Chech if one of the user is already in a game
     players.forEach((player) => {
       const userId: number = +player.handshake.query.userId;
-      if (this._isPlayerInGame(userId, games))
+      if (this._isPlayerInGame(userId))
         throw new UserAlreadyInGameException(userId);
     });
     // create a new game
     const newGame: Game = new Game(v4());
-    const len = games.push(newGame);
+    const len = this.games.push(newGame);
     // add players to the game and give them the game id
     players.forEach((player, index) => {
       const side = index ? Side.RIGHT : Side.LEFT;
-      games[len - 1] = this._addPlayerToGame(player, side, games, len - 1);
-      player.emit('newGameId', { id: games[len - 1].roomId });
+      this.games[len - 1] = this._addPlayerToGame(player, side, len - 1);
+      player.emit('newGameId', { id: this.games[len - 1].roomId });
     });
     // Broadcast new gamelist to the lobby
-    const gameList = this._createGameList(games);
-    server.to(this.LOBBY).emit('gameList', gameList);
+    const gameList = this._createGameList();
+    this.server.to(this.LOBBY).emit('gameList', gameList);
     // start game if players > 1
-    if (games[len - 1].players.length > 1)
-      this._startGame(server, games[len - 1]);
+    if (this.games[len - 1].players.length > 1)
+      this._startGame(this.games[len - 1]);
   }
 
   /** Find all created games */
-  findAll(client: Socket, games: Game[]) {
-    const gameList = this._createGameList(games);
+  findAll(client: Socket) {
+    const gameList = this._createGameList();
     client.emit('gameList', gameList);
   }
 
   /** one client intentionnaly leave the game (abandon) */
-  leaveGame(client: Socket, server: Server, id: string, games: Game[]) {
-    games = games.filter((game) => game.roomId !== id);
+  leaveGame(client: Socket, id: string) {
+    const games = this.games.filter((game) => game.roomId !== id);
     // use prisma to update users and match info
   }
 
   /** join a game (player) */
-  join(client: Socket, server: Server, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
+  join(client: Socket, id: string) {
+    const index = this.games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
     // add new player to the game and emit new grid
-    games[index] = this._addPlayerToGame(client, Side.RIGHT, games, index);
+    this.games[index] = this._addPlayerToGame(client, Side.RIGHT, index);
     // Check if the game has 2 players
-    if (games[index].players.length >= 2) {
-      this._startGame(server, games[index]);
+    if (this.games[index].players.length >= 2) {
+      this._startGame(this.games[index]);
     }
     // update the image with the new player for everyone
-    server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
+    this.server
+      .to(this.games[index].roomId)
+      .emit('updateGrid', this.games[index].gameGrid);
     // update the lobby with the new player
-    const gameList = this._createGameList(games);
-    server.to(this.LOBBY).emit('gameList', gameList);
+    const gameList = this._createGameList();
+    this.server.to(this.LOBBY).emit('gameList', gameList);
   }
 
   /** view a game (viewer) */
-  view(client: Socket, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
+  view(client: Socket, id: string) {
+    const index = this.games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
     const userId: number = +client.handshake.query.userId;
-    if (!this._isViewerInGame(userId, games)) {
-      games[index].viewers.push({ userId: userId, socketId: client.id });
+    if (!this._isViewerInGame(userId)) {
+      this.games[index].viewers.push({ userId: userId, socketId: client.id });
     }
-    client.join(games[index].roomId);
+    client.join(this.games[index].roomId);
     client.leave(this.LOBBY);
   }
 
   /** reconnect a game (existing player) */
-  reconnect(client: Socket, id: string, games: Game[]) {
+  reconnect(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
-    const index = games.findIndex((game) => game.roomId === id);
+    const index = this.games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
     // update player socket on player list
-    games[index].players = games[index].players.map((player) =>
+    this.games[index].players = this.games[index].players.map((player) =>
       player.userId === userId ? { socketId: client.id, ...player } : player,
     );
   }
@@ -257,7 +254,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Init game grid */
-  private _initGameGrid(game: Game): Game {
+  private _initGameGrid(game: Game) {
     // Players
     game.players.forEach((player) => {
       game.gameGrid.players.push({
@@ -276,11 +273,10 @@ export class GameService {
       this.params.CANVASW / 2,
       this.params.CANVASH / 2,
     );
-    return game;
   }
 
   /** Update grid from physics */
-  private _updateGridFromPhysics(game: Game): Game {
+  private _updateGridFromPhysics(game: Game) {
     // Players
     game.gamePhysics.players.forEach((playerPhy) => {
       game.gameGrid.players.forEach((playerGrid, index) => {
@@ -290,14 +286,13 @@ export class GameService {
     });
     // Ball
     game.gameGrid.ball = game.gamePhysics.ball.coordinates;
-    return game;
   }
 
   /** get game grid on request */
-  getGameGrid(client: Socket, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
+  getGameGrid(client: Socket, id: string) {
+    const index = this.games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
-    client.emit('updateGrid', games[index].gameGrid);
+    client.emit('updateGrid', this.games[index].gameGrid);
   }
 
   /** *********************************************************************** */
@@ -318,7 +313,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Init game physics from grid */
-  private _initGamePhysics(game: Game): Game {
+  private _initGamePhysics(game: Game) {
     // Players
     game.players.forEach((player) => {
       const pX =
@@ -385,7 +380,6 @@ export class GameService {
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = { x: Math.random(), y: Math.random() };
     game.gamePhysics.ball.speed = this.params.BALLSPEED;
-    return game;
   }
 
   /** Detect collision between 2 physic objects */
@@ -448,11 +442,7 @@ export class GameService {
   }
 
   /** Update the physics from player's move */
-  private _movePaddleFromInput(
-    game: Game,
-    userId: number,
-    input: number,
-  ): Game {
+  private _movePaddleFromInput(game: Game, userId: number, input: number) {
     // get the correct paddle
     const side: number = this._getSideFromUser(game, userId);
     const playerIndex = game.gamePhysics.players.findIndex(
@@ -473,7 +463,6 @@ export class GameService {
       updatedPaddle = this._bounce(paddle);
     }
     game.gamePhysics.players[playerIndex] = updatedPaddle;
-    return game;
   }
 
   /** Get updated object */
@@ -528,7 +517,6 @@ export class GameService {
   private _moveBallForward(
     ball: Physic,
     game: Game,
-    server: Server,
     gameInterval: NodeJS.Timer,
   ): Physic {
     const world: GamePhysics = game.gamePhysics;
@@ -540,9 +528,11 @@ export class GameService {
           ? { ...player, score: ++player.score }
           : player,
       );
-      server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
+      this.server
+        .to(game.roomId)
+        .emit('updateScores', this._buildScoreObject(game));
       clearInterval(gameInterval);
-      this._startGame(server, game);
+      this._startGame(game);
     } else if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
       // score for left player
       game.players.map((player) =>
@@ -550,8 +540,10 @@ export class GameService {
           ? { ...player, score: ++player.score }
           : player,
       );
-      server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
-      this._startGame(server, game);
+      this.server
+        .to(game.roomId)
+        .emit('updateScores', this._buildScoreObject(game));
+      this._startGame(game);
     }
     if (this._isCollision(updatedBall, world.walls[Wall.TOP]))
       updatedBall = this._bounce(ball, world.walls[Wall.TOP]);
@@ -565,11 +557,7 @@ export class GameService {
   }
 
   /** Move the ball and players according to directions and speed */
-  private _moveWorldForward(
-    game: Game,
-    server: Server,
-    gameInterval: NodeJS.Timer,
-  ): Game {
+  private _moveWorldForward(game: Game, gameInterval: NodeJS.Timer) {
     // Players
     const players: Physic[] = game.gamePhysics.players.map((player) =>
       this._movePaddleForward(player, game.gamePhysics),
@@ -579,46 +567,35 @@ export class GameService {
     const ball: Physic = this._moveBallForward(
       game.gamePhysics.ball,
       game,
-      server,
       gameInterval,
     );
     game.gamePhysics.ball = ball;
-    return game;
   }
 
   /** Start a game */
-  private _startGame(server: Server, game: Game) {
-    game = this._initGameGrid(game);
-    game = this._initGamePhysics(game);
-    server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
+  private _startGame(game: Game) {
+    this._initGameGrid(game);
+    this._initGamePhysics(game);
+    this.server
+      .to(game.roomId)
+      .emit('updateScores', this._buildScoreObject(game));
     game.status = Status.STARTED;
     const gameInterval = setInterval(() => {
-      game = this._moveWorldForward(game, server, gameInterval);
-      game = this._updateGridFromPhysics(game);
-      server.to(game.roomId).emit('updateGrid', game.gameGrid);
+      this._moveWorldForward(game, gameInterval);
+      this._updateGridFromPhysics(game);
+      this.server.to(game.roomId).emit('updateGrid', game.gameGrid);
     }, 20);
-    //clearInterval(gameInterval);
   }
 
   /** update a game (moves) */
-  update(
-    client: Socket,
-    server: Server,
-    id: string,
-    updateGameDto: UpdateGameDto,
-    games: Game[],
-  ) {
-    const index = games.findIndex((game) => game.roomId === id);
+  update(client: Socket, id: string, move: number) {
+    const index = this.games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
     // Update player position if game started
-    if (games[index].status === Status.STARTED) {
+    if (this.games[index].status === Status.STARTED) {
       // Update move
       const userId: number = +client.handshake.query.userId;
-      games[index] = this._movePaddleFromInput(
-        games[index],
-        userId,
-        updateGameDto.move,
-      );
+      this._movePaddleFromInput(this.games[index], userId, move);
     }
   }
 }
