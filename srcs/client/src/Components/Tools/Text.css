@@ -25,6 +25,7 @@
 }
 
 .yellowText{
+  text-decoration: none;
   font-family: 'Montserrat', sans-serif;
   font-style: sans-serif;
   font-weight: var(--weight);

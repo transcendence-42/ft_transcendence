@@ -1,6 +1,4 @@
-import React, { useContext } from "react";
-import { Route, Navigate, Outlet} from "react-router-dom";
-import Auth from "../Context/Auth";
+import {Navigate, Outlet} from "react-router-dom";
 
 
 const AuthenticatedRoute = (pathFree : any) =>{
@@ -10,4 +8,5 @@ const AuthenticatedRoute = (pathFree : any) =>{
     return localStorage.getItem("pathIsFree") ? <Outlet /> : <Navigate to="/login" />;
 }
 
-export default AuthenticatedRoute;
+
+export default AuthenticatedRoute ; 
