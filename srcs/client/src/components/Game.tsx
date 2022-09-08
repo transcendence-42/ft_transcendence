@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Stage, Layer, Rect, Circle, Line } from "react-konva";
+import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 
 const Game = (props: any) => {
   // Enum
@@ -13,19 +13,21 @@ const Game = (props: any) => {
     CANVASH: 600,
     BARWIDTH: 10,
     BARHEIGHT: 50,
+    WALLSIZE: 10,
+    BALLRADIUS: 10,
     BARFILL: "yellow",
     BARBORDER: "yellow",
-    BALLRADIUS: 10,
     BALLFILL: "yellow",
     BALLBORDER: "yellow",
     WALLBORDER: "yellow",
     BGFILL: "black",
-    WALLSIZE: 10,
+    TEXTCOLOR: "yellow",
   });
 
   // States
   const socket = props.socket;
   const [grid, setGrid] = useState({} as any);
+  const [scores, setScores] = useState([]);
 
   // Init
   const initGame = () => {
@@ -43,6 +45,7 @@ const Game = (props: any) => {
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit("reconnectGame", { id: props.room });
     socket.emit("getGameGrid", { id: props.room });
+    socket.emit("getGameScores", { id: props.room });
   };
 
   // Handlers
@@ -73,6 +76,10 @@ const Game = (props: any) => {
     setGrid(gridUpdate);
   }, []);
 
+  const handleScoresUpdate = useCallback((scoreUpdate: any) => {
+    setScores(scoreUpdate);
+  }, []);
+
   const handlePlayerLeft = useCallback((params: any) => {
     console.log(`Info : ${params.message}`);
   }, []);
@@ -80,33 +87,46 @@ const Game = (props: any) => {
   useEffect(() => {
     initGame();
     socket.on("updateGrid", handleGridUpdate);
+    socket.on("updateScores", handleScoresUpdate);
     socket.on("playerLeft", handlePlayerLeft);
     if (props.action !== props.actionVal.VIEW_GAME)
       document.addEventListener("keydown", handleMove);
     return () => {
       socket.off("updateGrid", handleGridUpdate);
+      socket.off("updateScores", handleScoresUpdate);
       socket.off("playerLeft", handlePlayerLeft);
       document.removeEventListener("keydown", handleMove);
     };
   }, []);
 
-  let wallsRect = [];
-  let playersRect = [];
+  let wallsRect: any = [];
+  let playersRect: any = [];
+  let playersScores: any = [];
   let gameBall;
+  if (scores) {
+    playersScores = scores.map((player: any, index: number) =>
+      <Text
+        key={index}
+        text={player.score}
+        fontSize={15}
+        fill={params.TEXTCOLOR}
+        x={player.side ? 250 : 350}
+        y={30}
+      /> 
+    )
+  }
   if (grid) {
     if (grid.players)
       playersRect = grid.players.map(
         (player: any, index: number) =>
-          player && (
-            <Rect
-              key={index}
-              width={params.BARWIDTH}
-              height={params.BARHEIGHT}
-              x={player.coordinates.x}
-              y={player.coordinates.y}
-              fill={params.BARFILL}
-            />
-          )
+          <Rect
+            key={index}
+            width={params.BARWIDTH}
+            height={params.BARHEIGHT}
+            x={player.coordinates.x}
+            y={player.coordinates.y}
+            fill={params.BARFILL}
+          />
       );
     if (grid.ball)
       gameBall = (
@@ -156,6 +176,7 @@ const Game = (props: any) => {
             stroke={params.BALLFILL}
             dash={[15, 10]}
           ></Line>
+          {playersScores}
         </Layer>
         <Layer>
           {wallsRect}

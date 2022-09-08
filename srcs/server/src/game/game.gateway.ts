@@ -124,6 +124,19 @@ export class GameGateway
     );
   }
 
+  /** Get the game scores */
+  @SubscribeMessage('getGameScores')
+  getGameScores(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateGameDto: UpdateGameDto,
+  ) {
+    this.gameService.getGameScores(
+      client,
+      updateGameDto.id,
+      this.gameService.games,
+    );
+  }
+
   /** One player is leaving the game */
   @SubscribeMessage('playerLeave')
   leaveGame(

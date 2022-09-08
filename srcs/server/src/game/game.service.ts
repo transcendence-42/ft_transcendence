@@ -127,6 +127,7 @@ export class GameService {
       socketId: player.id,
       userId: userId,
       side: side,
+      score: 0,
     });
     return game;
   }
@@ -196,7 +197,7 @@ export class GameService {
     server.to(this.LOBBY).emit('gameList', gameList);
     // start game if players > 1
     if (games[len - 1].players.length > 1)
-      this._startGame(server, games, len - 1);
+      this._startGame(server, games[len - 1]);
   }
 
   /** Find all created games */
@@ -219,7 +220,7 @@ export class GameService {
     games[index] = this._addPlayerToGame(client, Side.RIGHT, games, index);
     // Check if the game has 2 players
     if (games[index].players.length >= 2) {
-      this._startGame(server, games, index);
+      this._startGame(server, games[index]);
     }
     // update the image with the new player for everyone
     server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
@@ -252,7 +253,7 @@ export class GameService {
   }
 
   /** *********************************************************************** */
-  /** GAME GRID                                                               */
+  /** GAME GRID & SCORES                                                      */
   /** *********************************************************************** */
 
   /** Init game grid */
@@ -292,11 +293,29 @@ export class GameService {
     return game;
   }
 
-  /** get game grid and param on request */
+  /** Build a score object from a game */
+  private _buildScoreObject(game: Game): any[] {
+    const scores = game.players.map((player) => ({
+      side: player.side,
+      score: player.score,
+    }));
+    return scores;
+  }
+
+  /** get game grid on request */
   getGameGrid(client: Socket, id: string, games: Game[]) {
     const index = games.findIndex((game) => game.roomId === id);
     if (index === -1) throw new GameNotFoundException(id);
     client.emit('updateGrid', games[index].gameGrid);
+  }
+
+  /** get game scores on request */
+  getGameScores(client: Socket, id: string, games: Game[]) {
+    const index = games.findIndex((game) => game.roomId === id);
+    if (index === -1) throw new GameNotFoundException(id);
+    // build score object
+    const scores = this._buildScoreObject(games[index]);
+    client.emit('updateScore', scores);
   }
 
   /** *********************************************************************** */
@@ -423,6 +442,8 @@ export class GameService {
       const newDir: Vector = object.direction;
       if (surface.direction.x === 1) newDir.y = newDir.y * -1;
       if (surface.direction.x === 0) newDir.x = newDir.x * -1;
+      // Acceleration
+      if (surface.speed) newDir.y += surface.direction.y / 10;
       updatedObject = {
         ...object,
         direction: newDir,
@@ -509,13 +530,33 @@ export class GameService {
   }
 
   /** Move the ball forward with its speed and direction */
-  private _moveBallForward(ball: Physic, world: GamePhysics): Physic {
+  private _moveBallForward(
+    ball: Physic,
+    game: Game,
+    server: Server,
+    gameInterval: NodeJS.Timer,
+  ): Physic {
+    const world: GamePhysics = game.gamePhysics;
     let updatedBall: Physic = this._getUpdatedObject(ball);
     if (this._isCollision(updatedBall, world.goals[Side.LEFT])) {
       // score for right player
-    }
-    if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
+      game.players.map((player) =>
+        player.side === Side.RIGHT
+          ? { ...player, score: ++player.score }
+          : player,
+      );
+      server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
+      clearInterval(gameInterval);
+      this._startGame(server, game);
+    } else if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
       // score for left player
+      game.players.map((player) =>
+        player.side === Side.LEFT
+          ? { ...player, score: ++player.score }
+          : player,
+      );
+      server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
+      this._startGame(server, game);
     }
     if (this._isCollision(updatedBall, world.walls[Wall.TOP]))
       updatedBall = this._bounce(ball, world.walls[Wall.TOP]);
@@ -529,7 +570,11 @@ export class GameService {
   }
 
   /** Move the ball and players according to directions and speed */
-  private _moveWorldForward(game: Game): Game {
+  private _moveWorldForward(
+    game: Game,
+    server: Server,
+    gameInterval: NodeJS.Timer,
+  ): Game {
     // Players
     const players: Physic[] = game.gamePhysics.players.map((player) =>
       this._movePaddleForward(player, game.gamePhysics),
@@ -538,23 +583,23 @@ export class GameService {
     // Ball
     const ball: Physic = this._moveBallForward(
       game.gamePhysics.ball,
-      game.gamePhysics,
+      game,
+      server,
+      gameInterval,
     );
     game.gamePhysics.ball = ball;
     return game;
   }
 
   /** Start a game */
-  private _startGame(server: Server, games: Game[], index: number) {
-    games[index] = this._initGameGrid(games[index]);
-    games[index] = this._initGamePhysics(games[index]);
-    games[index].status = Status.STARTED;
+  private _startGame(server: Server, game: Game) {
+    game = this._initGameGrid(game);
+    game = this._initGamePhysics(game);
+    game.status = Status.STARTED;
     const gameInterval = setInterval(() => {
-      // move the objects according to their vectors and current speed, with collition detection
-      games[index] = this._moveWorldForward(games[index]);
-      // update the grid with new positions
-      games[index] = this._updateGridFromPhysics(games[index]);
-      server.to(games[index].roomId).emit('updateGrid', games[index].gameGrid);
+      game = this._moveWorldForward(game, server, gameInterval);
+      game = this._updateGridFromPhysics(game);
+      server.to(game.roomId).emit('updateGrid', game.gameGrid);
     }, 20);
     //clearInterval(gameInterval);
   }
