@@ -45,7 +45,6 @@ const Game = (props: any) => {
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit("reconnectGame", { id: props.room });
     socket.emit("getGameGrid", { id: props.room });
-    socket.emit("getGameScores", { id: props.room });
   };
 
   // Handlers
@@ -107,10 +106,10 @@ const Game = (props: any) => {
     playersScores = scores.map((player: any, index: number) =>
       <Text
         key={index}
-        text={player.score}
+        text={player.score.toString()}
         fontSize={15}
         fill={params.TEXTCOLOR}
-        x={player.side ? 250 : 350}
+        x={player.side ? 350 : 240}
         y={30}
       /> 
     )

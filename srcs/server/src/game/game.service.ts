@@ -253,7 +253,7 @@ export class GameService {
   }
 
   /** *********************************************************************** */
-  /** GAME GRID & SCORES                                                      */
+  /** GAME GRID                                                               */
   /** *********************************************************************** */
 
   /** Init game grid */
@@ -293,15 +293,6 @@ export class GameService {
     return game;
   }
 
-  /** Build a score object from a game */
-  private _buildScoreObject(game: Game): any[] {
-    const scores = game.players.map((player) => ({
-      side: player.side,
-      score: player.score,
-    }));
-    return scores;
-  }
-
   /** get game grid on request */
   getGameGrid(client: Socket, id: string, games: Game[]) {
     const index = games.findIndex((game) => game.roomId === id);
@@ -309,13 +300,17 @@ export class GameService {
     client.emit('updateGrid', games[index].gameGrid);
   }
 
-  /** get game scores on request */
-  getGameScores(client: Socket, id: string, games: Game[]) {
-    const index = games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    // build score object
-    const scores = this._buildScoreObject(games[index]);
-    client.emit('updateScore', scores);
+  /** *********************************************************************** */
+  /** GAME SCORES                                                             */
+  /** *********************************************************************** */
+
+  /** Build a score object from a game */
+  private _buildScoreObject(game: Game): any[] {
+    const scores = game.players.map((player) => ({
+      side: player.side,
+      score: player.score,
+    }));
+    return scores;
   }
 
   /** *********************************************************************** */
@@ -595,6 +590,7 @@ export class GameService {
   private _startGame(server: Server, game: Game) {
     game = this._initGameGrid(game);
     game = this._initGamePhysics(game);
+    server.to(game.roomId).emit('updateScores', this._buildScoreObject(game));
     game.status = Status.STARTED;
     const gameInterval = setInterval(() => {
       game = this._moveWorldForward(game, server, gameInterval);
