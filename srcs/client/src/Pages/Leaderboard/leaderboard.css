@@ -19,6 +19,7 @@
 	width: 100%;
 	width: 85%;
 	margin: auto; 
+	margin-top: 5%;
 }
 .container>* {
     margin: 0 10px;
