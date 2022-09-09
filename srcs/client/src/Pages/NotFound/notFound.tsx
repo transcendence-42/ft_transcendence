@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import './notFound.css'
+import '../../Components/Tools/LittlePong/littlePong.css'
 
 /* Call UseNavigate declare it and use an unknown function to navigate to main page */
 export default function NotFound()

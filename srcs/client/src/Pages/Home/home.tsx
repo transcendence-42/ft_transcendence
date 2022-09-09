@@ -5,6 +5,7 @@ import "../../Components/Tools/Text.css"
 import AuthenticatedRoute from "../../Components/services/authenticatedRoute";
 import Play from "../../Components/Tools/Button/Play";
 import { Link } from "react-router-dom";
+import "../../Components/Tools/VirtualPong/virtualPong.css"
 
 
 export default function Home () {
@@ -45,7 +46,7 @@ if (!(localStorage.getItem("pathIsFree")))
       <>
       <div className="home" data-testid="tracker" >
         <div className="title">
-          <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTEER THE PONG CONTEST ! </h2>  
+          <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>  
         </div>   
           <div className="homeElement1">
             <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
@@ -56,12 +57,11 @@ if (!(localStorage.getItem("pathIsFree")))
             <div className="ping"></div>
             <div className="pong"></div>
             <div className="ball"></div>
-            <div className="blueContainer1"
-            style={{width: "10vw",height: "15%", top: "14%"}}> <div className="playFlickering"style={{cursor:"pointer"}}> PLAY </div> </div>
-             <div className="blueContainer2"
-            style={{width: "10vw",height: "5vwpx",top: "14%"}}> <div className="playFlickering"style={{cursor:"pointer"}}> WATCH </div>
+            <div className="blueContainer1"style={{width: "10vw",height: "15%%", top: "14%"}}>     <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> PLAY </Link> 
+          </div>
+            <div className="blueContainer2"style={{width: "10vw",height: "12%",top: "14%"}}>
+              <div className="playFlickering"style={{cursor:"pointer"}}> WATCH </div>
             </div>
-          
           </div>
           <div className="homeElement2">
             <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>

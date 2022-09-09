@@ -11,6 +11,7 @@ import Chat from './Pages/Chat/chat';
 import NavBar from './Components/Tools/NavBar/NavBar';
 import Auth from './Components/Context/Auth';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
+import MapChoice from './Pages/MapChoice/mapChoice';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
               < Route path="/profile" element={<Profile />} />
+              < Route path="/mapchoice" element={<MapChoice />} />
             </Route>
           </Routes>
         </div>
