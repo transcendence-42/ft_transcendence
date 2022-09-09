@@ -4,27 +4,60 @@
     padding: 0;
 }
 
-.loginTitle
+.container
 {
-    color: white;
-    position: relative;
-    width: 100%;
-    text-align: center;
-    top: 0%;
+align-items: center;
+justify-content: center;
+
+
+}
+.title
+{
+	margin-top: 10%;
+    height: 20%;
+}
+.body
+{
+    height: 100%;
 }
 
+.screen1
+{
+  position: relative;
+  float: left;
+	box-sizing: border-box;
+	display: flex;
+    margin-left: 10%;
+  width: 30%;
+	justify-content: center;
 
-.wrapper
+	border: 3px solid #80FFFF;
+	box-shadow: 0px 4px 15px #80FFFF,
+				4px 0px 10px rgba(30, 166, 166, 0.95),
+				0px 0px 10px rgba(255, 255, 255, 0.521);
+	border-radius: 3vw;
+
+	padding: 2px;
+}
+
+.screen2
 {
     position: relative;
-    box-sizing: border-box;
-    border: 3px solid #9f2478;
-	box-shadow: 0px 0px 7.49518px #FF6ADE,
-				0px 0px 14.9904px #EA3DEE,
-				0px 0px 25.6977px #CA18A3;
-	border-radius: 40px;
-    bottom: 25%;
-    left: 20%;
-    
-   
+    float: right;
+	box-sizing: border-box;
+	display: flex;
+    width: 30%;
+    height: 30%;
+	justify-content: center;
+	border: 3px solid #80FFFF;
+	box-shadow: 0px 4px 15px #80FFFF,
+				4px 0px 10px rgba(30, 166, 166, 0.95),
+				0px 0px 10px rgba(255, 255, 255, 0.521);
+	border-radius: 3vw;
+    margin-right: 10%;
+}
+input  
+{
+    font-size: 1%;
+    color: transparent;
 }

@@ -1,4 +1,5 @@
-import  "../../App.css"
+import React from "react";
+import "./Login.css"
 
 function Login ()  {
   const fortyTwoLogin = () => {
@@ -11,22 +12,18 @@ function Login ()  {
 ** Here it allows us to create the data into the local storage
 */
   return (
-    <div>
-          <h1 className="loginTitle">Choose your Login Method:</h1>
-            <div className="wrapper">
-              <div className="left">
-                <button className="loginButton fortyTwo" data-testid="tracker" onClick={fortyTwoLogin}>Login 42</button>
-              </div>
-              <div className="center">
-                <div className="line" />
-                <div className="or">OR</div>
-              </div>
-              <div className="right">
-                <input type="text" placeholder="username" />
-                <input type="text" placeholder="password" />
-                <button className="submit">Login</button>
-              </div>
-            </div>
+    <div data-testid="tracker" className="body">
+      <div className="title">
+        <h2 className="pinkText " style={{fontSize: "4vw"}}> Choose your login method  </h2>
+      </div>  
+      <div className="container1">
+        <div className="screen1">
+            <button className="playFlickering"style={{cursor:"pointer"}} onClick={fortyTwoLogin}>42 Login</button>
+          </div>    
+        <div className="screen2"> 
+            <button className="playFlickering"style={{cursor:"pointer"}}>Email Login</button>
+            </div>    
+        </div>    
     </div>
   );
 };

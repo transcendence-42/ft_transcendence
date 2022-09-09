@@ -59,10 +59,9 @@ if (!(localStorage.getItem("pathIsFree")))
             <div className="blueContainer1"
             style={{width: "10vw",height: "15%", top: "14%"}}> <div className="playFlickering"style={{cursor:"pointer"}}> PLAY </div> </div>
              <div className="blueContainer2"
-            style={{width: "10vw",height: "5vwpx",top: "14%"}}> <div className="playFlickering"style={{cursor:"pointer"}}> WATCH </div> </div>
-            
-  
-            
+            style={{width: "10vw",height: "5vwpx",top: "14%"}}> <div className="playFlickering"style={{cursor:"pointer"}}> WATCH </div>
+            </div>
+          
           </div>
           <div className="homeElement2">
             <h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
