@@ -16,8 +16,10 @@ const enum Move {
 }
 
 const enum Body {
-  RECT = 0,
-  CIRCLE,
+  PADDLE = 0,
+  BALL,
+  WALL,
+  GOAL,
 }
 
 const enum Wall {
@@ -34,26 +36,19 @@ const enum Status {
   CREATED = 0,
   STARTED,
   FINISHED,
-}
-
-const enum Collision {
-  NO_COLLISION = 0,
-  PADDLE_WALL,
-  BALL_VERTICAL,
-  BALL_HORIZONTAL,
-  BALL_CORNER,
+  NEWBALL,
 }
 
 const Params = Object.freeze({
   LOBBY: 'lobby',
-  CANVASW: 600,
+  CANVASW: 700,
   CANVASH: 600,
   BALLSPEED: 6,
   PLAYERSPEED: 10,
-  BARWIDTH: 10,
-  BARHEIGHT: 50,
-  BALLRADIUS: 10,
+  BARWIDTH: 12,
+  BARHEIGHT: 54,
   WALLSIZE: 15,
+  BALLSIZE: 12,
 });
 
 @Injectable()
@@ -266,10 +261,7 @@ export class GameService {
     game.players.forEach((player) => {
       game.gameGrid.players.push({
         coordinates: {
-          x:
-            player.side === Side.LEFT
-              ? 50
-              : Params.CANVASW - 50 - Params.BARWIDTH,
+          x: player.side === Side.LEFT ? 0 : Params.CANVASW - Params.BARWIDTH,
           y: Params.CANVASH / 2 - Params.BARHEIGHT / 2,
         },
         side: player.side,
@@ -277,6 +269,17 @@ export class GameService {
     });
     // Ball
     game.gameGrid.ball = new Vector(Params.CANVASW / 2, Params.CANVASH / 2);
+    // Walls
+    [
+      {
+        coordinates: { x: 0, y: 0 },
+        side: Wall.TOP,
+      },
+      {
+        coordinates: { x: 0, y: Params.CANVASH - Params.WALLSIZE },
+        side: Wall.BOTTOM,
+      },
+    ].forEach((wall) => game.gameGrid.walls.push(wall));
   }
 
   /** Update grid from physics */
@@ -338,7 +341,7 @@ export class GameService {
     // Players
     game.players.forEach((player) => {
       const pX =
-        player.side === Side.RIGHT ? Params.CANVASH - Params.BARWIDTH - 50 : 50;
+        player.side === Side.RIGHT ? Params.CANVASW - Params.BARWIDTH : 0;
       game.gamePhysics.players.push({
         coordinates: {
           x: pX,
@@ -348,30 +351,24 @@ export class GameService {
         direction: { x: 0, y: 1 },
         speed: 0,
         side: player.side,
-        type: Body.RECT,
+        type: Body.PADDLE,
       });
     });
     // Walls
     [
       {
-        coordinates: { x: -Params.WALLSIZE, y: -Params.WALLSIZE },
-        dimensions: {
-          h: Params.WALLSIZE,
-          w: Params.CANVASW + 2 * Params.WALLSIZE,
-        },
+        coordinates: { x: 0, y: 0 },
+        dimensions: { h: Params.WALLSIZE, w: Params.CANVASW },
         direction: { x: 1, y: 0 },
         side: Wall.TOP,
-        type: Body.RECT,
+        type: Body.WALL,
       },
       {
-        coordinates: { x: -Params.WALLSIZE, y: Params.CANVASH },
-        dimensions: {
-          h: Params.WALLSIZE,
-          w: Params.CANVASW + 2 * Params.WALLSIZE,
-        },
+        coordinates: { x: 0, y: Params.CANVASH - Params.WALLSIZE },
+        dimensions: { h: Params.WALLSIZE, w: Params.CANVASW },
         direction: { x: 1, y: 0 },
         side: Wall.BOTTOM,
-        type: Body.RECT,
+        type: Body.WALL,
       },
     ].forEach((wall) => game.gamePhysics.walls.push(wall));
     // Goals
@@ -380,103 +377,88 @@ export class GameService {
         coordinates: { x: -Params.WALLSIZE, y: 0 },
         dimensions: { h: Params.CANVASH, w: Params.WALLSIZE },
         side: Side.LEFT,
-        type: Body.RECT,
+        type: Body.GOAL,
       },
       {
         coordinates: { x: Params.CANVASW, y: 0 },
         dimensions: { h: Params.CANVASH, w: Params.WALLSIZE },
         side: Side.RIGHT,
-        type: Body.RECT,
+        type: Body.GOAL,
       },
     ].forEach((goal) => game.gamePhysics.goals.push(goal));
     // Ball
-    game.gamePhysics.ball.type = Body.CIRCLE;
+    const startingSide = Math.round(Math.random());
+    game.gamePhysics.ball.type = Body.BALL;
     game.gamePhysics.ball.coordinates = {
-      x: Params.CANVASW / 2,
-      y: Params.CANVASH / 2,
+      x:
+        startingSide === Side.LEFT
+          ? Params.BARWIDTH + 10
+          : Params.CANVASW - Params.BARWIDTH - 10,
+      y: Math.floor(
+        Math.random() *
+          (Params.CANVASH -
+            Params.WALLSIZE -
+            Params.BALLSIZE -
+            Params.WALLSIZE +
+            1) +
+          Params.WALLSIZE,
+      ),
     };
-    game.gamePhysics.ball.dimensions = { r: Params.BALLRADIUS };
+    game.gamePhysics.ball.dimensions = {
+      w: Params.BALLSIZE,
+      h: Params.BALLSIZE,
+    };
     // Ball initial direction and speed
-    game.gamePhysics.ball.direction = { x: Math.random(), y: Math.random() };
+    game.gamePhysics.ball.direction = {
+      x: startingSide === Side.LEFT ? 1 : -1,
+      y: Math.random(),
+    };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
   }
 
   /** Reset game physics */
   private _resetGamePhysics(game: Game, side: number) {
-    // Players
-    game.gamePhysics.players = game.gamePhysics.players.map((player) => ({
-      ...player,
-      coordinates: {
-        x:
-          player.side === Side.RIGHT
-            ? Params.CANVASH - Params.BARWIDTH - 50
-            : 50,
-        y: Params.CANVASH / 2 - Params.BARHEIGHT / 2,
-      },
-      dimensions: { h: Params.BARHEIGHT, w: Params.BARWIDTH },
-      direction: { x: 0, y: 1 },
-      speed: 0,
-    }));
     // Ball
     game.gamePhysics.ball.coordinates = {
-      x: Params.CANVASW / 2,
-      y: Params.CANVASH / 2,
+      x:
+        side === Side.RIGHT
+          ? Params.BARWIDTH + 10
+          : Params.CANVASW - Params.BARWIDTH - 10,
+      y: Math.floor(
+        Math.random() *
+          (Params.CANVASH -
+            Params.WALLSIZE -
+            Params.BALLSIZE -
+            Params.WALLSIZE +
+            1) +
+          Params.WALLSIZE,
+      ),
     };
-    game.gamePhysics.ball.dimensions = { r: Params.BALLRADIUS };
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = {
-      x: side === Side.LEFT ? -1 : 1,
-      y: Math.random() * 2 - 1,
+      x: side === Side.RIGHT ? 1 : -1,
+      y: Math.random(),
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
   }
 
   /** Detect collision between 2 physic objects */
-  /** add detection of collisions with sides of paddle */
-  private _isCollision(object1: Physic, object2: Physic): number {
-    const type1 = object1.type;
-    const type2 = object1.type;
+  private _isCollision(object1: Physic, object2: Physic): boolean {
     const { x: x1, y: y1 } = object1.coordinates;
     const { x: x2, y: y2 } = object2.coordinates;
-    // 2 RECT
-    if (type1 === Body.RECT && type2 === Body.RECT) {
-      const { h: h1, w: w1 } = object1.dimensions;
-      const { h: h2, w: w2 } = object1.dimensions;
-      if (x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && h1 + y1 > y2) {
-        return Collision.PADDLE_WALL;
-      }
+    const { h: h1, w: w1 } = object1.dimensions;
+    const { h: h2, w: w2 } = object2.dimensions;
+    if (x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && h1 + y1 > y2) {
+      return true;
     }
-    // 1 RECT / 1 CIRCLE
-    const circle: any =
-      type1 === Body.CIRCLE
-        ? { ...object1.coordinates, ...object1.dimensions }
-        : { ...object2.coordinates, ...object2.dimensions };
-    const rect: any =
-      type1 === Body.RECT
-        ? { ...object1.coordinates, ...object1.dimensions }
-        : { ...object2.coordinates, ...object2.dimensions };
-
-    const distX = Math.abs(circle.x - (rect.x + rect.w / 2));
-    const distY = Math.abs(circle.y - (rect.y + rect.h / 2));
-    if (distX > rect.w / 2 + circle.r) return Collision.NO_COLLISION;
-    if (distY > rect.h / 2 + circle.r) return Collision.NO_COLLISION;
-    if (distX <= rect.w / 2) return Collision.BALL_HORIZONTAL;
-    if (distY <= rect.h / 2) return Collision.BALL_VERTICAL;
-    const dx = distX - rect.w / 2;
-    const dy = distY - rect.h / 2;
-    if (dx * dx + dy * dy <= circle.r * circle.r) {
-      return Collision.BALL_CORNER;
-    }
-    return Collision.NO_COLLISION;
+    return false;
   }
 
-  /** Resolve corner impact  */
   /** Bounce a physic object by changing its vector */
-  private _bounce(object: Physic, surface?: Physic, impact?: number): Physic {
+  private _bounce(object: Physic, surface?: Physic): Physic {
     let updatedObject: Physic;
 
-    if (object.type === Body.RECT) {
-      // Paddle
+    if (object.type === Body.PADDLE) {
       updatedObject = {
         ...object,
         direction: {
@@ -484,20 +466,13 @@ export class GameService {
           y: object.direction.y * -1,
         },
       };
-    } else {
+    } else if (object.type === Body.BALL) {
       // Ball
       const newDir: Vector = object.direction;
       // vs Wall
       if (surface.direction.x === 1) newDir.y = newDir.y * -1;
       // vs Paddle
-      if (surface.direction.x === 0) {
-        if (impact === Collision.BALL_VERTICAL) newDir.x = newDir.x * -1;
-        if (impact === Collision.BALL_HORIZONTAL) newDir.y = newDir.y * -1;
-        if (impact === Collision.BALL_CORNER) {
-          newDir.x = newDir.x * -1;
-          newDir.y = newDir.y * -1;
-        }
-      }
+      if (surface.direction.x === 0) newDir.x = newDir.x * -1;
       // Acceleration
       if (surface.speed) newDir.y += surface.direction.y / 10;
       updatedObject = {
@@ -535,7 +510,7 @@ export class GameService {
     let updated: Physic;
     // Players
     const move = input ? input : object.speed * object.direction.y;
-    if (object.type === Body.RECT) {
+    if (object.type === Body.PADDLE) {
       updated = {
         ...object,
         coordinates: {
@@ -554,7 +529,7 @@ export class GameService {
       };
     }
     // Ball
-    if (object.type === Body.CIRCLE) {
+    if (object.type === Body.BALL) {
       updated = {
         ...object,
         coordinates: {
@@ -586,28 +561,23 @@ export class GameService {
     if (this._isCollision(updatedBall, world.goals[Side.LEFT])) {
       // score for right player
       this._updateScore(Side.RIGHT, game);
-      setTimeout(() => {
-        this._initGame(game, Side.LEFT);
-      }, 2000);
+      this._initGame(game, Side.LEFT);
       return game.gamePhysics.ball;
     } else if (this._isCollision(updatedBall, world.goals[Side.RIGHT])) {
       // score for left player
       this._updateScore(Side.LEFT, game);
-      setTimeout(() => {
-        this._initGame(game, Side.RIGHT);
-      }, 2000);
+      this._initGame(game, Side.RIGHT);
       return game.gamePhysics.ball;
     }
     // if a wall or paddle is hit
-    let ret;
-    if ((ret = this._isCollision(updatedBall, world.walls[Wall.TOP])))
-      updatedBall = this._bounce(ball, world.walls[Wall.TOP], ret);
-    else if ((ret = this._isCollision(updatedBall, world.walls[Wall.BOTTOM])))
-      updatedBall = this._bounce(ball, world.walls[Wall.BOTTOM], ret);
-    else if ((ret = this._isCollision(updatedBall, world.players[Side.LEFT])))
-      updatedBall = this._bounce(ball, world.players[Side.LEFT], ret);
-    else if ((ret = this._isCollision(updatedBall, world.players[Side.RIGHT])))
-      updatedBall = this._bounce(ball, world.players[Side.RIGHT], ret);
+    if (this._isCollision(updatedBall, world.walls[Wall.TOP]))
+      updatedBall = this._bounce(ball, world.walls[Wall.TOP]);
+    else if (this._isCollision(updatedBall, world.walls[Wall.BOTTOM]))
+      updatedBall = this._bounce(ball, world.walls[Wall.BOTTOM]);
+    else if (this._isCollision(updatedBall, world.players[Side.LEFT]))
+      updatedBall = this._bounce(ball, world.players[Side.LEFT]);
+    else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
+      updatedBall = this._bounce(ball, world.players[Side.RIGHT]);
     return updatedBall;
   }
 
@@ -645,7 +615,7 @@ export class GameService {
       this._moveWorldForward(game);
       this._updateGridFromPhysics(game);
       this.server.to(game.roomId).emit('updateGrid', game.gameGrid);
-    }, 50);
+    }, 30);
   }
 
   /** update a game (moves) */

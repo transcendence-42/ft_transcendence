@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
+import { Stage, Layer, Rect, Line, Text } from "react-konva";
 
 const Game = (props: any) => {
   // Enum
@@ -9,19 +9,17 @@ const Game = (props: any) => {
   }
 
   const params = Object.freeze({
-    CANVASW: 600,
+    CANVASW: 700,
     CANVASH: 600,
-    BARWIDTH: 10,
-    BARHEIGHT: 50,
-    WALLSIZE: 10,
-    BALLRADIUS: 10,
+    BARWIDTH: 12,
+    BARHEIGHT: 54,
+    WALLSIZE: 15,
+    BALLSIZE: 12,
     BARFILL: "white",
-    BARBORDER: "white",
     BALLFILL: "white",
-    BALLBORDER: "yellow",
-    WALLBORDER: "yellow",
+    WALLFILL: "white",
     BGFILL: "black",
-    TEXTCOLOR: "yellow",
+    TEXTCOLOR: "white",
   });
 
   // States
@@ -107,10 +105,12 @@ const Game = (props: any) => {
       <Text
         key={index}
         text={player.score.toString()}
-        fontSize={15}
+        fontSize={70}
+        align={index?'right':'left'}
         fill={params.TEXTCOLOR}
-        x={player.side ? 350 : 240}
+        x={player.side ? params.CANVASW / 2 + 20: params.CANVASW / 2 - 60}
         y={30}
+        fontStyle='bold'
       /> 
     )
   }
@@ -129,10 +129,11 @@ const Game = (props: any) => {
       );
     if (grid.ball)
       gameBall = (
-        <Circle
+        <Rect
+          width={params.BALLSIZE}
+          height={params.BALLSIZE}
           x={grid.ball.x}
           y={grid.ball.y}
-          radius={params.BALLRADIUS}
           fill={params.BALLFILL}
         />
       );
@@ -142,11 +143,11 @@ const Game = (props: any) => {
           wall && (
             <Rect
               key={index}
-              width={wall.side ? params.WALLSIZE : params.CANVASW}
-              height={wall.side ? params.CANVASH : params.WALLSIZE}
+              width={params.CANVASW}
+              height={params.WALLSIZE}
               x={wall.coordinates.x}
               y={wall.coordinates.y}
-              stroke={params.WALLBORDER}
+              fill={params.WALLFILL}
             />
           )
       );
@@ -173,7 +174,8 @@ const Game = (props: any) => {
             name="let"
             points={[params.CANVASW / 2, 0, params.CANVASW / 2, params.CANVASH]}
             stroke={params.BALLFILL}
-            dash={[15, 10]}
+            strokeWidth={10}
+            dash={[20, 10]}
           ></Line>
           {playersScores}
         </Layer>
