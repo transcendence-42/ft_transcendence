@@ -17,11 +17,11 @@ function createMockScoresDto(idP1: number, idP2: number): UpdateScoresDto[] {
     players: [
       {
         playerId: idP1,
-        playerScore: 42,
+        score: 42,
       },
       {
         playerId: idP2,
-        playerScore: 38,
+        score: 38,
       },
     ],
   });
@@ -30,7 +30,7 @@ function createMockScoresDto(idP1: number, idP2: number): UpdateScoresDto[] {
     players: [
       {
         playerId: idP1,
-        playerScore: 8,
+        score: 8,
       },
     ],
   });
@@ -39,11 +39,11 @@ function createMockScoresDto(idP1: number, idP2: number): UpdateScoresDto[] {
     players: [
       {
         playerId: idP2 + 42,
-        playerScore: 42,
+        score: 42,
       },
       {
         playerId: idP2,
-        playerScore: 38,
+        score: 38,
       },
     ],
   });
@@ -52,11 +52,11 @@ function createMockScoresDto(idP1: number, idP2: number): UpdateScoresDto[] {
     players: [
       {
         playerId: idP1,
-        playerScore: 42,
+        score: 42,
       },
       {
         playerId: idP2 + 42,
-        playerScore: 38,
+        score: 38,
       },
     ],
   });
@@ -65,11 +65,11 @@ function createMockScoresDto(idP1: number, idP2: number): UpdateScoresDto[] {
     players: [
       {
         playerId: idP2 + 42,
-        playerScore: 42,
+        score: 42,
       },
       {
         playerId: idP2 + 43,
-        playerScore: 38,
+        score: 38,
       },
     ],
   });

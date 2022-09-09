@@ -108,9 +108,10 @@ model PlayerOnMatch {
   matchId        Int
   player         User  @relation(fields: [playerId], references: [id], onDelete: Cascade)
   playerId       Int
-  playerNum      Int   @default(1)
-  playerScore    Int   @default(0)
+  side           Int   @default(0)
+  score          Int   @default(0)
   winProbability Float
+  status         Int?
 
   @@id([matchId, playerId])
 }

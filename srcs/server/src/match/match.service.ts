@@ -50,12 +50,12 @@ export class MatchService {
             AND: [
               {
                 players: {
-                  some: { playerId: createMatchDto.idPlayer1 },
+                  some: { playerId: createMatchDto.idPlayerLeft },
                 },
               },
               {
                 players: {
-                  some: { playerId: createMatchDto.idPlayer2 },
+                  some: { playerId: createMatchDto.idPlayerRight },
                 },
               },
             ],
@@ -104,7 +104,7 @@ export class MatchService {
   /** create a new match */
   async create(createMatchDto: CreateMatchDto): Promise<Match> {
     // check if the match is between two different players
-    if (createMatchDto.idPlayer1 === createMatchDto.idPlayer2)
+    if (createMatchDto.idPlayerLeft === createMatchDto.idPlayerRight)
       throw new MatchWithOnePlayerException();
 
     // Check if a match between the 2 users is existing (throw error if yes)
@@ -112,26 +112,32 @@ export class MatchService {
       throw new MatchAlreadyExistsException();
 
     // retrieve the two players
-    const p1: User = await this.prisma.user.findUnique({
-      where: { id: createMatchDto.idPlayer1 },
+    const pLeft: User = await this.prisma.user.findUnique({
+      where: { id: createMatchDto.idPlayerLeft },
       include: { matches: true },
     });
-    const p2: User = await this.prisma.user.findUnique({
-      where: { id: createMatchDto.idPlayer2 },
+    const pRight: User = await this.prisma.user.findUnique({
+      where: { id: createMatchDto.idPlayerRight },
       include: { matches: true },
     });
-    if (!p1 || !p2)
+    if (!pLeft || !pRight)
       throw new UserNotFoundException(
-        p1 ? createMatchDto.idPlayer2 : createMatchDto.idPlayer1,
+        pLeft ? createMatchDto.idPlayerRight : createMatchDto.idPlayerLeft,
       );
 
     // Check if one of the player is already in a non finished match
-    if (!this._arePlayersAvailable(p1, p2))
+    if (!this._arePlayersAvailable(pLeft, pRight))
       throw new PlayersNotAvailableException();
 
     // Calculate win probability for player 1 and player 2
-    const wp1: number = this._computeWinProbability(p1.eloRating, p2.eloRating);
-    const wp2: number = this._computeWinProbability(p2.eloRating, p1.eloRating);
+    const wpLeft: number = this._computeWinProbability(
+      pLeft.eloRating,
+      pRight.eloRating,
+    );
+    const wpRight: number = this._computeWinProbability(
+      pRight.eloRating,
+      pLeft.eloRating,
+    );
 
     // Create a new match (try catch for user connection fail)
     const match = await this.prisma.match.create({
@@ -140,13 +146,13 @@ export class MatchService {
           createMany: {
             data: [
               {
-                playerId: createMatchDto.idPlayer1,
-                winProbability: wp1,
+                playerId: createMatchDto.idPlayerLeft,
+                winProbability: wpLeft,
               },
               {
-                playerId: createMatchDto.idPlayer2,
-                playerNum: 2,
-                winProbability: wp2,
+                playerId: createMatchDto.idPlayerRight,
+                side: 1,
+                winProbability: wpRight,
               },
             ],
           },
@@ -186,15 +192,16 @@ export class MatchService {
     let p1NewStats: object;
     let p2NewStats: object;
 
-    const player1: PlayerOnMatch = match.players[0];
-    const player2: PlayerOnMatch = match.players[1];
-    if (player1.playerScore > player2.playerScore) {
+    // P1 = left / P2 = Right
+    const player1: PlayerOnMatch = match.players.find((p) => p.side === 0);
+    const player2: PlayerOnMatch = match.players.find((p) => p.side === 1);
+    if (player1.score > player2.score) {
       // Player 1 wins
       p1NewElo = player1.player.eloRating + 32 * (1 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (0 - player2.winProbability);
       p1NewStats = { update: { wins: { increment: 1 } } };
       p2NewStats = { update: { losses: { increment: 1 } } };
-    } else if (player2.playerScore > player1.playerScore) {
+    } else if (player2.score > player1.score) {
       // Player 2 wins
       p1NewElo = player1.player.eloRating + 32 * (0 - player1.winProbability);
       p2NewElo = player2.player.eloRating + 32 * (1 - player2.winProbability);
@@ -257,18 +264,18 @@ export class MatchService {
       updateData = [
         {
           where: { playerId: updateScoresDto.players[0].playerId },
-          data: { playerScore: updateScoresDto.players[0].playerScore },
+          data: { playerScore: updateScoresDto.players[0].score },
         },
         {
           where: { playerId: updateScoresDto.players[1].playerId },
-          data: { playerScore: updateScoresDto.players[1].playerScore },
+          data: { playerScore: updateScoresDto.players[1].score },
         },
       ];
     } else if (updateScoresDto.players[0]) {
       updateData = [
         {
           where: { playerId: updateScoresDto.players[0].playerId },
-          data: { playerScore: updateScoresDto.players[0].playerScore },
+          data: { playerScore: updateScoresDto.players[0].score },
         },
       ];
     }

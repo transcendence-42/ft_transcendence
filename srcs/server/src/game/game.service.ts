@@ -8,6 +8,7 @@ import {
   GameNotFoundException,
   PlayerNotFoundException,
 } from './exceptions/';
+import { MatchService } from 'src/match/match.service';
 
 // Enums
 const enum Move {
@@ -39,6 +40,14 @@ const enum Status {
   NEWBALL,
 }
 
+const enum Motive {
+  LEFT_WINS = 0,
+  RIGHT_WINS,
+  CANCEL,
+  LEFT_QUIT,
+  RIGHT_QUIT,
+}
+
 const Params = Object.freeze({
   LOBBY: 'lobby',
   CANVASW: 700,
@@ -53,7 +62,10 @@ const Params = Object.freeze({
 
 @Injectable()
 export class GameService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly matchService: MatchService,
+  ) {
     this.games = [];
   }
 
@@ -170,6 +182,23 @@ export class GameService {
       };
     });
     return gameList;
+  }
+
+  /** End a game */
+  private _endGame(endGame: Game, motive: number) {
+    // CANCEL
+    if (motive === Motive.CANCEL) {
+      this.games = this.games.filter((game) => game.roomId !== endGame.roomId);
+      return;
+    }
+    // OTHER (P1/P2 WINS - P1/P2 LEFT)
+    this.games = this.games.filter((game) => game.roomId !== endGame.roomId);
+    const match = this.matchService.create({
+      idPlayerLeft: endGame.players.find((p) => p.side === Side.LEFT).userId,
+      idPlayerRight: endGame.players.find((p) => p.side === Side.RIGHT).userId,
+    });
+    // update scores and statuses of players
+    // udpate match status to finished to trigger players and ranking update
   }
 
   /** Create a new game */

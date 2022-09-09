@@ -15,7 +15,14 @@ export class UpdatePlayersOnMatchDto {
     description: 'score of player',
     example: '2',
   })
-  playerScore: number;
+  score?: number;
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'status of player : 0=Lose, 1=Win, 2=Abandon',
+    example: '2',
+  })
+  status?: number;
 }
 
 export class UpdateScoresDto {

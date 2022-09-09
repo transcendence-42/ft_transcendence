@@ -8,7 +8,7 @@ export class CreateMatchDto {
     description: 'id of the first player in the match',
     example: '8',
   })
-  readonly idPlayer1: number;
+  readonly idPlayerLeft: number;
 
   @IsNumber()
   @IsNotEmpty()
@@ -16,5 +16,5 @@ export class CreateMatchDto {
     description: 'id of the second player in the match',
     example: '15',
   })
-  readonly idPlayer2: number;
+  readonly idPlayerRight: number;
 }
