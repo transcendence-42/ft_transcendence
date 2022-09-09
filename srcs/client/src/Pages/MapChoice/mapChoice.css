@@ -11,7 +11,6 @@
 {
   border: solid;
   background-color: transparent;
-  border-color:blue;
   display:inline-block;
   width: 50%;
   height: 30%;
@@ -23,7 +22,6 @@
   border: solid;
   background-color: transparent;
   display: inline-block;
-  border-color:white;
   width: 50%;
   height: 30%;
 
@@ -34,10 +32,9 @@
   border: solid;
   background-color: transparent;
   display: inline-block;
-  border-color:white;
   width: 50%;
   height: 30%;
-  border-color:red;
+
   
 }
 .frame4
@@ -45,9 +42,8 @@
   border: solid;
   background-color: transparent;
   display: inline-block;
-  border-color:white;
   width: 50%;
   height: 30%;
-  border-color:yellow;
+
   
 }
