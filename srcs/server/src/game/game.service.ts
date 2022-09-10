@@ -10,6 +10,7 @@ import {
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
+import { Match } from '@prisma/client';
 
 // Enums
 const enum Move {
@@ -183,36 +184,38 @@ export class GameService {
     return gameList;
   }
 
+  /** Cancel game */
+  private _cancelGame(game: Game) {
+    this.games = this.games.filter((g) => g.id !== game.id);
+    this.server.in(game.id).socketsJoin(Params.LOBBY);
+    this.server.in(game.id).socketsLeave(game.id);
+    // send a fresh gamelist to the lobby
+    const gameList = this._createGameList();
+    this.server.to(Params.LOBBY).emit('gameList', gameList);
+  }
+
   /** End a game */
   private async _endGame(game: Game, motive: number, loserId?: number) {
-    // CANCEL
-    if (motive === Motive.CANCEL) {
-      this.games = this.games.filter((g) => g.id !== game.id);
-    }
-    // ABANDON OR WIN
-    else if (motive === Motive.ABANDON || motive === Motive.WIN) {
-      // remove the game from the list
-      this.games = this.games.filter((g) => g.id !== game.id);
-      // emit a game end info to all players / viewers so they go back to lobby
-      this.server.to(game.id).emit('gameEnd', motive);
-      // disconnect players / viewers from game room and connect them to lobby
-      this.server.in(game.id).socketsJoin(Params.LOBBY);
-      this.server.in(game.id).socketsLeave(game.id);
-      // send a fresh gamelist to the lobby
-      const gameList = this._createGameList();
-      this.server.to(Params.LOBBY).emit('gameList', gameList);
-      // save game result in database
-      const createMatchDto: CreateMatchDto = {
-        players: game.players.map((p) => ({
-          playerId: p.userId,
-          side: p.side,
-          score: p.score,
-          status:
-            p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
-        })),
-      };
-      await this.matchService.create(createMatchDto);
-    }
+    // remove the game from the list
+    this.games = this.games.filter((g) => g.id !== game.id);
+    // emit a game end info to all players / viewers so they go back to lobby
+    this.server.to(game.id).emit('gameEnd', motive);
+    // disconnect players / viewers from game room and connect them to lobby
+    this.server.in(game.id).socketsJoin(Params.LOBBY);
+    this.server.in(game.id).socketsLeave(game.id);
+    // send a fresh gamelist to the lobby
+    const gameList = this._createGameList();
+    this.server.to(Params.LOBBY).emit('gameList', gameList);
+    // save game result in database
+    const createMatchDto: CreateMatchDto = {
+      players: game.players.map((p) => ({
+        playerId: p.userId,
+        side: p.side,
+        score: p.score,
+        status: p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
+      })),
+    };
+    await this.matchService.create(createMatchDto);
   }
 
   /** Create a new game */
@@ -249,7 +252,7 @@ export class GameService {
   /** one viewer leave the game */
   leaveGame(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
-    const game = this.games.find((game) => game.id !== id);
+    const game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     // remove the viewer from game
     game.viewers = game.viewers.filter((v) => v.userId !== userId);
@@ -264,9 +267,11 @@ export class GameService {
   /** one player abandons the game */
   async abandonGame(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
-    const game = this.games.find((game) => game.id !== id);
+    const game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
-    await this._endGame(game, Motive.ABANDON, userId);
+    if (game.players.length > 1)
+      await this._endGame(game, Motive.ABANDON, userId);
+    else this._cancelGame(game);
   }
 
   /** join a game (player) */
@@ -296,6 +301,9 @@ export class GameService {
     }
     client.join(game.id);
     client.leave(Params.LOBBY);
+    // send a fresh gamelist to the lobby
+    const gameList = this._createGameList();
+    this.server.to(Params.LOBBY).emit('gameList', gameList);
   }
 
   /** reconnect a game (existing player) */
@@ -358,6 +366,7 @@ export class GameService {
     const game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     client.emit('updateGrid', game.gameGrid);
+    client.emit('updateScores', this._buildScoreObject(game));
   }
 
   /** *********************************************************************** */
