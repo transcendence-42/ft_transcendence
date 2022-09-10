@@ -8,6 +8,12 @@ const Game = (props: any) => {
     DOWN,
   }
 
+  const enum Motive {
+    WIN = 0,
+    ABANDON,
+    CANCEL,
+  }
+
   const params = Object.freeze({
     CANVASW: 700,
     CANVASH: 600,
@@ -20,51 +26,53 @@ const Game = (props: any) => {
     WALLFILL: "white",
     BGFILL: "black",
     TEXTCOLOR: "white",
+    MESSAGECOLOR: "yellow",
   });
 
   // States
   const socket = props.socket;
   const [grid, setGrid] = useState({} as any);
   const [scores, setScores] = useState([]);
+  const [message, setMessage] = useState('');
 
   // Init
   const initGame = () => {
-    console.log("init");
     if (props.action === props.actionVal.JOIN_GAME)
       socket.emit("joinGame", {
-        id: props.room,
+        id: props.id,
         player: { socketId: socket.id },
       });
     else if (props.action === props.actionVal.VIEW_GAME)
       socket.emit("viewGame", {
-        id: props.room,
+        id: props.id,
         viewer: { socketId: socket.id },
       });
     else if (props.action === props.actionVal.RECO_GAME)
-      socket.emit("reconnectGame", { id: props.room });
-    socket.emit("getGameGrid", { id: props.room });
+      socket.emit("reconnectGame", { id: props.id });
+    socket.emit("getGameGrid", { id: props.id });
   };
 
   // Handlers
   const handleMove = (event: any) => {
     if (event.key === "w" || event.key === "W") {
-      console.log(`room id : ${props.room}`);
-      socket.emit("updateGame", { move: movement.UP, id: props.room });
+      socket.emit("updateGame", { move: movement.UP, id: props.id });
     }
     if (event.key === "s" || event.key === "S") {
-      socket.emit("updateGame", { move: movement.DOWN, id: props.room });
+      socket.emit("updateGame", { move: movement.DOWN, id: props.id });
     }
   };
 
   const handleBackToLobby = () => {
-    // Should remove a viewer and change its room in the server
-    // Should end a match if player with opponent and delete the match
-    // Should cancel and delete a match if player alone
+    // Viewer : remove the viewer and change its room in the server
+    if (props.action === props.actionVal.VIEW_GAME) {
+      socket.emit('viewerLeaves', { id: props.id});
+    }
+    // Player : cancel if 1 player / abandon if match started
     if (
       props.action !== props.actionVal.VIEW_GAME &&
-      window.confirm("Do you want to abandon the game ?")
+      window.confirm("Warning: Do you confirm ?\nThis action will cause you to lose the game if started, or cancel it if not started.")
     ) {
-      socket.emit("playerLeave", { id: props.room });
+      socket.emit("playerAbandons", { id: props.id });
     }
     props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
   };
@@ -77,25 +85,34 @@ const Game = (props: any) => {
     setScores(scoreUpdate);
   }, []);
 
-  const handlePlayerLeft = useCallback((params: any) => {
-    console.log(`Info : ${params.message}`);
+  const handleGameEnd = useCallback((motive: number) => {
+    if (motive === Motive.WIN)
+      setMessage('Game is over. Moving back to lobby ...');
+    if (motive === Motive.ABANDON)
+      setMessage('One player abandoned. Moving back to lobby ...');
+    if (motive === Motive.CANCEL)
+      setMessage('Player canceled the game. Moving back to lobby ...');
+    setTimeout(() => {
+      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
+    }, 4000)
   }, []);
 
   useEffect(() => {
     initGame();
     socket.on("updateGrid", handleGridUpdate);
     socket.on("updateScores", handleScoresUpdate);
-    socket.on("playerLeft", handlePlayerLeft);
+    socket.on("gameEnd", handleGameEnd);
     if (props.action !== props.actionVal.VIEW_GAME)
       document.addEventListener("keydown", handleMove);
     return () => {
       socket.off("updateGrid", handleGridUpdate);
       socket.off("updateScores", handleScoresUpdate);
-      socket.off("playerLeft", handlePlayerLeft);
+      socket.off("gameEnd", handleGameEnd);
       document.removeEventListener("keydown", handleMove);
     };
   }, []);
 
+  // Game
   let wallsRect: any = [];
   let playersRect: any = [];
   let playersScores: any = [];
@@ -153,6 +170,21 @@ const Game = (props: any) => {
       );
   }
 
+  // Messages
+  let gameMessage;
+  if (message) {
+    gameMessage = 
+      <Text
+        text={message}
+        fontSize={40}
+        align='center'
+        fill={params.MESSAGECOLOR}
+        width={params.CANVASW}
+        y={params.CANVASW / 2}
+        fontStyle='bold'
+      /> 
+  }
+
   // styles
   const styles: React.CSSProperties = {
     display: "flex",
@@ -183,6 +215,9 @@ const Game = (props: any) => {
           {wallsRect}
           {playersRect}
           {gameBall}
+        </Layer>
+         <Layer>
+          {gameMessage}
         </Layer>
       </Stage>
       <button onClick={handleBackToLobby} style={styles}>

@@ -4,16 +4,16 @@ import { Client } from './client.entity';
 import { GamePhysics } from './gamePhysics.entity';
 
 export class Game {
-  constructor(roomId: string) {
+  constructor(id: string) {
     this.gameGrid = new GameGrid();
     this.gamePhysics = new GamePhysics();
     this.players = [];
     this.viewers = [];
-    this.roomId = roomId;
+    this.id = id;
     this.status = 0;
   }
 
-  roomId: string;
+  id: string;
   status: number;
   players: Player[];
   viewers?: Client[];

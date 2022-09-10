@@ -98,8 +98,17 @@ export class GameGateway
     this.gameService.getGameGrid(client, updateGameDto.id);
   }
 
-  /** One player is leaving the game */
-  @SubscribeMessage('playerLeave')
+  /** One player abandons the game */
+  @SubscribeMessage('playerAbandons')
+  abandonGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateGameDto: UpdateGameDto,
+  ) {
+    this.gameService.abandonGame(client, updateGameDto.id);
+  }
+
+  /** One viewer leaves the game */
+  @SubscribeMessage('viewerLeaves')
   leaveGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,

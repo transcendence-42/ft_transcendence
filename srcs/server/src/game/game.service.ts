@@ -41,11 +41,9 @@ const enum Status {
 }
 
 const enum Motive {
-  LEFT_WINS = 0,
-  RIGHT_WINS,
+  WIN = 0,
+  ABANDON,
   CANCEL,
-  LEFT_QUIT,
-  RIGHT_QUIT,
 }
 
 const Params = Object.freeze({
@@ -87,8 +85,8 @@ export class GameService {
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
     if (game) {
-      client.join(game.roomId);
-      client.emit('reconnect', game.roomId);
+      client.join(game.id);
+      client.emit('reconnect', game.id);
     } else {
       client.join(Params.LOBBY);
       this.server.to(Params.LOBBY).emit('info', {
@@ -111,7 +109,7 @@ export class GameService {
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
     if (maybeGame !== -1)
-      this.server.to(this.games[maybeGame].roomId).emit('playerLeft', {
+      this.server.to(this.games[maybeGame].id).emit('playerLeft', {
         message: `user ${userId} (${client.id}) left the lobby`,
         data: { userId: userId },
       });
@@ -122,8 +120,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private _addPlayerToGame(player: Socket, side: number, index: number): Game {
-    const game = this.games[index];
+  private _addPlayerToGame(player: Socket, side: number, game: Game): Game {
     const userId: number = +player.handshake.query.userId;
     // check if user is already in game
     if (this._isPlayerInGame(userId)) {
@@ -131,7 +128,7 @@ export class GameService {
     }
     // Add it to the game and set his side
     player.leave(Params.LOBBY);
-    player.join(game.roomId);
+    player.join(game.id);
     game.players.push({
       socketId: player.id,
       userId: userId,
@@ -176,7 +173,7 @@ export class GameService {
   private _createGameList(): object {
     const gameList = this.games.map((game) => {
       return {
-        roomId: game.roomId,
+        id: game.id,
         players: game.players,
         viewersCount: game.viewers.length,
       };
@@ -185,14 +182,18 @@ export class GameService {
   }
 
   /** End a game */
-  private _endGame(endGame: Game, motive: number) {
+  private _endGame(game: Game, motive: number, userId?: number) {
     // CANCEL
     if (motive === Motive.CANCEL) {
-      this.games = this.games.filter((game) => game.roomId !== endGame.roomId);
+      this.games = this.games.filter((g) => g.id !== game.id);
       return;
     }
-    // OTHER (P1/P2 WINS - P1/P2 LEFT)
-    this.games = this.games.filter((game) => game.roomId !== endGame.roomId);
+    // ABANDON
+    if (motive === Motive.ABANDON) {
+      this.games = this.games.filter((g) => g.id !== game.id);
+      this.server.to(game.id).
+    }
+    this.games = this.games.filter((game) => game.id !== game.id);
     // update scores and statuses of players
     // udpate match status to finished to trigger players and ranking update
   }
@@ -208,18 +209,18 @@ export class GameService {
     // create a new game
     const newGame: Game = new Game(v4());
     const len = this.games.push(newGame);
+    let game = this.games[len - 1];
     // add players to the game and give them the game id
     players.forEach((player, index) => {
       const side = index ? Side.RIGHT : Side.LEFT;
-      this.games[len - 1] = this._addPlayerToGame(player, side, len - 1);
-      player.emit('newGameId', { id: this.games[len - 1].roomId });
+      game = this._addPlayerToGame(player, side, game);
+      player.emit('newGameId', { id: game.id });
     });
     // Broadcast new gamelist to the lobby
     const gameList = this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
     // start game if players > 1
-    if (this.games[len - 1].players.length > 1)
-      this._startGame(this.games[len - 1]);
+    if (this.games[len - 1].players.length > 1) this._startGame(game);
   }
 
   /** Find all created games */
@@ -228,26 +229,41 @@ export class GameService {
     client.emit('gameList', gameList);
   }
 
-  /** one client intentionnaly leave the game (abandon) */
+  /** one viewer leave the game */
   leaveGame(client: Socket, id: string) {
-    const games = this.games.filter((game) => game.roomId !== id);
-    // use prisma to update users and match info
+    const userId: number = +client.handshake.query.userId;
+    const game = this.games.find((game) => game.id !== id);
+    if (!game) throw new GameNotFoundException(id);
+    // remove the viewer from game
+    game.viewers = game.viewers.filter((v) => v.userId !== userId);
+    // quit room and join lobby
+    client.leave(game.id);
+    client.join(Params.LOBBY);
+    // resend game list to lobby
+    const gameList = this._createGameList();
+    this.server.to(Params.LOBBY).emit('gameList', gameList);
+  }
+
+  /** one player abandons the game */
+  abandonGame(client: Socket, id: string) {
+    const userId: number = +client.handshake.query.userId;
+    const game = this.games.find((game) => game.id !== id);
+    if (!game) throw new GameNotFoundException(id);
+    this._endGame(game, Motive.ABANDON, userId);
   }
 
   /** join a game (player) */
   join(client: Socket, id: string) {
-    const index = this.games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
+    let game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
     // add new player to the game and emit new grid
-    this.games[index] = this._addPlayerToGame(client, Side.RIGHT, index);
+    game = this._addPlayerToGame(client, Side.RIGHT, game);
     // Check if the game has 2 players
-    if (this.games[index].players.length >= 2) {
-      this._startGame(this.games[index]);
+    if (game.players.length >= 2) {
+      this._startGame(game);
     }
     // update the image with the new player for everyone
-    this.server
-      .to(this.games[index].roomId)
-      .emit('updateGrid', this.games[index].gameGrid);
+    this.server.to(game.id).emit('updateGrid', game.gameGrid);
     // update the lobby with the new player
     const gameList = this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -255,23 +271,23 @@ export class GameService {
 
   /** view a game (viewer) */
   view(client: Socket, id: string) {
-    const index = this.games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
+    const game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
     const userId: number = +client.handshake.query.userId;
     if (!this._isViewerInGame(userId)) {
-      this.games[index].viewers.push({ userId: userId, socketId: client.id });
+      game.viewers.push({ userId: userId, socketId: client.id });
     }
-    client.join(this.games[index].roomId);
+    client.join(game.id);
     client.leave(Params.LOBBY);
   }
 
   /** reconnect a game (existing player) */
   reconnect(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
-    const index = this.games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
+    const game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
     // update player socket on player list
-    this.games[index].players = this.games[index].players.map((player) =>
+    game.players = game.players.map((player) =>
       player.userId === userId ? { socketId: client.id, ...player } : player,
     );
   }
@@ -322,9 +338,9 @@ export class GameService {
 
   /** get game grid on request */
   getGameGrid(client: Socket, id: string) {
-    const index = this.games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
-    client.emit('updateGrid', this.games[index].gameGrid);
+    const game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
+    client.emit('updateGrid', game.gameGrid);
   }
 
   /** *********************************************************************** */
@@ -498,7 +514,7 @@ export class GameService {
       if (surface.direction.x === 1) newDir.y = newDir.y * -1;
       // vs Paddle
       if (surface.direction.x === 0) newDir.x = newDir.x * -1;
-      // Acceleration
+      // Acceleration by contact
       if (surface.speed) newDir.y += surface.direction.y / 10;
       updatedObject = {
         ...object,
@@ -627,9 +643,7 @@ export class GameService {
       this._resetGamePhysics(game, side);
     }
     this._openPlayersScoreBoard(game);
-    this.server
-      .to(game.roomId)
-      .emit('updateScores', this._buildScoreObject(game));
+    this.server.to(game.id).emit('updateScores', this._buildScoreObject(game));
   }
 
   /** Start a game */
@@ -639,19 +653,19 @@ export class GameService {
     const gameInterval = setInterval(() => {
       this._moveWorldForward(game);
       this._updateGridFromPhysics(game);
-      this.server.to(game.roomId).emit('updateGrid', game.gameGrid);
+      this.server.to(game.id).emit('updateGrid', game.gameGrid);
     }, 30);
   }
 
   /** update a game (moves) */
   update(client: Socket, id: string, move: number) {
-    const index = this.games.findIndex((game) => game.roomId === id);
-    if (index === -1) throw new GameNotFoundException(id);
+    const game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
     // Update player position if game started
-    if (this.games[index].status === Status.STARTED) {
+    if (game.status === Status.STARTED) {
       // Update move
       const userId: number = +client.handshake.query.userId;
-      this._movePaddleFromInput(this.games[index], userId, move);
+      this._movePaddleFromInput(game, userId, move);
     }
   }
 }

@@ -10,16 +10,16 @@ const GameList = (props: any) => {
   return (
     <div style={styles}>
       {
-        props.games.length > 0
+        props.gameList.length > 0
         ?
         <ul style={{listStyleType: "none"}}>
-          {props.games.map((game: any, index: number) => (
+          {props.gameList.map((game: any, index: number) => (
             <li key={index}>
               Game #<b>{game.players[0] ? game.players[0].userId : ' ... '}</b> vs #<b>{game.players[1] ? game.players[1].userId : ' ... '}</b> ({game.viewersCount} viewers)
               {game.players.length === 2 && (
                 <button
-                  onClick={() => props.setRoom({
-                    id: game.roomId,
+                  onClick={() => props.setGame({
+                    id: game.id,
                     action: props.actionVal.VIEW_GAME,
                   })}
                 >
@@ -28,8 +28,8 @@ const GameList = (props: any) => {
               )}
               {game.players.length === 1 && (
                 <button
-                  onClick={() => props.setRoom({
-                    id: game.roomId,
+                  onClick={() => props.setGame({
+                    id: game.id,
                     action: props.actionVal.JOIN_GAME,
                   })}
                 >
