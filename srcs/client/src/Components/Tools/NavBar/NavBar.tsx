@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
-import ProfilNavBar from "./ProfilNavBar";
+import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Text.css';
 import '../Box.css';

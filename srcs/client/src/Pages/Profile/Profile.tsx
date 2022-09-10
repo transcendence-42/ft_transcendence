@@ -1,7 +1,9 @@
 import React from "react";
 import {useState, useEffect} from 'react'
+import TREE from './tree.jpg'
 import "./profile.css"
 import "../../Components/Tools/Text.css"
+import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import {getFetch} from './getFetch'
 import { useLocation } from "react-router-dom";
 import { Link, Outlet ,useParams } from "react-router-dom";
@@ -23,7 +25,13 @@ export default function Profile () {
             "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
             "currentStatus": 1,
             "eloRating": 1000,
-            "stats": null,
+                "stats": {
+                "id": 0,
+                "wins": 100,
+                "losses": 2,
+                "user": "string",
+                "userId": 0
+                },
             "ratingHistory": [],
             "ownedChannels": [],
             "channels": [],
@@ -34,42 +42,67 @@ export default function Profile () {
           }
     )
 
-    useEffect(() => {
-        console.log(userID);
-        let request = "http://127.0.0.1:4200/users/" + userID;
-        console.log(request);
-        const json = getFetch({url : request});
-        json.then((responseObject)=> {
-            setUser(responseObject);
-    })
-    },[userID]);
+    // useEffect(() => {
+    //     console.log(userID);
+    //     let request = "http://127.0.0.1:4200/users/" + userID;
+    //     console.log(request);
+    //     const json = getFetch({url : request});
+    //     json.then((responseObject)=> {
+    //         setUser(responseObject);
+    // })
+    // },[userID]);
 
     console.log(test);
     //Pré remplir les variables pour stats
-    if(user)
+    if(test)
     {
         return (
             <>
             <div className="profilAndLadder">
                 <div className="profil">
                     <div className="picture">
-                        <img src={test.profilePicture} alt="profil_picture"></img>
+                        <PhotoProfil/>
                     </div>
                     <div className="status">
-                        <h1 className="yellowText" style={{fontSize: "3vw", fontWeight: "bold"}}> {test.username}</h1>
+                        <h1 className="yellowText" style={{fontSize: "2vw", fontWeight: "bold"}}> {test.username}</h1>
+                        <br/>
+                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> {test.currentStatus ? 'ONLINE' : 'OFFLINE'} </h1>
                     </div>
                     <div className="infoProfil">
-                        <div className="blueBox">
-                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {test.email}</h1>
-                        <h1 className="blueText" style={{fontSize: "1.5"}}> __________________ {test.friendshipRequested.lenght}</h1>
-                        </div>
+                            {/* We need to create button / Component with click */}
+                        <h1 className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </h1>
+                        <h1 className="blueText" style={{fontSize: "1vw"}}> Change your picture </h1>
+                        <h1 className="blueText" style={{fontSize: "1vw"}}> Double authentication factor </h1>
+                    </div>
                     </div>
                     <div className="ladder">
-                        <div className="blueBox">
-                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> email: {test.email}</h1>
-                        <h1 className="blueText" style={{fontSize: "1.5"}}> __________________ {test.friendshipRequested.lenght}</h1>
+                        <div className="blueBoxLadder">
+                        <div className="yellowPinkBoxLadder"
+                            style={{
+                                width: "8vw",
+                                height: "8vw",
+                            }}>
+                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> RANK </h1>
+                            <h1 className="yellowText" style={{fontSize: "2vw"}}> 0 </h1>
                         </div>
-                    </div>
+                        <div className="yellowPinkBoxLadder"
+                            style={{
+                            width: "8vw",
+                            height: "8vw",
+                            }}>
+                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> WINS </h1>
+                            <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </h1>
+                        </div>
+                        <div className="yellowPinkBoxLadder"
+                            style={{
+                            width: "8vw",
+                            height: "8vw",
+                            }}>
+                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> LOSES </h1>
+                            <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </h1>
+                        </div>
+
+                        </div>
                 </div>
             </div>
 

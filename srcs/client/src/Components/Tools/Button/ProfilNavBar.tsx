@@ -1,5 +1,3 @@
-import {Link} from 'react-router-dom'
-import '../Text.css';
 import '../Box.css';
 
 function ProfilNavBar() {
