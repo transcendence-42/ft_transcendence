@@ -87,7 +87,7 @@ const Game = (props: any) => {
 
   const handleGameEnd = useCallback((motive: number) => {
     if (motive === Motive.WIN)
-      setMessage('Game is over. Moving back to lobby ...');
+      setMessage('The game is over. Moving back to lobby ...');
     if (motive === Motive.ABANDON)
       setMessage('One player abandoned. Moving back to lobby ...');
     if (motive === Motive.CANCEL)

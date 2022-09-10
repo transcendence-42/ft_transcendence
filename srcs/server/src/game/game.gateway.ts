@@ -100,11 +100,11 @@ export class GameGateway
 
   /** One player abandons the game */
   @SubscribeMessage('playerAbandons')
-  abandonGame(
+  async abandonGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.abandonGame(client, updateGameDto.id);
+    await this.gameService.abandonGame(client, updateGameDto.id);
   }
 
   /** One viewer leaves the game */

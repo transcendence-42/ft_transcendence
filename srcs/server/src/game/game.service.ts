@@ -9,6 +9,7 @@ import {
   PlayerNotFoundException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
+import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 
 // Enums
 const enum Move {
@@ -42,6 +43,7 @@ const enum Status {
 
 const enum Motive {
   WIN = 0,
+  LOSE,
   ABANDON,
   CANCEL,
 }
@@ -182,20 +184,35 @@ export class GameService {
   }
 
   /** End a game */
-  private _endGame(game: Game, motive: number, userId?: number) {
+  private async _endGame(game: Game, motive: number, loserId?: number) {
     // CANCEL
     if (motive === Motive.CANCEL) {
       this.games = this.games.filter((g) => g.id !== game.id);
-      return;
     }
-    // ABANDON
-    if (motive === Motive.ABANDON) {
+    // ABANDON OR WIN
+    else if (motive === Motive.ABANDON || motive === Motive.WIN) {
+      // remove the game from the list
       this.games = this.games.filter((g) => g.id !== game.id);
-      this.server.to(game.id).
+      // emit a game end info to all players / viewers so they go back to lobby
+      this.server.to(game.id).emit('gameEnd', motive);
+      // disconnect players / viewers from game room and connect them to lobby
+      this.server.in(game.id).socketsJoin(Params.LOBBY);
+      this.server.in(game.id).socketsLeave(game.id);
+      // send a fresh gamelist to the lobby
+      const gameList = this._createGameList();
+      this.server.to(Params.LOBBY).emit('gameList', gameList);
+      // save game result in database
+      const createMatchDto: CreateMatchDto = {
+        players: game.players.map((p) => ({
+          playerId: p.userId,
+          side: p.side,
+          score: p.score,
+          status:
+            p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
+        })),
+      };
+      await this.matchService.create(createMatchDto);
     }
-    this.games = this.games.filter((game) => game.id !== game.id);
-    // update scores and statuses of players
-    // udpate match status to finished to trigger players and ranking update
   }
 
   /** Create a new game */
@@ -245,11 +262,11 @@ export class GameService {
   }
 
   /** one player abandons the game */
-  abandonGame(client: Socket, id: string) {
+  async abandonGame(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
     const game = this.games.find((game) => game.id !== id);
     if (!game) throw new GameNotFoundException(id);
-    this._endGame(game, Motive.ABANDON, userId);
+    await this._endGame(game, Motive.ABANDON, userId);
   }
 
   /** join a game (player) */
@@ -646,12 +663,27 @@ export class GameService {
     this.server.to(game.id).emit('updateScores', this._buildScoreObject(game));
   }
 
+  /** We have a winner */
+  private _weHaveALoser(game: Game): number {
+    const winner = game.players.find((p) => p.score === 9);
+    const loser = game.players.find((p) => p.score < 9);
+    if (winner && loser) return loser.userId;
+    return -1;
+  }
+
   /** Start a game */
   private _startGame(game: Game) {
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
     const gameInterval = setInterval(() => {
       this._moveWorldForward(game);
+      // check scores and end the game if one player scores 9
+      const loserId = this._weHaveALoser(game);
+      if (loserId !== -1) {
+        this._endGame(game, Motive.WIN, loserId);
+        clearInterval(gameInterval);
+        return;
+      }
       this._updateGridFromPhysics(game);
       this.server.to(game.id).emit('updateGrid', game.gameGrid);
     }, 30);
