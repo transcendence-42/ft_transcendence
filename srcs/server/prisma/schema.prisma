@@ -46,7 +46,6 @@ model User {
 model Match {
   id      Int             @id @default(autoincrement())
   date    DateTime        @default(now())
-  status  Int             @default(0)
   players PlayerOnMatch[]
 }
 
@@ -110,7 +109,6 @@ model PlayerOnMatch {
   playerId       Int
   side           Int   @default(0)
   score          Int   @default(0)
-  winProbability Float
   status         Int?
 
   @@id([matchId, playerId])

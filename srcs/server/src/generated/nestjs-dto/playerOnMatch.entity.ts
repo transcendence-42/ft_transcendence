@@ -10,6 +10,5 @@ player?: User ;
 playerId: number ;
 side: number ;
 score: number ;
-winProbability: number ;
 status: number  | null;
 }

@@ -8,6 +8,5 @@ export class PlayerOnMatch {
   playerId: number;
   side: number;
   score: number;
-  winProbability: number;
   status?: number;
 }
