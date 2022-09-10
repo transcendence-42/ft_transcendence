@@ -8,7 +8,7 @@ enum PlayerSide {
 }
 
 enum PlayerStatus {
-  WIN,
+  WIN = 0,
   LOSE,
   ABANDON,
 }

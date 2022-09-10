@@ -193,10 +193,6 @@ export class GameService {
     }
     // OTHER (P1/P2 WINS - P1/P2 LEFT)
     this.games = this.games.filter((game) => game.roomId !== endGame.roomId);
-    const match = this.matchService.create({
-      idPlayerLeft: endGame.players.find((p) => p.side === Side.LEFT).userId,
-      idPlayerRight: endGame.players.find((p) => p.side === Side.RIGHT).userId,
-    });
     // update scores and statuses of players
     // udpate match status to finished to trigger players and ranking update
   }

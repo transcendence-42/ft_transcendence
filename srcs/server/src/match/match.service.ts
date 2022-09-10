@@ -9,6 +9,8 @@ import { Match } from './entities/match.entity';
 import {
   MatchNotFoundException,
   NoMatchesInDatabaseException,
+  NotEnoughPlayersException,
+  BadRequestException,
 } from './exceptions/';
 
 @Injectable()
@@ -28,15 +30,33 @@ export class MatchService {
   };
 
   /** Compute win probability */
-  _computeWinProbability(p1Rating: number, p2Rating: number): number {
+  private _computeWinProbability(p1Rating: number, p2Rating: number): number {
     return 1 / (1 + Math.pow(10, (p2Rating - p1Rating) / 400));
+  }
+
+  /** Player status check */
+  private _isStatusOk(status: number): boolean {
+    return status !== null && +status >= 0 && +status <= 2;
   }
 
   /** create a new match */
   async create(createMatchDto: CreateMatchDto): Promise<Match> {
+    // check number of players
+    if (createMatchDto.players.length < 2)
+      throw new NotEnoughPlayersException();
     // retrieve the two players
     const iLeft = createMatchDto.players.findIndex((p) => p.side === 0);
     const iRight = createMatchDto.players.findIndex((p) => p.side === 1);
+    // Check sides
+    if (iLeft === -1 || iRight === -1) throw new BadRequestException();
+    // Check status
+    if (
+      createMatchDto.players[iLeft].status ===
+        createMatchDto.players[iRight].status ||
+      !this._isStatusOk(createMatchDto.players[iLeft].status) ||
+      !this._isStatusOk(createMatchDto.players[iRight].status)
+    )
+      throw new BadRequestException();
     const pLeft: User = await this.userService.findOne(
       createMatchDto.players[iLeft].playerId,
     );
@@ -103,7 +123,7 @@ export class MatchService {
     return result;
   }
 
-  /** Update players ranking after a match */
+  /** Update players ranking and stats after a match */
   async _updatePlayersRankingAndStats(
     pLeft: User,
     pRight: User,
@@ -127,13 +147,13 @@ export class MatchService {
     );
 
     if (createMatchDto.players[iLeft].status === 0) {
-      // Player Left wins
+      // Player left wins
       pLeftNewElo = pLeft.eloRating + 32 * (1 - wpLeft);
       pRightNewElo = pRight.eloRating + 32 * (0 - wpRight);
       pLeftNewStats = { update: { wins: { increment: 1 } } };
       pRightNewStats = { update: { losses: { increment: 1 } } };
     } else if (createMatchDto.players[iRight].status === 0) {
-      // Player 2 wins
+      // Player right wins
       pLeftNewElo = pLeft.eloRating + 32 * (0 - wpLeft);
       pRightNewElo = pRight.eloRating + 32 * (1 - wpRight);
       pLeftNewStats = { update: { losses: { increment: 1 } } };
