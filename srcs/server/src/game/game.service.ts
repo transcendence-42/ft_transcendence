@@ -225,10 +225,13 @@ export class GameService {
 
   /** Create a new game */
   create(players: Player[]) {
-    // 1 : Chech if one of the user is already in a game
+    // 1 : Chech if one of the user is already in a game or in match making
     players.forEach((p) => {
       if (this._isPlayerInGame(p.userId))
         throw new UserAlreadyInGameException(p.userId);
+      const isMatchMaking = this.players.find((m) => m.userId === p.userId);
+      if (isMatchMaking)
+        this.players = this.players.filter((m) => m.userId !== p.userId);
     });
     // create a new game
     const newGame: Game = new Game(v4());
@@ -248,9 +251,8 @@ export class GameService {
   }
 
   /** Find all created games */
-  findAll(client: Socket) {
-    const gameList = this._createGameList();
-    client.emit('gameList', gameList);
+  findAll(): object {
+    return this._createGameList();
   }
 
   /** one viewer leave the game */
@@ -282,9 +284,13 @@ export class GameService {
   join(client: Socket, id: string) {
     let game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
-    // add new player to the game and emit new grid
+    // remove user from matchmaking
     const userId: number = +client.handshake.query.userId;
-    const side = game.players.length > 1 ? Side.RIGHT : Side.LEFT;
+    const isMatchMaking = this.players.find((p) => p.userId === userId);
+    if (isMatchMaking)
+      this.players = this.players.filter((p) => p.userId !== userId);
+    // add new player to the game and emit new grid
+    const side = game.players.length > 1 ? Side.LEFT : Side.RIGHT;
     game = this._addPlayerToGame(new Player(client, userId), side, game);
     // Check if the game has 2 players
     if (game.players.length >= 2) {

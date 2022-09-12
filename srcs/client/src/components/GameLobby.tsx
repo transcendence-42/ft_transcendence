@@ -29,7 +29,9 @@ const GameLobby = () => {
   // Socket events handlers
   const handleConnect = useCallback(() => {
     setGame({ action: Action.GO_LOBBY, id: "lobby" });
-    socket.emit("findAllGame");
+    socket.emit("findAllGame", (res: object) => {
+      setGameList(res);
+    });
   }, [socket, Action]);
 
   const handleGameList = useCallback((gameList: any) => {
@@ -72,7 +74,7 @@ const GameLobby = () => {
 
   // component event handlers 
   const handleNewGame = () => {
-    console.log('halle');
+    setMatchMaking(MatchMaking.IN_GAME);
     socket.emit("createGame");
   };
 
@@ -142,6 +144,8 @@ const GameLobby = () => {
             action={game.action}
             backToLobby={backToLobby}
             actionVal={Action}
+            setMatchMaking={setMatchMaking}
+            matchMakingVal={MatchMaking}
           />
         )}
       </div>

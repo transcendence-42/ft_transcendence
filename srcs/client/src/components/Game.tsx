@@ -33,20 +33,16 @@ const Game = (props: any) => {
   const socket = props.socket;
   const [grid, setGrid] = useState({} as any);
   const [scores, setScores] = useState([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   // Init
   const initGame = () => {
-    if (props.action === props.actionVal.JOIN_GAME)
-      socket.emit("joinGame", {
-        id: props.id,
-        player: { socketId: socket.id },
-      });
+    if (props.action === props.actionVal.JOIN_GAME) {
+      socket.emit("joinGame", { id: props.id });
+      props.setMatchMaking(props.matchMakingVal.IN_GAME);
+    }
     else if (props.action === props.actionVal.VIEW_GAME)
-      socket.emit("viewGame", {
-        id: props.id,
-        viewer: { socketId: socket.id },
-      });
+      socket.emit("viewGame", { id: props.id });
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit("reconnectGame", { id: props.id });
     socket.emit("getGameGrid", { id: props.id });
@@ -65,13 +61,15 @@ const Game = (props: any) => {
   const handleBackToLobby = () => {
     // Viewer : remove the viewer and change its room in the server
     if (props.action === props.actionVal.VIEW_GAME) {
-      socket.emit('viewerLeaves', { id: props.id});
+      socket.emit("viewerLeaves", { id: props.id });
       props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
     }
     // Player : cancel if 1 player / abandon if match started
     if (
       props.action !== props.actionVal.VIEW_GAME &&
-      window.confirm("Warning: Do you confirm ?\nThis action will cause you to lose the game if started, or cancel it if not started.")
+      window.confirm(
+        "Warning: Do you confirm ?\nThis action will cause you to lose the game if started, or cancel it if not started."
+      )
     ) {
       socket.emit("playerAbandons", { id: props.id });
       props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
@@ -86,17 +84,20 @@ const Game = (props: any) => {
     setScores(scoreUpdate);
   }, []);
 
-  const handleGameEnd = useCallback((motive: number) => {
-    if (motive === Motive.WIN)
-      setMessage('The game is over. Moving back to lobby ...');
-    if (motive === Motive.ABANDON)
-      setMessage('One player abandoned. Moving back to lobby ...');
-    if (motive === Motive.CANCEL)
-      setMessage('Player canceled the game. Moving back to lobby ...');
-    setTimeout(() => {
-      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-    }, 4000)
-  }, [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL]);
+  const handleGameEnd = useCallback(
+    (motive: number) => {
+      if (motive === Motive.WIN)
+        setMessage("The game is over. Moving back to lobby ...");
+      if (motive === Motive.ABANDON)
+        setMessage("One player abandoned. Moving back to lobby ...");
+      if (motive === Motive.CANCEL)
+        setMessage("Player canceled the game. Moving back to lobby ...");
+      setTimeout(() => {
+        props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
+      }, 4000);
+    },
+    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL]
+  );
 
   useEffect(() => {
     initGame();
@@ -119,32 +120,31 @@ const Game = (props: any) => {
   let playersScores: any = [];
   let gameBall;
   if (scores) {
-    playersScores = scores.map((player: any, index: number) =>
+    playersScores = scores.map((player: any, index: number) => (
       <Text
         key={index}
         text={player.score.toString()}
         fontSize={70}
-        align={index?'right':'left'}
+        align={index ? "right" : "left"}
         fill={params.TEXTCOLOR}
-        x={player.side ? params.CANVASW / 2 + 20: params.CANVASW / 2 - 60}
+        x={player.side ? params.CANVASW / 2 + 20 : params.CANVASW / 2 - 60}
         y={30}
-        fontStyle='bold'
-      /> 
-    )
+        fontStyle="bold"
+      />
+    ));
   }
   if (grid) {
     if (grid.players)
-      playersRect = grid.players.map(
-        (player: any, index: number) =>
-          <Rect
-            key={index}
-            width={params.BARWIDTH}
-            height={params.BARHEIGHT}
-            x={player.coordinates.x}
-            y={player.coordinates.y}
-            fill={params.BARFILL}
-          />
-      );
+      playersRect = grid.players.map((player: any, index: number) => (
+        <Rect
+          key={index}
+          width={params.BARWIDTH}
+          height={params.BARHEIGHT}
+          x={player.coordinates.x}
+          y={player.coordinates.y}
+          fill={params.BARFILL}
+        />
+      ));
     if (grid.ball)
       gameBall = (
         <Rect
@@ -174,16 +174,17 @@ const Game = (props: any) => {
   // Messages
   let gameMessage;
   if (message) {
-    gameMessage = 
+    gameMessage = (
       <Text
         text={message}
         fontSize={40}
-        align='center'
+        align="center"
         fill={params.MESSAGECOLOR}
         width={params.CANVASW}
         y={params.CANVASW / 2}
-        fontStyle='bold'
-      /> 
+        fontStyle="bold"
+      />
+    );
   }
 
   // styles
@@ -217,9 +218,7 @@ const Game = (props: any) => {
           {playersRect}
           {gameBall}
         </Layer>
-         <Layer>
-          {gameMessage}
-        </Layer>
+        <Layer>{gameMessage}</Layer>
       </Stage>
       <button onClick={handleBackToLobby} style={styles}>
         Go back to lobby

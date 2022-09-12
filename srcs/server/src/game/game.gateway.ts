@@ -44,8 +44,6 @@ export class GameGateway
   /** Create a new game */
   @SubscribeMessage('createGame')
   create(@ConnectedSocket() client: Socket) {
-    // add the client socket to a socket array
-    console.log('coucou');
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
     this.gameService.create(players);
@@ -53,8 +51,8 @@ export class GameGateway
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
-  findAll(@ConnectedSocket() client: Socket) {
-    this.gameService.findAll(client);
+  findAll(): object {
+    return this.gameService.findAll();
   }
 
   /** Update game grid by movement */
