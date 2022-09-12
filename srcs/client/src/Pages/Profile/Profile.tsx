@@ -66,43 +66,88 @@ export default function Profile () {
                     <div className="status">
                         <h1 className="yellowText" style={{fontSize: "2vw", fontWeight: "bold"}}> {test.username}</h1>
                         <br/>
-                        <h1 className="blueText" style={{fontSize: "1.5vw"}}> {test.currentStatus ? 'ONLINE' : 'OFFLINE'} </h1>
+                        <h1 className="greenText" style={{fontSize: "1.5vw"}}> {test.currentStatus ? 'ONLINE' : 'OFFLINE'} </h1>
                     </div>
                     <div className="infoProfil">
                             {/* We need to create button / Component with click */}
-                        <h1 className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </h1>
-                        <h1 className="blueText" style={{fontSize: "1vw"}}> Change your picture </h1>
-                        <h1 className="blueText" style={{fontSize: "1vw"}}> Double authentication factor </h1>
+                            <div className="yellowPinkBoxButtonProfil"
+                                style={{
+                                    width: "100%",
+                                    height: "auto",
+                                }}>
+                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </h1>
+                                </div>
+                                <div className="yellowPinkBoxButtonProfil"
+                                style={{
+                                    width: "100%",
+                                    height: "auto",
+                                }}>
+                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your picture  </h1>
+                                </div>
+                                <div className="yellowPinkBoxButtonProfil"
+                                style={{
+                                    width: "100%",
+                                    height: "auto",
+                                }}>
+                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Double Authentification Factor </h1>
+                                </div>
                     </div>
                     </div>
                     <div className="ladder">
                         <div className="blueBoxLadder">
-                        <div className="yellowPinkBoxLadder"
-                            style={{
+                            <div className="yellowPinkBoxLadder"
+                                style={{
+                                    width: "8vw",
+                                    height: "8vw",
+                                }}>
+                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> RANK </h1>
+                                <h1 className="yellowText" style={{fontSize: "2vw"}}> 0 </h1>
+                            </div>
+                            <div className="yellowPinkBoxLadder"
+                                style={{
                                 width: "8vw",
                                 height: "8vw",
-                            }}>
-                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> RANK </h1>
-                            <h1 className="yellowText" style={{fontSize: "2vw"}}> 0 </h1>
+                                }}>
+                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> WINS </h1>
+                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </h1>
+                            </div>
+                            <div className="yellowPinkBoxLadder"
+                                style={{
+                                width: "8vw",
+                                height: "8vw",
+                                }}>
+                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> LOSES </h1>
+                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </h1>
+                            </div>
                         </div>
-                        <div className="yellowPinkBoxLadder"
-                            style={{
-                            width: "8vw",
-                            height: "8vw",
-                            }}>
-                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> WINS </h1>
-                            <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </h1>
-                        </div>
-                        <div className="yellowPinkBoxLadder"
-                            style={{
-                            width: "8vw",
-                            height: "8vw",
-                            }}>
-                            <h1 className="blueText" style={{fontSize: "1.2vw"}}> LOSES </h1>
-                            <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </h1>
-                        </div>
-
-                        </div>
+                </div>
+            </div>
+            <div className='matchFriend'>
+                <div className="match">
+                    <div className="blueBoxMatch"
+                        style={{
+                         width: "100%",
+                         height: "100%",
+                        }}>
+                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Match History </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
+                    </div>
+                </div>
+                <div className="friend">
+                <div className="blueBoxMatch"
+                        style={{
+                         width: "100%",
+                         height: "100%",
+                        }}>
+                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Friend </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
+                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
+                    </div>
                 </div>
             </div>
 

@@ -32,6 +32,32 @@
 				0px 0px 25.6977px #CA18A3;
 }
 
+.greenText{
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+  color: #6dfc72;
+  text-shadow:	0px 0px 7.49518px #30fc93,
+				0px 0px 25.6977px #30fc93;
+}
+
+.redText{
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+  color: #f84b4b;
+  text-shadow:	0px 0px 7.49518px #f65d52,
+				0px 0px 25.6977px #d52828;
+}
+
 .pinkText{
   font-family: 'Montserrat', normal;
   font-style: sans-serif;

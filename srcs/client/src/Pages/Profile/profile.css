@@ -5,8 +5,6 @@
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
-    margin: 1vw;
-	padding: 0.9vw;
 }
 
 .profil{
@@ -34,6 +32,9 @@
     min-width: 100%;
     min-height: 100%;
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 70%;
 }
 
 .status{
@@ -67,11 +68,31 @@
     margin-right: 5vw;
 }
 
-
-img{
+.matchFriend{
+    width: auto;
+    height: auto;
     display: flex;
-    justify-content: center;
-    width: 70%;
-  }
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+}
 
+
+  .match{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.friend{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
 
