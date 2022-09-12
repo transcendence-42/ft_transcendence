@@ -94,9 +94,10 @@ export class GameService {
       client.emit('reconnect', game.id);
     } else {
       client.join(Params.LOBBY);
-      this.server.to(Params.LOBBY).emit('info', {
-        message: `user ${userId} (${client.id}) joined the lobby`,
-      });
+      if (this.server)
+        this.server.to(Params.LOBBY).emit('info', {
+          message: `user ${userId} (${client.id}) joined the lobby`,
+        });
     }
   }
 
@@ -109,13 +110,13 @@ export class GameService {
       message: `user ${userId} (${client.id}) left the lobby`,
     });
     // Warn the room if the player is in game
-    const maybeGame = this.games.findIndex(
+    const isGame = this.games.findIndex(
       (game) =>
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
-    if (maybeGame !== -1)
-      this.server.to(this.games[maybeGame].id).emit('playerLeft', {
-        message: `user ${userId} (${client.id}) left the lobby`,
+    if (isGame !== -1 && this.server)
+      this.server.to(this.games[isGame].id).emit('playerLeft', {
+        message: `user ${userId} (${client.id}) has been disconnected.`,
         data: { userId: userId },
       });
   }
