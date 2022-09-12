@@ -1,4 +1,11 @@
+import { Socket } from 'socket.io';
+
 export class Client {
-  socketId: string;
+  constructor(socket: Socket, userId: number) {
+    this.socket = socket;
+    this.userId = userId;
+  }
+
+  socket: Socket;
   userId?: number;
 }

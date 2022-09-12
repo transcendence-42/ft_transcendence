@@ -12,6 +12,8 @@ import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
 import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
+import { MatchMakingDto } from './dto/matchMaking.dto';
+import { Player } from './entities';
 
 @UseFilters(new WsExceptionsFilter())
 @WebSocketGateway(4343, { cors: true })
@@ -43,7 +45,8 @@ export class GameGateway
   @SubscribeMessage('createGame')
   create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
-    const players: Socket[] = [client];
+    const players: Player[] = [];
+    players.push(new Player(client, +client.handshake.query.userId));
     this.gameService.create(players);
   }
 
@@ -114,5 +117,14 @@ export class GameGateway
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
     this.gameService.leaveGame(client, updateGameDto.id);
+  }
+
+  /** Subscribe or unsubscribe to/from matchmaking */
+  @SubscribeMessage('matchMaking')
+  handleMatchMaking(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() matchMakingDto: MatchMakingDto,
+  ) {
+    this.gameService.handleMatchMaking(client, matchMakingDto.value);
   }
 }

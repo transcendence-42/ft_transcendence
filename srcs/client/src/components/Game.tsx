@@ -66,6 +66,7 @@ const Game = (props: any) => {
     // Viewer : remove the viewer and change its room in the server
     if (props.action === props.actionVal.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: props.id});
+      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
     }
     // Player : cancel if 1 player / abandon if match started
     if (
@@ -73,8 +74,8 @@ const Game = (props: any) => {
       window.confirm("Warning: Do you confirm ?\nThis action will cause you to lose the game if started, or cancel it if not started.")
     ) {
       socket.emit("playerAbandons", { id: props.id });
+      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
     }
-    props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
   };
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {

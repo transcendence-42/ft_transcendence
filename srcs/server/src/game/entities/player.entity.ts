@@ -1,8 +1,9 @@
+import { Socket } from 'socket.io';
 import { Client } from './client.entity';
 
 export class Player extends Client {
-  constructor() {
-    super();
+  constructor(socket: Socket, userId: number) {
+    super(socket, userId);
     this.score = 0;
     this.updating = false;
   }

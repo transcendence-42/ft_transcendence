@@ -10,7 +10,6 @@ import {
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
-import { Match } from '@prisma/client';
 
 // Enums
 const enum Move {
@@ -68,10 +67,12 @@ export class GameService {
     private readonly matchService: MatchService,
   ) {
     this.games = [];
+    this.players = [];
   }
 
   server: Server;
   games: Game[];
+  players: Player[];
 
   /** *********************************************************************** */
   /** SOCKET                                                                  */
@@ -123,18 +124,16 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private _addPlayerToGame(player: Socket, side: number, game: Game): Game {
-    const userId: number = +player.handshake.query.userId;
+  private _addPlayerToGame(player: Player, side: number, game: Game): Game {
     // check if user is already in game
-    if (this._isPlayerInGame(userId)) {
-      throw new UserAlreadyInGameException(userId);
+    if (this._isPlayerInGame(player.userId)) {
+      throw new UserAlreadyInGameException(player.userId);
     }
     // Add it to the game and set his side
-    player.leave(Params.LOBBY);
-    player.join(game.id);
+    player.socket.leave(Params.LOBBY);
+    player.socket.join(game.id);
     game.players.push({
-      socketId: player.id,
-      userId: userId,
+      ...player,
       side: side,
       score: 0,
     });
@@ -177,7 +176,7 @@ export class GameService {
     const gameList = this.games.map((game) => {
       return {
         id: game.id,
-        players: game.players,
+        players: game.players.map((p) => ({ userId: p.userId })),
         viewersCount: game.viewers.length,
       };
     });
@@ -215,16 +214,19 @@ export class GameService {
         status: p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
       })),
     };
-    await this.matchService.create(createMatchDto);
+    try {
+      await this.matchService.create(createMatchDto);
+    } catch (e) {
+      console.debug(e);
+    }
   }
 
   /** Create a new game */
-  create(players: Socket[]) {
+  create(players: Player[]) {
     // 1 : Chech if one of the user is already in a game
-    players.forEach((player) => {
-      const userId: number = +player.handshake.query.userId;
-      if (this._isPlayerInGame(userId))
-        throw new UserAlreadyInGameException(userId);
+    players.forEach((p) => {
+      if (this._isPlayerInGame(p.userId))
+        throw new UserAlreadyInGameException(p.userId);
     });
     // create a new game
     const newGame: Game = new Game(v4());
@@ -234,7 +236,7 @@ export class GameService {
     players.forEach((player, index) => {
       const side = index ? Side.RIGHT : Side.LEFT;
       game = this._addPlayerToGame(player, side, game);
-      player.emit('newGameId', { id: game.id });
+      player.socket.emit('newGameId', { id: game.id });
     });
     // Broadcast new gamelist to the lobby
     const gameList = this._createGameList();
@@ -279,7 +281,9 @@ export class GameService {
     let game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     // add new player to the game and emit new grid
-    game = this._addPlayerToGame(client, Side.RIGHT, game);
+    const userId: number = +client.handshake.query.userId;
+    const side = game.players.length > 1 ? Side.RIGHT : Side.LEFT;
+    game = this._addPlayerToGame(new Player(client, userId), side, game);
     // Check if the game has 2 players
     if (game.players.length >= 2) {
       this._startGame(game);
@@ -297,7 +301,7 @@ export class GameService {
     if (!game) throw new GameNotFoundException(id);
     const userId: number = +client.handshake.query.userId;
     if (!this._isViewerInGame(userId)) {
-      game.viewers.push({ userId: userId, socketId: client.id });
+      game.viewers.push({ socket: client, userId: userId });
     }
     client.join(game.id);
     client.leave(Params.LOBBY);
@@ -313,8 +317,37 @@ export class GameService {
     if (!game) throw new GameNotFoundException(id);
     // update player socket on player list
     game.players = game.players.map((player) =>
-      player.userId === userId ? { socketId: client.id, ...player } : player,
+      player.userId === userId ? { socket: client, ...player } : player,
     );
+  }
+
+  /** *********************************************************************** */
+  /** MATCHMAKING                                                             */
+  /** *********************************************************************** */
+
+  /** handle player joining or leaving matchmaking */
+  handleMatchMaking(client: Socket, value: boolean) {
+    //add or remove the player
+    const userId: number = +client.handshake.query.userId;
+    const player: Player = this.players.find((p) => p.userId === userId);
+    if (!player && value === true)
+      this.players.push(new Player(client, userId));
+    if (player && value === false)
+      this.players.filter((p) => p.userId !== userId);
+    // Find an opponent
+    while (this.players.length > 1) {
+      // Create a match with the two players
+      const playersToMatch = this.players.filter((p, index) => index <= 1);
+      playersToMatch.forEach((p) => {
+        p.socket.emit('opponentFound');
+      });
+      setTimeout(() => {
+        this.create(playersToMatch);
+      }, 2001);
+      // pop the players from the list
+      this.players.shift();
+      this.players.shift();
+    }
   }
 
   /** *********************************************************************** */

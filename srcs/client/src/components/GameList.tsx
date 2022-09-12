@@ -16,7 +16,6 @@ const GameList = (props: any) => {
           {props.gameList.map((game: any, index: number) => (
             <li key={index}>
               Game #<b>{game.players[0] ? game.players[0].userId : ' ... '}</b> vs #<b>{game.players[1] ? game.players[1].userId : ' ... '}</b> ({game.viewersCount} viewers)
-              {game.players.length === 2 && (
                 <button
                   onClick={() => props.setGame({
                     id: game.id,
@@ -25,7 +24,6 @@ const GameList = (props: any) => {
                 >
                   Spectate
                 </button>
-              )}
               {game.players.length === 1 && (
                 <button
                   onClick={() => props.setGame({
