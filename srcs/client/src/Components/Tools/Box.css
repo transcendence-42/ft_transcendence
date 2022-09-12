@@ -85,7 +85,7 @@
 {
 	box-sizing: border-box;
 	display: flex;
-	justify-content: flex-start;
+	justify-content: space-evenly;
 	align-items: center;
 	flex-direction: column;
 
@@ -127,21 +127,42 @@
 	border-radius: 3vw;
 	margin: 1vw;
 	padding: 0.9vw;
-	max-height: 100%;
+	max-height:40vh;
+	min-height : 20vh;
 }
+
+.scrollBox
+{
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin: 1vw;
+	padding: 0.9vw;
+	max-height:35vh;
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollBox::-webkit-scrollbar {
+	display: none;
+  }
 
 .yellowPinkBoxButtonProfil
 {
 	box-sizing: border-box;
 	display: flex;
 	justify-content: center;
+	align-items: space-around;
 
 	border: 3px solid #DCCA2A;
 	box-shadow: 0px 0px 7.49518px #FF6ADE,
 				0px 0px 25.6977px #CA18A3;
 	border-radius: 40px;
-	margin: 0.2vw;
-	padding: 0.15vw;
+	margin: 0.25em;
+	padding: 0.16em;
 }
 
 /* Custom your Box

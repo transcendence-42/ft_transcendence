@@ -74,21 +74,21 @@ export default function Profile () {
                                     width: "100%",
                                     height: "auto",
                                 }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </h1>
+                                    <div className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </div>
                                 </div>
                                 <div className="yellowPinkBoxButtonProfil"
                                 style={{
                                     width: "100%",
                                     height: "auto",
                                 }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your picture  </h1>
+                                    <div className="blueText" style={{fontSize: "1vw"}}> Change your picture  </div>
                                 </div>
                                 <div className="yellowPinkBoxButtonProfil"
                                 style={{
                                     width: "100%",
                                     height: "auto",
                                 }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Double Authentification Factor </h1>
+                                    <div className="blueText" style={{fontSize: "1vw"}}> Double Authentification Factor </div>
                                 </div>
                     </div>
                     </div>
@@ -99,24 +99,24 @@ export default function Profile () {
                                     width: "8vw",
                                     height: "8vw",
                                 }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> RANK </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> 0 </h1>
+                                <div className="blueText" style={{fontSize: "1.2vw"}}> RANK </div>
+                                <div className="yellowText" style={{fontSize: "2vw"}}> 0 </div>
                             </div>
                             <div className="yellowPinkBoxLadder"
                                 style={{
                                 width: "8vw",
                                 height: "8vw",
                                 }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> WINS </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </h1>
+                                <div className="blueText" style={{fontSize: "1.2vw"}}> WINS </div>
+                                <div className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </div>
                             </div>
                             <div className="yellowPinkBoxLadder"
                                 style={{
                                 width: "8vw",
                                 height: "8vw",
                                 }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> LOSES </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </h1>
+                                <div className="blueText" style={{fontSize: "1.2vw"}}> LOSES </div>
+                                <div className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </div>
                             </div>
                         </div>
                 </div>
@@ -128,11 +128,24 @@ export default function Profile () {
                          width: "100%",
                          height: "100%",
                         }}>
-                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Match History </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
+                        <div className="yellowText" style={{fontSize: "4vh"}}> Match History </div>
+                        <br/>
+                        <div className="scrollBox" >
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+                            <div className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </div>
+
+                        </div>
+
                     </div>
                 </div>
                 <div className="friend">
@@ -141,11 +154,12 @@ export default function Profile () {
                          width: "100%",
                          height: "100%",
                         }}>
-                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Friend </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
+                        <div className="yellowText" style={{fontSize: "4vh"}}> Friend </div>
+                            <br/>
+                            <div className="scrollBox" >
+                            <div className="blueText" style={{fontSize: "2vh"}}> SEB  </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
