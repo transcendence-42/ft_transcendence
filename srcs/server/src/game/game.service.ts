@@ -115,8 +115,8 @@ export class GameService {
         game.players.filter((player) => player.userId === +userId).length === 1,
     );
     if (isGame !== -1 && this.server)
-      this.server.to(this.games[isGame].id).emit('playerLeft', {
-        message: `user ${userId} (${client.id}) has been disconnected.`,
+      this.server.to(this.games[isGame].id).emit('info', {
+        message: `user ${userId} (${client.id}) has left.`,
         data: { userId: userId },
       });
   }
@@ -238,7 +238,7 @@ export class GameService {
     players.forEach((player, index) => {
       const side = index ? Side.RIGHT : Side.LEFT;
       game = this._addPlayerToGame(player, side, game);
-      player.socket.emit('newGameId', { id: game.id });
+      player.socket.emit('gameId', { id: game.id });
     });
     // Broadcast new gamelist to the lobby
     const gameList = this._createGameList();

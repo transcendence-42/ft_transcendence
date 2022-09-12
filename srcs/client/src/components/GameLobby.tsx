@@ -26,7 +26,7 @@ const GameLobby = () => {
   const [message, setMessage] = useState({} as any);
   const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
 
-  // Handlers
+  // Socket events handlers
   const handleConnect = useCallback(() => {
     setGame({ action: Action.GO_LOBBY, id: "lobby" });
     socket.emit("findAllGame");
@@ -36,35 +36,44 @@ const GameLobby = () => {
     setGameList(gameList);
   }, []);
 
-  const handleNewGame = () => {
-    socket.emit("createGame");
-  };
-
-  const handleNewGameId = (data: any) => {
+  const handleGameId = useCallback((data: any) => {
     setMessage({});
     setGame({ id: data.id, action: Action.CREATE_GAME });
-  };
-
-  const handleException = (data: any) => {
+  }, [Action]);
+  
+  const handleException = useCallback((data: any) => {
     setMessage({ message: data.message });
-  };
+  }, []);
 
-  const handleReconnect = (gameId: any) => {
+  const handleReconnect = useCallback((gameId: any) => {
     setMessage({});
     setGame({ id: gameId, action: Action.RECO_GAME });
-  };
+  }, [Action]);
 
-  const handleMatchMaking = (value: MatchMaking) => {
+  const handleMatchMaking = useCallback((value: MatchMaking) => {
     setMatchMaking(value);
     socket.emit("matchMaking", { value: true });
-  };
+  }, [socket]);
 
-  const handleOpponentFound = () => {
+  const handleOpponentFound = useCallback(() => {
     setMessage({ message: "An opponent has been found, the game will start !"});
     setMatchMaking(MatchMaking.IN_GAME);
     setTimeout(() => {
       setMessage({});
     }, 4000);
+  }, [MatchMaking]);
+  
+  const handleInfo = useCallback((info: any) => {
+    setMessage({ message: info.message });
+    setTimeout(() => {
+      setMessage({});
+    }, 4000);
+  }, []);
+
+  // component event handlers 
+  const handleNewGame = () => {
+    console.log('halle');
+    socket.emit("createGame");
   };
 
   const backToLobby = (room: any) => {
@@ -73,21 +82,23 @@ const GameLobby = () => {
     setMatchMaking(MatchMaking.NOT_IN_QUEUE);
     setGame(room);
   };
-
+  
   useEffect(() => {
     socket.on("connect", handleConnect);
     socket.on("gameList", handleGameList);
     socket.on("reconnect", handleReconnect);
-    socket.on("newGameId", handleNewGameId);
+    socket.on("gameId", handleGameId);
     socket.on("exception", handleException);
     socket.on("opponentFound", handleOpponentFound);
+    socket.on("info", handleInfo);
     return () => {
       socket.off("connect", handleConnect);
       socket.off("gameList", handleGameList);
       socket.off("reconnect", handleReconnect);
-      socket.off("newGameId", handleNewGameId);
+      socket.off("gameId", handleGameId);
       socket.off("exception", handleException);
       socket.off("opponentFound", handleOpponentFound);
+      socket.off("info", handleInfo);
       socket.close();
     };
   }, []);

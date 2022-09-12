@@ -96,7 +96,7 @@ const Game = (props: any) => {
     setTimeout(() => {
       props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
     }, 4000)
-  }, []);
+  }, [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL]);
 
   useEffect(() => {
     initGame();

@@ -45,6 +45,7 @@ export class GameGateway
   @SubscribeMessage('createGame')
   create(@ConnectedSocket() client: Socket) {
     // add the client socket to a socket array
+    console.log('coucou');
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
     this.gameService.create(players);
