@@ -2,7 +2,7 @@
     width: auto;
     height: 40%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     flex-direction: row;
 }
@@ -11,7 +11,7 @@
     width: 65%;
     height: auto;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: row;
 }
@@ -23,6 +23,18 @@
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
+    min-width: 20%;
+    object-fit: cover;
+}
+
+.picture img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 70%;
 }
 
 .status{
@@ -30,9 +42,9 @@
     height: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     flex-direction: column;
-   margin: 1vw;
+    margin: 1vw;
 }
 
 .infoProfil{
@@ -41,8 +53,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: row;
-   margin: 1vw;
+    flex-direction: column;
+    margin: 1vw;
+    margin-left: 3vw;
 }
 
 .ladder{
@@ -52,11 +65,34 @@
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    margin-right: 5vw;
+}
+
+.matchFriend{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
 }
 
 
-  img{
+  .match{
+    width: 50%;
+    height: 100%;
     display: flex;
-    justify-content: center;
-    width: 70%;
-  }
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.friend{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+

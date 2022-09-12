@@ -1,4 +1,3 @@
-import '../Text.css';
 import '../Box.css';
 
 function ProfilNavBar() {
