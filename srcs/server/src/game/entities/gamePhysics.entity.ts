@@ -8,6 +8,7 @@ export class Physic {
   direction?: Vector;
   speed?: number;
   side?: number;
+  timerFunction?: NodeJS.Timer;
 }
 
 export class GamePhysics {

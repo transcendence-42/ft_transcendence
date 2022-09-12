@@ -58,6 +58,7 @@ const Params = Object.freeze({
   BARHEIGHT: 54,
   WALLSIZE: 15,
   BALLSIZE: 12,
+  BALL_ACCELERATION_TIME: 10,
 });
 
 @Injectable()
@@ -514,6 +515,12 @@ export class GameService {
       y: Math.random(),
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
+    // Accelerate the ball every xx seconds
+    if (game.gamePhysics.ball.timerFunction)
+      clearInterval(game.gamePhysics.ball.timerFunction);
+    game.gamePhysics.ball.timerFunction = setInterval(() => {
+      this._accelerateBall(game);
+    }, Params.BALL_ACCELERATION_TIME * 1000);
   }
 
   /** Reset game physics */
@@ -540,6 +547,17 @@ export class GameService {
       y: Math.random(),
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
+    // Accelerate the ball every xx seconds
+    if (game.gamePhysics.ball.timerFunction)
+      clearInterval(game.gamePhysics.ball.timerFunction);
+    game.gamePhysics.ball.timerFunction = setInterval(() => {
+      this._accelerateBall(game);
+    }, Params.BALL_ACCELERATION_TIME * 1000);
+  }
+
+  /** Accelerate ball */
+  private _accelerateBall(game: Game) {
+    game.gamePhysics.ball.speed += 1;
   }
 
   /** Detect collision between 2 physic objects */
@@ -574,7 +592,7 @@ export class GameService {
       // vs Paddle
       if (surface.direction.x === 0) newDir.x = newDir.x * -1;
       // Acceleration by contact
-      if (surface.speed) newDir.y += surface.direction.y / 10;
+      if (surface.speed) newDir.y += surface.direction.y / 5;
       updatedObject = {
         ...object,
         direction: newDir,
