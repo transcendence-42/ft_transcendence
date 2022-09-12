@@ -6,15 +6,6 @@ import { GameModule } from '../game.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 
-async function createNestApp(...gateways): Promise<INestApplication> {
-  const testingModule: TestingModule = await Test.createTestingModule({
-    providers: [GameModule],
-  }).compile();
-  const app = testingModule.createNestApplication();
-  app.useWebSocketAdapter(new WsAdapter(app) as any);
-  return app;
-}
-
 describe('Game WebSocketGateway e2e tests', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -32,10 +23,12 @@ describe('Game WebSocketGateway e2e tests', () => {
     await app.init();
   });
 
-  describe(`EVENT: gameCreate`, () => {
-    it(`should handle 'createGame' event `, async () => {
+  describe(`EVENT: findAllGame`, () => {
+    // Add before each with fake clients and fake games
+    // Add returns to service functions
+    it(`should return a list of all games`, async () => {
       const ws = new WebSocket('ws://localhost:4343');
-      await new Promise(resolve => ws.on('open', resolve));
+      await new Promise((resolve) => ws.on('open', resolve));
 
       ws.send(
         JSON.stringify({
@@ -45,9 +38,9 @@ describe('Game WebSocketGateway e2e tests', () => {
           },
         }),
       );
-      await new Promise<void>(resolve =>
-        ws.on('message', data => {
-          expect(JSON.parse(data).data.test).to.be.eql('test');
+      await new Promise<void>((resolve) =>
+        ws.on('message', (data) => {
+          expect(JSON.parse(data).data.test).toBe('test');
           ws.close();
           resolve();
         }),

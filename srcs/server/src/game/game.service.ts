@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { Game, Player, Physic, Vector, GamePhysics } from './entities/';
 import { v4 } from 'uuid';
 import {
@@ -63,10 +62,7 @@ const Params = Object.freeze({
 
 @Injectable()
 export class GameService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly matchService: MatchService,
-  ) {
+  constructor(private readonly matchService: MatchService) {
     this.games = [];
     this.players = [];
   }
