@@ -38,7 +38,6 @@ services:
       redis:
         condition: service_healthy
     networks: ['transcendence']
-    env_file: ['.env.dev']
     entrypoint: ['/app/script/docker-entrypoint.${RUNNING_ENV}.sh']
     healthcheck:
       test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;

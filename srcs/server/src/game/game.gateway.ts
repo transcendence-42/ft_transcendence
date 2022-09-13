@@ -16,7 +16,7 @@ import { MatchMakingDto } from './dto/matchMaking.dto';
 import { Player } from './entities';
 
 @UseFilters(new WsExceptionsFilter())
-@WebSocketGateway(4343, { cors: true })
+@WebSocketGateway()
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
@@ -26,9 +26,9 @@ export class GameGateway
   server: Server;
 
   onModuleInit() {
-    this.server.sockets.disconnectSockets(true);
+    //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
-    console.log('Websocket server is up...');
+    console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT}...`);
   }
 
   /** Handle new clients connection to the game */

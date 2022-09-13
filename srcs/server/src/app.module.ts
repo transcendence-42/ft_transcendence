@@ -10,7 +10,9 @@ import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: `../../.env.${process.env.NODE_ENV}`,
+    }),
     AuthModule,
     PrismaModule,
     UserModule,
