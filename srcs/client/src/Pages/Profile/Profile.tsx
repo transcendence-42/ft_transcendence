@@ -37,7 +37,6 @@ export default function Profile () {
     // )
 
     useEffect(() => {
-        console.log(userID);
         let request = "http://127.0.0.1:4200/users/" + userID;
         console.log(request);
         const json = getFetch({url : request});
@@ -45,10 +44,6 @@ export default function Profile () {
             setUser(responseObject);
     })
     },[userID]);
-
-    function donothing() : any {
-        console.log('Clicked!');
-    }
 
     console.log(user);
     if(user)

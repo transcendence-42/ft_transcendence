@@ -1,28 +1,37 @@
 import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
-
+import ModalProfil from "./ModalProfil"
+import { useState } from "react";
 
 export default function ChangePseudo() {
 
-	var test : number = 2;
+	const [isShowing, setIsShowing] = useState(false);
+
+	function toggle() {
+		setIsShowing(!isShowing);
+	  }
+
 
 	function dosomething() : any {
 
-		console.log("dosomething");
+		console.log("bonjour");
 
 	}
 
 	return (
-		<button className="yellowPinkBoxButtonProfil"
-		style={{
-			width: "100%",
-			height: "auto",
-		}}
-		onClick={()=>(dosomething())}
-		>
-			<div className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </div>
-			<div className="blueText" style={{fontSize: "1vw"}}> {test}</div>
-		</button>
+		<>
+			<button className="yellowPinkBoxButtonProfil"
+			style={{
+				width: "100%",
+				height: "auto",
+			}}
+			onClick={()=>(toggle())}
+			>
+				<div className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </div>
+			</button>
+
+			<ModalProfil isShowing={isShowing} hide={toggle} />
+		</>
  		);
 }
