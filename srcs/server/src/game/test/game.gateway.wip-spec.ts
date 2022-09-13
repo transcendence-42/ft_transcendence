@@ -22,46 +22,44 @@ describe('Game WebSocketGateway e2e tests', () => {
       imports: [GameModule],
     }).compile();
 
+    // init app with services
     app = moduleRef.createNestApplication();
     prisma = moduleRef.get<PrismaService>(PrismaService);
     userService = moduleRef.get<UserService>(UserService);
     gameService = moduleRef.get<GameService>(GameService);
     app.useWebSocketAdapter(new WsAdapter(app) as any);
     await app.init();
-  });
 
-  beforeEach(async () => {
-    await prisma.cleanDatabase();
-    // create fresh users and ws for match
+    // prepare data
+    prisma.cleanDatabase();
     for (let i = 0; i < 4; ++i) {
       user.push(await userService.create(mockUserDto[i]));
-      ws.push(io('http://localhost:4848'));
+      ws.push(
+        io(`http://localhost:${process.env.GAME_WS_PORT}`, {
+          query: { userId: user[i].id },
+        }),
+      );
     }
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     for (let i = 0; i < 4; ++i) {
-      ws[i].close();
+      await ws[i].close();
     }
+    await app.close();
   });
 
   describe(`On event 'findAllGame'`, () => {
     it(`should return a list of all games`, async () => {
       // create 2 games
-      for (let i = 0; i < 4; i += 2) {
-        gameService.create([
-          { userId: user[i].id, socket: ws[i] },
-          { userId: user[i + 1].id, socket: ws[i + 1] },
-        ]);
-      }
-      // fire event to server
-      ws[0].emit('findAllGame', (response) => {
-        expect(response.length).toBe(2);
-      });
+      ws[0].emit('createGame');
+      await new Promise<void>((resolve) =>
+        ws[0].on('gameId', (data: any) => {
+          expect(data.id).toBeInstanceOf(String);
+          resolve();
+        }),
+      );
+      //await ws[1].emit('joinGame', { id: gameId });
     });
-  });
-
-  afterEach(async function () {
-    await app.close();
   });
 });

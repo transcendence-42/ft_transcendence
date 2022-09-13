@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Game, Player, Physic, Vector, GamePhysics } from './entities/';
 import { v4 } from 'uuid';
@@ -9,6 +9,7 @@ import {
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
+import { Cache } from 'cache-manager';
 
 // Enums
 const enum Move {
@@ -58,11 +59,15 @@ const Params = Object.freeze({
   WALLSIZE: 15,
   BALLSIZE: 12,
   BALL_ACCELERATION_TIME: 10,
+  BALL_MAX_SPEED: 12,
 });
 
 @Injectable()
 export class GameService {
-  constructor(private readonly matchService: MatchService) {
+  constructor(
+    private readonly matchService: MatchService,
+    @Inject('CACHE_MANAGER') private readonly cacheManager: Cache,
+  ) {
     this.games = [];
     this.players = [];
   }
@@ -76,7 +81,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** client connection */
-  clientConnection(client: Socket) {
+  async clientConnection(client: Socket) {
     // get query information
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
@@ -95,6 +100,9 @@ export class GameService {
           message: `user ${userId} (${client.id}) joined the lobby`,
         });
     }
+    // redis test
+    this.cacheManager.set('game 1', { id: 5 });
+    console.log(await this.cacheManager.get('game 1'));
   }
 
   /** client disconnection */
@@ -244,6 +252,7 @@ export class GameService {
     this.server.to(Params.LOBBY).emit('gameList', gameList);
     // start game if players > 1
     if (this.games[len - 1].players.length > 1) this._startGame(game);
+    return { event: 'gameId', data: { id: newGame.id } };
   }
 
   /** Find all created games */
@@ -560,7 +569,8 @@ export class GameService {
 
   /** Accelerate ball */
   private _accelerateBall(game: Game) {
-    game.gamePhysics.ball.speed += 1;
+    if (game.gamePhysics.ball.speed < Params.BALL_MAX_SPEED)
+      game.gamePhysics.ball.speed += 1;
   }
 
   /** Detect collision between 2 physic objects */

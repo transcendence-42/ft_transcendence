@@ -21,6 +21,7 @@ const Game = (props: any) => {
     BARHEIGHT: 54,
     WALLSIZE: 15,
     BALLSIZE: 12,
+    FONTSIZE: 40,
     BARFILL: "white",
     BALLFILL: "white",
     WALLFILL: "white",
@@ -177,11 +178,11 @@ const Game = (props: any) => {
     gameMessage = (
       <Text
         text={message}
-        fontSize={40}
+        fontSize={params.FONTSIZE}
         align="center"
         fill={params.MESSAGECOLOR}
         width={params.CANVASW}
-        y={params.CANVASW / 2}
+        y={params.CANVASW / 2 - 2 * params.FONTSIZE}
         fontStyle="bold"
       />
     );

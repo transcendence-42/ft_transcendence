@@ -28,7 +28,7 @@ export class GameGateway
   onModuleInit() {
     //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
-    console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT}...`);
+    console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT} ...`);
   }
 
   /** Handle new clients connection to the game */
@@ -46,7 +46,7 @@ export class GameGateway
   create(@ConnectedSocket() client: Socket) {
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
-    this.gameService.create(players);
+    return this.gameService.create(players);
   }
 
   /** Find all games */
