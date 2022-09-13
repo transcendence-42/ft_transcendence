@@ -98,14 +98,12 @@
 	padding: 2px;
 }
 
-.blueBoxLadder
+.boxLadder
 {
 	box-sizing: border-box;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
-
 	border-radius: 3vw;
 	margin: 1vw;
 	padding: 0.9vw;
@@ -135,11 +133,11 @@
 {
 	box-sizing: border-box;
 	display: flex;
-	justify-content: center;
+	justify-content: flex-start;
 	align-items: center;
 	flex-direction: column;
-	margin: 1vw;
-	padding: 0.9vw;
+	margin: 1vh;
+
 	max-height:35vh;
 	overflow-y: scroll;
 	-ms-overflow-style: none;
@@ -156,6 +154,8 @@
 	display: flex;
 	justify-content: center;
 	align-items: space-around;
+	background-color: transparent;
+	cursor: pointer;
 
 	border: 3px solid #DCCA2A;
 	box-shadow: 0px 0px 7.49518px #FF6ADE,
@@ -165,6 +165,13 @@
 	padding: 0.16em;
 }
 
+.yellowPinkBoxButtonProfil:hover,
+.yellowPinkBoxButtonProfil:focus
+{
+	box-shadow: 0px 0px 20px #DCCA2A;
+
+	transform: translateY(-0.10em);
+}
 /* Custom your Box
 * add into your div
 *           style={{

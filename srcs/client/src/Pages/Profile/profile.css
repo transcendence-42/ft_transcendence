@@ -38,16 +38,16 @@
 }
 
 .status{
-    width: 20%;
+    width: auto;
     height: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     flex-direction: column;
-    margin: 1vw;
+    /* max-width: 25%; */
 }
 
-.infoProfil{
+.changeProfil{
     width: auto;
     height: auto;
     display: flex;
