@@ -4,16 +4,13 @@ import { useState, useEffect } from 'react';
 import { socket } from '../../Socket';
 import { Message } from './entities';
 
-console.log = function () {};
-
 export default function Chat() {
   const [message, setMessage] = useState('');
   const [allMessages, setAllMessages] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   const handleMessageChange = (e: any) => {
-    console.log(`This is state before us ${message}`);
     setMessage(e.target.value);
-    console.log(`This is state after us ${message}`);
   };
   const handleSubmit = () => {
     const date = Date.now();
@@ -24,23 +21,35 @@ export default function Chat() {
 
   const eventSendMessage = () => {
     socket.on('updateMessages', (messages) => {
-      console.log('recieved updateMessage with message:', messages);
       setAllMessages(messages);
     });
   };
 
   useEffect(() => {
+    console.log(`Messages useEffect ${JSON.stringify(allMessages, null, 4)}`);
+    if (allMessages.length !== 0)
+      window.sessionStorage.setItem('allMessages', JSON.stringify(allMessages));
+    console.log(
+      `Messages useEffect get Session Storage ${JSON.stringify(
+        JSON.parse(window.sessionStorage.getItem('allMessages') || 'Nothing here'),
+        null,
+        4
+      )}`
+    );
+  }, [allMessages]);
+
+  useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server successfully');
     });
-    const message: Message = { id: '', message: 'hello', date: 3242 };
-    socket.emit('message', message);
+
     socket.on('updateUsers', (allUsers) => {
-      console.log('This is the list of all users: ');
+      setAllUsers(allUsers);
       allUsers.map((user: any) => console.log(JSON.stringify(user, null, 4)));
     });
     eventSendMessage();
   }, []);
+
   return (
     <div className="chat">
       <div
@@ -82,11 +91,13 @@ export default function Chat() {
         }}>
         <div style={{ color: 'white', fontSize: '10px' }} className="conversation">
           <ul className="messages">
-            {allMessages.length !== 0 ? (
+            {JSON.parse(window.sessionStorage.getItem('allMessages') || '').length !== 0 ? (
               <>
-                {allMessages.map((message: Message) => (
-                  <div key={message.id}>{message.message}</div>
-                ))}
+                {JSON.parse(window.sessionStorage.getItem('allMessages') || '').map(
+                  (message: Message) => (
+                    <div key={message.id}>{message.message}</div>
+                  )
+                )}
               </>
             ) : (
               <>
