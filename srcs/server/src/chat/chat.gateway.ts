@@ -3,12 +3,14 @@ import {
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
-import { Message } from './message.entity';
+import { Message } from './entities/message.entity';
 import { ChatUser } from './chatUser.entity';
+import { Payload } from './entities';
 
 @WebSocketGateway(4444, {
   cors: {
@@ -17,12 +19,20 @@ import { ChatUser } from './chatUser.entity';
   },
 })
 export class ChatGateway
-  implements OnModuleInit, OnGatewayConnection, OnGatewayDisconnect
+  implements
+    OnModuleInit,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnGatewayInit
 {
   constructor(private readonly chatService: ChatService) {}
 
   onModuleInit() {
     console.log(`Module Chat is up`);
+  }
+
+  afterInit(server: any) {
+    this.chatService.server = server;
   }
 
   handleConnection(client: Socket, ...args: any[]) {
@@ -40,7 +50,12 @@ export class ChatGateway
   }
 
   @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, payload: Message) {
+  handleMessage(client: Socket, payload: Payload) {
     return this.chatService.handleMessage(client, payload);
+  }
+
+  @SubscribeMessage('joinChannel')
+  handleJoinChannel(client: Socket, channel: string) {
+    return this.chatService.handleJoinChannel(client, channel);
   }
 }

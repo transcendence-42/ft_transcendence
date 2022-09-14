@@ -92,6 +92,9 @@
   color: rgba(30, 166, 166, 0.95);
 }
 
+.messages {
+  list-style-type: none;
+}
 .conversation {
   display: flex;
   flex-direction: column;
