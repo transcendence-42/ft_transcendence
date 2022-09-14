@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  
   client:
     image: client:${TAG}
     build:
@@ -29,7 +28,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: server
     restart: always
-    ports: ['${SERVER_PORT}:4200']
+    ports: ['${SERVER_PORT}:4200', '${CHAT_PORT:CHAT_PORT}']
     volumes:
       - ./server/:/app
     depends_on:
@@ -46,7 +45,7 @@ services:
       timeout: 30s
       retries: 15
       start_period: 30s
-    
+
   database:
     image: postgres:alpine
     container_name: database
@@ -59,7 +58,7 @@ services:
     ports: ['${POSTGRES_PORT}:5432']
     networks: ['transcendence']
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
     env_file: ['.env.dev']
 
   adminer:
@@ -75,7 +74,7 @@ services:
   controller:
     image: busybox
     container_name: controller
-    restart: "no"
+    restart: 'no'
     networks: ['transcendence']
     depends_on:
       database:
@@ -84,14 +83,14 @@ services:
         condition: service_healthy
       server:
         condition: service_healthy
-  
+
   redis:
     image: redis
     container_name: redis
     restart: always
     networks: ['transcendence']
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 1m30s
       timeout: 30s
       retries: 8

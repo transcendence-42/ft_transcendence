@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { FriendshipModule } from './friendship/friendship.module';
 import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
-import { ChatGateway } from './chat.gateway';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [
