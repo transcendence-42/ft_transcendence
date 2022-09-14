@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import './App.css';
-import {Routes, Route} from 'react-router-dom';
+import {Routes, Route, BrowserRouter} from 'react-router-dom';
 import Home from './Pages/Home/home'
 import Profile from './Pages/Profile/Profile'
 import Notfound from './Pages/NotFound/notFound';
@@ -9,16 +9,50 @@ import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
 import Chat from './Pages/Chat/chat';
 import NavBar from './Components/Tools/NavBar/NavBar';
-import Auth from './Components/Context/Auth';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
+import Context from './Context/Context';
+import { Cookies, useCookies } from 'react-cookie';
+
+
 
 
 function App() {
+  
+  
+  const [isConnected, setIsConnected] = useState(false);
+  const [isFromAuth, setIsFromAuth] = useState(false);
 
+  const contextValue = {
+    isConnected: isConnected,
+    isFromAuth: isFromAuth,
+    updateIsConnected : setIsConnected,
+    updateIsFromAuth : setIsFromAuth
+  }
+
+
+  // const readCookie = () => 
+  // {
+  //   console.log("Reconnecté");
+  //   console.log(getCookies());
+  //   console.log("Reconnecté:");
+ 
+  
+
+  //   const user = Cookies.get("auth_session");
+  //   if (user)
+  //   {
+  //    console.log("Reconnecté pour de bon")
+  //   }
+  // }
+  // useEffect(() => {
+  //   readCookie();
+  // },[])
 
   return (
+    <Context.Provider value={contextValue}>
+    <BrowserRouter>
         <div className="main">
           <NavBar />
             <Routes>
@@ -26,7 +60,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
-            <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
+            <Route  path='/'element={<AuthenticatedRoute/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
@@ -36,29 +70,9 @@ function App() {
             </Route>
           </Routes>
         </div>
+      </ BrowserRouter>
+      </Context.Provider>
   );
 }
 
 export default App;
-
-
-// <div className="main">
-// <NavBar />
-//   <Routes>
-//   <Route path="/" element={<Home />} />
-//   <Route path="*" element={<Notfound />} />
-//   <Route  path='/' element={<AuthenticatedRoute setIsAuthenticated/>}>
-//     < Route path="/profile/:id" element={<Profile />} />
-//   </Route>
-// </Routes>
-// </div>
-
-        //  <NavBar />
-        //     <Routes>
-        //     <Route path="/" element={<Home />} />
-        //     <Route path="*" element={<Notfound />} />
-        //     <Route  path='/' element={<AuthenticatedRoute/>}>
-        //       < Route path="/profile/:id" element={<Profile />} />
-        //     </Route>
-        //   </Routes>
-        // </div>

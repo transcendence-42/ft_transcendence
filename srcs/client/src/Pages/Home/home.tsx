@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import './home.css';
 import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
@@ -6,16 +6,21 @@ import AuthenticatedRoute from "../../Components/services/authenticatedRoute";
 import Play from "../../Components/Tools/Button/Play";
 import { Link } from "react-router-dom";
 import "../../Components/Tools/VirtualPong/virtualPong.css"
+import Context from "../../Context/Context";
 
 
 export default function Home () {
 
+  const contextValue = useContext(Context);
   useEffect(() => {
-    localStorage.getItem("pathIsFree");
-    console.log("test");
+    let res = localStorage.getItem("StillConnected");
+    if (res === 'true')
+      contextValue.updateIsConnected(true);
+    else 
+    contextValue.updateIsConnected(false);
   });
 
-if (!(localStorage.getItem("pathIsFree")))
+if (!(contextValue.isConnected))
 {
     return (
         <>

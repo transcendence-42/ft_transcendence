@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
 import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-
 import { useCookies } from 'react-cookie';
+import Context from "../../../Context/Context";
 
 
 export default function NavBar ()
 {
-    // eslint-disable-next-line
-    const [user, setUser] = useState(null);
+
     const [isLogged, setIsLogged] = useState(false);
-    // eslint-disable-next-line
-    const [cookies, setCookie] = useCookies(undefined);
+  
     const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
-
+    const contextValue = useContext(Context);
+    /*
     /*
     ** Fetching data and allow the user to connect using "useState" to true
     */
@@ -48,13 +47,11 @@ export default function NavBar ()
                 return Promise.reject();
 
             }
-            console.log("ici end");
             throw console.log("Fail parsing 42auth");
         })
         .then((responseObject) => {
             if (responseObject.message)
             {
-                setUser((responseObject));
                 console.log(responseObject);
                 console.log("Success parsing 42auth");
                 setIsLogged(true);
@@ -86,10 +83,9 @@ export default function NavBar ()
             console.log(responseObject)
             if (responseObject.message)
             {
-                setUser(null);
                 console.log("Disconnect from our services");
                 setIsLogged(false);
-                localStorage.removeItem("pathIsFree");
+                localStorage.removeItem('pathIsFree');
                 return;
             }
          })
@@ -139,12 +135,12 @@ export default function NavBar ()
     ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
      useEffect(() => {
-        if (cookies !== undefined && fromAuth === true)
+        if ( fromAuth === true)
         {
             getUser();
             setFromAuth(false) ;
         }
-     }, [cookies, fromAuth]);
+     }, [fromAuth]);
 
     if (isLogged)
     {
