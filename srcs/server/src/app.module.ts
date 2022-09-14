@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { FriendshipModule } from './friendship/friendship.module';
 import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
+import { ChatGateway } from './chat.gateway';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { RatingModule } from './rating/rating.module';
     RatingModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [ChatGateway],
 })
 export class AppModule {}
