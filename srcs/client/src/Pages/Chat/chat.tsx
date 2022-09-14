@@ -1,6 +1,7 @@
 
 import './chat.css';
 import "../../Components/Tools/Box.css"
+import { Socket } from 'net';
 
 
 export default function Chat () {
@@ -18,7 +19,7 @@ export default function Chat () {
             width: "70%",
             height: "7%",
           }}>
-            <div className="yellowTextChat" style={{fontSize: "2vw"}}> Friends </div>
+            <div className="yellowTextChat" style={{fontSize: "2vw"}}> Channels </div>
           </div>
           <div className="friends">
             <div>
@@ -30,22 +31,9 @@ export default function Chat () {
         </div>
         <div className="blueBoxChat"
             style={{
-            width: "55%",
+            width: "80+%",
             height: "80vh",
           }}>
-        </div>
-        <div className="blueBoxChat"
-            style={{
-            width: "20%",
-            height: "80vh",
-          }}>
-          <div className="yellowPinkBoxChat"
-          style={{
-            width: "70%",
-            height: "7%",
-          }}>
-            <div className="yellowTextChat" style={{fontSize: "2vw"}}> Channels </div>
-          </div>
         </div>
       </div>
       </>
