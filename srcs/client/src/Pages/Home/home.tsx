@@ -10,15 +10,8 @@ import Context from "../../Context/Context";
 
 
 export default function Home () {
-
-  const contextValue = useContext(Context);
-  useEffect(() => {
-    let res = localStorage.getItem("StillConnected");
-    if (res === 'true')
-      contextValue.updateIsConnected(true);
-    else 
-    contextValue.updateIsConnected(false);
-  });
+  
+const contextValue = useContext(Context);
 
 if (!(contextValue.isConnected))
 {

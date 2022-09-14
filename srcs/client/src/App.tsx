@@ -50,6 +50,17 @@ function App() {
   //   readCookie();
   // },[])
 
+  useEffect(() => {
+    const data = localStorage.getItem("pathIsFree");
+    console.log(data);
+    if (data)
+    {
+      contextValue.updateIsConnected(true);
+    }
+    else
+      contextValue.updateIsConnected(false);
+
+  }, );
   return (
     <Context.Provider value={contextValue}>
     <BrowserRouter>
