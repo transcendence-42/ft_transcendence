@@ -9,7 +9,7 @@ import {
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
-import { Cache } from 'cache-manager';
+import Redis from 'redis';
 
 // Enums
 const enum Move {
@@ -66,7 +66,7 @@ const Params = Object.freeze({
 export class GameService {
   constructor(
     private readonly matchService: MatchService,
-    @Inject('CACHE_MANAGER') private readonly cacheManager: Cache,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis.RedisClientType,
   ) {
     this.games = [];
     this.players = [];
@@ -86,6 +86,7 @@ export class GameService {
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // if the user id is in a game, reconnect the client to the game
+    //if (await this.redis.sIsMember('inGame', userId.toString()))
     const game = this.games.find(
       (game) =>
         game.players.filter((player) => player.userId === +userId).length === 1,
@@ -100,13 +101,10 @@ export class GameService {
           message: `user ${userId} (${client.id}) joined the lobby`,
         });
     }
-    // redis test
-    this.cacheManager.set('game 1', { id: 5 });
-    console.log(await this.cacheManager.get('game 1'));
   }
 
   /** client disconnection */
-  clientDisconnection(client: Socket) {
+  async clientDisconnection(client: Socket) {
     const userId: number = +client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
     // Broadcast that user left the lobby
@@ -228,7 +226,7 @@ export class GameService {
   }
 
   /** Create a new game */
-  create(players: Player[]) {
+  async create(players: Player[]) {
     // 1 : Chech if one of the user is already in a game or in match making
     players.forEach((p) => {
       if (this._isPlayerInGame(p.userId))

@@ -27,7 +27,6 @@ async function bootstrap() {
     console.debug('\x1b[32m%s\x1b[0m', 'Connected to', 'Redis');
   });
 
-
   // DTO validation
   app.useGlobalPipes(
     new ValidationPipe({

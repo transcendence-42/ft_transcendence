@@ -21,7 +21,6 @@ export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
   constructor(private readonly gameService: GameService) {}
-
   @WebSocketServer()
   server: Server;
 
@@ -32,21 +31,21 @@ export class GameGateway
   }
 
   /** Handle new clients connection to the game */
-  handleConnection(@ConnectedSocket() client: Socket) {
-    this.gameService.clientConnection(client);
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    await this.gameService.clientConnection(client);
   }
 
   /** Handle client disconnection from the game */
-  handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.gameService.clientDisconnection(client);
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
+    await this.gameService.clientDisconnection(client);
   }
 
   /** Create a new game */
   @SubscribeMessage('createGame')
-  create(@ConnectedSocket() client: Socket) {
+  async create(@ConnectedSocket() client: Socket) {
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
-    return this.gameService.create(players);
+    return await this.gameService.create(players);
   }
 
   /** Find all games */

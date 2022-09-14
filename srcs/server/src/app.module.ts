@@ -8,6 +8,7 @@ import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
 import { GameModule } from './game/game.module';
 import * as redisStore from 'cache-manager-redis-store';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import * as redisStore from 'cache-manager-redis-store';
     MatchModule,
     RatingModule,
     GameModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],

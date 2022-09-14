@@ -86,9 +86,10 @@ services:
         condition: service_healthy
   
   redis:
-    image: redis
+    image: redislabs/rejson:latest
     container_name: redis
     restart: always
+    ports: ['${REDIS_PORT}:6379']      
     networks: ['transcendence']
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
@@ -96,6 +97,13 @@ services:
       timeout: 30s
       retries: 3
       start_period: 10s
+
+  redis-insight:
+      image: redislabs/redisinsight:latest
+      container_name: redisinsight
+      restart: always
+      networks: ['transcendence']
+      ports: ['8001:8001']
 
 networks:
   transcendence:
