@@ -20,6 +20,7 @@ export default function Profile () {
 
     const {userID} : any  = location.state; //Destructuring
     const [user, setUser] : any = useState(null);
+    const [friendList, setFriendList] : any = useState([]);
 
     // const [test, setTest] : any = useState(
     //     {
@@ -40,13 +41,20 @@ export default function Profile () {
     useEffect(() => {
         let request = "http://127.0.0.1:4200/users/" + userID;
         console.log(request);
-        const json = getFetch({url : request});
-        json.then((responseObject)=> {
+        const user_json = getFetch({url : request});
+        user_json.then((responseObject)=> {
+            console.log("HERE3", responseObject);
             setUser(responseObject);
-    })
-    },[userID]);
+        })
+        request = "http://127.0.0.1:4200/users/" + userID + "/friends";
+        const friend_json = getFetch({url : request});
+        friend_json.then((responseObject)=> {
+            console.log("HERE", responseObject);
+            setFriendList(responseObject);})
+        },[userID]);
 
-    console.log(user);
+    // console.log(user);
+    // console.log(friendList[0]);
     if(user)
     {
         return (
@@ -78,7 +86,7 @@ export default function Profile () {
                     <MatchHistory/>
                 </div>
                 <div className="friend">
-                    <FriendList/>
+                    <FriendList friendList={friendList}/>
                 </div>
             </div>
 

@@ -5,7 +5,6 @@ export async function getFetch(props : any){
 		fetch(props.url, {
 	  method: "GET",
 	  credentials: "include",
-	//   redirect: "follow",
 	  headers: {
 		Accept: "application/json",
 		"Content-Type": "application/json",
@@ -13,6 +12,7 @@ export async function getFetch(props : any){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
+				// return no friend
 				throw new Error("Error");
 			}
 			return (response.json());
