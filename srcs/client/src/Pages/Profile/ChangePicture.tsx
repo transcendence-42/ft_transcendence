@@ -1,17 +1,35 @@
 import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
+import "./profile.css"
+import ModalChangePicture from "./ModalChangePicture"
+import { useState } from "react";
 
+export default function ChangePicture(props : any) {
 
-export default function ChangePicture() {
+	const [isShowing, setIsShowing] = useState(false);
+
+	function toggle() {
+		setIsShowing(!isShowing);
+	}
 
 	return (
-		<div className="yellowPinkBoxButtonProfil"
-		style={{
-			width: "100%",
-			height: "auto",
-		}}>
-			<div className="blueText" style={{fontSize: "1vw"}}> Change your picture </div>
-		</div>
+		<>
+			<button className="yellowPinkBoxButtonProfil"
+			style={{
+				width: "100%",
+				height: "auto",
+			}}
+			onClick={()=>(toggle())}
+			>
+				<div className="blueText" style={{fontSize: "1vw"}}> Change Picture </div>
+			</button>
+				<ModalChangePicture
+				isShowing={isShowing}
+				hide={toggle}
+				id={props.id}
+				title="Put an URL of your New Picture"
+			 />
+		</>
  		);
 }

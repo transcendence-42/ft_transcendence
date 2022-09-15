@@ -17,6 +17,7 @@ import { useLocation } from "react-router-dom";
 export default function Profile () {
 
     let location = useLocation();
+
     const {userID} : any  = location.state; //Destructuring
     const [user, setUser] : any = useState(null);
 
@@ -43,7 +44,7 @@ export default function Profile () {
         json.then((responseObject)=> {
             setUser(responseObject);
     })
-    },[user]);
+    },[userID]);
 
     console.log(user);
     if(user)
@@ -63,8 +64,8 @@ export default function Profile () {
                     </div>
                     <div className="changeProfil">
                             {/* We need to create button / Component with click */}
-                            <ChangePseudo/>
-                            <ChangePicture/>
+                            <ChangePseudo id={userID}/>
+                            <ChangePicture id={userID}/>
                             <DoubleAuth/>
                     </div>
                     </div>

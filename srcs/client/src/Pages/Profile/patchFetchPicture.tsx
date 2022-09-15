@@ -1,5 +1,6 @@
-export async function patchFetchPseudo(props : any){
-	console.log("PROPS", props.name);
+
+export async function patchFetchPicture(props : any){
+	console.log("PROPS", props.picture);
 	try{
 		await
 		fetch(props.url, {
@@ -10,17 +11,15 @@ export async function patchFetchPseudo(props : any){
 		"Content-Type": "application/json",
 		"Access-Control-Allow-Credentials": "true",
 	  },
-	  body: JSON.stringify({ username: props.name})
+	  body: JSON.stringify({ profilePicture: props.picture})
 	}).then((response) =>{
 		console.log(response);
-		if (response.status === 200)
-		{
-				// check response for Bad Request (Waiting for API update)
-			}
-			else { throw new Error("Error"); }
+		if(response.status !== 200)
+			throw new Error("Error")
 		})
 	}
 	catch(error) {
 		console.error(error);
+		return false;
  };
 }

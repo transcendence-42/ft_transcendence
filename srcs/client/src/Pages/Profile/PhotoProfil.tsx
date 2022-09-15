@@ -4,7 +4,7 @@ function PhotoProfil(props : any) {
   return (
     <>
       <div className="profilBox">
-        <img src={props.url} alt="profil_picture"></img>
+        <img src={props.url} alt="IMG"></img>
       </div>
     </>
   );
