@@ -84,10 +84,10 @@ export class ChatGateway
     return this.chatService.addUser(client, id);
   }
 
-  @SubscribeMessage('getChannelsList')
-  getChannelsList(client: Socket) {
-    return this.chatService.getChannelsList(client);
-  }
+  // @SubscribeMessage('getChannelsList')
+  // getChannelsList(client: Socket) {
+  // return this.chatService.getChannelsList(client);
+  // }
 
   @SubscribeMessage('createChannel')
   createChannel(client: Socket, channelName: string) {

@@ -89,8 +89,4 @@ export class ChatService {
       client.emit('updateChannels', this.allChannels);
     }
   }
-
-  getChannelsList(client: Socket) {
-    return 0;
-  }
 }
