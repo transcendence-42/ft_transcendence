@@ -7,7 +7,7 @@ import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
-import Chat from './Pages/Chat/chat';
+import Chat from './Pages/Chat/good_chat';
 import NavBar from './Components/Tools/NavBar/NavBar';
 import Auth from './Components/Context/Auth';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
