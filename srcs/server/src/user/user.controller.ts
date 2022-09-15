@@ -19,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+	refs,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
