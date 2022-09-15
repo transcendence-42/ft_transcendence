@@ -19,7 +19,7 @@ services:
       test: netstat -an | grep 3000 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
       interval: 30s
       timeout: 30s
-      retries: 8
+      retries: 15
       start_period: 30s
 
   server:
@@ -44,7 +44,7 @@ services:
       test: netstat -an | grep 4200 > /dev/null;if [ 0 != $$? ] && [ ! -f "/tmp/.ready" ];then exit 1;fi;
       interval: 30s
       timeout: 30s
-      retries: 8
+      retries: 15
       start_period: 30s
     
   database:
@@ -95,7 +95,7 @@ services:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 1m30s
       timeout: 30s
-      retries: 3
+      retries: 8
       start_period: 10s
 
   redis-insight:

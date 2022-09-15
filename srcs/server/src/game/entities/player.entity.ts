@@ -6,6 +6,8 @@ export class Player extends Client {
     super(socket, userId);
     this.score = 0;
     this.updating = false;
+    this.name = socket.handshake.query.name.toString();
+    this.pic = socket.handshake.query.pic.toString();
   }
   score?: number;
   side?: number;

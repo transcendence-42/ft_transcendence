@@ -1,0 +1,91 @@
+:root {
+  --weight: 400;
+}
+
+/* Buttons */
+.btn {
+  border-radius: 40px;
+}
+
+.btn:focus, .btn:enabled {
+  outline: none;
+}
+
+.btn-blue {
+  --bs-btn-hover-color: #80FFFF;
+  --bs-btn-hover-bg: #214141;
+  --bs-btn-hover-border-color: #b4e8f1;
+  --bs-btn-active-color: #80FFFF;
+  --bs-btn-active-bg: #214141;
+  --bs-btn-active-border-color: #b4e8f1;
+	border: 2px solid #b4e8f1;
+  background-color: rgb(5, 2, 30);
+  box-shadow: 0px 0px 5px #60c2c2,
+              inset 0px 0px 5px #60c2c2,
+				      0px 0px 6px #214141,
+				      inset 0px 0px 6px #214141;
+}
+
+.btn-pink {
+  --bs-btn-hover-color: #FF80F2;
+  --bs-btn-hover-bg: #49073b;
+  --bs-btn-hover-border-color: #eb89d6;
+  --bs-btn-active-color: #FF80F2;
+  --bs-btn-active-bg: #49073b;
+  --bs-btn-active-border-color: #eb89d6;
+	border: 2px solid #eb89d6;
+  background-color: rgb(5, 2, 30);
+  box-shadow:	0px 0px 5px #FF6ADE,
+              inset 0px 0px 5px #FF6ADE,
+  				    0px 0px 6px #852388,
+              inset 0px 0px 6px #852388;
+}
+
+/* Text */
+.text-pink {
+  font-family: 'Montserrat', normal;
+  font-style: sans-serif;
+  font-weight: var(--weight);  
+  color: #FF80F2;
+  text-shadow:	0px 0px 7.49518px #FF6ADE,
+                0px 0px 14.9904px #EA3DEE,
+                0px 0px 25.6977px #CA18A3;
+}
+
+.text-blue{
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  color: #80FFFF;
+  text-shadow:	0px 0px 7.49518px #6ABDFF,
+  				      0px 0px 14.9904px #3D9FEE,
+				        0px 0px 25.6977px #187BCA;
+}
+
+/* Table */
+.border-blue {
+  border-top: 1px solid #3b7b85;
+}
+
+/* Modal */
+.modal-content {
+  border: 2px solid #b4e8f1;
+  background-color: rgb(5, 2, 30);
+  box-shadow: 0px 0px 5px #60c2c2,
+              inset 0px 0px 5px #60c2c2,
+				      0px 0px 6px #214141,
+				      inset 0px 0px 6px #214141;
+}
+
+.modal-header {
+   border-bottom: 1px dashed #b4e8f1;
+}
+
+.modal-footer {
+  border-top: 1px dashed #b4e8f1;
+}
+
+/* Background */
+.bg-dark {
+  background-color: #0a0629;
+}

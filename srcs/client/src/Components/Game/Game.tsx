@@ -59,24 +59,6 @@ const Game = (props: any) => {
     }
   };
 
-  const handleBackToLobby = () => {
-    // Viewer : remove the viewer and change its room in the server
-    if (props.action === props.actionVal.VIEW_GAME) {
-      socket.emit("viewerLeaves", { id: props.id });
-      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-    }
-    // Player : cancel if 1 player / abandon if match started
-    if (
-      props.action !== props.actionVal.VIEW_GAME &&
-      window.confirm(
-        "Warning: Do you confirm ?\nThis action will cause you to lose the game if started, or cancel it if not started."
-      )
-    ) {
-      socket.emit("playerAbandons", { id: props.id });
-      props.backToLobby({ id: "lobby", action: props.actionVal.GO_LOBBY });
-    }
-  };
-
   const handleGridUpdate = useCallback((gridUpdate: any) => {
     setGrid(gridUpdate);
   }, []);
@@ -188,23 +170,14 @@ const Game = (props: any) => {
     );
   }
 
-  // styles
-  const styles: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "column",
-  };
-
   return (
-    <div style={styles}>
+    <>
       <Stage width={params.CANVASW} height={params.CANVASH}>
         <Layer name="background">
           <Rect
             width={params.CANVASW}
             height={params.CANVASH}
-            fill={params.BGFILL}
-          />
+            fill={params.BGFILL} />
           <Line
             name="let"
             points={[params.CANVASW / 2, 0, params.CANVASW / 2, params.CANVASH]}
@@ -221,10 +194,7 @@ const Game = (props: any) => {
         </Layer>
         <Layer>{gameMessage}</Layer>
       </Stage>
-      <button onClick={handleBackToLobby} style={styles}>
-        Go back to lobby
-      </button>
-    </div>
+    </>
   );
 };
 

@@ -180,7 +180,12 @@ export class GameService {
     const gameList = this.games.map((game) => {
       return {
         id: game.id,
-        players: game.players.map((p) => ({ userId: p.userId })),
+        players: game.players.map((p) => ({
+          userId: p.userId,
+          pic: p.pic,
+          name: p.name,
+          score: p.score,
+        })),
         viewersCount: game.viewers.length,
       };
     });

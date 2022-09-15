@@ -8,4 +8,6 @@ export class Client {
 
   socket: Socket;
   userId?: number;
+  pic?: string;
+  name?: string;
 }

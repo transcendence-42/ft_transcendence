@@ -1,0 +1,98 @@
+.profilAndLadder{
+    width: auto;
+    height: 40%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.profil{
+    width: 65%;
+    height: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+}
+
+.picture{
+    width: 30%;
+    height: auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    min-width: 20%;
+    object-fit: cover;
+}
+
+.picture img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 70%;
+}
+
+.status{
+    width: 20%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    margin: 1vw;
+}
+
+.infoProfil{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin: 1vw;
+    margin-left: 3vw;
+}
+
+.ladder{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    margin-right: 5vw;
+}
+
+.matchFriend{
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+}
+
+
+  .match{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.friend{
+    width: 30%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+

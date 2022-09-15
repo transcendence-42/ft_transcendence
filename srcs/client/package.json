@@ -15,11 +15,14 @@
     "dotenv": "^16.0.2",
     "konva": "^8.3.12",
     "react": "^18.2.0",
+    "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
     "react-konva": "^18.2.1",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "socket.io-client": "^4.5.1",
+    "react-use-cookie": "^1.4.0",
+    "redux-persist": "^6.0.0",
     "typescript": "^4.7.4",
     "web-vitals": "^2.1.4"
   },
@@ -50,6 +53,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "react-select-event": "^5.5.1",
+    "webpack-dev-server": "^4.11.0"
   }
 }
