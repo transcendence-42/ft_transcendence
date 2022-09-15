@@ -22,8 +22,14 @@ const Game = (props: any) => {
     WALLSIZE: 15,
     BALLSIZE: 12,
     FONTSIZE: 40,
-    BARFILL: "white",
-    BALLFILL: "white",
+    BARFILL: "#0a0629",
+    BARSHADOW: 15,
+    BARSHADOWCOLOR: '#FF6ADE',
+    BARSTROKE: "#eb89d6",
+    BALLFILL: "#0a0629",
+    BALLSHADOW: 15,
+    BALLSHADOWCOLOR: '#60c2c2',
+    BALLSTROKE: "#b4e8f1",
     WALLFILL: "white",
     BGFILL: "black",
     TEXTCOLOR: "white",
@@ -126,6 +132,9 @@ const Game = (props: any) => {
           x={player.coordinates.x}
           y={player.coordinates.y}
           fill={params.BARFILL}
+          shadowBlur={params.BARSHADOW}
+          shadowColor={params.BARSHADOWCOLOR}
+          stroke={params.BARSTROKE}
         />
       ));
     if (grid.ball)
@@ -136,6 +145,9 @@ const Game = (props: any) => {
           x={grid.ball.x}
           y={grid.ball.y}
           fill={params.BALLFILL}
+          shadowBlur={params.BALLSHADOW}
+          shadowColor={params.BALLSHADOWCOLOR}
+          stroke={params.BALLSTROKE}
         />
       );
     if (grid.walls)
