@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Login.css"
 
 function Login ()  {
@@ -9,6 +9,13 @@ function Login ()  {
       localStorage.setItem("fromAuth", JSON.stringify(true));
     //localStorage.setItem("fromAuth", JSON.stringify(true));
 	}
+  useEffect(() => {
+    const data = localStorage.getItem("fromAuth");
+    if (data)
+    {
+        window.localStorage.removeItem('fromAuth');
+    }
+  },[]);
 
 /*
 ** Here it allows us to create the data into the local storage
