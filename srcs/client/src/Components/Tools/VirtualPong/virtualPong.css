@@ -8,13 +8,10 @@
 
   
   .field {
-    align-items: center;
-    justify-content: center;
     position: relative;
-    margin-top: 4%;
-    width: 50%;
-    height: 300px;
-    margin-left: 25%;
+    height: 100%;
+    width: 100%;
+    max-width: 1000px;
     border-width: 6px;
     border-style: solid;
     filter: brightness(1.25);

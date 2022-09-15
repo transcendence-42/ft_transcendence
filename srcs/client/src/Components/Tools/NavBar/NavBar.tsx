@@ -96,15 +96,7 @@ export default function NavBar ()
     /*
     ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
-     useEffect(() => {
-        const data = localStorage.getItem("fromAuth");
-        if (data)
-        {
-            getUser();
-            setFromAuth(false) ;
-            window.localStorage.removeItem('fromAuth');
-        }
-     },[]);
+    
 
     if (contextValue.isConnected)
     {
