@@ -19,22 +19,20 @@ function App() {
   return (
     <div className="main">
       <NavBar />
-      <socketContext.Provider value={socket}>
         <Routes>
           <Route path="*" element={<Notfound />} />
           <Route index element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/chat" element={<Chat socket={socket} />} />
           <Route path="/" element={<AuthenticatedRoute pathFree />}>
             <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/chat" element={<Chat />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/mapchoice" element={<MapChoice />} />
             <Route path="/matchmaking" element={<Matchmaking />} />
           </Route>
         </Routes>
-      </socketContext.Provider>
     </div>
   );
 }

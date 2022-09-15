@@ -1,14 +1,11 @@
 export interface Message {
-  message: string;
+  content: string;
   date: number;
   id: string;
+  channel: Channel;
 }
 
 export interface Channel {
   id: string;
   name: string;
-}
-export interface Payload {
-  message: Message;
-  channel: Channel;
 }

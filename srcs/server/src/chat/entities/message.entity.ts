@@ -1,5 +1,8 @@
+import { Channel } from './channel.entity';
+
 export class Message {
-  message: string;
+  content: string;
   date: number;
   id: string;
+  channel: Channel;
 }

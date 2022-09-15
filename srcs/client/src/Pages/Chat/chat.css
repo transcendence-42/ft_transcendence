@@ -94,9 +94,26 @@
 
 .messages {
   list-style-type: none;
+  color: white;
+  font-size: 10px;
+}
+.channel {
+  color: white;
+  font-size: 10px;
 }
 .conversation {
   display: flex;
   flex-direction: column;
   align-items: left;
+  color: white;
+  font-size: 10px;
+}
+.submitBtn {
+  font-size: 10px;
+  width: 40px;
+  height: 15px;
+}
+
+.chatInputField {
+    color: black;
 }

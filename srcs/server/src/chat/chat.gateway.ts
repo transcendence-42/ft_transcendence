@@ -8,9 +8,9 @@ import {
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
-import { Message } from './entities/message.entity';
 import { ChatUser } from './chatUser.entity';
-import { Payload } from './entities';
+import { Message } from './entities';
+import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway(4444, {
   cors: {
@@ -36,26 +36,50 @@ export class ChatGateway
   }
 
   handleConnection(client: Socket, ...args: any[]) {
-    console.log(`Client ${client.id} connected to the chat websocket`);
-    const user: ChatUser = { socketId: client.id, id: client.id, role: 'user' };
-    this.chatService.allClients.push(user);
-    client.emit('updateUsers', this.chatService.allClients);
+    const userId = client.handshake.headers.cookie;
+    if (userId) {
+      this.chatService.allClients = this.chatService.allClients.map((user) => {
+        if (user.id === userId) user.socketId = client.id;
+        return user;
+      });
+      this.chatService.addUser(client, userId);
+    }
+    console.log(
+      `Client ${client.id} connected to the chat websocket`,
+      userId ? `With tid ${userId}` : `witout id`,
+    );
+    console.log(`This is the list of all users`);
+
+    this.chatService.allClients.map((user) =>
+      console.log(`This is user ${JSON.stringify(user, null, 4)}`),
+    );
+    this.chatService.server.emit(
+      'updateMessages',
+      this.chatService.allMessages,
+    );
   }
 
   handleDisconnect(client: any) {
-    this.chatService.allClients = this.chatService.allClients.filter(
-      (user) => user.socketId !== client.id,
-    );
-    console.log(`Client ${client.id} disconnected`);
+    // console.log(`Client ${client.id} disconnected`);
   }
 
   @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, payload: Payload) {
-    return this.chatService.handleMessage(client, payload);
+  handleMessage(client: Socket, message: Message) {
+    return this.chatService.handleMessage(client, message);
   }
 
   @SubscribeMessage('joinChannel')
   handleJoinChannel(client: Socket, channel: string) {
     return this.chatService.handleJoinChannel(client, channel);
+  }
+
+  @SubscribeMessage('setId')
+  handleSetId(client: Socket) {
+    return this.chatService.handleSetId(client);
+  }
+
+  @SubscribeMessage('addUser')
+  handleAddUser(client: Socket, id: string) {
+    return this.chatService.addUser(client, id);
   }
 }

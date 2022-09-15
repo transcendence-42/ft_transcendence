@@ -1,8 +1,11 @@
 import { Socket, Server } from 'socket.io';
 import { WebSocketServer } from '@nestjs/websockets';
 import { ChatUser } from './chatUser.entity';
-import { Message, Channel, Payload } from './entities';
+import { Message, Channel } from './entities';
 import { v4 as uuidv4 } from 'uuid';
+
+// To do
+// Add Dtos to payloads
 
 export class ChatService {
   constructor() {
@@ -15,20 +18,18 @@ export class ChatService {
   allClients: ChatUser[];
   allMessages: Message[];
 
-  handleMessage(client: Socket, payload: Payload) {
+  handleMessage(client: Socket, message: Message) {
     console.log(
-      `Recieved message ${JSON.stringify(
-        payload.channel,
-        null,
-        4,
-      )} from socket ${client.id}`,
+      `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
+        client.id
+      }`,
     );
-    payload.message.id = String(payload.message.date + Math.random() * 100);
-    this.allMessages.push(payload.message);
+    message.id = String(message.date + Math.random() * 100);
+    this.allMessages.push(message);
     console.log(`This is a list of all messages`);
     this.allMessages.map((msg) => console.log(msg));
     console.log(`End of all messags`);
-    client.emit('updateMessages', this.allMessages);
+    this.server.emit('updateMessages', this.allMessages);
   }
 
   handleJoinChannel(client: Socket, channelName: string) {
@@ -39,11 +40,30 @@ export class ChatService {
       id: uuidv4(),
     };
     const message: Message = {
-      message: `User ${client.id} has joined channelName`,
+      content: `User ${client.id} has joined channelName`,
       id: String(date + Math.random() * 100),
       date,
+      channel,
     };
     client.join(channelName);
-    this.server.to(channelName).emit('userJoined', { message, channel });
+    this.server.to(channelName).emit('userJoined', message);
+  }
+
+  handleSetId(client: Socket) {
+    const userId = uuidv4();
+    client.emit('setId', userId);
+  }
+
+  addUser(client: Socket, id: string) {
+    const userExists = this.allClients.filter((user) => user.id === id);
+    if (userExists.length === 0) {
+      const chatUser: ChatUser = {
+        socketId: client.id,
+        id,
+        role: 'user',
+      };
+      this.allClients.push(chatUser);
+      this.server.emit('updateUsers', this.allClients);
+    }
   }
 }
