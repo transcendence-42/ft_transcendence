@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import './App.css';
 import {Routes, Route, BrowserRouter} from 'react-router-dom';
+
 import Home from './Pages/Home/home'
 import Profile from './Pages/Profile/Profile'
 import Notfound from './Pages/NotFound/notFound';
@@ -49,18 +50,21 @@ function App() {
   // useEffect(() => {
   //   readCookie();
   // },[])
-
+  
   useEffect(() => {
-    const data = localStorage.getItem("pathIsFree");
-    console.log(data);
+    var data = localStorage.getItem("pathIsFree");
     if (data)
     {
-      contextValue.updateIsConnected(true);
+      contextValue.updateIsConnected(true); 
     }
     else
       contextValue.updateIsConnected(false);
-
   }, );
+ 
+  
+
+
+
   return (
     <Context.Provider value={contextValue}>
     <BrowserRouter>
@@ -71,7 +75,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
-            <Route  path='/'element={<AuthenticatedRoute/>}>
+            <Route  path='/'element={<AuthenticatedRoute res/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
