@@ -93,8 +93,8 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiOkResponse({
-    description: 'Updated user',
-    type: User,
+    description: 'Updated user OR update error',
+    schema: { anyOf: refs(User, BaseApiException) },
     isArray: false,
   })
   @ApiNotFoundResponse({

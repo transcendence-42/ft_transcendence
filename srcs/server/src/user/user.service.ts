@@ -15,6 +15,7 @@ import {
 } from './exceptions/';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { FriendshipService } from 'src/friendship/friendship.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 @Injectable()
 export class UserService {
@@ -97,7 +98,11 @@ export class UserService {
       });
       return result;
     } catch (e) {
-      throw new UserNotFoundException(id);
+      if (e instanceof UserNotFoundException)
+        throw new UserNotFoundException(id);
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') throw new BadRequestException();
+      }
     }
   }
 
