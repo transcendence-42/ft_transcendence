@@ -97,9 +97,12 @@
   color: white;
   font-size: 10px;
 }
-.channel {
+.channels {
   color: white;
   font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .conversation {
   display: flex;
@@ -109,11 +112,26 @@
   font-size: 10px;
 }
 .submitBtn {
-  font-size: 10px;
-  width: 40px;
+  font-size: 5px;
+  width: 20px;
   height: 15px;
 }
 
+.createChanneButton {
+  font-size: 5px;
+  width: auto;
+  height: 15px;
+}
+
+.channelButton {
+  font-size: 5px;
+  width: auto;
+  height: 15px;
+}
 .chatInputField {
-    color: black;
+  color: black;
+}
+
+.createChannel {
+  color: black;
 }

@@ -57,6 +57,7 @@ export class ChatGateway
       'updateMessages',
       this.chatService.allMessages,
     );
+    client.emit('updateChannels', this.chatService.allChannels);
   }
 
   handleDisconnect(client: any) {
@@ -81,5 +82,16 @@ export class ChatGateway
   @SubscribeMessage('addUser')
   handleAddUser(client: Socket, id: string) {
     return this.chatService.addUser(client, id);
+  }
+
+  @SubscribeMessage('getChannelsList')
+  getChannelsList(client: Socket) {
+    return this.chatService.getChannelsList(client);
+  }
+
+  @SubscribeMessage('createChannel')
+  createChannel(client: Socket, channelName: string) {
+    console.log(`User creating channel ${channelName}`);
+    return this.chatService.createChannel(client, channelName);
   }
 }

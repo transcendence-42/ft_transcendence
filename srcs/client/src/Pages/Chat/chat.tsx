@@ -1,5 +1,5 @@
 import './chat.css';
-import '../../Components/Tools/Box.css';
+// import '../../Components/Tools/Box.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { Message, Channel } from './entities';
@@ -9,6 +9,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [allMessages, setAllMessages] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [currentChannel, setCurrentChannel] = useState('lobby');
+  const [createChannelName, setCreateChannelName] = useState('');
+  const [allChannels, setAllChannels] = useState([]);
 
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
@@ -16,7 +18,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleSubmit = (e: any) => {
     if (message === '') return;
     const date = Date.now();
-    const channel: Channel = { id: '', name: currentChannel };
+    const channel: Channel = { id: '', userIdList: [], name: currentChannel };
     const messageToSend: Message = { id: '', content: message, date, channel };
     socket.emit('sendMessage', messageToSend);
     setMessage('');
@@ -25,6 +27,15 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleJoinChannel = (e: any, channel: string) => {
     socket.emit('joinChannel', channel);
     setCurrentChannel(channel);
+  };
+
+  const handleCreateChannelChange = (e: any) => {
+    setCreateChannelName(e.target.value);
+  };
+
+  const handleCreateChannelSubmit = (e: any) => {
+    if (createChannelName !== '') socket.emit('createChannel', createChannelName);
+    setCreateChannelName('');
   };
 
   useEffect(() => {
@@ -55,6 +66,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     socket.on('userJoined', (payload: Message) => {
       console.log(`Client has joinied channel! ${JSON.stringify(payload.channel, null, 4)}`);
     });
+    socket.on('updateChannels', (channels) => {
+      if (channels.length > 0) {
+        setAllChannels(channels);
+      }
+    });
     console.log(`This is the list of all users`);
     allUsers.map((user) => console.log(`This is user ${JSON.stringify(user, null, 4)}`));
   }, []);
@@ -67,30 +83,21 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           width: '20%',
           height: '80vh'
         }}>
-        <div
-          className="yellowPinkBoxChat"
-          style={{
-            width: '70%',
-            height: '7%'
-          }}>
-          <div className="yellowTextChat" style={{ fontSize: '2vw' }}>
-            Channels
-            <button
-              style={{ fontSize: '5px', width: '40px', height: '15px' }}
-              onClick={(e) => handleJoinChannel(e, '42AI')}>
-              42Ai
+        <input
+          className="createChannel"
+          onChange={handleCreateChannelChange}
+          value={createChannelName}
+        />
+        <button className="createChanneButton" onClick={handleCreateChannelSubmit}>
+          Create Channel
+        </button>
+        <br />
+        <div className="channels">
+          {allChannels.map((channel: Channel) => (
+            <button className="channelButton" onClick={(e) => handleJoinChannel(e, channel.name)}>
+              {channel.name}
             </button>
-            <button
-              style={{ fontSize: '5px', width: '40px', height: '15px' }}
-              onClick={(e) => handleJoinChannel(e, '42Electronics')}>
-              42Electronics
-            </button>
-            <button
-              style={{ fontSize: '5px', width: '40px', height: '15px' }}
-              onClick={(e) => handleJoinChannel(e, '42Entrepreneurs')}>
-              42Entrepreneurs
-            </button>
-          </div>
+          ))}
         </div>
       </div>
       <div
