@@ -8,5 +8,7 @@ export interface Message {
 export interface Channel {
   id: string;
   name: string;
+  type: string;
+  password?: string;
   userIdList: string[];
 }

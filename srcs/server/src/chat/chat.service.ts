@@ -57,12 +57,12 @@ export class ChatService {
   handleJoinChannel(client: Socket, channelName: string) {
     console.log(`Client ${client.id} has joined channelName ${channelName}`);
     const date = Date.now();
-    const channel: Channel = {
-      name: channelName,
-      id: uuidv4(),
-      usersIdList: [],
-      type: 'public',
-    };
+    const channel: Channel = this.allChannels.find(
+      (channel) => channelName === channel.name,
+    );
+    console.log(
+      `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
+    );
     const message: MessageDto = {
       content: `User ${client.id} has joined channelName`,
       id: String(date + Math.random() * 100),
@@ -70,6 +70,7 @@ export class ChatService {
       channel,
     };
     client.join(channelName);
+    client.emit(Events.joinChannelAnwser, { msg: 'changed', channel });
     this.server.to(channelName).emit(Events.userJoined, message);
   }
 
@@ -110,12 +111,14 @@ export class ChatService {
     }
   }
 
+  // trying to emit private channels only to the people who are inside it
+  // and protected to everyone
+
   private _sendChannels(client: Socket, channel: Channel) {
-    if (
-      channel.type === ChannelTypes.private ||
-      channel.type === ChannelTypes.protected
-    ) {
-      client.emit(Events.updateChannels, this.allChannels);
+    if (channel.type === ChannelTypes.private) {
+      this.server
+        .to(channel.name)
+        .emit(Events.updateChannels, this.allChannels);
     } else {
       this.server.emit(Events.updateChannels, this.allChannels);
     }

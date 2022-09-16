@@ -8,4 +8,5 @@ export const Events = Object.freeze({
   updateUsers: 'updateUsers',
   userJoined: 'userJoined',
   setId: 'setId',
+  joinChannelAnwser: 'joinChannelAnswer'
 });
