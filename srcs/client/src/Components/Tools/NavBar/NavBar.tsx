@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./NavBar.css"
 import ProfilNavBar from "../Button/ProfilNavBar";
+import PhotoProfil from '../../../Pages/Profile/PhotoProfil'
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
@@ -170,7 +171,7 @@ export default function NavBar ()
                         <button onClick={deco} className="playFlickering">Logout</button>
                     </div>
                     <div className="buttonInNavBar">
-                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+                        <Link  to="/profile" state={{userID}}> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"}  width={"5vw"} height={"5vw"}/> </Link>
                     </div>
                 </div>
           </div>

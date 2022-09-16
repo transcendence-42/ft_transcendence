@@ -14,7 +14,8 @@ export default function FriendList(props : any) {
 		 width: "100%",
 		 height: "100%",
 		}}>
-			<div className="yellowText" style={{fontSize: "3vw"}}> Friend </div>
+			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
+				{ props.friends ?
 				<table className="scrollBox" style={{alignItems: "flex-start"}} >
 					<tbody>
 						{props.friendList.map((friends: any, index: number) =>(
@@ -29,22 +30,10 @@ export default function FriendList(props : any) {
 						</tr>
 						))}
 					</tbody>
-				 </table>
+				</table>
+					:
+					<div className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</div>
+					}
 		</div>
  		);
 }
-
-//For loop in jsx
-
-{/* <tbody>
-    for (var i=0; i < objects.length; i++) {
-        <ObjectRow obj={objects[i]} key={i}>
-    }
-</tbody> */}
-
-//With map in component
-{/* <tbody>
-    {objects.map(function(object, i){
-        return <ObjectRow obj={object} key={i} />;
-    })}
-</tbody> */}
