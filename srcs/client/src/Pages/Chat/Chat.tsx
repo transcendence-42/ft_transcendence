@@ -1,16 +1,18 @@
 import './chat.css';
-// import '../../Components/Tools/Box.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { Message, Channel } from './entities';
+import { Events } from './events';
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
-  const [message, setMessage] = useState('');
   const [allMessages, setAllMessages] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
-  const [currentChannel, setCurrentChannel] = useState('lobby');
-  const [createChannelName, setCreateChannelName] = useState('');
   const [allChannels, setAllChannels] = useState([]);
+  const [currentChannel, setCurrentChannel] = useState('lobby');
+  const [message, setMessage] = useState('');
+  const [createChannelName, setCreateChannelName] = useState('');
+  const [createChannelPassword, setChannelPassword] = useState('');
+  const [createChannelType, setChannelType] = useState('public');
 
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
@@ -20,21 +22,29 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     const date = Date.now();
     const channel: Channel = { id: '', userIdList: [], name: currentChannel };
     const messageToSend: Message = { id: '', content: message, date, channel };
-    socket.emit('sendMessage', messageToSend);
+    socket.emit(Events.sendMessage, messageToSend);
     setMessage('');
   };
 
   const handleJoinChannel = (e: any, channel: string) => {
-    socket.emit('joinChannel', channel);
+    socket.emit(Events.joinChannel, channel);
     setCurrentChannel(channel);
   };
 
-  const handleCreateChannelChange = (e: any) => {
-    setCreateChannelName(e.target.value);
-  };
-
-  const handleCreateChannelSubmit = (e: any) => {
-    if (createChannelName !== '') socket.emit('createChannel', createChannelName);
+  const handleCreateChannel = (e: any) => {
+    const payload = {
+      name: createChannelName,
+      type: createChannelType,
+      password: createChannelPassword
+    };
+    console.log(`Handle create channel ${JSON.stringify(payload, null, 4)}`);
+    e.preventDefault();
+    if (
+      createChannelName === '' ||
+      (createChannelType === 'protected' && createChannelPassword === '')
+    )
+      return;
+    socket.emit(Events.createChannel, payload);
     setCreateChannelName('');
   };
 
@@ -54,19 +64,18 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       }
     });
 
-    socket.on('updateMessages', (messages) => {
+    socket.on(Events.updateMessages, (messages) => {
       if (messages.length !== 0) {
         setAllMessages(messages);
-        window.sessionStorage.setItem('allMessages', JSON.stringify(messages));
       }
     });
-    socket.on('updateUsers', (allUsers) => {
+    socket.on(Events.updateUsers, (allUsers) => {
       setAllUsers(allUsers);
     });
-    socket.on('userJoined', (payload: Message) => {
+    socket.on(Events.updateUsers, (payload: Message) => {
       console.log(`Client has joinied channel! ${JSON.stringify(payload.channel, null, 4)}`);
     });
-    socket.on('updateChannels', (channels) => {
+    socket.on(Events.updateChannels, (channels) => {
       if (channels.length > 0) {
         setAllChannels(channels);
       }
@@ -83,18 +92,33 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           width: '20%',
           height: '80vh'
         }}>
-        <input
-          className="createChannel"
-          onChange={handleCreateChannelChange}
-          value={createChannelName}
-        />
-        <button className="createChanneButton" onClick={handleCreateChannelSubmit}>
-          Create Channel
-        </button>
+        <form onSubmit={handleCreateChannel}>
+          <input
+            className="createChannel"
+            onChange={(e) => setCreateChannelName(e.target.value)}
+            value={createChannelName}
+          />
+          <select onChange={(e) => setChannelType(e.target.value)}>
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+            <option value="protected">Protected</option>
+          </select>
+          <input
+            className="createChannelPassword"
+            onChange={(e) => setChannelPassword(e.target.value)}
+            value={createChannelPassword}
+          />
+          <button className="createChanneButton" type="submit">
+            Create Channel
+          </button>
+        </form>
         <br />
         <div className="channels">
           {allChannels.map((channel: Channel) => (
-            <button className="channelButton" onClick={(e) => handleJoinChannel(e, channel.name)}>
+            <button
+              key={channel.id}
+              className="channelButton"
+              onClick={(e) => handleJoinChannel(e, channel.name)}>
               {channel.name}
             </button>
           ))}
@@ -113,26 +137,15 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         </div>
         <div className="conversation">
           <ul className="messages">
-            {/* {JSON.parse(window.sessionStorage.getItem('allMessages') || '[]').length !== 0  */}
-            {allMessages.length > 0 ? (
-              <>
-                {/* {JSON.parse(window.sessionStorage.getItem('allMessages') || '[]').map( */}
-                {allMessages.map((message: Message) =>
-                  message.channel.name === currentChannel ? (
-                    <li key={message.id}>{message.content}</li>
-                  ) : (
-                    ''
-                  )
-                )}
-              </>
-            ) : (
-              <>
-                <li>{'Des messages'}</li>
-                <li>{'Des messages'}</li>
-                <li>{'Des messages'}</li>
-                <li>{'Des messages'}</li>
-              </>
-            )}
+            <>
+              {allMessages?.map((message: Message) =>
+                message.channel.name === currentChannel ? (
+                  <li key={message.id}>{message.content}</li>
+                ) : (
+                  ''
+                )
+              )}
+            </>
           </ul>
         </div>
         <div className="chatInput">

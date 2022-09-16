@@ -9,8 +9,10 @@ import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
 import { ChatUser } from './chatUser.entity';
-import { Message } from './entities';
+import { MessageDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
+import { Events } from './entities/Events';
+import { CreateChannelDto } from './dto/createChannel.dto';
 
 @WebSocketGateway(4444, {
   cors: {
@@ -54,32 +56,32 @@ export class ChatGateway
       console.log(`This is user ${JSON.stringify(user, null, 4)}`),
     );
     this.chatService.server.emit(
-      'updateMessages',
+      Events.updateMessages,
       this.chatService.allMessages,
     );
-    client.emit('updateChannels', this.chatService.allChannels);
+    client.emit(Events.updateChannels, this.chatService.allChannels);
   }
 
   handleDisconnect(client: any) {
     // console.log(`Client ${client.id} disconnected`);
   }
 
-  @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, message: Message) {
+  @SubscribeMessage(Events.sendMessage)
+  handleMessage(client: Socket, message: MessageDto) {
     return this.chatService.handleMessage(client, message);
   }
 
-  @SubscribeMessage('joinChannel')
-  handleJoinChannel(client: Socket, channel: string) {
-    return this.chatService.handleJoinChannel(client, channel);
+  @SubscribeMessage(Events.joinChannel)
+  handleJoinChannel(client: Socket, channelName: string) {
+    return this.chatService.handleJoinChannel(client, channelName);
   }
 
-  @SubscribeMessage('setId')
+  @SubscribeMessage(Events.setId)
   handleSetId(client: Socket) {
     return this.chatService.handleSetId(client);
   }
 
-  @SubscribeMessage('addUser')
+  @SubscribeMessage(Events.addUser)
   handleAddUser(client: Socket, id: string) {
     return this.chatService.addUser(client, id);
   }
@@ -89,9 +91,9 @@ export class ChatGateway
   // return this.chatService.getChannelsList(client);
   // }
 
-  @SubscribeMessage('createChannel')
-  createChannel(client: Socket, channelName: string) {
-    console.log(`User creating channel ${channelName}`);
-    return this.chatService.createChannel(client, channelName);
+  @SubscribeMessage(Events.createChannel)
+  createChannel(client: Socket, channel: CreateChannelDto) {
+    console.log(`User creating channel ${JSON.stringify(channel, null, 4)}`);
+    return this.chatService.createChannel(client, channel);
   }
 }

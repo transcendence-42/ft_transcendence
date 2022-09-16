@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: server
     restart: always
-    ports: ['${SERVER_PORT}:4200', '${CHAT_PORT}:${CHAT_PORT}']
+    ports: ['${SERVER_PORT}:${SERVER_PORT}', '${CHAT_WS_PORT}:${CHAT_WS_PORT}']
     volumes:
       - ./server/:/app
     depends_on:
