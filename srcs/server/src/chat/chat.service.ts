@@ -1,10 +1,9 @@
 import { Socket, Server } from 'socket.io';
 import { WebSocketServer } from '@nestjs/websockets';
-import { ChatUser } from './chatUser.entity';
-import { MessageDto, ChannelDto } from './dto';
+import { MessageDto, CreateChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Events } from './entities/Events';
-import { CreateChannelDto } from './dto';
+import { Channel, ChannelTypes, ChatUser } from './entities';
 
 // To do
 // Add Dtos to payloads
@@ -13,15 +12,25 @@ import { CreateChannelDto } from './dto';
  * Public: anyone can join
  * Private: no one can join (only invited people)
  * Protected: by a password
-*/
+ */
 
 export class ChatService {
   constructor() {
     this.allClients = [];
     this.allMessages = [];
     this.allChannels = [
-      { name: '42Ai', id: '09423423423', usersIdList: ['243242'], type: "public" },
-      { name: 'electronics', id: '0923423', usersIdList: ['2242'], type: "public" },
+      {
+        name: '42Ai',
+        id: '09423423423',
+        usersIdList: ['243242'],
+        type: 'public',
+      },
+      {
+        name: 'electronics',
+        id: '0923423',
+        usersIdList: ['2242'],
+        type: 'public',
+      },
     ];
   }
   @WebSocketServer()
@@ -29,7 +38,7 @@ export class ChatService {
 
   allClients: ChatUser[];
   allMessages: MessageDto[];
-  allChannels: ChannelDto[];
+  allChannels: Channel[];
 
   handleMessage(client: Socket, message: MessageDto) {
     console.log(
@@ -48,11 +57,11 @@ export class ChatService {
   handleJoinChannel(client: Socket, channelName: string) {
     console.log(`Client ${client.id} has joined channelName ${channelName}`);
     const date = Date.now();
-    const channel: ChannelDto = {
+    const channel: Channel = {
       name: channelName,
       id: uuidv4(),
       usersIdList: [],
-      type: "public"
+      type: 'public',
     };
     const message: MessageDto = {
       content: `User ${client.id} has joined channelName`,
@@ -85,11 +94,11 @@ export class ChatService {
   createChannel(client: Socket, channelDto: CreateChannelDto) {
     const isChannelNameTaken = this.allChannels.filter(
       (channel) => channelDto.name === channel.name,
-    );
-    if (isChannelNameTaken.length > 0) {
+    )[0];
+    if (isChannelNameTaken) {
       client.emit(Events.createChannel, {});
     } else {
-      const newChannel: ChannelDto = {
+      const newChannel: Channel = {
         id: uuidv4(),
         name: channelDto.name,
         usersIdList: [client.handshake.headers.cookie],
@@ -97,7 +106,18 @@ export class ChatService {
         password: channelDto.password,
       };
       this.allChannels.push(newChannel);
+      this._sendChannels(client, newChannel);
+    }
+  }
+
+  private _sendChannels(client: Socket, channel: Channel) {
+    if (
+      channel.type === ChannelTypes.private ||
+      channel.type === ChannelTypes.protected
+    ) {
       client.emit(Events.updateChannels, this.allChannels);
+    } else {
+      this.server.emit(Events.updateChannels, this.allChannels);
     }
   }
 }

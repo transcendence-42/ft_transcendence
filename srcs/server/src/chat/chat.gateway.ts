@@ -8,11 +8,8 @@ import {
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
-import { ChatUser } from './chatUser.entity';
-import { MessageDto } from './dto';
-import { v4 as uuidv4 } from 'uuid';
+import { MessageDto, CreateChannelDto } from './dto';
 import { Events } from './entities/Events';
-import { CreateChannelDto } from './dto/createChannel.dto';
 
 @WebSocketGateway(4444, {
   cors: {
