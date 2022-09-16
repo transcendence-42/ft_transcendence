@@ -62,19 +62,18 @@ export default function Profile () {
             <div className="profilAndLadder" data-testid="tracker">
                 <div className="profil">
                     <div className="picture">
-                        <PhotoProfil url={user.profilePicture}/>
+                        <PhotoProfil url={user.profilePicture} width={"10vw"} height={"10vw"}/>
                     </div>
                     <div className="status">
                         <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
                         <br/>
-                        <OnlineOffline status={user.currentStatus}/>
+                        <OnlineOffline status={user.currentStatus} size={"1.5vw"}/>
                         {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
-                            {/* We need to create button / Component with click */}
-                            <ChangePseudo id={userID}/>
-                            <ChangePicture id={userID}/>
-                            <DoubleAuth/>
+                        <ChangePseudo id={userID}/>
+                        <ChangePicture id={userID}/>
+                        <DoubleAuth/>
                     </div>
                     </div>
                     <div className="ladder">

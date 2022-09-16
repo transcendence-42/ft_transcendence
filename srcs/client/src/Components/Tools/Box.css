@@ -75,10 +75,17 @@
 				0px 0px 25.6977px #CA18A3;
 	border-radius: 50%;
 	margin: 2px;
-	width: 10vw;
-	height: 10vw;
 }
 
+.profilBox img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    width: 70%;
+}
 
 
 .yellowPinkBoxLadder
@@ -129,6 +136,30 @@
 	min-height : 20vh;
 }
 
+.blueBoxFriend
+{
+	box-sizing: border-box;
+	display: flex;
+	justify-content: flex-start !important;
+	align-items: center;
+	flex-direction: column;
+
+	border: 3px solid #80FFFF;
+	box-shadow: 0px 4px 15px #80FFFF,
+				4px 0px 10px rgba(30, 166, 166, 0.95),
+				0px 0px 10px rgba(255, 255, 255, 0.521);
+	border-radius: 3vw;
+	margin: 1vw;
+	padding: 0.9vw;
+	max-height:40vh;
+	min-height : 20vh;
+}
+
+table.blueBoxFriend
+{
+	margin: 1vw;
+}
+
 .scrollBox
 {
 	box-sizing: border-box;
@@ -137,6 +168,7 @@
 	align-items: center;
 	flex-direction: column;
 	margin: 1vh;
+	width: 100%;
 
 	max-height:35vh;
 	overflow-y: scroll;

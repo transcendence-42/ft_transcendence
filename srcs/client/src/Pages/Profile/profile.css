@@ -27,15 +27,7 @@
     object-fit: cover;
 }
 
-.picture img {
-    flex-shrink: 0;
-    min-width: 100%;
-    min-height: 100%;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    width: 70%;
-}
+
 
 .status{
     width: auto;
@@ -89,7 +81,7 @@
 }
 
 .friend{
-    width: 30%;
+    width: 42%;
     height: 100%;
     display: flex;
     justify-content: space-between;
