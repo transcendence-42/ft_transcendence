@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class MatchWithOnePlayerException extends HttpException {
+export class NotEnoughPlayersException extends HttpException {
   constructor() {
     super(
-      `You can only create a match with two different players`,
+      `You need at least 2 players to create a match`,
       HttpStatus.BAD_REQUEST,
     );
   }
