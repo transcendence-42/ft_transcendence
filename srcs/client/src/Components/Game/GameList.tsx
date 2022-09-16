@@ -16,7 +16,7 @@ const GameList = (props: any) => {
                   {game.players[0].name}
                 </td>
                 <td className="align-middle">
-                  <img src={game.players[0].pic || defaultPic} width={50} height={40} className="img-circle" alt="p1"/>
+                  <img src={game.players[0].pic || defaultPic} width={50} height={40} className="rounded-circle" alt="p1"/>
                 </td>
               <td className="align-middle text-blue fs-4 text-end">
                   {game.players[0].score || 0}
@@ -27,7 +27,7 @@ const GameList = (props: any) => {
                 {(game.players[1] && game.players[1].score) || 0}
               </td>
               <td className="align-middle">
-                <img src={(game.players[1] && game.players[1].pic) || defaultPic} width={50} height={40} className="img-circle" alt="p2"/>
+                <img src={(game.players[1] && game.players[1].pic) || defaultPic} width={50} height={40} className="rounded-circle" alt="p2"/>
               </td>
               <td className="align-middle text-start">
                 {(game.players[1] && game.players[1].name) || 

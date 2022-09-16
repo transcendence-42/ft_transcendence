@@ -191,7 +191,7 @@ const GameLobby = () => {
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
           <button type="button" className="btn btn-blue text-blue me-3" onClick={handleShowMapSelect}>
-            <img src='/edit.jpg' alt='edit' width={20} height={20} />
+            <img src='/edit.jpg' alt='edit' className="rounded-circle" width={25} height={25} />
           </button>
           {game && game.action === Action.GO_LOBBY && (
             <button type="button" className="btn btn-blue text-blue me-3" onClick={handleNewGame}>
