@@ -259,8 +259,9 @@ export class GameService {
   }
 
   /** Find all created games */
-  findAll(): object {
-    return this._createGameList();
+  findAll(client: Socket) {
+    const gameList = this._createGameList();
+    client.emit('gameList', gameList);
   }
 
   /** one viewer leave the game */
@@ -438,6 +439,7 @@ export class GameService {
         ? { ...player, score: ++player.score, updating: true }
         : player,
     );
+    this.server.to(Params.LOBBY).emit('gameList', this._createGameList());
   }
 
   /** Open scores for update */

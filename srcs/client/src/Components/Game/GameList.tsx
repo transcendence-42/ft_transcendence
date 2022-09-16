@@ -1,5 +1,3 @@
-import "../../Components/Tools/Box.css"
-import "../../Components/Tools/Text.css"
 import './Game.css'
 
 const GameList = (props: any) => {

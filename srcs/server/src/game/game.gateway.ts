@@ -50,8 +50,8 @@ export class GameGateway
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
-  findAll(): object {
-    return this.gameService.findAll();
+  findAll(@ConnectedSocket() client: Socket) {
+    this.gameService.findAll(client);
   }
 
   /** Update game grid by movement */
