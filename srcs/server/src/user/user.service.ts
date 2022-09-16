@@ -39,12 +39,6 @@ export class UserService {
     players: true,
   };
 
-  readonly userStatus = Object.freeze({
-    AWAY: 0,
-    HERE: 1,
-    PLAYING: 2,
-  });
-
   /** Create a new user */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const maybeUser = await this.prisma.user.findUnique({
