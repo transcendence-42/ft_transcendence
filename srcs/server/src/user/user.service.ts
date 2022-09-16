@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Credentials, Friendship, Rating, User } from '@prisma/client';
+import { Credentials, Friendship, Match, Rating, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -35,11 +35,9 @@ export class UserService {
     achievements: true,
   };
 
-  readonly userStatus = Object.freeze({
-    AWAY: 0,
-    HERE: 1,
-    PLAYING: 2,
-  });
+  readonly includedMatchRelations: object = {
+    players: true,
+  };
 
   /** Create a new user */
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -303,6 +301,34 @@ export class UserService {
       orderBy: {
         date: 'desc',
       },
+    });
+    return result;
+  }
+
+  // MATCH OPERATIONS ----------------------------------------------------------
+  /** Find all user matches through history */
+  async findUserMatches(
+    id: number,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<Match[]> {
+    // check if user exists
+    const isUser: User | null = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (isUser == null) throw new UserNotFoundException(id);
+    // query matches
+    const { limit, offset } = paginationQuery;
+    const pagination = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+    };
+    const result: Match[] = await this.prisma.match.findMany({
+      ...pagination,
+      where: { players: { some: { playerId: id } } },
+      orderBy: {
+        date: 'desc',
+      },
+      include: this.includedMatchRelations,
     });
     return result;
   }
