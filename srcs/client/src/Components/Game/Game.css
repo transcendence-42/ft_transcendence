@@ -89,3 +89,8 @@
 .bg-dark {
   background-color: #0a0629;
 }
+
+/* Canvas */
+.konvajs-content {
+  margin: auto;
+}

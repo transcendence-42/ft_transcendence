@@ -5,7 +5,7 @@ import Game from "./Game";
 import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
 import './Game.css'
-import Modal from "./Modal";
+import GameModal from "./GameModal";
 
 const GameLobby = () => {
   // Enums
@@ -29,6 +29,12 @@ const GameLobby = () => {
   const [game, setGame] = useState({ action: Action.GO_LOBBY, id: "lobby" });
   const [message, setMessage] = useState({} as any);
   const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
+  // Modal state
+  const [show, setShow] = useState(false);
+
+  // Modal event handler
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   // Socket events handlers
   const handleConnect = useCallback(() => {
@@ -90,12 +96,8 @@ const GameLobby = () => {
   };
 
   const handleBackToLobby = () => {
-    // hide modal
-    const modal = document.getElementById('gameModal');
-    modal?.classList.remove('show')
-    modal?.setAttribute('aria-hidden', 'true');
-    const backdrop = document.getElementsByClassName('modal-backdrop');
-    document.body.removeChild(backdrop[0]);
+    // Close modal
+    handleClose();
     // Viewer : remove the viewer and change its room in the server
     if (game.action === Action.VIEW_GAME) {
       socket.emit("viewerLeaves", { id: game.id });
@@ -109,6 +111,7 @@ const GameLobby = () => {
   };
   
   useEffect(() => {
+    // Socket listeners
     socket.on("connect", handleConnect);
     socket.on("gameList", handleGameList);
     socket.on("reconnect", handleReconnect);
@@ -131,7 +134,7 @@ const GameLobby = () => {
   // Render
   return (
     <>
-     <Modal handleBackToLobby={handleBackToLobby} />
+     <GameModal handleBackToLobby={handleBackToLobby} show={show} handleClose={handleClose} handleShow={handleShow} />
       <div id="actions" className="row mb-4">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
@@ -144,7 +147,7 @@ const GameLobby = () => {
               Go back to lobby
             </button>}
           {game && game.action > Action.VIEW_GAME &&
-            <button className="btn btn-blue text-blue" data-bs-toggle="modal" data-bs-target="#gameModal">
+            <button className="btn btn-blue text-blue" onClick={handleShow}>
               Go back to lobby
             </button>}
           {matchMaking === MatchMaking.NOT_IN_QUEUE ? (
@@ -176,7 +179,7 @@ const GameLobby = () => {
             </div>
           )}
           {game && game.action > Action.GO_LOBBY && (
-            <div className="col-xs-6 col-md-6">
+            <div id="stage" className="col-xs-6 col-md-6">
               <Game
                 socket={socket}
                 id={game.id}

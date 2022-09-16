@@ -14,7 +14,7 @@ const GameList = (props: any) => {
             <tr key={index} className="text-pink border-blue">
               {game.players[0] &&
               <>
-                <td className="align-middle">
+                <td className="align-middle text-right">
                   {game.players[0].name}
                 </td>
                 <td className="align-middle">

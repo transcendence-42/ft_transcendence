@@ -15,25 +15,13 @@ const Game = (props: any) => {
   }
 
   const params = Object.freeze({
-    CANVASW: 700,
-    CANVASH: 600,
-    BARWIDTH: 12,
-    BARHEIGHT: 54,
-    WALLSIZE: 15,
-    BALLSIZE: 12,
-    FONTSIZE: 40,
-    BARFILL: "#0a0629",
-    BARSHADOW: 15,
-    BARSHADOWCOLOR: '#FF6ADE',
-    BARSTROKE: "#eb89d6",
-    BALLFILL: "#0a0629",
-    BALLSHADOW: 15,
-    BALLSHADOWCOLOR: '#60c2c2',
-    BALLSTROKE: "#b4e8f1",
-    WALLFILL: "white",
-    BGFILL: "black",
-    TEXTCOLOR: "white",
-    MESSAGECOLOR: "yellow",
+    canvas: { fill: "black", size : { w:700, h: 600 }},
+    paddle: { size: { w: 12, h: 54 }, fill: "#0a0629", stroke: "#eb89d6", shadow: 15, shadowColor: "#FF6ADE" },
+    ball: { size: 12, fill: "#0a0629", stroke: "#b4e8f1", shadow: 15, shadowColor: "#60c2c2" },
+    wall: { size: 15, fill: "#b4e8f1", stroke: "#b4e8f1", shadow: 15, shadowColor: "#60c2c2" },
+    text: { size: 40, fill: "#eb89d6", stroke: "#eb89d6", shadow: 15, shadowColor: "#FF6ADE" },
+    altText: { size: 40, fill: "#b4e8f1", stroke: "#eb89d6", shadow: 20, shadowColor: "#60c2c2" },
+    score: { size: 70, style: "bold", fill: "#0a0629", stroke: "#eb89d6", shadow: 20, shadowColor: "#FF6ADE" }
   });
 
   // States
@@ -113,12 +101,12 @@ const Game = (props: any) => {
       <Text
         key={index}
         text={player.score.toString()}
-        fontSize={70}
+        fontSize={params.score.size}
         align={index ? "right" : "left"}
-        fill={params.TEXTCOLOR}
-        x={player.side ? params.CANVASW / 2 + 20 : params.CANVASW / 2 - 60}
+        fill={params.text.fill}
+        x={player.side ? params.canvas.size.w / 2 + 20 : params.canvas.size.w / 2 - 60}
         y={30}
-        fontStyle="bold"
+        fontStyle={params.score.style}
       />
     ));
   }
@@ -127,27 +115,27 @@ const Game = (props: any) => {
       playersRect = grid.players.map((player: any, index: number) => (
         <Rect
           key={index}
-          width={params.BARWIDTH}
-          height={params.BARHEIGHT}
+          width={params.paddle.size.w}
+          height={params.paddle.size.h}
           x={player.coordinates.x}
           y={player.coordinates.y}
-          fill={params.BARFILL}
-          shadowBlur={params.BARSHADOW}
-          shadowColor={params.BARSHADOWCOLOR}
-          stroke={params.BARSTROKE}
+          fill={params.paddle.fill}
+          shadowBlur={params.paddle.shadow}
+          shadowColor={params.paddle.shadowColor}
+          stroke={params.paddle.stroke}
         />
       ));
     if (grid.ball)
       gameBall = (
         <Rect
-          width={params.BALLSIZE}
-          height={params.BALLSIZE}
+          width={params.ball.size}
+          height={params.ball.size}
           x={grid.ball.x}
           y={grid.ball.y}
-          fill={params.BALLFILL}
-          shadowBlur={params.BALLSHADOW}
-          shadowColor={params.BALLSHADOWCOLOR}
-          stroke={params.BALLSTROKE}
+          fill={params.ball.fill}
+          shadowBlur={params.ball.shadow}
+          shadowColor={params.ball.shadowColor}
+          stroke={params.ball.stroke}
         />
       );
     if (grid.walls)
@@ -156,11 +144,13 @@ const Game = (props: any) => {
           wall && (
             <Rect
               key={index}
-              width={params.CANVASW}
-              height={params.WALLSIZE}
+              width={params.canvas.size.w}
+              height={params.wall.size}
               x={wall.coordinates.x}
               y={wall.coordinates.y}
-              fill={params.WALLFILL}
+              fill={params.wall.fill}
+              shadowBlur={params.wall.shadow}
+              shadowColor={params.wall.shadowColor}
             />
           )
       );
@@ -172,41 +162,42 @@ const Game = (props: any) => {
     gameMessage = (
       <Text
         text={message}
-        fontSize={params.FONTSIZE}
+        fontSize={params.altText.size}
         align="center"
-        fill={params.MESSAGECOLOR}
-        width={params.CANVASW}
-        y={params.CANVASW / 2 - 2 * params.FONTSIZE}
+        fill={params.altText.fill}
+        width={params.canvas.size.w}
+        y={params.canvas.size.w / 2 - 2 * params.canvas.size.w}
         fontStyle="bold"
+        shadowBlur={params.altText.shadow}
+        shadowColor={params.altText.shadowColor}
       />
     );
   }
 
   return (
-    <>
-      <Stage width={params.CANVASW} height={params.CANVASH}>
-        <Layer name="background">
-          <Rect
-            width={params.CANVASW}
-            height={params.CANVASH}
-            fill={params.BGFILL} />
-          <Line
-            name="let"
-            points={[params.CANVASW / 2, 0, params.CANVASW / 2, params.CANVASH]}
-            stroke={params.BALLFILL}
-            strokeWidth={10}
-            dash={[20, 10]}
-          ></Line>
-          {playersScores}
-        </Layer>
-        <Layer>
-          {wallsRect}
-          {playersRect}
-          {gameBall}
-        </Layer>
-        <Layer>{gameMessage}</Layer>
-      </Stage>
-    </>
+    <Stage width={params.canvas.size.w} height={params.canvas.size.h} container="stage">
+      <Layer name="background">
+        <Rect
+          width={params.canvas.size.w}
+          height={params.canvas.size.h}
+          fill={params.canvas.fill} />
+        <Line
+          name="let"
+          points={[params.canvas.size.w / 2, 0, params.canvas.size.w / 2, params.canvas.size.h]}
+          stroke={params.wall.stroke}
+          fill={params.wall.fill}
+          strokeWidth={10}
+          dash={[20, 10]}
+        ></Line>
+        {playersScores}
+      </Layer>
+      <Layer>
+        {wallsRect}
+        {playersRect}
+        {gameBall}
+      </Layer>
+      <Layer>{gameMessage}</Layer>
+    </Stage>
   );
 };
 
