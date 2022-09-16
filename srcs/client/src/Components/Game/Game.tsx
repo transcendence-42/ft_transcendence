@@ -10,42 +10,14 @@ const Game = (props: any) => {
 
   const enum Motive {
     WIN = 0,
+    LOSE,
     ABANDON,
     CANCEL
   }
 
-  const params = Object.freeze({
-    canvas: { fill: '#05021E', size: { w: 702, h: 600 } },
-    paddle: {
-      size: { w: 12, h: 54 },
-      fill: '#eb89d6',
-      stroke: '#eb89d6',
-      shadow: 15,
-      shadowColor: '#FF6ADE'
-    },
-    ball: { size: 12, fill: '#b4e8f1', stroke: '#b4e8f1', shadow: 15, shadowColor: '#60c2c2' },
-    wall: { size: 15, fill: '#b4e8f1', stroke: '#b4e8f1', shadow: 15, shadowColor: '#60c2c2' },
-    text: { size: 40, fill: '#eb89d6', stroke: '#eb89d6', shadow: 15, shadowColor: '#FF6ADE' },
-    altText: {
-      size: 40,
-      style: 'bold',
-      fill: '#b4e8f1',
-      stroke: '#eb89d6',
-      shadow: 20,
-      shadowColor: '#60c2c2'
-    },
-    score: {
-      size: 70,
-      style: 'bold',
-      fill: '#0a0629',
-      stroke: '#eb89d6',
-      shadow: 20,
-      shadowColor: '#FF80F2'
-    }
-  });
-
-  // States
+  const params = props.map;
   const socket = props.socket;
+  // States
   const [grid, setGrid] = useState({} as any);
   const [scores, setScores] = useState([]);
   const [message, setMessage] = useState('');
@@ -77,17 +49,22 @@ const Game = (props: any) => {
   }, []);
 
   const handleScoresUpdate = useCallback((scoreUpdate: any) => {
+      // if one player only, set message
+      if (scoreUpdate.length === 1)
+        setMessage('Waiting for an opponent ...')
+      else
+        setMessage('');
     setScores(scoreUpdate);
   }, []);
 
   const handleGameEnd = useCallback(
     (motive: number) => {
       if (motive === Motive.WIN) 
-        setMessage('The game is over. Moving back to lobby ...');
+        setMessage('The game is over. Moving back to lobby');
       if (motive === Motive.ABANDON) 
-        setMessage('One player abandoned. Moving back to lobby ...');
+        setMessage('One player abandoned. Moving back to lobby');
       if (motive === Motive.CANCEL)
-        setMessage('Player canceled the game. Moving back to lobby ...');
+        setMessage('Player canceled the game. Moving back to lobby');
       setTimeout(() => {
         props.backToLobby({ id: 'lobby', action: props.actionVal.GO_LOBBY });
       }, 4000);
@@ -143,7 +120,6 @@ const Game = (props: any) => {
           fill={params.paddle.fill}
           shadowBlur={params.paddle.shadow}
           shadowColor={params.paddle.shadowColor}
-          stroke={params.paddle.stroke}
         />
       ));
     if (grid.ball)
@@ -156,7 +132,6 @@ const Game = (props: any) => {
           fill={params.ball.fill}
           shadowBlur={params.ball.shadow}
           shadowColor={params.ball.shadowColor}
-          stroke={params.ball.stroke}
         />
       );
     if (grid.walls)
@@ -168,7 +143,7 @@ const Game = (props: any) => {
               width={params.canvas.size.w}
               height={params.wall.size}
               x={wall.coordinates.x}
-              y={wall.coordinates.y}
+              y={index ? wall.coordinates.y : wall.coordinates.y + (15 - params.wall.size)}
               fill={params.wall.fill}
               shadowBlur={params.wall.shadow}
               shadowColor={params.wall.shadowColor}
@@ -183,19 +158,20 @@ const Game = (props: any) => {
     gameMessage = (
       <Layer>
         <Rect
-          align="center"
-          width={params.canvas.size.w}
           fill={params.canvas.fill}
-          height={params.canvas.size.h / 5}
-          y={params.canvas.size.w / 2 - params.canvas.size.h / 3 / 2}
+          x={params.paddle.size.w + 10}
+          y={params.canvas.size.h / 2 - 50}
+          width={params.canvas.size.w - 2 * params.paddle.size.w - 20}
+          height={100}
         />
         <Text
           text={message}
           fontSize={params.altText.size}
           align="center"
+          verticalAlign='middle'
           fill={params.altText.fill}
           width={params.canvas.size.w}
-          y={params.canvas.size.w / 2 - 2 * params.altText.size}
+          height={params.canvas.size.h}
           fontStyle={params.altText.style}
           shadowBlur={params.altText.shadow}
           shadowColor={params.altText.shadowColor}
@@ -206,21 +182,30 @@ const Game = (props: any) => {
 
   return (
     <Stage width={params.canvas.size.w} height={params.canvas.size.h} container="stage">
-      <Layer name="background">
-        <Rect
-          width={params.canvas.size.w}
-          height={params.canvas.size.h}
-          fill={params.canvas.fill}
-        />
-        <Line
-          name="let"
-          points={[params.canvas.size.w / 2, 0, params.canvas.size.w / 2, params.canvas.size.h]}
-          stroke={params.wall.stroke}
-          fill={params.wall.fill}
-          strokeWidth={10}
-          dash={[20, 10]}></Line>
-        {playersScores}
-      </Layer>
+      {scores && scores.length > 1 &&
+        <Layer name="background">
+          <Rect
+            width={params.canvas.size.w}
+            height={params.canvas.size.h}
+            fill={params.canvas.fill}
+          />
+          <Line
+            name="let"
+            points={[
+              params.canvas.size.w / 2,
+              0 + (15 - params.wall.size),
+              params.canvas.size.w / 2,
+              params.canvas.size.h - (15 - params.wall.size)
+            ]}
+            stroke={params.wall.fill}
+            fill={params.wall.fill}
+            shadowBlur={params.wall.shadow}
+            shadowColor={params.wall.shadowColor}
+            strokeWidth={8}
+            dash={[20, 10]}></Line>
+          {playersScores}
+        </Layer>
+      }
       <Layer>
         {wallsRect}
         {playersRect}

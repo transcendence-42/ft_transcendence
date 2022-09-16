@@ -4,6 +4,7 @@ import GameList from './GameList';
 import Game from './Game';
 import './Game.css';
 import PongModal from './PongModal';
+import { mapNeon, mapOriginal } from './GameMaps';
 
 const GameLobby = () => {
   // Enums
@@ -27,12 +28,20 @@ const GameLobby = () => {
   const [game, setGame] = useState({ action: Action.GO_LOBBY, id: 'lobby' });
   const [message, setMessage] = useState({} as any);
   const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
-  // Modal state
-  const [show, setShow] = useState(false);
+  const [gameMap, setGameMap] = useState(mapNeon)
 
-  // Modal event handler
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  // Modal state
+  const [showGoBackLobby, setShowGoBackLobby] = useState(false);
+  const [showMatchMaking, setShowMatchMaking] = useState(false);
+  const [showMapSelect, setShowMapSelect] = useState(false);
+
+  // Modal event handlers
+  const handleCloseGoBackLobby = () => setShowGoBackLobby(false);
+  const handleShowGoBackLobby = () => setShowGoBackLobby(true);
+  const handleCloseMatchMaking = () => setShowMatchMaking(false);
+  const handleShowMatchMaking = () => setShowMatchMaking(true);
+  const handleCloseMapSelect = () => setShowMapSelect(false);
+  const handleShowMapSelect = () => setShowMapSelect(true);
 
   // Socket events handlers
   const handleConnect = useCallback(() => {
@@ -73,11 +82,11 @@ const GameLobby = () => {
   );
 
   const handleOpponentFound = useCallback(() => {
-    setMessage({ message: 'An opponent has been found, the game will start !' });
-    setMatchMaking(MatchMaking.IN_GAME);
+    handleShowMatchMaking();
     setTimeout(() => {
-      setMessage({});
-    }, 4000);
+      handleCloseMatchMaking();
+      setMatchMaking(MatchMaking.IN_GAME);
+    }, 2000);
   }, [MatchMaking]);
 
   const handleInfo = useCallback((info: any) => {
@@ -101,8 +110,7 @@ const GameLobby = () => {
   };
 
   const handleBackToLobby = () => {
-    // Close modal
-    handleClose();
+    handleCloseGoBackLobby();
     // Viewer : remove the viewer and change its room in the server
     if (game.action === Action.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
@@ -145,16 +153,46 @@ const GameLobby = () => {
         title="Go back to lobby"
         mainText="Warning: Do you confirm ?"
         subText="This action will cause you to lose the game if started, or cancel it if not started."
-        closeHandler={handleClose}
-        show={show}
+        closeHandler={handleCloseGoBackLobby}
+        show={showGoBackLobby}
         textBtn1='Cancel'
-        handleBtn1={handleClose}
+        handleBtn1={handleCloseGoBackLobby}
         textBtn2='Go back to lobby'
         handleBtn2={handleBackToLobby}
+      />
+      <PongModal
+        title="Matchmaking"
+        mainText="An opponent has been found !"
+        subText="The game will automatically start in few seconds ..."
+        closeHandler={handleCloseMatchMaking}
+        show={showMatchMaking}
+      />
+      <PongModal
+        title="Select map"
+        closeHandler={handleCloseMapSelect}
+        show={showMapSelect}
+        size='lg'
+        select={[
+          {
+            img: '/neon.jpg',
+            alt: 'neon',
+            map: mapNeon,
+            handler: setGameMap,
+          },
+          {
+            img: '/original.jpg',
+            alt: 'original',
+            map: mapOriginal,
+            handler: setGameMap,
+          },
+        ]}
       />
       <div id="actions" className="row mb-4">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
+          <button type="button" className="btn btn-blue text-blue me-3" onClick={handleShowMapSelect}>
+            <img src='/edit.jpg' alt='edit' width={20} height={20} />
+          </button>
           {game && game.action === Action.GO_LOBBY && (
             <button type="button" className="btn btn-blue text-blue me-3" onClick={handleNewGame}>
               Create New Game
@@ -169,7 +207,7 @@ const GameLobby = () => {
             </button>
           )}
           {game && game.action > Action.VIEW_GAME && (
-            <button className="btn btn-blue text-blue" onClick={handleShow}>
+            <button className="btn btn-blue text-blue" onClick={handleShowGoBackLobby}>
               Go back to lobby
             </button>
           )}
@@ -216,6 +254,7 @@ const GameLobby = () => {
               setMatchMaking={setMatchMaking}
               matchMakingVal={MatchMaking}
               className="translate-middle"
+              map={gameMap}
             />
           </div>
         )}

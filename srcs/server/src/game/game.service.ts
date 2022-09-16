@@ -50,8 +50,8 @@ const enum Motive {
 
 const Params = Object.freeze({
   LOBBY: 'lobby',
-  CANVASW: 700,
-  CANVASH: 600,
+  CANVASW: 900,
+  CANVASH: 500,
   BALLSPEED: 6,
   PLAYERSPEED: 10,
   BARWIDTH: 12,
