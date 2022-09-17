@@ -36,7 +36,11 @@ export class UserService {
   };
 
   readonly includedMatchRelations: object = {
-    players: true,
+    players: {
+      include: {
+        player: true,
+      }
+    }
   };
 
   /** Create a new user */
