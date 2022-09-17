@@ -4,7 +4,6 @@ import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 import { useCookies } from 'react-cookie';
 
@@ -150,62 +149,57 @@ export default function NavBar ()
     if (isLogged)
     {
         return (
-            <nav className="navbar navbar-expand-lg">
-                <div className="container-fluid">
-                    <Link to ="/" className="navbar-brand">PONG</Link>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-                        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li className="nav-item active">
-                                <Link to ="/home" className="nav-link active">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/about" className="nav-link active">About</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/chat" className="nav-link active">Chat</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/leaderboard" className="nav-link active">Leaderboard</Link>
-                            </li>
-                            <li className="nav-item">
-                                <button onClick={deco} className="nav-link active">Logout</button>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/profile" state={{userID}} className="nav-link active"> Profile </Link>
-                            </li>
-                        </ul>
+            <div className="navBar">
+                <div className="menuInNavBar">
+                    <div className="buttonInNavBar">
+                        <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <button onClick={deco} className="playFlickering">Logout</button>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
                     </div>
                 </div>
-            </nav>
+          </div>
         )
     }
     else
     {
         return (
-            <nav className="navbar navbar-expand-lg">
-                <div className="container-fluid">
-                    <Link to ="/" className="navbar-brand">PONG</Link>
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li className="nav-item">
-                                <Link to ="/" className="nav-link active" aria-current="page">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/about" className="nav-link active" aria-current="page">About</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/leaderboard" className="nav-link active" aria-current="page">Leaderboard</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/login" className="nav-link active" aria-current="page">Login</Link>
-                            </li>
-                        </ul>
+            <div className="navBar">
+                <div className="menuInNavBar">
+                    <div className="buttonInNavBar">
+                        <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
                     </div>
-                </div>
-            </nav>
+                    <div className="buttonInNavBar">
+                        <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                    </div>
+                    <div className="buttonInNavBar">
+                        <Link to="/login" className="playFlickering">Login</Link>
+                 </div>
+            </div>
+        </div>
         )
     }
 }
+
+

@@ -1,137 +1,39 @@
-/* 
-.text
-{
-	box-sizing: border-box;
-	position: absolute;
-	left: 45%;
-	color: yellow;
-	border: 3px solid #80FFFF;
+.row {
+    color: white;
+}
+
+.col-2 {
+	display: flex;
+	flex-direction: row;
+
+    border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
-	border-radius: 40px;
-	margin: 5px;
-	padding: 25px;
-} */
-
-.chat {
-  display: flex;
-  justify-content: space-between;
 }
 
-.blueBoxChat {
-  box-sizing: border-box;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: column;
-
-  border: 3px solid #80ffff;
-  box-shadow: 0px 4px 15px #80ffff, 4px 0px 10px rgba(30, 166, 166, 0.95),
-    0px 0px 10px rgba(255, 255, 255, 0.521);
-  border-radius: 3vw;
-  margin: 2px;
-  padding: 2px;
+.col-10 {
+    border: 3px solid #80FFFF;
+	box-shadow: 0px 4px 15px #80FFFF,
+				4px 0px 10px rgba(30, 166, 166, 0.95),
+				0px 0px 10px rgba(255, 255, 255, 0.521);
 }
 
-.yellowPinkBoxChat {
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  border: 3px solid #dcca2a;
-  box-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
-  border-radius: 40px;
-  margin: 1vw;
-  padding: 0.1vw;
-}
-
-.yellowTextChat {
-  text-decoration: none;
-  font-family: 'Montserrat', sans-serif;
-  font-style: sans-serif;
-  font-weight: var(--weight);
-  line-height: var(--height);
-  /* identical to box height */
-
-  text-align: center;
-  color: #ffe710;
-  text-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
-}
-
-.yellowBlueBoxChat {
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-
-  border: 3px solid #dcca2a;
-  box-shadow: 0px 4px 10px rgba(30, 166, 166, 0.95), 0px 4px 10px rgba(30, 166, 166, 0.95),
-    0px 0px 15px rgba(128, 255, 255, 0.25);
-  border-radius: 40px;
-  margin: 2px;
-  padding: 2px;
-}
-
-.friends {
-  margin: 10%;
-}
-
-/* a supprimer */
-.name {
-  text-decoration: none;
-  font-family: 'Montserrat', sans-serif;
-  font-style: sans-serif;
-  font-weight: var(--weight);
-  line-height: var(--height);
-  /* identical to box height */
-
-  text-align: center;
-  line-height: 300%;
-  /* pour ecartement entre chaque nom */
-  color: rgba(30, 166, 166, 0.95);
-}
-
-.messages {
-  list-style-type: none;
-  color: white;
-  font-size: 10px;
-}
 .channels {
-  color: white;
-  font-size: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.conversation {
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-  color: white;
-  font-size: 10px;
-}
-.submitBtn {
-  font-size: 5px;
-  width: 20px;
-  height: 15px;
+	color: #FFE710;
+    text-shadow:	0px 0px 7.49518px #FF6ADE,
+                    0px 0px 14.9904px #EA3DEE,
+                    0px 0px 25.6977px #CA18A3;
 }
 
-.createChanneButton {
-  font-size: 5px;
-  width: auto;
-  height: 15px;
+.plus {
+	color: #FFE710;
+    text-shadow:	0px 0px 7.49518px #FF6ADE,
+                    0px 0px 14.9904px #EA3DEE,
+                    0px 0px 25.6977px #CA18A3;
 }
 
-.channelButton {
-  font-size: 5px;
-  width: auto;
-  height: 15px;
-}
-.chatInputField {
-  color: black;
-}
-
-.createChannel {
-  color: black;
+.button {
+	border: none;
+    background-color: rgb(5, 2, 30);
 }

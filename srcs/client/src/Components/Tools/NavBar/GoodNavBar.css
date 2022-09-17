@@ -1,0 +1,37 @@
+
+.navBar{
+	height: 8vw;
+	width: auto;
+	display: flex;
+	flex-direction: row;
+	/* border: 5px solid white; */
+	align-items: center;
+    /* background-color: transparent; */
+  }
+
+.menuInNavBar{
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	font-size: 1vw;
+	flex-direction: row;
+	align-items: center;
+  }
+
+.buttonInNavBar{
+	color: rgb(255, 6, 6);
+	margin-left: 2vw;
+	margin-right: 2vw;
+  }
+
+  .buttonInNavBar:first-child{
+	color: rgb(8, 218, 255);
+	margin-right: auto;
+	margin-left: 2%;
+	font-size: 2vw;
+  }
+
+  a {
+	text-decoration: none; 
+  }
+
