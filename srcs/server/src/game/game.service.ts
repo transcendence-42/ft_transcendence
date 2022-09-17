@@ -290,6 +290,7 @@ export class GameService {
 
   /** join a game (player) */
   join(client: Socket, id: string) {
+    console.log('toto');
     let game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     // remove user from matchmaking

@@ -1,6 +1,7 @@
 /* Canvas */
 .konvajs-content {
   margin: auto;
+  width: 100%;
 }
 
 .bg-dark {

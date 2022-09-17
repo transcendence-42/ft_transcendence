@@ -6,7 +6,7 @@ import { SocketContext } from '../../socket';
 import Game from './Game';
 import GameList from './GameList';
 import PongModal from './PongModal';
-import { mapNeon, mapOriginal } from './maps';
+import { mapNeon, mapOriginal } from './conf/maps';
 // Styles
 import './Game.css';
 import '../../Styles';
@@ -64,7 +64,7 @@ const GameLobby = () => {
       setMessage({});
       setGame({ id: data.id, action: Action.CREATE_GAME });
     },
-    [Action],
+    [Action.CREATE_GAME],
   );
 
   const handleException = useCallback((data: any) => {
@@ -76,7 +76,7 @@ const GameLobby = () => {
       setMessage({});
       setGame({ id: gameId, action: Action.RECO_GAME });
     },
-    [Action],
+    [Action.RECO_GAME],
   );
 
   const handleMatchMaking = useCallback(
@@ -88,6 +88,7 @@ const GameLobby = () => {
   );
 
   const handleOpponentFound = useCallback(() => {
+    console.log('action : ' + game.action + 'id: ' + game.id);
     if (game.action === Action.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
     }
@@ -96,7 +97,7 @@ const GameLobby = () => {
       handleCloseMatchMaking();
       setMatchMaking(MatchMaking.IN_GAME);
     }, 2000);
-  }, [MatchMaking, Action, game, socket]);
+  }, [MatchMaking.IN_GAME, Action.VIEW_GAME, game, socket]);
 
   const handleInfo = useCallback((info: any) => {
     setMessage({ message: info.message });
@@ -152,16 +153,7 @@ const GameLobby = () => {
       socket.off('opponentFound', handleOpponentFound);
       socket.off('info', handleInfo);
     };
-  }, [
-    socket,
-    handleOpponentFound,
-    handleConnect,
-    handleGameList,
-    handleReconnect,
-    handleGameId,
-    handleException,
-    handleInfo,
-  ]);
+  }, [handleOpponentFound]);
 
   // Render
   return (

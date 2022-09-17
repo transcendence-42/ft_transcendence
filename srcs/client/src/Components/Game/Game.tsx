@@ -1,7 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Stage, Layer, Rect, Line, Text } from 'react-konva';
+import { drawBall, drawMessages, drawPaddles, drawScores, drawStage } from './utils/draw';
 
 const Game = (props: any) => {
+
+  const draw = (ctx: any) => {
+    if (scores.length < 2) {
+      // Waiting for an opponent
+    }
+    else {
+      drawStage(ctx, grid);
+      drawScores(ctx, grid, scores);
+      drawPaddles(ctx, grid);
+      drawBall(ctx, grid);
+    }
+    drawMessages(ctx, grid, message);
+  }
+
   // Enum
   enum movement {
     UP = 0,
@@ -23,7 +38,7 @@ const Game = (props: any) => {
   const [message, setMessage] = useState('');
 
   // Init
-  const initGame = useCallback(() => {
+  const initGame = () => {
     if (props.action === props.actionVal.JOIN_GAME) {
       socket.emit('joinGame', { id: props.id });
       props.setMatchMaking(props.matchMakingVal.IN_GAME);
@@ -32,17 +47,17 @@ const Game = (props: any) => {
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit('reconnectGame', { id: props.id });
     socket.emit('getGameGrid', { id: props.id });
-  }, [props, socket]);
+  };
 
   // Handlers
-  const handleMove = useCallback((event: any) => {
+  const handleMove = (event: any) => {
     if (event.key === 'w' || event.key === 'W') {
       socket.emit('updateGame', { move: movement.UP, id: props.id });
     }
     if (event.key === 's' || event.key === 'S') {
       socket.emit('updateGame', { move: movement.DOWN, id: props.id });
     }
-  }, [movement.DOWN, movement.UP, props.id, socket]);
+  };
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {
     setGrid(gridUpdate);
@@ -83,16 +98,7 @@ const Game = (props: any) => {
       socket.off('gameEnd', handleGameEnd);
       document.removeEventListener('keydown', handleMove);
     };
-  }, [
-    handleGameEnd,
-    handleGridUpdate,
-    handleMove,
-    handleScoresUpdate,
-    initGame,
-    props.action,
-    props.actionVal.VIEW_GAME,
-    socket,
-  ]);
+  }, [props.action]);
 
   // Game
   let wallsRect: any = [];
@@ -199,6 +205,7 @@ const Game = (props: any) => {
 
   return (
     <Stage
+      id="konvas-stage"
       width={params.canvas.size.w}
       height={params.canvas.size.h}
       container="stage"
