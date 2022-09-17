@@ -81,7 +81,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** client connection */
-  async clientConnection(client: Socket) {
+  clientConnection(client: Socket) {
     // get query information
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
@@ -104,7 +104,7 @@ export class GameService {
   }
 
   /** client disconnection */
-  async clientDisconnection(client: Socket) {
+  clientDisconnection(client: Socket) {
     const userId: number = +client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
     // Broadcast that user left the lobby
@@ -231,7 +231,7 @@ export class GameService {
   }
 
   /** Create a new game */
-  async create(players: Player[]) {
+  create(players: Player[]) {
     // 1 : Chech if one of the user is already in a game or in match making
     players.forEach((p) => {
       if (this._isPlayerInGame(p.userId))
@@ -255,7 +255,6 @@ export class GameService {
     this.server.to(Params.LOBBY).emit('gameList', gameList);
     // start game if players > 1
     if (this.games[len - 1].players.length > 1) this._startGame(game);
-    return { event: 'gameId', data: { id: newGame.id } };
   }
 
   /** Find all created games */
@@ -273,7 +272,6 @@ export class GameService {
     game.viewers = game.viewers.filter((v) => v.userId !== userId);
     // quit room and join lobby
     client.leave(game.id);
-    console.log('client left');
     client.join(Params.LOBBY);
     // resend game list to lobby
     const gameList = this._createGameList();

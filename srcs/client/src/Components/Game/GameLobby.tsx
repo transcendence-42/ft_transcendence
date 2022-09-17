@@ -88,11 +88,10 @@ const GameLobby = () => {
   );
 
   const handleOpponentFound = useCallback(() => {
-    handleShowMatchMaking();
-    console.log('ga: ' + game.id + 'avg: ' + Action.VIEW_GAME); 
     if (game.action === Action.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
     }
+    handleShowMatchMaking();
     setTimeout(() => {
       handleCloseMatchMaking();
       setMatchMaking(MatchMaking.IN_GAME);
@@ -153,7 +152,16 @@ const GameLobby = () => {
       socket.off('opponentFound', handleOpponentFound);
       socket.off('info', handleInfo);
     };
-  }, []);
+  }, [
+    socket,
+    handleOpponentFound,
+    handleConnect,
+    handleGameList,
+    handleReconnect,
+    handleGameId,
+    handleException,
+    handleInfo,
+  ]);
 
   // Render
   return (

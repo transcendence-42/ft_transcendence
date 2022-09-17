@@ -5,14 +5,14 @@ const Game = (props: any) => {
   // Enum
   enum movement {
     UP = 0,
-    DOWN
+    DOWN,
   }
 
   const enum Motive {
     WIN = 0,
     LOSE,
     ABANDON,
-    CANCEL
+    CANCEL,
   }
 
   const params = props.map;
@@ -23,7 +23,7 @@ const Game = (props: any) => {
   const [message, setMessage] = useState('');
 
   // Init
-  const initGame = () => {
+  const initGame = useCallback(() => {
     if (props.action === props.actionVal.JOIN_GAME) {
       socket.emit('joinGame', { id: props.id });
       props.setMatchMaking(props.matchMakingVal.IN_GAME);
@@ -32,36 +32,34 @@ const Game = (props: any) => {
     else if (props.action === props.actionVal.RECO_GAME)
       socket.emit('reconnectGame', { id: props.id });
     socket.emit('getGameGrid', { id: props.id });
-  };
+  }, [props, socket]);
 
   // Handlers
-  const handleMove = (event: any) => {
+  const handleMove = useCallback((event: any) => {
     if (event.key === 'w' || event.key === 'W') {
       socket.emit('updateGame', { move: movement.UP, id: props.id });
     }
     if (event.key === 's' || event.key === 'S') {
       socket.emit('updateGame', { move: movement.DOWN, id: props.id });
     }
-  };
+  }, [movement.DOWN, movement.UP, props.id, socket]);
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {
     setGrid(gridUpdate);
   }, []);
 
   const handleScoresUpdate = useCallback((scoreUpdate: any) => {
-      // if one player only, set message
-      if (scoreUpdate.length === 1)
-        setMessage('Waiting for an opponent ...')
-      else
-        setMessage('');
+    // if one player only, set message
+    if (scoreUpdate.length === 1) setMessage('Waiting for an opponent ...');
+    else setMessage('');
     setScores(scoreUpdate);
   }, []);
 
   const handleGameEnd = useCallback(
     (motive: number) => {
-      if (motive === Motive.WIN) 
+      if (motive === Motive.WIN)
         setMessage('The game is over. Moving back to lobby');
-      if (motive === Motive.ABANDON) 
+      if (motive === Motive.ABANDON)
         setMessage('One player abandoned. Moving back to lobby');
       if (motive === Motive.CANCEL)
         setMessage('Player canceled the game. Moving back to lobby');
@@ -69,7 +67,7 @@ const Game = (props: any) => {
         props.backToLobby({ id: 'lobby', action: props.actionVal.GO_LOBBY });
       }, 4000);
     },
-    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL]
+    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL],
   );
 
   useEffect(() => {
@@ -85,7 +83,16 @@ const Game = (props: any) => {
       socket.off('gameEnd', handleGameEnd);
       document.removeEventListener('keydown', handleMove);
     };
-  }, []);
+  }, [
+    handleGameEnd,
+    handleGridUpdate,
+    handleMove,
+    handleScoresUpdate,
+    initGame,
+    props.action,
+    props.actionVal.VIEW_GAME,
+    socket,
+  ]);
 
   // Game
   let wallsRect: any = [];
@@ -100,7 +107,11 @@ const Game = (props: any) => {
         fontSize={params.score.size}
         align={index ? 'right' : 'left'}
         fill={params.text.fill}
-        x={player.side ? params.canvas.size.w / 2 + 20 : params.canvas.size.w / 2 - 60}
+        x={
+          player.side
+            ? params.canvas.size.w / 2 + 20
+            : params.canvas.size.w / 2 - 60
+        }
         y={30}
         fontStyle={params.score.style}
         fontFamily={params.fontFamily}
@@ -144,12 +155,16 @@ const Game = (props: any) => {
               width={params.canvas.size.w}
               height={params.wall.size}
               x={wall.coordinates.x}
-              y={index ? wall.coordinates.y : wall.coordinates.y + (15 - params.wall.size)}
+              y={
+                index
+                  ? wall.coordinates.y
+                  : wall.coordinates.y + (15 - params.wall.size)
+              }
               fill={params.wall.fill}
               shadowBlur={params.wall.shadow}
               shadowColor={params.wall.shadowColor}
             />
-          )
+          ),
       );
   }
 
@@ -169,7 +184,7 @@ const Game = (props: any) => {
           text={message}
           fontSize={params.altText.size}
           align="center"
-          verticalAlign='middle'
+          verticalAlign="middle"
           fill={params.altText.fill}
           width={params.canvas.size.w}
           height={params.canvas.size.h}
@@ -183,8 +198,12 @@ const Game = (props: any) => {
   }
 
   return (
-    <Stage width={params.canvas.size.w} height={params.canvas.size.h} container="stage">
-      {scores && scores.length > 1 &&
+    <Stage
+      width={params.canvas.size.w}
+      height={params.canvas.size.h}
+      container="stage"
+    >
+      {scores && scores.length > 1 && (
         <Layer name="background">
           <Rect
             width={params.canvas.size.w}
@@ -197,17 +216,18 @@ const Game = (props: any) => {
               params.canvas.size.w / 2,
               0 + (15 - params.wall.size),
               params.canvas.size.w / 2,
-              params.canvas.size.h - (15 - params.wall.size)
+              params.canvas.size.h - (15 - params.wall.size),
             ]}
             stroke={params.wall.fill}
             fill={params.wall.fill}
             shadowBlur={params.wall.shadow}
             shadowColor={params.wall.shadowColor}
             strokeWidth={8}
-            dash={[20, 10]}></Line>
+            dash={[20, 10]}
+          ></Line>
           {playersScores}
         </Layer>
-      }
+      )}
       <Layer>
         {wallsRect}
         {playersRect}

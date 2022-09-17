@@ -31,21 +31,21 @@ export class GameGateway
   }
 
   /** Handle new clients connection to the game */
-  async handleConnection(@ConnectedSocket() client: Socket) {
-    await this.gameService.clientConnection(client);
+  handleConnection(@ConnectedSocket() client: Socket) {
+    this.gameService.clientConnection(client);
   }
 
   /** Handle client disconnection from the game */
-  async handleDisconnect(@ConnectedSocket() client: Socket) {
-    await this.gameService.clientDisconnection(client);
+  handleDisconnect(@ConnectedSocket() client: Socket) {
+    this.gameService.clientDisconnection(client);
   }
 
   /** Create a new game */
   @SubscribeMessage('createGame')
-  async create(@ConnectedSocket() client: Socket) {
+  create(@ConnectedSocket() client: Socket) {
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
-    return await this.gameService.create(players);
+    this.gameService.create(players);
   }
 
   /** Find all games */
