@@ -265,7 +265,7 @@ export class GameService {
   }
 
   /** one viewer leave the game */
-  leaveGame(client: Socket, id: string) {
+  viewerLeaves(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
     const game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
@@ -273,6 +273,7 @@ export class GameService {
     game.viewers = game.viewers.filter((v) => v.userId !== userId);
     // quit room and join lobby
     client.leave(game.id);
+    console.log('client left');
     client.join(Params.LOBBY);
     // resend game list to lobby
     const gameList = this._createGameList();

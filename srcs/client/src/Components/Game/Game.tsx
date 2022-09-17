@@ -103,6 +103,7 @@ const Game = (props: any) => {
         x={player.side ? params.canvas.size.w / 2 + 20 : params.canvas.size.w / 2 - 60}
         y={30}
         fontStyle={params.score.style}
+        fontFamily={params.fontFamily}
         shadowBlur={params.score.shadow}
         shadowColor={params.score.shadowColor}
       />
@@ -175,6 +176,7 @@ const Game = (props: any) => {
           fontStyle={params.altText.style}
           shadowBlur={params.altText.shadow}
           shadowColor={params.altText.shadowColor}
+          fontFamily={params.fontFamily}
         />
       </Layer>
     );

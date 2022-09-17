@@ -24,7 +24,8 @@ export const mapNeon = Object.freeze({
     fill: '#fffcff',
     shadow: 15,
     shadowColor: '#FF6ADE'
-  }
+  },
+  fontFamily: 'Arial'
 });
 
 export const mapOriginal = Object.freeze({
@@ -46,10 +47,11 @@ export const mapOriginal = Object.freeze({
     shadowColor: '#05021E'
   },
   score: {
-    size: 70,
+    size: 50,
     style: 'bold',
     fill: '#ffffff',
     shadow: 15,
     shadowColor: '#05021E'
-  }
+  },
+  fontFamily: 'Press Start 2P'
 });

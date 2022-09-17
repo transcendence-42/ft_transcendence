@@ -110,11 +110,11 @@ export class GameGateway
 
   /** One viewer leaves the game */
   @SubscribeMessage('viewerLeaves')
-  leaveGame(
+  viewerLeaves(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.leaveGame(client, updateGameDto.id);
+    this.gameService.viewerLeaves(client, updateGameDto.id);
   }
 
   /** Subscribe or unsubscribe to/from matchmaking */

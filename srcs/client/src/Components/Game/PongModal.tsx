@@ -1,7 +1,6 @@
-import "../../Components/Tools/Box.css"
-import "../../Components/Tools/Text.css"
-import './Game.css'
 import Modal from 'react-bootstrap/Modal';
+import './Game.css';
+import '../../Styles';
 
 const PongModal = (props: any) => {
   /** 

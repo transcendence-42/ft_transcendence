@@ -1,10 +1,15 @@
+// React
 import { useCallback, useContext, useEffect, useState } from 'react';
+// Socket
 import { SocketContext } from '../../socket';
-import GameList from './GameList';
+// Game
 import Game from './Game';
-import './Game.css';
+import GameList from './GameList';
 import PongModal from './PongModal';
-import { mapNeon, mapOriginal } from './GameMaps';
+import { mapNeon, mapOriginal } from './maps';
+// Styles
+import './Game.css';
+import '../../Styles';
 
 const GameLobby = () => {
   // Enums
@@ -13,24 +18,25 @@ const GameLobby = () => {
     VIEW_GAME,
     CREATE_GAME,
     JOIN_GAME,
-    RECO_GAME
+    RECO_GAME,
   }
 
   enum MatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
-    IN_GAME
+    IN_GAME,
   }
 
-  // States
   const socket = useContext(SocketContext);
-  const [gameList, setGameList] = useState([] as any);
+
+  // States
   const [game, setGame] = useState({ action: Action.GO_LOBBY, id: 'lobby' });
   const [message, setMessage] = useState({} as any);
+  const [gameList, setGameList] = useState([] as any);
   const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
-  const [gameMap, setGameMap] = useState(mapNeon)
+  const [gameMap, setGameMap] = useState(mapNeon);
 
-  // Modal state
+  // Modal states
   const [showGoBackLobby, setShowGoBackLobby] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
   const [showMapSelect, setShowMapSelect] = useState(false);
@@ -58,7 +64,7 @@ const GameLobby = () => {
       setMessage({});
       setGame({ id: data.id, action: Action.CREATE_GAME });
     },
-    [Action]
+    [Action],
   );
 
   const handleException = useCallback((data: any) => {
@@ -70,7 +76,7 @@ const GameLobby = () => {
       setMessage({});
       setGame({ id: gameId, action: Action.RECO_GAME });
     },
-    [Action]
+    [Action],
   );
 
   const handleMatchMaking = useCallback(
@@ -78,16 +84,20 @@ const GameLobby = () => {
       setMatchMaking(value);
       socket.emit('matchMaking', { value: true });
     },
-    [socket]
+    [socket],
   );
 
   const handleOpponentFound = useCallback(() => {
     handleShowMatchMaking();
+    console.log('ga: ' + game.id + 'avg: ' + Action.VIEW_GAME); 
+    if (game.action === Action.VIEW_GAME) {
+      socket.emit('viewerLeaves', { id: game.id });
+    }
     setTimeout(() => {
       handleCloseMatchMaking();
       setMatchMaking(MatchMaking.IN_GAME);
     }, 2000);
-  }, [MatchMaking]);
+  }, [MatchMaking, Action, game, socket]);
 
   const handleInfo = useCallback((info: any) => {
     setMessage({ message: info.message });
@@ -142,7 +152,6 @@ const GameLobby = () => {
       socket.off('exception', handleException);
       socket.off('opponentFound', handleOpponentFound);
       socket.off('info', handleInfo);
-      socket.close();
     };
   }, []);
 
@@ -155,9 +164,9 @@ const GameLobby = () => {
         subText="This action will cause you to lose the game if started, or cancel it if not started."
         closeHandler={handleCloseGoBackLobby}
         show={showGoBackLobby}
-        textBtn1='Cancel'
+        textBtn1="Cancel"
         handleBtn1={handleCloseGoBackLobby}
-        textBtn2='Go back to lobby'
+        textBtn2="Go back to lobby"
         handleBtn2={handleBackToLobby}
       />
       <PongModal
@@ -171,30 +180,44 @@ const GameLobby = () => {
         title="Select map"
         closeHandler={handleCloseMapSelect}
         show={showMapSelect}
-        size='lg'
+        size="lg"
         select={[
           {
-            img: '/neon.jpg',
+            img: '/img/neon.jpg',
             alt: 'neon',
             map: mapNeon,
             handler: setGameMap,
           },
           {
-            img: '/original.jpg',
+            img: '/img/original.jpg',
             alt: 'original',
             map: mapOriginal,
             handler: setGameMap,
           },
         ]}
       />
-      <div id="actions" className="row mb-4">
+      <div id="game-actions" className="row mb-4">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
-          <button type="button" className="btn btn-blue text-blue me-3" onClick={handleShowMapSelect}>
-            <img src='/edit.jpg' alt='edit' className="rounded-circle" width={25} height={25} />
+          <button
+            type="button"
+            className="btn btn-blue text-blue me-3"
+            onClick={handleShowMapSelect}
+          >
+            <img
+              src="/img/edit.jpg"
+              alt="edit"
+              className="rounded-circle"
+              width={25}
+              height={25}
+            />
           </button>
           {game && game.action === Action.GO_LOBBY && (
-            <button type="button" className="btn btn-blue text-blue me-3" onClick={handleNewGame}>
+            <button
+              type="button"
+              className="btn btn-blue text-blue me-3"
+              onClick={handleNewGame}
+            >
               Create New Game
             </button>
           )}
@@ -202,12 +225,16 @@ const GameLobby = () => {
             <button
               type="button"
               className="btn btn-blue text-blue me-3"
-              onClick={handleBackToLobby}>
+              onClick={handleBackToLobby}
+            >
               Go back to lobby
             </button>
           )}
           {game && game.action > Action.VIEW_GAME && (
-            <button className="btn btn-blue text-blue" onClick={handleShowGoBackLobby}>
+            <button
+              className="btn btn-blue text-blue"
+              onClick={handleShowGoBackLobby}
+            >
               Go back to lobby
             </button>
           )}
@@ -215,7 +242,8 @@ const GameLobby = () => {
             <button
               className="btn btn-pink text-pink"
               style={{ cursor: 'pointer' }}
-              onClick={() => handleMatchMaking(MatchMaking.IN_QUEUE)}>
+              onClick={() => handleMatchMaking(MatchMaking.IN_QUEUE)}
+            >
               Join queue
             </button>
           ) : (
@@ -223,7 +251,8 @@ const GameLobby = () => {
               <button
                 className="btn btn-pink text-pink"
                 style={{ cursor: 'pointer' }}
-                onClick={() => handleMatchMaking(MatchMaking.NOT_IN_QUEUE)}>
+                onClick={() => handleMatchMaking(MatchMaking.NOT_IN_QUEUE)}
+              >
                 We are looking for an opponent ... (click to Cancel)
               </button>
             )
@@ -231,7 +260,7 @@ const GameLobby = () => {
         </div>
         <div className="col-xs-6 col-md-3"></div>
       </div>
-      <div id="content" className="row">
+      <div id="game-content" className="row">
         <div className="col-xs-6 col-md-3"></div>
         {game && game.action === Action.GO_LOBBY && (
           <div className="col-xs-6 col-md-6">
@@ -261,10 +290,12 @@ const GameLobby = () => {
 
         <div className="col-xs-6 col-md-3"></div>
       </div>
-      <div className="row">
+      <div id="game-messages" className="row">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
-          {message && message !== '' && <div className="blueText">{message.message}</div>}
+          {message && message !== '' && (
+            <div className="blueText">{message.message}</div>
+          )}
         </div>
         <div className="col-xs-6 col-md-3"></div>
       </div>
