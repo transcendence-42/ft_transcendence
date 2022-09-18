@@ -19,7 +19,7 @@
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 }
 
-.channels {
+.titles {
 	color: #FFE710;
     text-shadow:	0px 0px 7.49518px #FF6ADE,
                     0px 0px 14.9904px #EA3DEE,
@@ -27,6 +27,8 @@
 }
 
 .plus {
+	text-align: right;
+
 	color: #FFE710;
     text-shadow:	0px 0px 7.49518px #FF6ADE,
                     0px 0px 14.9904px #EA3DEE,

@@ -10,7 +10,7 @@ export default function About () {
         <> 
         <div className="about">
           <p className="text" data-testid="tracker" >ABOUT US</p>
-          </div>
+        </div>
         </>
     );
 }

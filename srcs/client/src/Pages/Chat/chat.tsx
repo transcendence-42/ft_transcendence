@@ -12,16 +12,21 @@ export default function chat() {
             <div className='row'>
                 <div className='col-2 rounded-pill'>
                     <div className='col'>
-                        <p className='channels'>Channels</p>
+                        <p className='titles'>Channels</p>
                     </div>
                     <div className='col'>
-                        <button className='plus pull-right'>+</button>
+                        <button className='plus float-end data-toggle="modal" data-target="#exampleModal" rounded-pill'>+</button>
+                    </div>
+                </div>
+            </div>
+            <div className='row'>
+                <div className='col-2 rounded-pill'>
+                    <div className='col'>
+                        <p className='titles'>Direct messages</p>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
-
-//<div className='col-10 rounded-pill'>col 2</div>
 
