@@ -1,14 +1,42 @@
-import useCanvas from "./CanvasHook";
+import { useRef, useEffect } from 'react';
+import {
+  drawBall,
+  drawMessages,
+  drawPaddles,
+  drawScores,
+  drawStage,
+} from '../../Pages/Game/utils/draw';
+import './canvas.css';
 
 const Canvas = (props: any) => {
+  const { grid, scores, message, map } = props;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Get draw function from props
-  const { draw, ...rest } = props;
+  const draw = (ctx: any, grid: any, scores: any, message: any, map: any) => {
+    ctx.clearRect(0, 0, map.canvas.size.w, map.canvas.size.h);
+    ctx.beginPath();
+    if (scores.length > 1) {
+      drawStage(ctx, grid, map);
+      drawScores(ctx, scores, map);
+      drawPaddles(ctx, grid, map);
+      drawBall(ctx, grid, map);
+    }
+    drawMessages(ctx, message, map);
+  };
 
-  // Use hook with draw function
-  const canvasRef = useCanvas(draw);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+    draw(context, grid, scores, message, map);
+  }, [grid, map, message, scores]);
 
-  return <canvas ref={canvasRef} {...props} />
-}
+  return (
+    <canvas
+      ref={canvasRef}
+      width={map.canvas.size.w}
+      height={map.canvas.size.h}
+    />
+  );
+};
 
 export default Canvas;
