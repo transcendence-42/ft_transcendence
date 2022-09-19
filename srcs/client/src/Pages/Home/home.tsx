@@ -104,7 +104,6 @@ if (!(contextValue.isConnected))
           <br />
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
-      
     </>
     );
   }
@@ -113,25 +112,27 @@ if (!(contextValue.isConnected))
     return (
       <>
      
-        <div className="title1" data-testid="tracker">
-          <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>  
-        </div>   
-          <div className="homeElement1">
-            <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
-                                                                online and become the best at Pong! </h2>
+     <div >
+          <h1 className="h1 pinkText">ENTER THE PONG CONTEST !</h1>
+        </div>
+        <div className=" container">
+          <div className="col-size field">
+            <div className="net"></div>
+            <div className="ping"></div>
+            <div className="pong"></div>
+            <div className="ball"></div>
+            <button type="button" className="btn blueContainer1 pull-right" >
+            <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> PLAY </Link> 
+            </button>
+            <button type="button" className="btn blueContainer2 pull-left">
+              <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> WATCH  </Link> 
+            </button>
           </div>
-          <div className="containerForField">
-            <div className="field">
-              <div className="net"></div>
-              <div className="ping"></div>
-              <div className="pong"></div>
-              <div className="ball"></div>
-              <div className="blueContainer1"style={{width: "10vw",height: "15%%", top: "14%"}}>     <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> PLAY </Link> 
-            </div>
-            <div className="blueContainer2"style={{width: "10vw",height: "12%",top: "14%"}}>
-              <div className="playFlickering"style={{cursor:"pointer"}}> WATCH </div>
-            </div>
-          </div>
+          
+        </div>
+        <div className=" blueText">
+          <br />
+          <h4 >Confront other players online and become the best at Pong! </h4>
         </div>
        </>
   );

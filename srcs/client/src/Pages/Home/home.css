@@ -32,15 +32,6 @@
 
   .blueContainer1
 {
-  position: absolute;
-  width:50%;
-height:20%;
-left: 15%;
-margin-top: 5%;
-float:right;
-display: flex;
-justify-content: center;
-align-items: center;
 	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
@@ -51,16 +42,6 @@ align-items: center;
 
 .blueContainer2
 {
-  position: absolute;
-  width:50%;
-height:20%;
-right: 15%;
-float:right;
-margin-top: 5%;
-display: flex;
-justify-content: center;
-align-items: center;
-
 	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
