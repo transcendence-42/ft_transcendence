@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import {Routes, Route, BrowserRouter} from 'react-router-dom';
-
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home'
 import Profile from './Pages/Profile/Profile'
 import Notfound from './Pages/NotFound/notFound';
@@ -14,17 +13,15 @@ import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
-import { Cookies, useCookies } from 'react-cookie';
-
-
-
 
 function App() {
-  
-  
   const [isConnected, setIsConnected] = useState(false);
   const [isFromAuth, setIsFromAuth] = useState(false);
 
+/*
+** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
+** isFromAuth is to be sure that the user has been through the 42 Auth 
+*/
   const contextValue = {
     isConnected: isConnected,
     isFromAuth: isFromAuth,
@@ -32,25 +29,9 @@ function App() {
     updateIsFromAuth : setIsFromAuth
   }
 
-
-  // const readCookie = () => 
-  // {
-  //   console.log("Reconnecté");
-  //   console.log(getCookies());
-  //   console.log("Reconnecté:");
- 
-  
-
-  //   const user = Cookies.get("auth_session");
-  //   if (user)
-  //   {
-  //    console.log("Reconnecté pour de bon")
-  //   }
-  // }
-  // useEffect(() => {
-  //   readCookie();
-  // },[])
-  
+/*
+** Check if the user is still connected, it is working here from root for all routes
+*/
   useEffect(() => {
     var data = localStorage.getItem("pathIsFree");
     if (data)
@@ -60,11 +41,11 @@ function App() {
     else
       contextValue.updateIsConnected(false);
   }, );
- 
-  
 
-
-
+/*
+** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
+** Routes surround all route 
+*/
   return (
     <Context.Provider value={contextValue}>
     <BrowserRouter>

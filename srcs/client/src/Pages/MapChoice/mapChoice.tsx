@@ -1,16 +1,13 @@
-import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import './mapChoice.css';
 import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
-import AuthenticatedRoute from "../../Components/services/authenticatedRoute";
-import Play from "../../Components/Tools/Button/Play";
-import { Link } from "react-router-dom";
 import "../../Components/Tools/VirtualPong/virtualPong.css"
 
-
+/*
+** Simple display of the choice of maps 
+*/
 export default function MapChoice () {
-
-  
     return (
         <>
           <div className="titleChoiceMap" data-testid="tracker">
@@ -64,13 +61,3 @@ export default function MapChoice () {
          </>
     );
 }
-
-{/* 
-</div>   
-            <div className="field">
-              <div className="net"></div>
-              <div className="ping"></div>
-              <div className="pong"></div>
-              <div className="ball"></div>
-            </div> */}
-

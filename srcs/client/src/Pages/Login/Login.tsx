@@ -2,13 +2,19 @@ import React, { useEffect } from "react";
 import "./Login.css"
 
 function Login ()  {
+/*
+** By clicking on the 42Auth back office handling the following steps, Front is just keeping into memory
+** that user has clicked on 42Auth
+*/
   const fortyTwoLogin = () => {
-    
 		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
-
-      localStorage.setItem("fromAuth", JSON.stringify(true));
-    //localStorage.setItem("fromAuth", JSON.stringify(true));
+    localStorage.setItem("fromAuth", JSON.stringify(true));
 	}
+
+/*
+** Here is just a security, because Back office in case of Auth fail will redirect to login page,
+** so we delete the variable fromAuth to avoid any problems of multiple instantiations 
+*/
   useEffect(() => {
     const data = localStorage.getItem("fromAuth");
     if (data)
@@ -17,9 +23,6 @@ function Login ()  {
     }
   },[]);
 
-/*
-** Here it allows us to create the data into the local storage
-*/
   return (
     <div data-testid="tracker" className="body">
       <div className="title">

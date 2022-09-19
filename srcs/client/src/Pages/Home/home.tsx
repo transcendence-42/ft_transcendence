@@ -2,17 +2,21 @@ import React, { useContext, useEffect, useState } from "react";
 import './home.css';
 import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
-import AuthenticatedRoute from "../../Components/services/authenticatedRoute";
-import Play from "../../Components/Tools/Button/Play";
 import { Link } from "react-router-dom";
 import "../../Components/Tools/VirtualPong/virtualPong.css"
 import Context from "../../Context/Context";
 
 
 export default function Home () {
-  
+/*
+** Init of the context again to use it and refresh it from App.tsx
+*/
 const contextValue = useContext(Context);
 const [fromAuth, setFromAuth] = useState(false);
+
+/*
+** First function to Auth the user from our app -> 42Auth -> back -> front 
+*/
 const getUser = async () => {
   await  fetch("http://127.0.0.1:4200/auth/success", {
       method: "GET",
@@ -56,6 +60,10 @@ const getUser = async () => {
   })
   .catch((err) => console.log(err));
 };
+
+/*
+** Here we set quickly the fromAuth local storage and delete it as safeguard to be sure we are from login page 
+*/
 useEffect(() => {
   const data = localStorage.getItem("fromAuth");
   if (data)
@@ -66,6 +74,10 @@ useEffect(() => {
   }
 },[]);
 
+/*
+** If we are connected we have the options of playing and watch, otherwise we do not have it 
+** The contextValue.isConnected is the context init in App.tsx  
+*/
 if (!(contextValue.isConnected))
 {
     return (
@@ -119,26 +131,3 @@ if (!(contextValue.isConnected))
 }
 
 }
-
-
-
-
-
-{/* <div className="col-3 -md-8" data-testid="tracker">
-<h2 className="pinkText " style={{fontSize: "4vw", position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:"100%"}}> ENTER THE PONG CONTEST ! </h2>  
-</div>   
-<div className="homeElement1">
-  <h2 className="blueText" style={{fontSize: "1.5vw", position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:"100%"}}>  Confront other players
-                                                      online and become the best at Pong! </h2>
-</div>
-<div className="containerForField">
-<div className="field">
-  <div className="net"></div>
-  <div className="ping"></div>
-  <div className="pong"></div>
-  <div className="ball"></div>
-</div>
-</div>
-<div className="homeElement2">
-<h2 className="blueText" style={{fontSize: "2vw"}}> Join Players From 42 School </h2>
-</div> */}
