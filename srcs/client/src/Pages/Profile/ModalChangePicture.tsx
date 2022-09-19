@@ -6,7 +6,7 @@ import "./ModalChangeContent.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 
-export default function ModalChangePicture({ isShowing, hide, id } : any) {
+export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 
 	const [content, setcontent] = useState('');
 	const [url, setUrl] = useState('');
@@ -23,6 +23,7 @@ export default function ModalChangePicture({ isShowing, hide, id } : any) {
 		console.log(url);
 		patchFetchPicture({url: url, picture: content});
 		hide();
+		up();
 	}
 
 	return (
@@ -60,3 +61,7 @@ export default function ModalChangePicture({ isShowing, hide, id } : any) {
 		  )
 		: null);
 }
+
+
+// https://cdn.intra.42.fr/users/flmastor.jpg
+// https://cdn.intra.42.fr/users/fmonbeig.jpg

@@ -25,7 +25,7 @@ export default function ChangePseudo(props : any) {
 			>
 				<div className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </div>
 			</button>
-				<ModalChangePseudo isShowing={isShowing} hide={toggle} id={props.id}/>
+				<ModalChangePseudo isShowing={isShowing} hide={toggle} id={props.id} up={props.up}/>
 		</>
  		);
 }

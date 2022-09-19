@@ -28,6 +28,7 @@ export default function ChangePicture(props : any) {
 				isShowing={isShowing}
 				hide={toggle}
 				id={props.id}
+				up={props.up}
 				title="Put an URL of your New Picture"
 			 />
 		</>

@@ -12,6 +12,7 @@ import Ladder from './Ladder'
 import MatchHistory from './MatchHistory'
 import FriendList from './FriendList'
 import {getFetch} from './getFetch'
+import {getFetchFriends} from './getFetchFriends'
 import { useLocation } from "react-router-dom";
 
 export default function Profile () {
@@ -22,6 +23,20 @@ export default function Profile () {
     const [user, setUser] : any = useState(null);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
+    const [update, setUpdate] = useState(2);
+
+
+    function toggleUpdate() {
+        setTimeout(() => {
+            if (update === 2)
+		        setUpdate(1);
+            if (update === 1)
+		        setUpdate(0);
+            if (update === 0)
+		        setUpdate(1);
+        }, 100);
+
+	}
 
     // const [test, setTest] : any = useState(
     //     {
@@ -48,7 +63,7 @@ export default function Profile () {
             setUser(responseObject);
         })
         request = "http://127.0.0.1:4200/users/" + userID + "/friends";
-        const friend_json = getFetch({url : request});
+        const friend_json = getFetchFriends({url : request});
         friend_json.then((responseObject)=> {
             console.log("Friend =>", responseObject);
             setFriendList(responseObject);})
@@ -57,9 +72,11 @@ export default function Profile () {
             matches_json.then((responseObject)=> {
                 console.log("Matches =>", responseObject);
                 setMatchesList(responseObject);})
-        },[userID]);
 
-    // console.log(user);
+        console.log("HELLOOOOO");
+        },[userID, update]);
+
+    console.log(user);
     // console.log(friendList[0]);
     if(user)
     {
@@ -77,8 +94,8 @@ export default function Profile () {
                         {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
-                        <ChangePseudo id={userID}/>
-                        <ChangePicture id={userID}/>
+                        <ChangePseudo id={userID} up={toggleUpdate}/>
+                        <ChangePicture id={userID} up={toggleUpdate}/>
                         <DoubleAuth/>
                     </div>
                     </div>

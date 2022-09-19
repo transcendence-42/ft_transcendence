@@ -6,7 +6,7 @@ import "./ModalChangeContent.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 
-export default function ModalChangePseudo({ isShowing, hide, id } : any) {
+export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 
 	const [content, setcontent] = useState('');
 	const [url, setUrl] = useState('');
@@ -24,6 +24,7 @@ export default function ModalChangePseudo({ isShowing, hide, id } : any) {
 		patchFetchPseudo({url: url, name: content});
 		// Add a check with the promise
 		hide();
+		up();
 	}
 
 	return (
