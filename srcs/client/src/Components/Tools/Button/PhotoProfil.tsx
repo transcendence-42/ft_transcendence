@@ -1,11 +1,14 @@
-import '../Box.css';
-import TREE from '../../../Pages/Profile/tree.jpg';
 
-function PhotoProfil() {
+
+function PhotoProfil(props : any) {
+
   return (
     <>
-      <div className="profilBox">
-        <img src={TREE} alt="profil_picture"></img>
+      <div className="profilBox" style={{
+				width: props.width,
+				height: props.height,
+			}}>
+        <img src={props.url} alt="IMG"></img>
       </div>
     </>
   );

@@ -2,7 +2,7 @@ import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 import "./profile.css"
-import PhotoProfil from './PhotoProfil'
+import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
 
 

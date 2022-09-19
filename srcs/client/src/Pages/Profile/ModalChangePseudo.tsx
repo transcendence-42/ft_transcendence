@@ -33,7 +33,7 @@ export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 			<>
 			  <div className="modal-overlay">
 				<div className="modal-wrapper">
-				  <div className="modal">
+				  <div className="modal2">
 					<div className="modal-header">
 					<div className="yellowText" style={{fontSize: "1.5em"}}> New Pseudo </div>
 					  <button

@@ -1,11 +1,11 @@
 import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
-import PhotoProfil from './PhotoProfil'
+import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
+import WinLose from './WinLose'
 
 
 export default function MatchHistory(props : any) {
-
 
 	let test = [
 		{
@@ -13,20 +13,20 @@ export default function MatchHistory(props : any) {
 			"date": "2022-09-16T15:39:56.460Z",
 			"players": [
 			  {
-				"username":"Michel",
+				"username":"Florian",
 				"matchId": 4,
 				"playerId": 1,
 				"side": 0,
-				"score": 2,
-				"status": 0
+				"score": 9,
+				"status": 1
 			  },
 			  {
-				"username":"Gros gege",
+				"username":"GrosGégé",
 				"matchId": 4,
 				"playerId": 2,
 				"side": 1,
 				"score": 7,
-				"status": 1
+				"status": 0
 			  }
 			]
 		},
@@ -35,20 +35,20 @@ export default function MatchHistory(props : any) {
 			"date": "2022-09-16T15:39:56.460Z",
 			"players": [
 			  {
-				"username":"Florian",
+				"username":"Michel",
 				"matchId": 5,
-				"playerId": 1,
+				"playerId": 8,
 				"side": 0,
 				"score": 2,
 				"status": 0
 			  },
 			  {
-				"username":"Michel",
-				"matchId": 5,
-				"playerId": 2,
+				"username":"Florian",
+				"matchId": 4,
+				"playerId": 1,
 				"side": 1,
 				"score": 0,
-				"status": 1
+				"status": 0
 			  }
 			]
 		},
@@ -71,7 +71,77 @@ export default function MatchHistory(props : any) {
 				"side": 1,
 				"score": 0,
 				"status": 1
-			  }
+			  },
+
+			]
+		},
+		{
+			"id": 6,  // ID du match
+			"date": "2022-09-16T15:39:56.460Z",
+			"players": [
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 1,
+				"side": 0,
+				"score": 2,
+				"status": 0
+			  },
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 2,
+				"side": 1,
+				"score": 0,
+				"status": 1
+			  },
+
+			]
+		},
+		{
+			"id": 6,  // ID du match
+			"date": "2022-09-16T15:39:56.460Z",
+			"players": [
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 1,
+				"side": 0,
+				"score": 2,
+				"status": 0
+			  },
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 2,
+				"side": 1,
+				"score": 0,
+				"status": 1
+			  },
+
+			]
+		},
+		{
+			"id": 6,  // ID du match
+			"date": "2022-09-16T15:39:56.460Z",
+			"players": [
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 1,
+				"side": 0,
+				"score": 2,
+				"status": 0
+			  },
+			  {
+				"username":"Florian",
+				"matchId": 6,
+				"playerId": 2,
+				"side": 1,
+				"score": 0,
+				"status": 1
+			  },
+
 			]
 		},
 	  ]
@@ -98,24 +168,39 @@ export default function MatchHistory(props : any) {
 				height: "100%",
 			}}>
 			<div className="yellowText" style={{fontSize: "3vw"}}> Matches History </div>
-			<table className="scrollBox" style={{alignItems: "flex-start"}} >
+			<table className="table  scroll m-1 align-middle  ">
 				<tbody>
 					{test.map((matches: any, index: number) =>(
-					<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
-						{
-						<>
+					index < 10 &&
+					<tr key={index} style={{fontSize: "2vw"}}>
 						<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
-						<td style={{marginRight: "2vw", display:"flex", justifyContent:"flex-start", alignContent:"center" }}>
-							{matches.players[0].username} {matches.players[0].score}
+						<td colSpan={2}>
+							<table>
+								<tbody>
+									<tr>
+										<td>{matches.players[0].username}</td>
+									</tr>
+									<tr>
+										<td>{matches.players[0].score}</td>
+									</tr>
+								</tbody>
+							</table>
 						</td>
-						<td style={{marginLeft: "1.5vw" }}> VS </td>
-						<td style={{marginRight: "2vw", display:"flex", justifyContent:"flex-start", alignContent:"center" }}>
-							{matches.players[1].username} {matches.players[1].score}
+						<td className="pinkText" > VS </td>
+						<td colSpan={2} >
+							<table>
+								<tbody>
+									<tr>
+										<td>{matches.players[1].username}</td>
+									</tr>
+									<tr>
+										<td>{matches.players[1].score}</td>
+									</tr>
+								</tbody>
+							</table>
 						</td>
 						<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
-						<td style={{marginRight: "2vw", display:"flex", justifyContent:"flex-start", alignContent:"center" }}> WIN </td>
-						</>
-						}
+						<td> <WinLose size={"2vw"} id={props.id} players={matches.players}/></td>
 					</tr>
 					))}
 				</tbody>
@@ -123,32 +208,3 @@ export default function MatchHistory(props : any) {
 		</div>
  		);
 }
-
-
-// return (
-// 	<div className="blueBoxMatch"
-// 	style={{
-// 			width: "100%",
-// 			height: "100%",
-// 		}}>
-// 		<div className="yellowText" style={{fontSize: "3vw"}}> Matches History </div>
-// 		<table className="scrollBox" style={{alignItems: "flex-start"}} >
-// 			<tbody>
-// 				{props.matchesList.map((matches: any, index: number) =>(
-// 				<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
-// 					{
-// 					<>
-// 					<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
-// 					<td style={{marginRight: "2vw", display:"flex", justifyContent:"flex-start", alignContent:"center" }}> Francoise 0 </td>
-// 					<td style={{marginLeft: "1.5vw" }}> VS </td>
-// 					<td style={{marginRight: "2vw", display:"flex", justifyContent:"flex-start", alignContent:"center" }}> Florian 5 </td>
-// 					<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
-// 					</>
-// 					}
-// 				</tr>
-// 				))}
-// 			</tbody>
-// 		</table>
-// 	</div>
-// 	 );
-// }

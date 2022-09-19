@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./NavBar.css"
-import ProfilNavBar from "../Button/ProfilNavBar";
-import PhotoProfil from '../../../Pages/Profile/PhotoProfil'
+import PhotoProfil from '../Button/PhotoProfil'
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";

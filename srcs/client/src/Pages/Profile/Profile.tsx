@@ -3,7 +3,7 @@ import {useState, useEffect} from 'react'
 import "./profile.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
-import PhotoProfil from './PhotoProfil'
+import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
 import ChangePseudo from './ChangePseudo'
 import ChangePicture from './ChangePicture'
@@ -105,7 +105,7 @@ export default function Profile () {
             </div>
             <div className='matchFriend'>
                 <div className="match">
-                    <MatchHistory matchesList={matchesList}/>
+                    <MatchHistory matchesList={matchesList} id={userID}/>
                 </div>
                 <div className="friend">
                     <FriendList friendList={friendList}/>

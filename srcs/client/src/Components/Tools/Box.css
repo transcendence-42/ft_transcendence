@@ -1,4 +1,24 @@
 
+/* BOOTSTRAP */
+.scroll
+{
+	/* box-sizing: border-box; */
+	display: flex;
+	/* justify-content: flex-start; */
+	/* align-items: center; */
+	flex-direction: column;
+	/* margin: 1vh; */
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+	display: none;
+  }
+
+/* BOOTSTRAP */
+
 .blueBox
 {
 	box-sizing: border-box;
