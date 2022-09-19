@@ -1,7 +1,7 @@
 import './chat.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import { Message, Channel } from './entities';
+import { Message, Channel, JoinChannelDto } from './entities';
 import { Events } from './events';
 import { ChannelTypes } from './channelTypes';
 
@@ -21,7 +21,9 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [createChannelName, setCreateChannelName] = useState('');
   const [createChannelPassword, setCreateChannelPassword] = useState('');
   const [createChannelType, setCreateChannelType] = useState('public');
-  const [joinChannelPassword, setJoinChannelPassword] = useState('');
+  const [joinChannelPassword, setJoinChannelPassword] = useState({});
+
+  const getValueOf = (key: string, obj: Record<string, string>) => obj[key]
 
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
@@ -34,18 +36,26 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     setMessage('');
   };
 
-  const handleJoinChannel = (e: any, channelName: string) => {
+  const handleJoinChannel = (e: any, channelId: string) => {
     e.preventDefault();
-    const channel: Channel | undefined = allChannels.find(
-      (chan: Channel) => chan.name === channelName
-    );
+    const channel = allChannels.find((chan: Channel) => chan.id === channelId);
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
-    if (!channel) return;
-    if (channel['type'] === ChannelTypes.protected && joinChannelPassword === '') {
-      return alert('You need to input a password to enter the channel');
+    if (!channel) {
+      console.log(`Error could not find channel with id ${channelId} to join`);
+      return;
     }
-    socket.emit(Events.joinChannel, channelName);
-    setCurrentChannel(channel || lobbyChannel);
+    if (channel['type'] === ChannelTypes.protected && getValueOf(channelId, joinChannelPassword) === '') {
+      return alert('You must provide a Password!');
+    }
+
+    const channelDto: JoinChannelDto = { ...(channel as Channel) };
+    socket.emit(Events.joinChannel, {
+      name: channelDto.name,
+      id: channelDto.id,
+      type: channelDto.type,
+      password: channelDto.password
+    });
+    console.log(`This is join channel dto ${JSON.stringify(channelDto, null, 4)}`);
     setJoinChannelPassword('');
   };
 
@@ -57,11 +67,9 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     };
     console.log(`Handle create channel ${JSON.stringify(payload, null, 4)}`);
     e.preventDefault();
-    if (
-      createChannelName === '' ||
-      (createChannelType === 'protected' && createChannelPassword === '')
-    )
-      return;
+    if (createChannelName === '') return alert("Channel name can't be empty");
+    else if (createChannelType === 'protected' && createChannelPassword === '')
+      return alert("Password can't be empty!");
     socket.emit(Events.createChannel, payload);
     setCreateChannelName('');
     setCreateChannelPassword('');
@@ -71,20 +79,20 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     socket.on('connect', () => {
       console.log('Connected to server successfully');
 
-      const userId = document.cookie;
-      console.log(`This is user id on connect ${userId}`);
-      if (userId === null || userId === '') {
-        socket.emit('setId');
-        socket.on('setId', (id) => {
-          document.cookie = `id=${id}`;
-          console.log(`Setting id from server ${id}`);
-          socket.emit('addUser', id);
-        });
-      }
-      socket.on(Events.joinChannelAnwser, ({ msg, channel }) => {
-        if (msg === 'Unauthorized')
-          alert("You can't join this channel because you are not allowed!");
-        else if (msg === 'Changed') setCurrentChannel(channel.name);
+      socket.emit('setId');
+      socket.on('setId', (id) => {
+        document.cookie = `id=${id}`;
+        console.log(`Setting id from server ${id}`);
+        socket.emit('addUser', id);
+      });
+
+      socket.on(Events.joinChannelAnwser, (newChannel) => {
+        console.log(
+          `Answer recieved form the server for joinChanel ${JSON.stringify(newChannel, null, 4)}`
+        );
+        if (newChannel) {
+          setCurrentChannel(newChannel);
+        } else return alert("You can't join this channel because you are not allowed!");
       });
     });
 
@@ -141,13 +149,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         <br />
         <div className="channels">
           {allChannels.map((channel: Channel) => (
-            <form key={channel.id} onSubmit={(e) => handleJoinChannel(e, channel.name)}>
+            <form key={channel.id} onSubmit={(e) => handleJoinChannel(e, channel.id)}>
               <button className="channelButton" type="submit">
                 {channel.name}
               </button>
               <input
-                className="joinChannelPwdInput"
-                value={joinChannelPassword}
+                className={`joinChannelPwdInput ${channel.id}`}
+                value={getValueOf(channel.id, joinChannelPassword)}
                 onChange={(e) => setJoinChannelPassword(e.target.value)}
               />
             </form>

@@ -12,3 +12,11 @@ export interface Channel {
   password?: string;
   userIdList: string[];
 }
+
+
+export interface JoinChannelDto {
+  id: string;
+  name: string;
+  type: string;
+  password?: string;
+}

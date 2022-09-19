@@ -1,6 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsNotEmptyObject, IsNumber, IsString, MaxLength, ValidateNested } from 'class-validator';
-import { Channel } from '../dto';
+import { IsNotEmpty, IsNotEmptyObject, IsNumber, IsString, MaxLength, ValidateNested } from 'class-validator';
 
 export class MessageDto {
   @IsString()
@@ -13,7 +11,7 @@ export class MessageDto {
   @IsString()
   id: string;
 
-  @IsNotEmptyObject()
-  @ValidateNested()
-  channel: { name: string; type: string; password?: string };
+  @IsString()
+  @IsNotEmpty()
+  channelId: string;
 }

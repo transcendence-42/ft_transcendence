@@ -147,3 +147,7 @@
   width: auto;
   height: auto;
 }
+
+.joinChannelPwdInput {
+  color: black;
+}

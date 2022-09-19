@@ -1,6 +1,6 @@
 import { Socket, Server } from 'socket.io';
 import { WebSocketServer } from '@nestjs/websockets';
-import { MessageDto, CreateChannelDto } from './dto';
+import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Events } from './entities/Events';
 import { Channel, ChannelTypes, ChatUser } from './entities';
@@ -48,27 +48,27 @@ export class ChatService {
     this.server.emit(Events.updateMessages, this.allMessages);
   }
 
-  handleJoinChannel(client: Socket, channelName: string) {
-    console.log(`Client ${client.id} has joined channelName ${channelName}`);
-    const date = Date.now();
+  handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
     const channel: Channel = this.allChannels.find(
-      (channel) => channelName === channel.name,
+      (channel) => joinChannelDto.id === channel.id,
     );
     console.log(
       `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
     );
-    const message: MessageDto = {
-      content: `User ${client.id} has joined channelName`,
-      id: String(date + Math.random() * 100),
-      date,
-      channel,
-    };
-    client.join(channelName);
-    client.emit(Events.joinChannelAnwser, { msg: 'changed', channel });
-    this.server.to(channelName).emit(Events.userJoined, message);
+
+    if (joinChannelDto.password !== channel.password) {
+      client.emit(Events.joinChannelAnwser, null);
+      return;
+    }
+    client.join(joinChannelDto.id);
+    client.emit(Events.joinChannelAnwser, channel);
+    const userId = this.allClients.find((cli) => cli.socketId === client.id).id;
+    this._joinedChannelBot(userId, joinChannelDto.id);
   }
 
-  handleSetId(client: Socket) {
+  handleSetId(client: Socket, hasUserId: string) {
+    if (hasUserId) return;
+    console.log(`Setting id for user ${client.id}`);
     const userId = uuidv4();
     client.emit(Events.setId, userId);
   }
@@ -83,6 +83,7 @@ export class ChatService {
       };
       console.log(`Adding user ${id}`);
       this.allClients.push(chatUser);
+      // client.emit(Events.updateUsers, this.allClients);
       this.server.emit(Events.updateUsers, this.allClients);
     }
   }
@@ -117,5 +118,16 @@ export class ChatService {
     } else {
       this.server.emit(Events.updateChannels, this.allChannels);
     }
+  }
+
+  private _joinedChannelBot(userId: string, channelId: string) {
+    const date = Date.now();
+    const message: MessageDto = {
+      content: `User ${userId} has joined channelName`,
+      id: String(date + Math.random() * 100),
+      date,
+      channelId,
+    };
+    this.server.to(channelId).emit(Events.userJoined, message);
   }
 }
