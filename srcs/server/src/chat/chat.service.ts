@@ -8,12 +8,6 @@ import { Channel, ChannelTypes, ChatUser } from './entities';
 // To do
 // Add Dtos to payloads
 
-/* Channel types
- * Public: anyone can join
- * Private: no one can join (only invited people)
- * Protected: by a password
- */
-
 export class ChatService {
   constructor() {
     this.allClients = [];
@@ -87,6 +81,7 @@ export class ChatService {
         id,
         role: 'user',
       };
+      console.log(`Adding user ${id}`);
       this.allClients.push(chatUser);
       this.server.emit(Events.updateUsers, this.allClients);
     }

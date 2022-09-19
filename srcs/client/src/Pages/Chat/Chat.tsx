@@ -40,8 +40,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       (chan: Channel) => chan.name === channelName
     );
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
-    if (!channel)
-      return;
+    if (!channel) return;
     if (channel['type'] === ChannelTypes.protected && joinChannelPassword === '') {
       return alert('You need to input a password to enter the channel');
     }
@@ -77,7 +76,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       if (userId === null || userId === '') {
         socket.emit('setId');
         socket.on('setId', (id) => {
-          document.cookie = id;
+          document.cookie = `id=${id}`;
           console.log(`Setting id from server ${id}`);
           socket.emit('addUser', id);
         });
