@@ -19,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+	refs,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,7 +30,7 @@ import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { Rating } from './entities/rating.entity';
-import { Match } from 'src/generated/nestjs-dto/match.entity';
+import { Match } from 'src/match/entities/match.entity';
 
 @Controller('users')
 export class UserController {
@@ -94,8 +95,8 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiOkResponse({
-    description: 'Updated user',
-    type: User,
+    description: 'Updated user OR update error',
+    schema: { anyOf: refs(User, BaseApiException) },
     isArray: false,
   })
   @ApiNotFoundResponse({

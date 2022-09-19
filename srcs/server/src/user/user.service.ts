@@ -9,12 +9,14 @@ import {
   LocalRegisterUserDto,
 } from '../auth/dto/registerUser.dto';
 import {
+	BadRequestException,
   NoUsersInDatabaseException,
   UserAlreadyExistsException,
   UserNotFoundException,
 } from './exceptions/';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { FriendshipService } from 'src/friendship/friendship.service';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 @Injectable()
 export class UserService {
@@ -36,7 +38,11 @@ export class UserService {
   };
 
   readonly includedMatchRelations: object = {
-    players: true,
+    players: {
+      include: {
+        player: true,
+      }
+    }
   };
 
   /** Create a new user */
@@ -95,7 +101,10 @@ export class UserService {
       });
       return result;
     } catch (e) {
-      throw new UserNotFoundException(id);
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') throw new BadRequestException()
+				else throw new UserNotFoundException(id);
+      }
     }
   }
 
@@ -272,11 +281,6 @@ export class UserService {
   }
 
   // RANK OPERATIONS -----------------------------------------------------------
-  /** Calculate the rank of a user based on its stats and last match result */
-  private async _calculateRank(wins: number, losses: number): Promise<number> {
-    return wins + losses + 1; // fake return before real function
-  }
-
   /** Find all user ranks through history */
   async findUserRatings(
     id: number,

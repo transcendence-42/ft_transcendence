@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { BadRequestException, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,14 +9,14 @@ import {
   mockUserUpdateDto,
 } from 'src/user/test/stubs/mock.user.dto';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
-import { Friendship } from 'src/generated/nestjs-dto/friendship.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { UserService } from '../user.service';
 import { FriendshipService } from 'src/friendship/friendship.service';
 import { RatingService } from 'src/rating/rating.service';
 import { Rating } from '../entities/rating.entity';
 import { createMockMatchesDto } from 'src/match/test/stubs/mock.match.dto';
 import { MatchService } from 'src/match/match.service';
-import { Match } from 'src/generated/nestjs-dto/match.entity';
+import { Match } from 'src/match/entities/match.entity';
 
 describe('User API e2e test', () => {
   let app: INestApplication;
@@ -197,6 +197,40 @@ describe('User API e2e test', () => {
         .send(mockUserUpdateDto[7]);
       expect(result7.statusCode).toBe(200);
       expect(result7.body).toMatchObject(User.prototype);
+    });
+
+		it('should return 200 and a "BadRequestException" if name unicity constraint is violated', async () => {
+			// create 2 users
+      const user = await request(app.getHttpServer())
+        .post('/users')
+        .send(mockUserDto[0]);
+			const user1 = await request(app.getHttpServer())
+        .post('/users')
+        .send(mockUserDto[1]);
+      // patch one user to get the seconc user's name
+      const result = await request(app.getHttpServer())
+        .patch('/users/' + user1.body.id)
+        .send({ username: mockUserDto[0].username });
+      expect(result.statusCode).toBe(200);
+      expect(result.body).toMatchObject(BaseApiException.prototype);
+      expect(result.body.message).toBe(`Bad request`);
+    });
+
+		it('should return 200 and a "BadRequestException" if email unicity constraint is violated', async () => {
+			// create 2 users
+      const user = await request(app.getHttpServer())
+        .post('/users')
+        .send(mockUserDto[0]);
+			const user1 = await request(app.getHttpServer())
+        .post('/users')
+        .send(mockUserDto[1]);
+      // patch one user to get the seconc user's name
+      const result = await request(app.getHttpServer())
+        .patch('/users/' + user1.body.id)
+        .send({ email: mockUserDto[0].email });
+      expect(result.statusCode).toBe(200);
+      expect(result.body).toMatchObject(BaseApiException.prototype);
+      expect(result.body.message).toBe(`Bad request`);
     });
 
     it('should return 404 if user not found', async () => {
