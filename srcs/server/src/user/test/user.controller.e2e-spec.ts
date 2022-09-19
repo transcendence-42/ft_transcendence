@@ -9,14 +9,14 @@ import {
   mockUserUpdateDto,
 } from 'src/user/test/stubs/mock.user.dto';
 import { BaseApiException } from 'src/common/exceptions/baseApiException.entity';
-import { Friendship } from 'src/generated/nestjs-dto/friendship.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { UserService } from '../user.service';
 import { FriendshipService } from 'src/friendship/friendship.service';
 import { RatingService } from 'src/rating/rating.service';
 import { Rating } from '../entities/rating.entity';
 import { createMockMatchesDto } from 'src/match/test/stubs/mock.match.dto';
 import { MatchService } from 'src/match/match.service';
-import { Match } from 'src/generated/nestjs-dto/match.entity';
+import { Match } from 'src/match/entities/match.entity';
 
 describe('User API e2e test', () => {
   let app: INestApplication;
