@@ -29,7 +29,7 @@ import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { Rating } from './entities/rating.entity';
-import { Match } from 'src/generated/nestjs-dto/match.entity';
+import { Match } from 'src/match/entities/match.entity';
 
 @Controller('users')
 export class UserController {
