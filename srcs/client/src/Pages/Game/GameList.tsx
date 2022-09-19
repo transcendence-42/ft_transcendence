@@ -1,6 +1,7 @@
 import './Game.css';
 import '../../Styles';
 
+
 const GameList = (props: any) => {
   const defaultPic: string = '/img/default-user.jpg';
   return (

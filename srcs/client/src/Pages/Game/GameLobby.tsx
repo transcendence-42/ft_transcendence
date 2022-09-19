@@ -1,5 +1,5 @@
 // React
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState, FC } from 'react';
 // Socket
 import { SocketContext } from '../../socket';
 // Game
@@ -159,6 +159,7 @@ const GameLobby = () => {
   // Render
   return (
     <>
+      {/* Modals */}
       <PongModal
         title="Go back to lobby"
         mainText="Warning: Do you confirm ?"
@@ -197,6 +198,8 @@ const GameLobby = () => {
           },
         ]}
       />
+
+      {/* Action buttons */}
       <div id="game-actions" className="row">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
@@ -260,6 +263,8 @@ const GameLobby = () => {
         </div>
         <div className="col-xs-6 col-md-3"></div>
       </div>
+
+      {/* Content : game list or game screen*/}
       <div id="game-content" className="row">
         <div className="col-xs-6 col-md-3"></div>
         {game && game.action === Action.GO_LOBBY && (
@@ -287,9 +292,10 @@ const GameLobby = () => {
             />
           </div>
         )}
-
         <div className="col-xs-6 col-md-3"></div>
       </div>
+
+      {/* Information messages */}
       <div id="game-messages" className="row">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
