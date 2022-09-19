@@ -18,6 +18,8 @@
 
 .yellow-titles {
 	font-family: 'Montserrat', sans-serif;
+	/* to hide text when resizing page */
+	overflow: hidden; 
 
 	color: #FFE710;
     text-shadow:	0px 0px 7.49518px #FF6ADE,
@@ -27,6 +29,8 @@
 
 .blue-titles {
 	font-family: 'Montserrat', sans-serif;
+	/* to hide text when resizing page */
+	overflow: hidden;
 
 	color: #80FFFF;
 	text-shadow:	0px 0px 7.49518px #6ABDFF,
@@ -50,6 +54,8 @@
 
 .input-field-chat {
 	color: black;
+	font-size: 100%;
+	outline: none;
 }
 
 .scroll-bar {
@@ -58,4 +64,20 @@
 
 .center-position {
 	text-align: center;
+}
+
+.input-position {
+	position: absolute;
+	bottom: 0;
+}
+
+.color-dropdown {
+	color: #FFE710;
+}
+
+.channel-menu {
+	color: #FFE710;
+    text-shadow:	0px 0px 7.49518px #FF6ADE,
+                    0px 0px 14.9904px #EA3DEE,
+                    0px 0px 25.6977px #CA18A3;
 }

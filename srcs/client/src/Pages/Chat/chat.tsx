@@ -4,12 +4,30 @@ import '../../Components/Tools/Box.css';
 // import { Socket } from 'socket.io-client';
 import { Message, Channel } from './entities';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import { useState } from 'react';
+import PongAdvancedModal from '../../Components/Modal/PongAdvancedModal';
+import ChannelList from './ChannelList';
 
-export default function chat() {
-    
+const Chat = () => {
+
+    // state
+    const [showChannelMenu, setShowChannelMenu] = useState(false);
+
+    // handlers
+    const handleCloseChannelMenu = () => setShowChannelMenu(false);
+    const handleShowChannelMenu = () => setShowChannelMenu(true);
+
     return (
-        
         <div className='container'>
+            <PongAdvancedModal
+                title="Channel list"
+                show={showChannelMenu}
+                closeHandler={handleCloseChannelMenu}
+                textBtn1="Cancel"
+                handleBtn1={handleCloseChannelMenu}
+                textBtn2="Validate"
+                handleBtn2={handleCloseChannelMenu}
+            ><ChannelList /></PongAdvancedModal>
             <div className='row row-color'>
                 <div className='col-2 rounded-4 vh-100 blue-box-chat'>
                     <div className='row'>
@@ -19,7 +37,11 @@ export default function chat() {
                         </div>
                         <div className='col'>
                             <br></br>
-                            <button className='plus float-end data-toggle="modal" data-target="#exampleModal" rounded-pill'>+</button>
+                            <button className='float-end rounded-4 dropdown-toggle color-dropdown' data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul className="dropdown-menu channel-menu">
+                                <li className='dropdown-item' onClick={handleShowChannelMenu}>Browse channels</li>
+                                <li className='dropdown-item' onClick={handleShowChannelMenu}>create channels</li>
+                            </ul>
                         </div>
                     </div>
                     <div className='row'>
@@ -40,7 +62,7 @@ export default function chat() {
                             <p className='yellow-titles'>Messages</p>
                         </div>
                         <div className='col'>
-                            <button className='plus float-end data-toggle="modal" data-target="#exampleModal" rounded-pill'>+</button>
+                            <button className='plus float-end rounded-4' onClick={handleShowChannelMenu}>+</button>
                         </div>
                     </div>
                     <div className='row'>
@@ -63,8 +85,8 @@ export default function chat() {
                         </div>
                     </div>
                     <div className='row'>
-                        <div className='col'>
-                            <input type='text' className='rounded-4 input-field-chat yellow-box-chat' placeholder="Send a message..."></input>
+                        <div className='col input-position'>
+                            <input type='text' className='rounded-3 input-field-chat yellow-box-chat' placeholder="Send a message..."></input>
                         </div>
                     </div>
                 </div>
@@ -80,3 +102,5 @@ export default function chat() {
         </div>
     );
 }
+
+export default Chat;
