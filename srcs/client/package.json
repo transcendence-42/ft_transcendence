@@ -10,7 +10,7 @@
     "@types/node": "^16.11.49",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
-    "bootstrap": "^5.2.1",
+    "bootstrap": "^5.2.0",
     "cors": "^2.8.5",
     "react": "^18.2.0",
     "react-cookie": "^4.1.1",
