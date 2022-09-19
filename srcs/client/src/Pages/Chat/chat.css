@@ -1,29 +1,37 @@
-.row {
+.row-color {
     color: white;
 }
 
-.col-2 {
-	display: flex;
-	flex-direction: row;
-
-    border: 3px solid #80FFFF;
+.blue-box-chat {
+	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 }
 
-.col-10 {
-    border: 3px solid #80FFFF;
-	box-shadow: 0px 4px 15px #80FFFF,
-				4px 0px 10px rgba(30, 166, 166, 0.95),
-				0px 0px 10px rgba(255, 255, 255, 0.521);
+.yellow-box-chat {
+	border: 3px solid #DCCA2A;
+	box-shadow: 0px 0px 7.49518px #FF6ADE,
+				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
 }
 
-.titles {
+.yellow-titles {
+	font-family: 'Montserrat', sans-serif;
+
 	color: #FFE710;
     text-shadow:	0px 0px 7.49518px #FF6ADE,
                     0px 0px 14.9904px #EA3DEE,
                     0px 0px 25.6977px #CA18A3;
+}
+
+.blue-titles {
+	font-family: 'Montserrat', sans-serif;
+
+	color: #80FFFF;
+	text-shadow:	0px 0px 7.49518px #6ABDFF,
+					0px 0px 14.9904px #3D9FEE,
+				  0px 0px 25.6977px #187BCA;
 }
 
 .plus {
@@ -38,4 +46,16 @@
 .button {
 	border: none;
     background-color: rgb(5, 2, 30);
+}
+
+.input-field-chat {
+	color: black;
+}
+
+.scroll-bar {
+	height: 240px;
+}
+
+.center-position {
+	text-align: center;
 }
