@@ -1,4 +1,4 @@
-import useCanvas from "./hooks/CanvasHook";
+import useCanvas from "./CanvasHook";
 
 const Canvas = (props: any) => {
 

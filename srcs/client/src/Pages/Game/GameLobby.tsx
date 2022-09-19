@@ -5,11 +5,12 @@ import { SocketContext } from '../../socket';
 // Game
 import Game from './Game';
 import GameList from './GameList';
-import PongModal from './PongModal';
+import PongModal from '../../Components/Modal/PongModal';
 import { mapNeon, mapOriginal } from './conf/maps';
 // Styles
 import './Game.css';
 import '../../Styles';
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 
 const GameLobby = () => {
   // Enums
@@ -196,26 +197,20 @@ const GameLobby = () => {
           },
         ]}
       />
-      <div id="game-actions" className="row mb-4">
+      <div id="game-actions" className="row">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
           <button
             type="button"
-            className="btn btn-blue text-blue me-3"
+            className="btn btn-blue text-blue me-2 mb-4"
             onClick={handleShowMapSelect}
           >
-            <img
-              src="/img/edit.jpg"
-              alt="edit"
-              className="rounded-circle"
-              width={25}
-              height={25}
-            />
+            <PaletteOutlinedIcon />
           </button>
           {game && game.action === Action.GO_LOBBY && (
             <button
               type="button"
-              className="btn btn-blue text-blue me-3"
+              className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleNewGame}
             >
               Create New Game
@@ -224,7 +219,7 @@ const GameLobby = () => {
           {game && game.action === Action.VIEW_GAME && (
             <button
               type="button"
-              className="btn btn-blue text-blue me-3"
+              className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleBackToLobby}
             >
               Go back to lobby
@@ -232,7 +227,7 @@ const GameLobby = () => {
           )}
           {game && game.action > Action.VIEW_GAME && (
             <button
-              className="btn btn-blue text-blue"
+              className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleShowGoBackLobby}
             >
               Go back to lobby
@@ -240,7 +235,7 @@ const GameLobby = () => {
           )}
           {matchMaking === MatchMaking.NOT_IN_QUEUE ? (
             <button
-              className="btn btn-pink text-pink"
+              className="btn btn-pink text-pink mb-4"
               style={{ cursor: 'pointer' }}
               onClick={() => handleMatchMaking(MatchMaking.IN_QUEUE)}
             >
@@ -249,11 +244,16 @@ const GameLobby = () => {
           ) : (
             matchMaking === MatchMaking.IN_QUEUE && (
               <button
-                className="btn btn-pink text-pink"
+                className="btn btn-pink text-pink mb-4"
                 style={{ cursor: 'pointer' }}
                 onClick={() => handleMatchMaking(MatchMaking.NOT_IN_QUEUE)}
               >
-                We are looking for an opponent ... (click to Cancel)
+                <span
+                  className="spinner-grow spinner-grow-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span> looking for an opponent...</span>
               </button>
             )
           )}

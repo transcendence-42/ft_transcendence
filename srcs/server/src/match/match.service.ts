@@ -162,14 +162,14 @@ export class MatchService {
     // Create a new entry in user's rating history after each match
     await this.ratingService.create({
       userId: pLeft.id,
-      rating: pLeftNewElo,
+      rating: Math.round(pLeftNewElo),
     });
     await this.userService.update(pLeft.id, {
-      eloRating: pLeftNewElo,
+      eloRating: Math.round(pLeftNewElo),
       stats: pLeftNewStats,
     });
     await this.userService.update(pRight.id, {
-      eloRating: pRightNewElo,
+      eloRating: Math.round(pRightNewElo),
       stats: pRightNewStats,
     });
   }

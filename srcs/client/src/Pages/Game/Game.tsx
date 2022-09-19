@@ -1,21 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Stage, Layer, Rect, Line, Text } from 'react-konva';
-import { drawBall, drawMessages, drawPaddles, drawScores, drawStage } from './utils/draw';
 
 const Game = (props: any) => {
-
-  const draw = (ctx: any) => {
-    if (scores.length < 2) {
-      // Waiting for an opponent
-    }
-    else {
-      drawStage(ctx, grid);
-      drawScores(ctx, grid, scores);
-      drawPaddles(ctx, grid);
-      drawBall(ctx, grid);
-    }
-    drawMessages(ctx, grid, message);
-  }
 
   // Enum
   enum movement {

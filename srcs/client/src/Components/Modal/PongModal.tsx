@@ -1,5 +1,4 @@
 import Modal from 'react-bootstrap/Modal';
-import './Game.css';
 import '../../Styles';
 
 const PongModal = (props: any) => {
@@ -27,7 +26,7 @@ const PongModal = (props: any) => {
         {props.subText &&
         <p className="text-pink text-center">{props.subText}</p>}
         {props.select &&
-          <table>
+          <table className='table-sm'>
             <tbody>
               <tr>
                 {props.select.map((s: any, i: number) => (
@@ -45,9 +44,8 @@ const PongModal = (props: any) => {
                     }}>
                       <img 
                         src={s.img}
-                        width={250}
                         alt={s.alt}
-                        className="rounded"
+                        className="img-fluid"
                       />
                     </button>
                   </td>

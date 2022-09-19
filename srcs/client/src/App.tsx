@@ -11,7 +11,7 @@ import NavBar from './Components/Tools/NavBar/NavBar';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
-import GameLobby from './Components/Game/GameLobby';
+import GameLobby from './Pages/Game/GameLobby';
 
 function App() {
   return (
