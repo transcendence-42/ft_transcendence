@@ -25,6 +25,10 @@
    
 
   }
+  .col-size {
+    width: 30%;
+    padding: 40% 0 0 0 !important;
+  }
 
   .blueContainer1
 {

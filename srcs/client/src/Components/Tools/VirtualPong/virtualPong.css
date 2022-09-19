@@ -8,11 +8,8 @@
 
   
   .field {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    max-width: 600px;
-    max-height: 900px;
+    height: 80%;
+    width: 80%;
     border-width: 6px;
     border-style: solid;
     filter: brightness(1.25);
@@ -26,7 +23,7 @@
     
     .net {
       width: 0;
-      height: 95%;
+      height: 100%;
       
       position: absolute;
       top: 0;
@@ -71,10 +68,8 @@
     .ball {
       width: 5px;
       height: 5px;
-      
       position: absolute;
       background: var(--color);
-      
       animation: ball 6s infinite linear;
     }
   
