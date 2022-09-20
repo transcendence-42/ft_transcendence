@@ -37,23 +37,23 @@ export const drawScores = (
   map: any,
 ) => {
   if (scores) {
+    // Get current canvas width
+    const cWidth: any = document
+      .getElementById('pongCanvas')
+      ?.getAttribute('width');
     let display: string = '';
     scores.forEach((s: any) => {
       if (s.side === 0) display = s.score.toString() + ' ' + display;
       else if (display) display = display + s.score.toString();
       else display = display + ' ' + s.score.toString();
     });
-    ctx.font = `${map.score.style} ${map.score.size}px ${map.fontFamily}`;
+    ctx.font = `${map.score.style} ${+cWidth * 0.078}px ${map.fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.shadowBlur = map.score.shadow;
     ctx.shadowColor = map.score.shadowColor;
     ctx.fillStyle = map.text.fill;
-    ctx.fillText(
-      display,
-      map.canvas.size.w / 2,
-      30,
-    );
+    ctx.fillText(display, map.canvas.size.w / 2, 30);
   }
 };
 
@@ -88,12 +88,7 @@ export const drawBall = (
     ctx.fillStyle = map.ball.fill;
     ctx.shadowBlur = map.ball.shadow;
     ctx.shadowColor = map.ball.shadowColor;
-    ctx.fillRect(
-      grid.ball.x,
-      grid.ball.y,
-      map.ball.size,
-      map.ball.size,
-    );
+    ctx.fillRect(grid.ball.x, grid.ball.y, map.ball.size, map.ball.size);
   }
 };
 
@@ -104,6 +99,10 @@ export const drawMessages = (
   map: any,
 ) => {
   if (message !== '') {
+    // Get current canvas width
+    const cWidth: any = document
+      .getElementById('pongCanvas')
+      ?.getAttribute('width');
     // Draw background rect to hide stage
     ctx.fillStyle = map.canvas.fill;
     ctx.shadowBlur = 0;
@@ -114,16 +113,12 @@ export const drawMessages = (
       100,
     );
     // Draw message
-    ctx.font = `${map.score.style} ${map.altText.size}px ${map.fontFamily}`;
+    ctx.font = `${map.score.style} ${+cWidth * 0.044}px ${map.fontFamily}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = map.altText.fill;
     ctx.shadowBlur = map.altText.shadow;
     ctx.shadowColor = map.altText.shadowColor;
-    ctx.fillText(
-      message,
-      map.canvas.size.w / 2,
-      map.canvas.size.h / 2,
-    );
+    ctx.fillText(message, map.canvas.size.w / 2, map.canvas.size.h / 2);
   }
 };

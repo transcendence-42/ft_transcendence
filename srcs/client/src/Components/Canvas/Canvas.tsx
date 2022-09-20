@@ -32,6 +32,7 @@ const Canvas = (props: any) => {
 
   return (
     <canvas
+      id='pongCanvas'
       ref={canvasRef}
       width={map.canvas.size.w}
       height={map.canvas.size.h}

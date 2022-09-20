@@ -13,6 +13,6 @@ export class FtExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
 
-    response.redirect('http://127.0.0.1:3042/home');
+    response.redirect(process.env.LOGIN_PAGE);
   }
 }
