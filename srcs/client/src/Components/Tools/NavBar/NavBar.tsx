@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
 import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-
 import { useCookies } from 'react-cookie';
+import Context from "../../../Context/Context";
 
 
 export default function NavBar ()
 {
-    // eslint-disable-next-line
-    const [user, setUser] = useState(null);
-    const [isLogged, setIsLogged] = useState(false);
-    // eslint-disable-next-line
-    const [cookies, setCookie] = useCookies(undefined);
+
+   
     const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
-
+    const contextValue = useContext(Context);
+    
+    /*
     /*
     ** Fetching data and allow the user to connect using "useState" to true
     */
@@ -48,17 +47,16 @@ export default function NavBar ()
                 return Promise.reject();
 
             }
-            console.log("ici end");
             throw console.log("Fail parsing 42auth");
         })
         .then((responseObject) => {
             if (responseObject.message)
             {
-                setUser((responseObject));
                 console.log(responseObject);
                 console.log("Success parsing 42auth");
-                setIsLogged(true);
+              
                 localStorage.setItem("pathIsFree", JSON.stringify(true));
+                contextValue.updateIsConnected(true);
                 return;
             }
             throw new Error('Something went wrong');
@@ -86,67 +84,21 @@ export default function NavBar ()
             console.log(responseObject)
             if (responseObject.message)
             {
-                setUser(null);
                 console.log("Disconnect from our services");
-                setIsLogged(false);
-                localStorage.removeItem("pathIsFree");
+                localStorage.removeItem('pathIsFree');
+                contextValue.updateIsConnected(false);
                 return;
             }
          })
          .catch((err) => console.log(err));
      };
 
-   /*
-    ** Here it allows us to access the data into the local storage and not loosing our state "connected"
-    */
-    useEffect(() => {
-        const data = window.localStorage.getItem("StillConnected");
-        if (data)
-        {
-            setIsLogged(JSON.parse(data));
-        }
-
-      }, []);
-
-    /*
-    ** Here it allows us to create the data into the local storage
-    */
-    useEffect(() => {
-        window.localStorage.setItem("StillConnected", JSON.stringify(isLogged));
-    });
-
-
-   /*
-    ** Here it allows us to access the data into the local storage and not loosing our state from "auth42"
-    */
-    useEffect(() => {
-        const data = localStorage.getItem("fromAuth");
-        if (data)
-        {
-            setFromAuth(JSON.parse(data));
-        }
-
-      }, []);
-
-    /*
-    ** Here it create the data to be into the local storage
-    */
-    useEffect(() => {
-        localStorage.setItem("fromAuth", JSON.stringify(fromAuth));
-    });
-
     /*
     ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
-     useEffect(() => {
-        if (cookies !== undefined && fromAuth === true)
-        {
-            getUser();
-            setFromAuth(false) ;
-        }
-     }, [cookies, fromAuth]);
+    
 
-    if (isLogged)
+    if (contextValue.isConnected)
     {
         return (
             <div className="navBar">
