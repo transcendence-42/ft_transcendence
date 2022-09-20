@@ -153,7 +153,7 @@ export default function NavBar ()
             <nav className="navbar navbar-expand-lg">
                 <div className="container-fluid">
                     <Link to ="/" className="navbar-brand">PONG</Link>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <button className="navbar-toggler navbar-button" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -171,7 +171,7 @@ export default function NavBar ()
                                 <Link to ="/leaderboard" className="nav-link active">Leaderboard</Link>
                             </li>
                             <li className="nav-item">
-                                <button onClick={deco} className="nav-link active">Logout</button>
+                                <button onClick={deco} className="nav-link active navbar-button">Logout</button>
                             </li>
                             <li className="nav-item">
                                 <Link to ="/profile" state={{userID}} className="nav-link active"> Profile </Link>

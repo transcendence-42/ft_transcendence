@@ -6,41 +6,69 @@ import { Message, Channel } from './entities';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
 import PongAdvancedModal from '../../Components/Modal/PongAdvancedModal';
-import ChannelList from './ChannelList';
+import BrowseChannels from './BrowseChannels';
+import CreateChannel from './CreateChannel';
+import FriendList from './FriendList';
 
 const Chat = () => {
 
     // state
-    const [showChannelMenu, setShowChannelMenu] = useState(false);
+    const [showBrowseChannel, setShowBrowseChannel] = useState(false);
+    const [showCreateChannel, setshowCreateChannel] = useState(false);
+    const [showFriendList, setshowFriendList] = useState(false);
 
     // handlers
-    const handleCloseChannelMenu = () => setShowChannelMenu(false);
-    const handleShowChannelMenu = () => setShowChannelMenu(true);
+    const handleCloseCreateChannel = () => setshowCreateChannel(false);
+    const handleShowCreateChannel = () => setshowCreateChannel(true);
+
+    const handleCloseBrowseChannel = () => setShowBrowseChannel(false);
+    const handleShowBrowseChannel = () => setShowBrowseChannel(true);
+
+    const handleCloseFriendList = () => setshowFriendList(false);
+    const handleShowFriendList = () => setshowFriendList(true);
 
     return (
-        <div className='container'>
+        <>
             <PongAdvancedModal
-                title="Channel list"
-                show={showChannelMenu}
-                closeHandler={handleCloseChannelMenu}
+                title="Browse channels"
+                show={showBrowseChannel}
+                closeHandler={handleCloseBrowseChannel}
                 textBtn1="Cancel"
-                handleBtn1={handleCloseChannelMenu}
+                handleBtn1={handleCloseBrowseChannel}
                 textBtn2="Validate"
-                handleBtn2={handleCloseChannelMenu}
-            ><ChannelList /></PongAdvancedModal>
-            <div className='row row-color'>
+                handleBtn2={handleCloseBrowseChannel}
+            >< BrowseChannels /></PongAdvancedModal>
+            <PongAdvancedModal
+                title="Create a channel"
+                show={showCreateChannel}
+                closeHandler={handleCloseCreateChannel}
+                textBtn1="Cancel"
+                handleBtn1={handleCloseCreateChannel}
+                textBtn2="Create"
+                handleBtn2={handleCloseCreateChannel}
+            >< CreateChannel /></PongAdvancedModal>
+            <PongAdvancedModal
+                title="Select a friend"
+                show={showFriendList}
+                closeHandler={handleCloseFriendList}
+                textBtn1="Cancel"
+                handleBtn1={handleCloseFriendList}
+                textBtn2="Validate"
+                handleBtn2={handleCloseFriendList}
+            >< FriendList /></PongAdvancedModal>
+            <div className='row row-color main-row-margin'>
                 <div className='col-2 rounded-4 vh-100 blue-box-chat'>
                     <div className='row'>
                         <div className='col'>
                             <br></br>
-                            <p className='yellow-titles'>Channels</p>
+                            <p className='yellow-titles'>CHANNELS</p>
                         </div>
                         <div className='col'>
                             <br></br>
-                            <button className='float-end rounded-4 dropdown-toggle color-dropdown' data-bs-toggle="dropdown" aria-expanded="false"></button>
-                            <ul className="dropdown-menu channel-menu">
-                                <li className='dropdown-item' onClick={handleShowChannelMenu}>Browse channels</li>
-                                <li className='dropdown-item' onClick={handleShowChannelMenu}>create channels</li>
+                            <button className='float-end rounded-4 dropdown-toggle color-dropdown channel-button' data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <ul className="dropdown-menu channel-menu blue-box-chat">
+                                <li className='dropdown-item' onClick={handleShowBrowseChannel}>Browse channels</li>
+                                <li className='dropdown-item' onClick={handleShowCreateChannel}>Create a channel</li>
                             </ul>
                         </div>
                     </div>
@@ -59,10 +87,10 @@ const Chat = () => {
                     <br></br>
                     <div className='row'>
                         <div className='col'>
-                            <p className='yellow-titles'>Messages</p>
+                            <p className='yellow-titles'>MESSAGES</p>
                         </div>
                         <div className='col'>
-                            <button className='plus float-end rounded-4' onClick={handleShowChannelMenu}>+</button>
+                            <button className='message-button float-end rounded-4' onClick={handleShowFriendList}>+</button>
                         </div>
                     </div>
                     <div className='row'>
@@ -94,12 +122,12 @@ const Chat = () => {
                     <div className='row'>
                         <div className='col'>
                             <br></br>
-                            <p className='blue-titles center-position'>Members</p>
+                            <p className='blue-titles center-position'>MEMBERS</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
 

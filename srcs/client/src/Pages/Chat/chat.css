@@ -1,5 +1,14 @@
 .row-color {
-    color: white;
+	font-family: 'Montserrat', sans-serif;
+	
+	color: #80FFFF;
+}
+
+.main-row-margin {
+	margin-top: 3em;
+	margin-left: 5em;
+	margin-right: 5em;
+	margin-bottom: 4em;
 }
 
 .blue-box-chat {
@@ -35,11 +44,13 @@
 	color: #80FFFF;
 	text-shadow:	0px 0px 7.49518px #6ABDFF,
 					0px 0px 14.9904px #3D9FEE,
-				  0px 0px 25.6977px #187BCA;
+					0px 0px 25.6977px #187BCA;
 }
 
-.plus {
+.message-button {
 	text-align: right;
+	border: none;
+	background-color: rgb(5, 2, 30);
 
 	color: #FFE710;
     text-shadow:	0px 0px 7.49518px #FF6ADE,
@@ -47,9 +58,9 @@
                     0px 0px 25.6977px #CA18A3;
 }
 
-.button {
+.channel-button {
 	border: none;
-    background-color: rgb(5, 2, 30);
+	background-color: rgb(5, 2, 30);
 }
 
 .input-field-chat {
@@ -76,8 +87,9 @@
 }
 
 .channel-menu {
-	color: #FFE710;
-    text-shadow:	0px 0px 7.49518px #FF6ADE,
-                    0px 0px 14.9904px #EA3DEE,
-                    0px 0px 25.6977px #CA18A3;
+    background-color: rgb(5, 2, 30);
+}
+
+.dropdown-menu .dropdown-item:active {
+	color: #80FFFF !important;
 }
