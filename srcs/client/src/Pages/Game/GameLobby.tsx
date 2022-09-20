@@ -11,11 +11,12 @@ import { mapNeon } from './conf/maps';
 import './Game.css';
 import '../../Styles';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
-import GoBackToLobby from './modals/GoBackToLobby';
 import Matchmaking from './modals/MatchMaking';
 import MapSelect from './modals/MapSelect';
+import GoBack from './modals/GoBack';
+import { useNavigate } from 'react-router-dom';
 
-const GameLobby = () => {
+const GameLobby = (props: any) => {
   // Enums
   enum Action {
     GO_LOBBY = 0,
@@ -31,6 +32,7 @@ const GameLobby = () => {
     IN_GAME,
   }
 
+  const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
   // States
@@ -41,13 +43,13 @@ const GameLobby = () => {
   const [gameMap, setGameMap] = useState(mapNeon);
 
   // Modal states
-  const [showGoBackLobby, setShowGoBackLobby] = useState(false);
+  const [showGoBack, setShowGoBack] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
   const [showMapSelect, setShowMapSelect] = useState(false);
 
   // Modal event handlers
-  const handleCloseGoBackLobby = () => setShowGoBackLobby(false);
-  const handleShowGoBackLobby = () => setShowGoBackLobby(true);
+  const handleCloseGoBack = () => setShowGoBack(false);
+  const handleShowGoBack = () => setShowGoBack(true);
   const handleCloseMatchMaking = () => setShowMatchMaking(false);
   const handleShowMatchMaking = () => setShowMatchMaking(true);
   const handleCloseMapSelect = () => setShowMapSelect(false);
@@ -116,24 +118,26 @@ const GameLobby = () => {
     socket.emit('createGame');
   };
 
-  const backToLobby = (room: any) => {
+  const backTo = (room: any) => {
     socket.emit('findAllGame');
     setMessage({});
     setMatchMaking(MatchMaking.NOT_IN_QUEUE);
     setGame(room);
   };
 
-  const handleBackToLobby = () => {
-    handleCloseGoBackLobby();
+  const handleBackTo = () => {
+    handleCloseGoBack();
     // Viewer : remove the viewer and change its room in the server
     if (game.action === Action.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
-      backToLobby({ id: 'lobby', action: Action.GO_LOBBY });
+      if (props.origin.name !== 'lobby')
+        navigate(props.origin.loc);
+      else backTo({ id: 'lobby', action: Action.GO_LOBBY });
     }
     // Player : cancel if 1 player / abandon if match started
     if (game.action !== Action.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
-      backToLobby({ id: 'lobby', action: Action.GO_LOBBY });
+      backTo({ id: 'lobby', action: Action.GO_LOBBY });
     }
   };
 
@@ -164,15 +168,15 @@ const GameLobby = () => {
     <>
       {/* Modals */}
       <PongModal
-        title="Go back to lobby"
-        closeHandler={handleCloseGoBackLobby}
-        show={showGoBackLobby}
+        title={`Go back to ${props.origin.name}`}
+        closeHandler={handleCloseGoBack}
+        show={showGoBack}
         textBtn1="Cancel"
-        handleBtn1={handleCloseGoBackLobby}
-        textBtn2="Go back to lobby"
-        handleBtn2={handleBackToLobby}
+        handleBtn1={handleCloseGoBack}
+        textBtn2={`Go back to ${props.origin.name}`}
+        handleBtn2={handleBackTo}
       >
-        <GoBackToLobby />
+        <GoBack />
       </PongModal>
       <PongModal
         title="Matchmaking"
@@ -216,17 +220,17 @@ const GameLobby = () => {
             <button
               type="button"
               className="btn btn-blue text-blue me-2 mb-4"
-              onClick={handleBackToLobby}
+              onClick={handleBackTo}
             >
-              Go back to lobby
+              Go back to {props.origin.name}
             </button>
           )}
           {game && game.action > Action.VIEW_GAME && (
             <button
               className="btn btn-blue text-blue me-2 mb-4"
-              onClick={handleShowGoBackLobby}
+              onClick={handleShowGoBack}
             >
-              Go back to lobby
+              Go back to {props.origin.name} 
             </button>
           )}
           {matchMaking === MatchMaking.NOT_IN_QUEUE ? (
@@ -276,7 +280,6 @@ const GameLobby = () => {
               socket={socket}
               id={game.id}
               action={game.action}
-              backToLobby={backToLobby}
               actionVal={Action}
               setMatchMaking={setMatchMaking}
               matchMakingVal={MatchMaking}
