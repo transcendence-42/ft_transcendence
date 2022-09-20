@@ -1,16 +1,19 @@
 // React
-import { useCallback, useContext, useEffect, useState, FC } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 // Socket
 import { SocketContext } from '../../socket';
 // Game
 import Game from './Game';
 import GameList from './GameList';
 import PongModal from '../../Components/Modal/PongModal';
-import { mapNeon, mapOriginal } from './conf/maps';
+import { mapNeon } from './conf/maps';
 // Styles
 import './Game.css';
 import '../../Styles';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
+import GoBackToLobby from './modals/GoBackToLobby';
+import Matchmaking from './modals/MatchMaking';
+import MapSelect from './modals/MapSelect';
 
 const GameLobby = () => {
   // Enums
@@ -162,42 +165,32 @@ const GameLobby = () => {
       {/* Modals */}
       <PongModal
         title="Go back to lobby"
-        mainText="Warning: Do you confirm ?"
-        subText="This action will cause you to lose the game if started, or cancel it if not started."
         closeHandler={handleCloseGoBackLobby}
         show={showGoBackLobby}
         textBtn1="Cancel"
         handleBtn1={handleCloseGoBackLobby}
         textBtn2="Go back to lobby"
         handleBtn2={handleBackToLobby}
-      />
+      >
+        <GoBackToLobby />
+      </PongModal>
       <PongModal
         title="Matchmaking"
-        mainText="An opponent has been found !"
-        subText="The game will automatically start in few seconds ..."
         closeHandler={handleCloseMatchMaking}
         show={showMatchMaking}
-      />
+      >
+        <Matchmaking />
+      </PongModal>
       <PongModal
         title="Select map"
         closeHandler={handleCloseMapSelect}
         show={showMapSelect}
-        size="lg"
-        select={[
-          {
-            img: '/img/neon.jpg',
-            alt: 'neon',
-            map: mapNeon,
-            handler: setGameMap,
-          },
-          {
-            img: '/img/original.jpg',
-            alt: 'original',
-            map: mapOriginal,
-            handler: setGameMap,
-          },
-        ]}
-      />
+      >
+        <MapSelect
+          closeHandler={handleCloseMapSelect}
+          setGameMap={setGameMap}
+        />
+      </PongModal>
 
       {/* Action buttons */}
       <div id="game-actions" className="row">
