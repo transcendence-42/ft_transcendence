@@ -17,6 +17,7 @@ export interface JoinChannelDto {
   id: string;
   name: string;
   type: string;
+  userId: string;
   password?: string;
 }
 

@@ -59,6 +59,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       name: channelDto.name,
       id: channelDto.id,
       type: channelDto.type,
+      userId: user.id,
       password: channelDto.password
     });
     console.log(`This is join channel dto ${JSON.stringify(channelDto, null, 4)}`);

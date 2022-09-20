@@ -13,6 +13,10 @@ export class JoinChannelDto {
   @IsString()
   type: string;
 
+  @IsNotEmpty()
+  @IsString()
+  userId: string;
+
   @IsOptional()
   @IsString()
   password?: string;

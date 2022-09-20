@@ -82,6 +82,12 @@ export class ChatService {
       return;
     }
     client.join(joinChannelDto.id);
+    if (
+      !channel.usersIdList.find((userId) => userId === joinChannelDto.userId)
+    ) {
+      channel.usersIdList.push(joinChannelDto.userId);
+      this.setChannel(channel);
+    }
     client.emit(Events.joinChannelResponse, {
       msg: 'changed channel',
       channel,
