@@ -103,7 +103,9 @@ export class UserService {
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2002') throw new BadRequestException();
-        else throw new UserNotFoundException(id);
+        else {
+          throw new UserNotFoundException(id);
+        }
       }
     }
   }

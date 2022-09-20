@@ -10,6 +10,7 @@ import {
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import Redis from 'redis';
+import { Match } from 'src/match/entities/match.entity';
 
 // Enums
 const enum Move {
@@ -203,7 +204,11 @@ export class GameService {
   }
 
   /** End a game */
-  private async _endGame(game: Game, motive: number, loserId?: number) {
+  private async _endGame(
+    game: Game,
+    motive: number,
+    loserId?: number,
+  ): Promise<Match> {
     // remove the game from the list
     this.games = this.games.filter((g) => g.id !== game.id);
     // emit a game end info to all players / viewers so they go back to lobby
@@ -224,7 +229,7 @@ export class GameService {
       })),
     };
     try {
-      await this.matchService.create(createMatchDto);
+      return await this.matchService.create(createMatchDto);
     } catch (e) {
       console.debug(e);
     }
@@ -279,12 +284,12 @@ export class GameService {
   }
 
   /** one player abandons the game */
-  async abandonGame(client: Socket, id: string) {
+  async abandonGame(client: Socket, id: string): Promise<Match> {
     const userId: number = +client.handshake.query.userId;
     const game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     if (game.players.length > 1)
-      await this._endGame(game, Motive.ABANDON, userId);
+      return await this._endGame(game, Motive.ABANDON, userId);
     else this._cancelGame(game);
   }
 

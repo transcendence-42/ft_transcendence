@@ -18,9 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test": "jest",
-    "test:int": "jest -i --no-cache --config ./test/jest-integration.json",
-    "test:e2e": "NODE_ENV=test jest -i --config ./test/jest-e2e.json",
-    "test:wip": "NODE_ENV=test jest -i --config ./test/jest-wip.json"
+    "test:int": "jest -i --forceExit --no-cache --config ./test/jest-integration.json",
+    "test:e2e": "NODE_ENV=test jest -i --forceExit --config ./test/jest-e2e.json",
+    "test:wip": "NODE_ENV=test jest -i --forceExit --config ./test/jest-wip.json"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
