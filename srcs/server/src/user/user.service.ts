@@ -60,9 +60,7 @@ export class UserService {
           create: userStat,
         },
         ratingHistory: {
-          create: {
-            rating: 1000,
-          },
+          create: { rating: 1000 },
         },
       },
     });
@@ -167,6 +165,12 @@ export class UserService {
             username: userInfo.username,
           },
         },
+        stats: {
+          create: { wins: 0, losses: 0 },
+        },
+        ratingHistory: {
+          create: { rating: 1000 },
+        },
       },
       include: {
         credentials: true,
@@ -189,6 +193,12 @@ export class UserService {
             email: userInfo.email,
             password: hash,
           },
+        },
+        stats: {
+          create: { wins: 0, losses: 0 },
+        },
+        ratingHistory: {
+          create: { rating: 1000 },
         },
       },
     });

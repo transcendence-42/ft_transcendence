@@ -22,6 +22,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/lobby" element={<GameLobby />} />
         <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -29,7 +30,6 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/mapchoice" element={<MapChoice />} />
           <Route path="/matchmaking" element={<Matchmaking />} />
-          <Route path="/lobby" element={<GameLobby />} />
         </Route>
       </Routes>
     </div>
