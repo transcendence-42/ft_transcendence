@@ -1,7 +1,6 @@
 
-export async function getFetch(props : any){
+export async function getFetchMatch(props : any){
 	console.log("URL ",props.url);
-	try{
 		const response = await
 		fetch(props.url, {
 	  method: "GET",
@@ -13,14 +12,10 @@ export async function getFetch(props : any){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
-				// return no friend
-				throw new Error("Error");
+				return;
 			}
 			return (response.json());
 		})
 		return response;
-	}
-	catch(error) { // Mettre un potentiel message d'erreur ?
-		console.error(error);
  };
-}
+

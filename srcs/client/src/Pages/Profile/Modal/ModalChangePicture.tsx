@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {useState} from 'react'
-import {patchFetchPicture} from "./patchFetchPicture"
+import {patchFetchPicture} from "../Fetch/patchFetchPicture"
 import "./ModalChangeContent.css"
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
+import "../../../Components/Tools/Text.css"
+import "../../../Components/Tools/Box.css"
 
 export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 
@@ -32,7 +32,7 @@ export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 			<>
 			  <div className="modal-overlay">
 				<div className="modal-wrapper">
-				  <div className="modal">
+				  <div className="modal2">
 					<div className="modal-header">
 					<div className="yellowText" style={{fontSize: "1.22em"}}> Put an URL for your New Picture </div>
 					  <button

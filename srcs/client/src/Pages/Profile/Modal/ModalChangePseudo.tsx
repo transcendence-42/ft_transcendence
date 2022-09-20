@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {useState} from 'react'
-import {patchFetchPseudo} from "./patchFetchPseudo"
+import {patchFetchPseudo} from "../Fetch/patchFetchPseudo"
 import "./ModalChangeContent.css"
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
+import "../../../Components/Tools/Text.css"
+import "../../../Components/Tools/Box.css"
 
 export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 

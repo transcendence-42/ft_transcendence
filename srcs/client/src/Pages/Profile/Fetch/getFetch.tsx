@@ -1,5 +1,5 @@
 
-export async function getFetchFriends(props : any){
+export async function getFetch(props : any){
 	console.log("URL ",props.url);
 	try{
 		const response = await
@@ -13,7 +13,7 @@ export async function getFetchFriends(props : any){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
-				return; //No friend
+				throw new Error("Error");
 			}
 			return (response.json());
 		})

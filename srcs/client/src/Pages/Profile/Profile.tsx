@@ -11,11 +11,13 @@ import DoubleAuth from './DoubleAuth'
 import Ladder from './Ladder'
 import MatchHistory from './MatchHistory'
 import FriendList from './FriendList'
-import {getFetch} from './getFetch'
-import {getFetchFriends} from './getFetchFriends'
+import {getFetch} from './Fetch/getFetch'
+import {getFetchMatch} from './Fetch/getFetchMatch'
+import {getFetchFriends} from './Fetch/getFetchFriends'
 import { useLocation } from "react-router-dom";
 
 export default function Profile () {
+
 
     let location = useLocation();
 
@@ -25,6 +27,7 @@ export default function Profile () {
     const [matchesList, setMatchesList] : any = useState([]);
     const [update, setUpdate] = useState(2);
 
+    console.log(userID);
 
     function toggleUpdate() {
         setTimeout(() => {
@@ -37,22 +40,6 @@ export default function Profile () {
         }, 100);
 
 	}
-
-    // const [test, setTest] : any = useState(
-    //     {
-    //         "id": 1,
-    //         "username": "fmonbeig",
-    //         "email": "fmonbeig@student.42.fr",
-    //         "createdAt": "2022-09-02T13:22:33.662Z",
-    //         "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-    //         "currentStatus": 1,
-    //         "eloRating": 1000,
-    //             "stats": {
-    //             "id": 0,Matcvarssed": [],
-    //         "matches": [],
-    //         "achievements": []
-    //       }
-    // )
 
     useEffect(() => {
         let request = "http://127.0.0.1:4200/users/" + userID;
@@ -68,12 +55,10 @@ export default function Profile () {
             console.log("Friend =>", responseObject);
             setFriendList(responseObject);})
         request = "http://127.0.0.1:4200/users/" + userID + "/matches";
-            const matches_json = getFetch({url : request});
+            const matches_json = getFetchMatch({url : request});
             matches_json.then((responseObject)=> {
                 console.log("Matches =>", responseObject);
                 setMatchesList(responseObject);})
-
-        console.log("HELLOOOOO");
         },[userID, update]);
 
     console.log(user);
@@ -143,3 +128,20 @@ export default function Profile () {
 //{id: 1, username: 'fmonbeig', email: 'fmonbeig@student.42.fr',
 //createdAt: '2022-09-01T09:00:06.542Z',
 //profilePicture: 'https://cdn.intra.42.fr/users/fmonbeig.jpg', …}
+
+
+    // const [test, setTest] : any = useState(
+    //     {
+    //         "id": 1,
+    //         "username": "fmonbeig",
+    //         "email": "fmonbeig@student.42.fr",
+    //         "createdAt": "2022-09-02T13:22:33.662Z",
+    //         "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
+    //         "currentStatus": 1,
+    //         "eloRating": 1000,
+    //             "stats": {
+    //             "id": 0,Matcvarssed": [],
+    //         "matches": [],
+    //         "achievements": []
+    //       }
+    // )

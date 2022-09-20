@@ -26,11 +26,12 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
+              < Route path="/profile" element={<Profile />} />
+              < Route path="/other_profile" element={<Profile />} />
             <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />
-              < Route path="/profile" element={<Profile />} />
               < Route path="/mapchoice" element={<MapChoice />} />
               < Route path="/matchmaking" element={<Matchmaking />} />
             </Route>
