@@ -7,8 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
-import { OnModuleInit, UsePipes, ValidationPipe } from '@nestjs/common';
-import { MessageDto, CreateChannelDto, Channel, JoinChannelDto } from './dto';
+import { OnModuleInit } from '@nestjs/common';
+import {
+  MessageDto,
+  CreateChannelDto,
+  JoinChannelDto,
+  UpdateOneChannelDto,
+} from './dto';
 import { Events } from './entities/Events';
 import * as Cookie from 'cookie';
 
@@ -35,27 +40,31 @@ export class ChatGateway
     this.chatService.server = server;
   }
 
+  // To do:
+  // ON connect emit all public channels and protected channels to the client.
   handleConnection(client: Socket, ...args: any[]) {
     const userId = this._parseIdCookie(client.handshake.headers.cookie);
     console.log(`This is user id ${userId}`);
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
-      console.log(`Trying to update user`);
       this.chatService.allClients = this.chatService.allClients.map((user) => {
-        console.log(`First user ${user.id}`);
         if (user.id === userId) {
           user.socketId = client.id;
           console.log(`Updating user ${user.id}`);
         }
         return user;
       });
-      // adding the user to the list of users
-      this.chatService.addUser(client, userId);
+      const user = this.chatService.allClients.find(
+        (user) => user.id === userId,
+      );
+      console.log(`User ${JSON.stringify(user, null, 4)} reconnected`);
+      client.emit(Events.addUserResponse, user);
+    } else {
+      console.log(
+        `Client ${client.id} connected to the chat websocket`,
+        userId ? `With id ${userId}` : `witout id`,
+      );
     }
-    console.log(
-      `Client ${client.id} connected to the chat websocket`,
-      userId ? `With id ${userId}` : `witout id`,
-    );
     console.log(`This is the list of all users`);
     this.chatService.allClients.map((user) =>
       console.log(`${JSON.stringify(user, null, 4)}`),
@@ -66,13 +75,7 @@ export class ChatGateway
   }
 
   handleDisconnect(client: Socket) {
-    const user = this.chatService.allClients.find(
-      (cli) => cli.socketId === client.id,
-    );
-    this.chatService.allClients = this.chatService.allClients.filter(
-      (cli) => cli.socketId !== client.id,
-    );
-    console.log(`User ${user.id} disconnected`);
+    console.log(`client ${client.id} disconnected`);
   }
 
   @SubscribeMessage(Events.sendMessage)
@@ -111,8 +114,11 @@ export class ChatGateway
   private _parseIdCookie(cookies) {
     if (cookies) {
       const cookiesObj = Cookie.parse(cookies);
-      if (cookiesObj['id']) return cookiesObj['id'].split('=')[1];
+      if (cookiesObj['id']) return cookiesObj['id'];
     }
     return null;
   }
+
+  @SubscribeMessage(Events.updateOneChannel)
+  updateOneChannel(client: Socket, channel: UpdateOneChannelDto) {}
 }

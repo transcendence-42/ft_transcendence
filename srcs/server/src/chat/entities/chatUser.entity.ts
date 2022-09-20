@@ -1,7 +1,7 @@
 export class ChatUser {
   socketId: string;
   id: string;
-  role: string;
+  name: string;
   channels?: string[];
   directMessges?: string[];
 }

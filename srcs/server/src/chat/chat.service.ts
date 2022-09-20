@@ -70,25 +70,39 @@ export class ChatService {
     if (hasUserId) return;
     console.log(`Setting id for user ${client.id}`);
     const userId = uuidv4();
-    client.emit(Events.setId, userId);
+    client.emit(Events.setIdResponse, userId);
   }
 
   addUser(client: Socket, id: string) {
-    const userExists = this.allClients.filter((user) => user.id === id);
+    const names = [
+      'George',
+      'Toto',
+      'Judu',
+      'Masto',
+      'Flo mon Beig',
+      'Nouf',
+      'Karpathy',
+      'Lex',
+    ];
+    const userExists = this.allClients.filter((userDb) => userDb.id === id);
     if (userExists.length === 0) {
       const chatUser: ChatUser = {
         socketId: client.id,
         id,
-        role: 'user',
+        name: names[Math.floor((Math.random() * 10)) % names.length],
       };
-      console.log(`Adding user ${id}`);
+      console.log(`Adding user name: ${chatUser.name}, id: ${id}`);
       this.allClients.push(chatUser);
-      // client.emit(Events.updateUsers, this.allClients);
+      client.emit(Events.addUserResponse, chatUser);
       this.server.emit(Events.updateUsers, this.allClients);
     }
   }
 
+  // TO FIX:
+  // user is changing on each refresh. Need to keep the user in tact.
+
   createChannel(client: Socket, channelDto: CreateChannelDto) {
+    // if channel name taken but channel is private it's okay
     const isChannelNameTaken = this.allChannels.filter(
       (channel) => channelDto.name === channel.name,
     )[0];

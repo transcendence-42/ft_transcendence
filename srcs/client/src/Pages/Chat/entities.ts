@@ -13,10 +13,17 @@ export interface Channel {
   userIdList: string[];
 }
 
-
 export interface JoinChannelDto {
   id: string;
   name: string;
   type: string;
   password?: string;
+}
+
+export interface ChatUser {
+  socketId: string;
+  id: string;
+  name: string;
+  channels?: string[];
+  directMessges?: string[];
 }
