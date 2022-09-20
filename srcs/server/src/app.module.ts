@@ -7,6 +7,7 @@ import { FriendshipModule } from './friendship/friendship.module';
 import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
 import { ChatModule } from './chat/chat.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ChatModule } from './chat/chat.module';
     MatchModule,
     RatingModule,
     ChatModule,
+    RedisModule,
   ],
   controllers: [],
 })

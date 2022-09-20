@@ -16,6 +16,7 @@ import {
 } from './dto';
 import { Events } from './entities/Events';
 import * as Cookie from 'cookie';
+import { ChatUser } from './entities';
 
 @WebSocketGateway(4444, {
   cors: {
@@ -40,23 +41,12 @@ export class ChatGateway
     this.chatService.server = server;
   }
 
-  // To do:
-  // ON connect emit all public channels and protected channels to the client.
-  handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
     const userId = this._parseIdCookie(client.handshake.headers.cookie);
     console.log(`This is user id ${userId}`);
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
-      this.chatService.allClients = this.chatService.allClients.map((user) => {
-        if (user.id === userId) {
-          user.socketId = client.id;
-          console.log(`Updating user ${user.id}`);
-        }
-        return user;
-      });
-      const user = this.chatService.allClients.find(
-        (user) => user.id === userId,
-      );
+      const user: ChatUser = await this.chatService.getUser(userId);
       console.log(`User ${JSON.stringify(user, null, 4)} reconnected`);
       client.emit(Events.addUserResponse, user);
     } else {
@@ -66,12 +56,16 @@ export class ChatGateway
       );
     }
     console.log(`This is the list of all users`);
-    this.chatService.allClients.map((user) =>
+    const allUsers = await this.chatService.getAllUsers();
+    allUsers.map((user) =>
       console.log(`${JSON.stringify(user, null, 4)}`),
     );
 
+    const allChannels = await this.chatService.getAllChannels();
+
     client.emit(Events.updateMessages, this.chatService.allMessages);
-    client.emit(Events.updateChannels, this.chatService.allChannels);
+    client.emit(Events.updateChannels, allChannels);
+    client.emit(Events.updateUsers, allUsers);
   }
 
   handleDisconnect(client: Socket) {

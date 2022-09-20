@@ -13,11 +13,13 @@ const lobbyChannel: Channel = {
 };
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
+  const currChanInLocalStorage = window.localStorage.getItem('currentChannel');
+  const defaultChannel = currChanInLocalStorage ? JSON.parse(currChanInLocalStorage) : lobbyChannel;
   const [user, setUser] = useState({} as ChatUser);
   const [allMessages, setAllMessages] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
   const [allChannels, setAllChannels] = useState([]);
-  const [currentChannel, setCurrentChannel] = useState(lobbyChannel);
+  const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
   const [createChannelName, setCreateChannelName] = useState('');
   const [createChannelPassword, setCreateChannelPassword] = useState('');
@@ -29,7 +31,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
   };
-  const handleSubmit = (e: any) => {
+  const handleSubmitMessage = (e: any) => {
     if (message === '') return;
     const date = Date.now();
     const messageToSend: Message = { id: '', content: message, date, channel: currentChannel };
@@ -42,7 +44,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     const channel = allChannels.find((chan: Channel) => chan.id === channelId);
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
-      console.log(`Error could not find channel with id ${channelId} to join`);
+      console.log(`Channel with id ${channelId} doesnt exist`);
       return;
     }
     if (
@@ -52,7 +54,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       return alert('You must provide a Password!');
     }
 
-    const channelDto: JoinChannelDto = { ...(channel as Channel) };
+    const channelDto: JoinChannelDto = channel;
     socket.emit(Events.joinChannel, {
       name: channelDto.name,
       id: channelDto.id,
@@ -95,19 +97,26 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       });
     });
 
-    socket.on(Events.joinChannelAnwser, (newChannel) => {
+    socket.on(Events.createChannelResponse, (data: { msg: string; channel: Channel }) => {
+      if (!data.channel) {
+        return alert(data.msg);
+      }
+      setCurrentChannel(data.channel);
+      window.localStorage.setItem('currentChannel', JSON.stringify(data.channel));
+      return alert(data.msg);
+    });
+
+    socket.on(Events.joinChannelResponse, (data) => {
       console.log(
-        `Answer recieved form the server for joinChanel ${JSON.stringify(newChannel, null, 4)}`
+        `Answer recieved form the server for joinChanel ${JSON.stringify(data, null, 4)}`
       );
-      if (newChannel) {
-        setCurrentChannel(newChannel);
-      } else return alert("You can't join this channel because you are not allowed!");
+      if (data.channel) {
+        setCurrentChannel(data.channel);
+      } else return alert(`${data.msg}`);
     });
 
     socket.on(Events.updateMessages, (messages) => {
-      if (messages.length !== 0) {
-        setAllMessages(messages);
-      }
+      setAllMessages(messages);
     });
 
     socket.on(Events.updateUsers, (allUsers) => {
@@ -115,12 +124,20 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     });
 
     socket.on(Events.updateChannels, (channels) => {
-      if (channels.length > 0) {
-        setAllChannels(channels);
-      }
+      setAllChannels(channels);
     });
     // // console.log(`This is the list of all users`);
     // allUsers.map((user) => console.log(`This is user ${JSON.stringify(user, null, 4)}`));
+    return () => {
+      socket.off('connect');
+      socket.off(Events.updateMessages);
+      socket.off(Events.updateUsers);
+      socket.off(Events.updateChannels);
+      socket.off(Events.updateOneChannel);
+      socket.off(Events.addUserResponse);
+      socket.off(Events.setIdResponse);
+      socket.off(Events.createChannelResponse);
+    };
   }, []);
 
   return (
@@ -197,7 +214,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             placeholder="send a message.."
             onChange={handleMessageChange}
             value={message}></input>
-          <button className="btn btn-light" onClick={handleSubmit}>
+          <button className="btn btn-light" onClick={handleSubmitMessage}>
             Send!
           </button>
         </div>
@@ -210,7 +227,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           color: 'white'
         }}>
         <div style={{ margin: '15px' }} className="currentUser">
-          <div style={{fontSize: '20px'}}>Current User:</div>
+          <div style={{ fontSize: '20px' }}>Current User:</div>
           <div className="user">
             <br />
             Username: {user?.name}

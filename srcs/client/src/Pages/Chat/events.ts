@@ -1,5 +1,6 @@
 export const Events = Object.freeze({
   createChannel: 'createChannel',
+  createChannelResponse: 'createChannelResponse',
   joinChannel: 'joinChannel',
   sendMessage: 'sendMessage',
   updateMessages: 'updateMessages',
@@ -10,6 +11,6 @@ export const Events = Object.freeze({
   userJoined: 'userJoined',
   setId: 'setId',
   setIdResponse: 'setIdResponse',
-  joinChannelAnwser: 'joinChannelAnswer',
-  updateOneChannel: 'updateOneChannel',
+  joinChannelResponse: 'joinChannelResponse',
+  updateOneChannel: 'updateOneChannel'
 });
