@@ -3,13 +3,35 @@ import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 import "./profile.css"
 import PhotoProfilDropdown from '../../Components/Tools/Button/PhotoProfilDropdown'
-import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
+import FriendshipRejected from './Button/FriendshipRejected'
+import FriendshipAccepted from './Button/FriendshipAccepted'
 
 
 export default function FriendList(props : any) {
 
-	let test = [
+	let test_friends = [
+		{
+		  "id": 2,
+		  "username": "Flmastor",
+		  "profilePicture": "https://cdn.intra.42.fr/users/flmastor.jpg",
+		  "currentStatus": 0,
+		  "eloRating": 0},
+		{
+		  "id": 3,
+		  "username": "Flal",
+		  "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
+		  "currentStatus": 1,
+		  "eloRating": 0},
+		  {
+			"id": 1,
+			"username": "Johny",
+			"profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
+			"currentStatus": 0,
+			"eloRating": 0}
+	  ];
+
+	let test_requested = [
 		{
 		  "id": 2,
 		  "username": "Flmastor",
@@ -40,7 +62,22 @@ export default function FriendList(props : any) {
 				{
 				<table className="scrollBox" style={{alignItems: "flex-start"}} >
 					<tbody>
-						{test.map((friends: any, index: number) =>(
+						{ test_requested &&
+						test_requested.map((friends: any, index: number) =>(
+						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
+							{
+							<>
+								<td className="pinkText"> New  </td>
+								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
+								<td style={{marginRight: "2vw" }}> {friends.username} </td>
+								<td> <FriendshipAccepted id={friends.id} originalId={props.originalId}/></td>
+								<td> <FriendshipRejected id={friends.id} originalId={props.originalId}/></td>
+							</>
+							}
+						</tr>
+						))}
+						{ test_friends ?
+						test_friends.map((friends: any, index: number) =>(
 						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
 							{
 							<>
@@ -50,19 +87,21 @@ export default function FriendList(props : any) {
 							</>
 							}
 						</tr>
-						))}
+						))
+						:<tr>
+							<td className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</td>
+						</tr>
+						}
 					</tbody>
 				</table>
-					}
+				}
 		</div>
  		);
 }
 
-
-// {props.originalId ?
-// 	<td> <PhotoProfil url={friends.profilePicture} id={friends.id} width={"4vw"} height={"4vw"}/></td> :
-// 	<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.id} width={"4vw"} height={"4vw"}/></td>
-// 	}
+// FriendList bis avec les requested friend avec les meme elements que friend
+// On va creer une liste en dessous avec les Friends qui sont requested
+// + Bouton pour accepter la demande
 
 // 	return (
 // 		<div className="blueBoxFriend"
@@ -87,8 +126,8 @@ export default function FriendList(props : any) {
 // 						))}
 // 					</tbody>
 // 				</table>
-// 					:
-// 					<div className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</div>
+					// :
+					// <div className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</div>
 // 					}
 // 		</div>
 //  		);

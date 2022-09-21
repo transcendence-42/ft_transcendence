@@ -1,6 +1,5 @@
 
 export async function patchFetchPicture(props : any){
-	console.log("PROPS", props.picture);
 	try{
 		await
 		fetch(props.url, {

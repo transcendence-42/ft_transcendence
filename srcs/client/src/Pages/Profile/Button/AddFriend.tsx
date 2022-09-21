@@ -2,15 +2,14 @@ import React from 'react'
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
 import "../profile.css"
+import {requestFriendship} from "../Fetch/requestFriendship"
 
 export default function AddFriend(props : any) {
 
 	// console.log("ADDFRIEND USER ID", props.id)
 	// console.log("ADDFRIEND VIEWER ID", props.originalId)
 
-	function doSomething() {
-		console.log("rien");
-	}
+	let url = "http://127.0.0.1:4200/users/" + props.originalId + "/friends";
 
 	return (
 		<>
@@ -19,7 +18,7 @@ export default function AddFriend(props : any) {
 				width: "100%",
 				height: "auto",
 			}}
-			onClick={()=>(doSomething())}
+			onClick={()=>(requestFriendship({url: url, addresseeId: props.id}))}
 			>
 				<div className="greenText" style={{fontSize: "1vw"}}> Add Friend </div>
 			</button>

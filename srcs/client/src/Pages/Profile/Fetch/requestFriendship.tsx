@@ -1,17 +1,19 @@
 
-export async function postFetch(){
+export async function requestFriendship(props : any){
+
+	console.log("props.addresseeId", props.addresseeId)
+	console.log("props.URL", props.url)
 	try{
 		await
-		fetch("http://127.0.0.1:4200/users", {
-	  method: "POST",
+		fetch(props.url, {
+	  method: "PUT",
 	  credentials: "include",
 	  headers: {
 		Accept: "application/json",
 		"Content-Type": "application/json",
 		"Access-Control-Allow-Credentials": "true",
 	  },
-	  body: JSON.stringify({ username: 'Tintin', email: "tintindu93@haddock.fr",
-	  profilePicture: "https://media.routard.com/image/28/4/new-york-aerial.1515284.w630.jpg" })
+	  body: JSON.stringify({ addresseeId: props.addresseeId })
 	}).then((response) =>{
 			if (response.status !== 200){
 				console.error(response.status);

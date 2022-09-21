@@ -1,5 +1,4 @@
 export async function patchFetchPseudo(props : any){
-	console.log("PROPS", props.name);
 	try{
 		await
 		fetch(props.url, {

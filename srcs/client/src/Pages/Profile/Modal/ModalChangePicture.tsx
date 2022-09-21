@@ -19,8 +19,6 @@ export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 	function patchAndClose(e : any)
 	{
 		e.preventDefault();
-		console.log(content);
-		console.log(url);
 		patchFetchPicture({url: url, picture: content});
 		hide();
 		up();

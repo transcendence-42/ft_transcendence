@@ -23,7 +23,7 @@ export default function ChangePseudo(props : any) {
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </div>
+				<div className="blueText" style={{fontSize: "1vw"}}> Change Username </div>
 			</button>
 				<ModalChangePseudo isShowing={isShowing} hide={toggle} id={props.id} up={props.up}/>
 		</>

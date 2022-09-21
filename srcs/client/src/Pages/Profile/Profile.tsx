@@ -44,18 +44,18 @@ export default function Profile () {
         console.log(request);
         const user_json = getFetch({url : request});
         user_json.then((responseObject)=> {
-            console.log("User =>", responseObject);
+            // console.log("User =>", responseObject);
             setUser(responseObject);
         })
         request = "http://127.0.0.1:4200/users/" + userID + "/friends";
         const friend_json = getFetchFriends({url : request});
         friend_json.then((responseObject)=> {
-            console.log("Friend =>", responseObject);
+            // console.log("Friend =>", responseObject);
             setFriendList(responseObject);})
         request = "http://127.0.0.1:4200/users/" + userID + "/matches";
             const matches_json = getFetchMatch({url : request});
             matches_json.then((responseObject)=> {
-                console.log("Matches =>", responseObject);
+                // console.log("Matches =>", responseObject);
                 setMatchesList(responseObject);})
         },[userID, update]);
 
