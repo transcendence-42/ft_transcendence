@@ -36,22 +36,22 @@ export class GameGateway
   }
 
   /** Handle client disconnection from the game */
-  handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.gameService.clientDisconnection(client);
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
+    await this.gameService.clientDisconnection(client);
   }
 
   /** Create a new game */
   @SubscribeMessage('createGame')
-  create(@ConnectedSocket() client: Socket) {
+  async create(@ConnectedSocket() client: Socket) {
     const players: Player[] = [];
     players.push(new Player(client, +client.handshake.query.userId));
-    this.gameService.create(players);
+    await this.gameService.create(players);
   }
 
   /** Find all games */
   @SubscribeMessage('findAllGame')
-  findAll(@ConnectedSocket() client: Socket) {
-    this.gameService.findAll(client);
+  async findAll(@ConnectedSocket() client: Socket) {
+    await this.gameService.findAll(client);
   }
 
   /** Update game grid by movement */
@@ -74,29 +74,29 @@ export class GameGateway
 
   /** join game (new player) */
   @SubscribeMessage('joinGame')
-  join(
+  async join(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.join(client, updateGameDto.id);
+    await this.gameService.join(client, updateGameDto.id);
   }
 
   /** view game (new viewer) */
   @SubscribeMessage('viewGame')
-  view(
+  async view(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.view(client, updateGameDto.id);
+    await this.gameService.view(client, updateGameDto.id);
   }
 
   /** Reconnect game (existing player) */
   @SubscribeMessage('reconnectGame')
-  reconnect(
+  async reconnect(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.reconnect(client, updateGameDto.id);
+    await this.gameService.reconnect(client, updateGameDto.id);
   }
 
   /** Get the game grid */
@@ -119,19 +119,19 @@ export class GameGateway
 
   /** One viewer leaves the game */
   @SubscribeMessage('viewerLeaves')
-  viewerLeaves(
+  async viewerLeaves(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.viewerLeaves(client, updateGameDto.id);
+    await this.gameService.viewerLeaves(client, updateGameDto.id);
   }
 
   /** Subscribe or unsubscribe to/from matchmaking */
   @SubscribeMessage('matchMaking')
-  handleMatchMaking(
+  async handleMatchMaking(
     @ConnectedSocket() client: Socket,
     @MessageBody() matchMakingDto: MatchMakingDto,
   ) {
-    this.gameService.handleMatchMaking(client, matchMakingDto.value);
+    await this.gameService.handleMatchMaking(client, matchMakingDto.value);
   }
 }

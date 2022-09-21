@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { Game, Player, Physic, Vector, GamePhysics, Client } from './entities/';
+import { Game, Player, Physic, Vector, GamePhysics } from './entities/';
 import { v4 } from 'uuid';
 import {
   UserAlreadyInGameException,
@@ -13,6 +13,7 @@ import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import Redis from 'redis';
 import { Match } from 'src/match/entities/match.entity';
 import { UserNotFoundException } from 'src/user/exceptions';
+import { GameGateway } from './game.gateway';
 
 // Enums
 const enum Move {
@@ -81,6 +82,10 @@ export class GameService {
   games: Game[];
   players: Player[];
 
+  // private async _init() {
+
+  // }
+
   /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
@@ -91,27 +96,27 @@ export class GameService {
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // if the user id is in a game, reconnect the client to the game
-    const game = this.games.find(
-      (game) =>
-        game.players.filter((player) => player.userId === +userId).length === 1,
-    );
-    if (game) {
-      client.join(game.id);
-      client.emit('reconnect', game.id);
-    } else {
-      client.join(Params.LOBBY);
-      if (this.server)
-        this.server.to(Params.LOBBY).emit('info', {
-          message: `user ${userId} (${client.id}) joined the lobby`,
-        });
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    if (games) {
+      const game = games.find(
+        (game: any) =>
+          game.players.filter((p: any) => p.userId === +userId).length === 1,
+      );
+      if (game) {
+        client.join(game.id);
+        client.emit('reconnect', game.id);
+      } else {
+        client.join(Params.LOBBY);
+        if (this.server)
+          this.server.to(Params.LOBBY).emit('info', {
+            message: `user ${userId} (${client.id}) joined the lobby`,
+          });
+      }
     }
-    // redis tests
-    // const ga = new Game(v4());
-    // await this.redis.json.set(userId.toString(), '$', ga.toJson());
   }
 
   /** client disconnection */
-  clientDisconnection(client: Socket) {
+  async clientDisconnection(client: Socket) {
     const userId: number = +client.handshake.query.userId;
     console.log(`user : ${userId} (${client.id}) disconnected`);
     // Broadcast that user left the lobby
@@ -119,9 +124,10 @@ export class GameService {
       message: `user ${userId} (${client.id}) left the lobby`,
     });
     // Warn the room if the player is in game
-    const isGame = this.games.findIndex(
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const isGame = games.findIndex(
       (game) =>
-        game.players.filter((player) => player.userId === +userId).length === 1,
+        game.players.filter((p: any) => p.userId === +userId).length === 1,
     );
     if (isGame !== -1 && this.server)
       this.server.to(this.games[isGame].id).emit('info', {
@@ -135,75 +141,77 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private _addPlayerToGame(player: Player, side: number, game: Game): Game {
+  private async _addPlayerToGame(player: Player, side: number, gameId: string) {
     // check if user is already in game
-    if (this._isPlayerInGame(player.userId)) {
+    if (await this._isPlayerInGame(player.userId)) {
       throw new UserAlreadyInGameException(player.userId);
     }
     // Add it to the game and set his side
     player.socket.leave(Params.LOBBY);
-    player.socket.join(game.id);
-    game.players.push({
-      ...player,
+    player.socket.join(gameId);
+    // Add the player to the game
+    const iGame = await this.redis.json.arrIndex('game', 'games', {
+      id: gameId,
+    });
+    await this.redis.json.arrAppend('games', `games[${iGame}].players`, {
+      ...JSON.parse(JSON.stringify(player)),
       side: side,
       score: 0,
     });
-    return game;
   }
 
   /** Check if a player is already in a game */
-  private _isPlayerInGame(userId: number): boolean {
-    if (
-      this.games.find((game) =>
-        game.players.find((player) => player.userId === userId),
-      )
-    )
+  private async _isPlayerInGame(userId: number): Promise<boolean> {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    if (games.find((g: any) => g.players.find((p: any) => p.userId === userId)))
       return true;
     return false;
   }
 
   /** Check if a viewer is already in a game */
-  private _isViewerInGame(userId: number): boolean {
-    if (
-      this.games.find((game) =>
-        game.viewers.find((viewer) => viewer.userId === userId),
-      )
-    )
+  private async _isViewerInGame(userId: number): Promise<boolean> {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    if (games.find((g: any) => g.viewers.find((v: any) => v.userId === userId)))
       return true;
     return false;
   }
 
   /** Get the side of a player in a game from his id */
   private _getSideFromUser(game: Game, userId: number): number {
-    const player: Player = game.players.find(
-      (player) => player.userId === userId,
-    );
+    const player: Player = game.players.find((p) => p.userId === userId);
     if (!player) throw new PlayerNotFoundException(userId);
     return player.side;
   }
 
   /** Create the game list from the global server data */
-  private _createGameList(): object {
-    const gameList = this.games.map((game) => {
+  private async _createGameList(): Promise<object> {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const gameList = games.map((g: any) => {
       return {
-        id: game.id,
-        players: game.players.map((p) => ({
+        id: g.id,
+        players: g.players.map((p: any) => ({
           userId: p.userId,
           pic: p.pic,
           name: p.name,
           score: p.score,
         })),
-        viewersCount: game.viewers.length,
+        viewersCount: g.viewers.length,
       };
     });
     return gameList;
   }
 
   /** Cancel game */
-  private _cancelGame(game: Game) {
-    this.games = this.games.filter((g) => g.id !== game.id);
-    this.server.in(game.id).socketsJoin(Params.LOBBY);
-    this.server.in(game.id).socketsLeave(game.id);
+  private async _cancelGame(game: Game) {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const gameId = games.find((g: any) => g.id === game.id).id;
+    this.server.in(gameId).socketsJoin(Params.LOBBY);
+    this.server.in(gameId).socketsLeave(gameId);
+    // remove the game from the list in storage
+    const iGame = await this.redis.json.arrIndex('game', 'games', {
+      id: gameId,
+    });
+    await this.redis.json.del('games', `games[${iGame}]`);
     // send a fresh gamelist to the lobby
     const gameList = this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -211,29 +219,35 @@ export class GameService {
 
   /** End a game */
   private async _endGame(
-    game: Game,
+    gameId: string,
     motive: number,
     loserId?: number,
   ): Promise<Match> {
-    // remove the game from the list
-    this.games = this.games.filter((g) => g.id !== game.id);
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((g: any) => g.id === gameId);
     // emit a game end info to all players / viewers so they go back to lobby
-    this.server.to(game.id).emit('gameEnd', motive);
+    this.server.to(gameId).emit('gameEnd', motive);
     // disconnect players / viewers from game room and connect them to lobby
-    this.server.in(game.id).socketsJoin(Params.LOBBY);
-    this.server.in(game.id).socketsLeave(game.id);
+    this.server.in(gameId).socketsJoin(Params.LOBBY);
+    this.server.in(gameId).socketsLeave(gameId);
     // send a fresh gamelist to the lobby
-    const gameList = this._createGameList();
+    const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
     // save game result in database
     const createMatchDto: CreateMatchDto = {
-      players: game.players.map((p) => ({
+      players: game.players.map((p: any) => ({
         playerId: p.userId,
         side: p.side,
         score: p.score,
         status: p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
       })),
     };
+    // remove the game from the list
+    const iGame = await this.redis.json.arrIndex('game', 'games', {
+      id: gameId,
+    });
+    await this.redis.json.del('games', `games[${iGame}]`);
+    // Save result
     try {
       return await this.matchService.create(createMatchDto);
     } catch (e) {
@@ -242,61 +256,77 @@ export class GameService {
   }
 
   /** Create a new game */
-  create(players: Player[]) {
+  async create(players: Player[]) {
     // 1 : Chech if one of the user is already in a game or in match making
-    players.forEach((p) => {
-      if (this._isPlayerInGame(p.userId))
+    players.forEach(async (p) => {
+      if (await this._isPlayerInGame(p.userId))
         throw new UserAlreadyInGameException(p.userId);
-      const isMatchMaking = this.players.find((m) => m.userId === p.userId);
+      const isMatchMaking = await this.redis.sIsMember(
+        'matchMaking',
+        p.userId.toString(),
+      );
       if (isMatchMaking)
-        this.players = this.players.filter((m) => m.userId !== p.userId);
+        await this.redis.sRem('matchMaking', p.userId.toString());
     });
     // create a new game
     const newGame: Game = new Game(v4());
-    const len = this.games.push(newGame);
-    let game = this.games[len - 1];
+    if (!(await this.redis.json.get('games', { path: 'games' })))
+      await this.redis.json.set('games', '$', { games: [] });
+    await this.redis.json.arrAppend(
+      'games',
+      'games',
+      JSON.parse(JSON.stringify(newGame)),
+    );
     // add players to the game and give them the game id
-    players.forEach((player, index) => {
-      const side = index ? Side.RIGHT : Side.LEFT;
-      game = this._addPlayerToGame(player, side, game);
-      player.socket.emit('gameId', { id: game.id });
+    players.forEach((p, i) => {
+      const side = i ? Side.RIGHT : Side.LEFT;
+      this._addPlayerToGame(p, side, newGame.id);
+      p.socket.emit('gameId', { id: newGame.id });
     });
     // Broadcast new gamelist to the lobby
-    const gameList = this._createGameList();
+    const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
     // start game if players > 1
-    if (this.games[len - 1].players.length > 1) this._startGame(game);
+    if (players.length > 1) this._startGame(newGame);
   }
 
   /** Find all created games */
-  findAll(client: Socket) {
-    const gameList = this._createGameList();
+  async findAll(client: Socket) {
+    const gameList = await this._createGameList();
     client.emit('gameList', gameList);
   }
 
   /** one viewer leave the game */
-  viewerLeaves(client: Socket, id: string) {
+  async viewerLeaves(client: Socket, id: string) {
     const userId: number = +client.handshake.query.userId;
-    const game = this.games.find((game) => game.id === id);
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((g: any) => g.id === id);
     if (!game) throw new GameNotFoundException(id);
     // remove the viewer from game
-    game.viewers = game.viewers.filter((v) => v.userId !== userId);
+    const iGame = await this.redis.json.arrIndex('game', 'games', { id: id });
+    const iViewer = await this.redis.json.arrIndex(
+      'game',
+      `games[${iGame}].viewers`,
+      { userId: userId },
+    );
+    await this.redis.json.del('games', `games[${iGame}].viewers[${iViewer}]`);
     // quit room and join lobby
     client.leave(game.id);
     client.join(Params.LOBBY);
     // resend game list to lobby
-    const gameList = this._createGameList();
+    const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
   }
 
   /** one player abandons the game */
   async abandonGame(client: Socket, id: string): Promise<Match> {
-    const userId: number = +client.handshake.query.userId;
-    const game = this.games.find((game) => game.id === id);
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
+    const userId: number = +client.handshake.query.userId;
     if (game.players.length > 1)
-      return await this._endGame(game, Motive.ABANDON, userId);
-    else this._cancelGame(game);
+      return await this._endGame(game.id, Motive.ABANDON, userId);
+    else this._cancelGame(game.id);
   }
 
   /** pause a game */
@@ -328,52 +358,58 @@ export class GameService {
   }
 
   /** join a game (player) */
-  join(client: Socket, id: string) {
-    let game = this.games.find((game) => game.id === id);
+  async join(client: Socket, id: string) {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((g: any) => g.id === id);
     if (!game) throw new GameNotFoundException(id);
     // remove user from matchmaking
     const userId: number = +client.handshake.query.userId;
-    const isMatchMaking = this.players.find((p) => p.userId === userId);
-    if (isMatchMaking)
-      this.players = this.players.filter((p) => p.userId !== userId);
+    const isMatchMaking = await this.redis.sIsMember(
+      'matchMaking',
+      userId.toString(),
+    );
+    if (isMatchMaking) await this.redis.sRem('matchMaking', userId.toString());
     // add new player to the game and emit new grid
     const side = game.players.length > 1 ? Side.LEFT : Side.RIGHT;
-    game = this._addPlayerToGame(new Player(client, userId), side, game);
+    await this._addPlayerToGame(new Player(client, userId), side, game.id);
     // Check if the game has 2 players
     if (game.players.length >= 2) {
       this._startGame(game);
     }
-    // update the image with the new player for everyone
-    this.server.to(game.id).emit('updateGrid', game.gameGrid);
     // update the lobby with the new player
-    const gameList = this._createGameList();
+    const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
   }
 
   /** view a game (viewer) */
-  view(client: Socket, id: string) {
-    const game = this.games.find((game) => game.id === id);
+  async view(client: Socket, id: string) {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((g: any) => g.id === id);
     if (!game) throw new GameNotFoundException(id);
     const userId: number = +client.handshake.query.userId;
-    if (!this._isViewerInGame(userId)) {
-      game.viewers.push({ socket: client, userId: userId });
+    if (!(await this._isViewerInGame(userId))) {
+      const iGame = await this.redis.json.arrIndex('game', 'games', id);
+      await this.redis.json.arrAppend('games', `games[${iGame}].viewers`, {
+        ...JSON.parse(JSON.stringify({ socket: client, userId: userId })),
+      });
     }
-    client.join(game.id);
+    client.join(id);
     client.leave(Params.LOBBY);
     // send a fresh gamelist to the lobby
-    const gameList = this._createGameList();
+    const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
   }
 
   /** reconnect a game (existing player) */
-  reconnect(client: Socket, id: string) {
-    const userId: number = +client.handshake.query.userId;
-    const game = this.games.find((game) => game.id === id);
+  async reconnect(client: Socket, id: string) {
+    const games: any = await this.redis.json.get('games', { path: 'games' });
+    const game = games.find((g: any) => g.id === id);
     if (!game) throw new GameNotFoundException(id);
     // update player socket on player list
-    game.players = game.players.map((player) =>
-      player.userId === userId ? { socket: client, ...player } : player,
-    );
+    // const userId: number = +client.handshake.query.userId;
+    // game.players = game.players.map((player) =>
+    //   player.userId === userId ? { socket: client, ...player } : player,
+    // );
   }
 
   /** *********************************************************************** */
@@ -381,7 +417,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** handle player joining or leaving matchmaking */
-  handleMatchMaking(client: Socket, value: boolean) {
+  async handleMatchMaking(client: Socket, value: boolean) {
     //add or remove the player
     const userId: number = +client.handshake.query.userId;
     const player: Player = this.players.find((p) => p.userId === userId);
@@ -797,7 +833,7 @@ export class GameService {
         // check scores and end the game if one player scores 9
         const loserId = this._weHaveALoser(game);
         if (loserId !== -1) {
-          this._endGame(game, Motive.WIN, loserId);
+          this._endGame(game.id, Motive.WIN, loserId);
           clearInterval(gameInterval);
           return;
         }
