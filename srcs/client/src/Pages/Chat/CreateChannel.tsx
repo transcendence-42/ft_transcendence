@@ -60,7 +60,7 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
   };
   return (
     <>
-      <form className="form-label" onSubmit={handleCreateChannel}>
+      <form id="createChannelForm" className="form-label" onSubmit={handleCreateChannel}>
         <label className="form-label">Name</label>
         <input
           type="name"
@@ -79,9 +79,6 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
             className="form-control form-control-margin"
             placeholder="Password"></input>
         </ul>
-        <button type="submit" className="btn btn-pink text-pink">
-          create
-        </button>
       </form>
     </>
   );

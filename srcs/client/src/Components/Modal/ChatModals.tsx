@@ -28,7 +28,7 @@ const ChatModal = (props: any) => {
             {props.textBtn1}
           </button>
         )}
-        <button type="submit" className="btn btn-pink text-pink">
+        <button form="createChannelForm" type="submit" className="btn btn-pink text-pink">
           {props.textBtn1}
         </button>
       </Modal.Footer>
