@@ -4,18 +4,16 @@ import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-import { useCookies } from 'react-cookie';
 import Context from "../../../Context/Context";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Nav, Navbar, NavDropdown } from "react-bootstrap";
 
 
 export default function NavBar ()
 {
-
-   
     const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
-    const contextValue = useContext(Context);
-    
+    const contextValue = useContext(Context);   
     /*
     /*
     ** Fetching data and allow the user to connect using "useState" to true
@@ -101,8 +99,8 @@ export default function NavBar ()
     if (contextValue.isConnected)
     {
         return (
-            <div className="navBar">
-                <div className="menuInNavBar">
+            <nav className="navbar navbar-expand-md bg-dark">
+                <div className="">
                     <div className="buttonInNavBar">
                         <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
                     </div>
@@ -125,33 +123,94 @@ export default function NavBar ()
                         <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
                     </div>
                 </div>
-          </div>
+          </nav>
         )
     }
     else
     {
         return (
-            <div className="navBar">
-                <div className="menuInNavBar">
-                    <div className="buttonInNavBar">
-                        <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
+        <Navbar className="navbar bg-dark " bg="transparent" variant="transparent"sticky="top" expand="md" collapseOnSelect>
+            <Navbar.Brand>
+                <Link to="/"><h2 className="blueText" data-testid="HomeLink"> PONG</h2></Link>
+            </Navbar.Brand>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav>
+                    <Nav.Link >
+                        <Link to="/" className="">   <h2 className="yellowText" > Home </h2></Link>
+                    </Nav.Link>
+                    <Nav.Link >
                         <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/login" className="playFlickering">Login</Link>
-                 </div>
-            </div>
-        </div>
+                    </Nav.Link>
+                    <Nav.Link >
+                        <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+                    </Nav.Link>
+                </Nav>
+                </Navbar.Collapse>
+        </Navbar>
         )
     }
 }
 
 
+
+
+
+{/* <nav className="navbar navbar-dark bg-dark navbar-expand-md">
+                <div className="container">
+                    <div className="navbar-brand">
+                        <Link to="/">
+                            <h2 className="blueText" data-testid="HomeLink"> PONG</h2>
+                        </Link>
+                    </div>
+                <div className="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#fullMenu" >
+                    <span className="navbar-toggler-icon"></span>
+                </div>
+                    <div className="collapse navbar-collapse" id="fullMenu">
+                        <ul className="navbar-nav">
+                            <li >
+                                <Link to="/" className="">   <h2 className="yellowText" > Home </h2> </Link>
+                            </li>
+                            <div className="nav-item">
+                                <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
+                            </div>
+                            <div className="nav-item">
+                                <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                            </div>
+                            <div className="nav-item">
+                                <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+                            </div>
+                        </ul>
+                
+            </div>
+            </div>
+        </nav> */}
+
+
+
+
+    //     <Navbar className="navbar" bg="transparent" variant="transparent"sticky="top" expand="md" collapseOnSelect>
+    //     <Navbar.Brand>
+    //         <Link to="/"><h2 className="blueText" data-testid="HomeLink"> PONG</h2></Link>
+    //     </Navbar.Brand>
+    //     <Navbar.Toggle className="coloring" />
+    //         <Navbar.Collapse>
+    //         <Nav>
+    //             <Nav.Link >
+    //                 <Link to="/" className="">   <h2 className="yellowText" > Home </h2></Link>
+    //             </Nav.Link>
+    //             <Nav.Link >
+    //                 <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+    //             </Nav.Link>
+    //             <Nav.Link >
+    //                 <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+    //             </Nav.Link>
+    //             <NavDropdown title="LOGIN">
+    //                 <NavDropdown.Item href="#products/profile">Profil</NavDropdown.Item>
+    //                 <NavDropdown.Item href="#products/chocolate">Edit Profil</NavDropdown.Item>
+    //                 <NavDropdown.Divider />
+    //                 <NavDropdown.Item href="#products/promo">Disconnect</NavDropdown.Item>
+    //             </NavDropdown>
+    //         </Nav>
+    //         </Navbar.Collapse>
+    // </Navbar>

@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
+
 export default function Home () {
 /*
 ** Init of the context again to use it and refresh it from App.tsx
