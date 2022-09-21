@@ -129,20 +129,20 @@ export default function NavBar ()
     else
     {
         return (
-        <Navbar className="navbar bg-dark " bg="transparent" variant="transparent"sticky="top" expand="md" collapseOnSelect>
-            <Navbar.Brand>
+        <Navbar className="navbar bg-dark pt-5 pb-4 px-5" bg="transparent" variant="transparent"sticky="top" expand="md" collapseOnSelect>
+            
                 <Link to="/"><h2 className="blueText" data-testid="HomeLink"> PONG</h2></Link>
-            </Navbar.Brand>
+           
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
-                <Nav>
-                    <Nav.Link >
-                        <Link to="/" className="">   <h2 className="yellowText" > Home </h2></Link>
+                <Nav className="navbar-nav ms-auto ">
+                    <Nav.Link className="" >
+                        <Link to="/" className="pl-5">   <h2 className="yellowText" > Home </h2></Link>
                     </Nav.Link>
-                    <Nav.Link >
+                    <Nav.Link className="">
                         <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
                     </Nav.Link>
-                    <Nav.Link >
+                    <Nav.Link className="" >
                         <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
                     </Nav.Link>
                 </Nav>
