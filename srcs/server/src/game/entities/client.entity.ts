@@ -10,4 +10,12 @@ export class Client {
   userId?: number;
   pic?: string;
   name?: string;
+
+  toJson?(): any {
+    return {
+      userId: this.userId,
+      pic: this.pic,
+      name: this.name,
+    };
+  }
 }

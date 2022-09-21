@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { Game, Player, Physic, Vector, GamePhysics } from './entities/';
+import { Game, Player, Physic, Vector, GamePhysics, Client } from './entities/';
 import { v4 } from 'uuid';
 import {
   UserAlreadyInGameException,
@@ -86,12 +86,11 @@ export class GameService {
   /** *********************************************************************** */
 
   /** client connection */
-  clientConnection(client: Socket) {
+  async clientConnection(client: Socket) {
     // get query information
     const userId: number = +client.handshake.query.userId;
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // if the user id is in a game, reconnect the client to the game
-    //if (await this.redis.sIsMember('inGame', userId.toString()))
     const game = this.games.find(
       (game) =>
         game.players.filter((player) => player.userId === +userId).length === 1,
@@ -106,6 +105,9 @@ export class GameService {
           message: `user ${userId} (${client.id}) joined the lobby`,
         });
     }
+    // redis tests
+    // const ga = new Game(v4());
+    // await this.redis.json.set(userId.toString(), '$', ga.toJson());
   }
 
   /** client disconnection */

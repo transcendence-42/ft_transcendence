@@ -14,4 +14,14 @@ export class Player extends Client {
   side?: number;
   updating?: boolean;
   pauseCount?: number;
+
+  toJson?(): any {
+    return {
+      ...super.toJson(),
+      score: this.score,
+      side: this.side,
+      updating: this.updating,
+      pauseCount: this.pauseCount,
+    };
+  }
 }

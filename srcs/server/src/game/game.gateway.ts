@@ -31,8 +31,8 @@ export class GameGateway
   }
 
   /** Handle new clients connection to the game */
-  handleConnection(@ConnectedSocket() client: Socket) {
-    this.gameService.clientConnection(client);
+  async handleConnection(@ConnectedSocket() client: Socket) {
+    await this.gameService.clientConnection(client);
   }
 
   /** Handle client disconnection from the game */
