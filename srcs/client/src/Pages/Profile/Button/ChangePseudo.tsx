@@ -1,8 +1,8 @@
 import React from 'react'
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
-import "./profile.css"
-import ModalChangePseudo from "./Modal/ModalChangePseudo"
+import "../../../Components/Tools/Text.css"
+import "../../../Components/Tools/Box.css"
+import "../profile.css"
+import ModalChangePseudo from "../Modal/ModalChangePseudo"
 import { useState } from "react";
 
 export default function ChangePseudo(props : any) {

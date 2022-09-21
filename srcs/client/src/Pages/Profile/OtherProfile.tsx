@@ -5,9 +5,8 @@ import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
-import ChangePseudo from './Button/ChangePseudo'
-import ChangePicture from './Button/ChangePicture'
-import DoubleAuth from './Button/DoubleAuth'
+import AddFriend from './Button/AddFriend'
+import BlockFriend from './Button/BlockFriend'
 import Ladder from './Ladder'
 import MatchHistory from './MatchHistory'
 import FriendList from './FriendList'
@@ -16,26 +15,15 @@ import {getFetchMatch} from './Fetch/getFetchMatch'
 import {getFetchFriends} from './Fetch/getFetchFriends'
 import { useLocation } from "react-router-dom";
 
-export default function Profile () {
+export default function OtherProfile () {
 
     let location = useLocation();
+
     const {userID} : any  = location.state;
+    const {originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
-    const [update, setUpdate] = useState(2);
-
-    function toggleUpdate() {
-        setTimeout(() => {
-            if (update === 2)
-		        setUpdate(1);
-            if (update === 1)
-		        setUpdate(0);
-            if (update === 0)
-		        setUpdate(1);
-        }, 100);
-
-	}
 
     useEffect(() => {
         let request = "http://127.0.0.1:4200/users/" + userID;
@@ -55,7 +43,7 @@ export default function Profile () {
             matches_json.then((responseObject)=> {
                 console.log("Matches =>", responseObject);
                 setMatchesList(responseObject);})
-        },[userID, update]);
+        },[userID]);
 
     console.log(user);
     if(user)
@@ -74,9 +62,8 @@ export default function Profile () {
                         {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
-                        <ChangePseudo id={userID} up={toggleUpdate}/>
-                        <ChangePicture id={userID} up={toggleUpdate}/>
-                        <DoubleAuth/>
+                        <AddFriend id={userID} originalId={originalId}/>
+                        <BlockFriend id={userID} originalId={originalId}/>
                     </div>
                     </div>
                     <div className="ladder">
@@ -88,7 +75,8 @@ export default function Profile () {
                     <MatchHistory matchesList={matchesList} id={userID}/>
                 </div>
                 <div className="friend">
-                    <FriendList friendList={friendList} id={userID}/>
+                    <FriendList friendList={friendList} id={userID} originalId={originalId}/>
+                    {/* faire un flag afin de virer la dropDown */}
                 </div>
             </div>
 
@@ -97,6 +85,8 @@ export default function Profile () {
     }
     return(<></>);
 }
+
+
 
 // chaque variable avec [] possede une variable lenght qui sera egale a 0 s'il n'y a rien
 // ex : user.friendshipRequested.lenght  ? affiche ca : sinon affiche ca

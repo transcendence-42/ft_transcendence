@@ -1,6 +1,6 @@
 import React from 'react'
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
+import "../../../Components/Tools/Text.css"
+import "../../../Components/Tools/Box.css"
 
 
 export default function DoubleAuth() {

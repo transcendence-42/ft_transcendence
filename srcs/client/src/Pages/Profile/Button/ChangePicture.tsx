@@ -1,8 +1,8 @@
 import React from 'react'
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
-import "./profile.css"
-import ModalChangePicture from "./Modal/ModalChangePicture"
+import "../../../Components/Tools/Text.css"
+import "../../../Components/Tools/Box.css"
+import "../profile.css"
+import ModalChangePicture from "../Modal/ModalChangePicture"
 import { useState } from "react";
 
 export default function ChangePicture(props : any) {

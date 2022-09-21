@@ -3,6 +3,7 @@ import './App.css';
 import {Routes, Route} from 'react-router-dom';
 import Home from './Pages/Home/home'
 import Profile from './Pages/Profile/Profile'
+import OtherProfile from './Pages/Profile/OtherProfile'
 import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
@@ -27,7 +28,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
               < Route path="/profile" element={<Profile />} />
-              < Route path="/other_profile" element={<Profile />} />
+              < Route path="/other_profile" element={<OtherProfile />} />
             <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />

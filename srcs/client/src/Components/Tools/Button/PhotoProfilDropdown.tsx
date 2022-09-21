@@ -1,11 +1,11 @@
 import '../Text.css';
 import '../Box.css';
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
 
 function PhotoProfilDropdown(props : any) {
 
-  const [userID, setuserID] = useState(props.id);
+	console.log("ADDFRIEND USER ID", props.id)
+	console.log("ADDFRIEND VIEWER ID", props.originalId)
 
   return (
     <div className="dropdown dropend" >
@@ -16,11 +16,11 @@ function PhotoProfilDropdown(props : any) {
         <img src={props.url} alt="IMG"></img>
       </button>
       <ul className="dropdown-menu dropdown-menu-dark boxBlue" aria-labelledby="dropdownMenuButton1">
-    <Link state={{userID}} to="/other_profile">  <div className="btn textBlue" >View PRO</div> </Link>
+      { props.id === props.originalId ?
+        <Link state={{userID:props.id, originalId: props.originalId}} to="/profile">  <div className="btn textBlue" >View Profile</div> </Link> :
+        <Link state={{userID:props.id, originalId: props.originalId}} to="/other_profile">  <div className="btn textBlue" >View Profile</div> </Link>
+      }
     <button className="btn textBlue disabled">Spectate</button>
-    <button className="btn textBlue">View Profile</button>
-    <button className="btn textBlue">Add Friend</button>
-    <button className="btn textBlue">Block Friend</button>
   </ul>
   </div>
   );

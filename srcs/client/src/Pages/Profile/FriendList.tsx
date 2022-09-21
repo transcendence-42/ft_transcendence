@@ -2,8 +2,8 @@ import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
 import "./profile.css"
-import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import PhotoProfilDropdown from '../../Components/Tools/Button/PhotoProfilDropdown'
+import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
 
 
@@ -44,9 +44,9 @@ export default function FriendList(props : any) {
 						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
 							{
 							<>
-							<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} width={"4vw"} height={"4vw"}/></td>
-							<td style={{marginRight: "2vw" }}> {friends.username} </td>
-							<td style={{marginRight: "2vw"}}> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
+								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.id} width={"4vw"} height={"4vw"}/></td>
+								<td style={{marginRight: "2vw" }}> {friends.username} </td>
+								<td style={{marginRight: "2vw"}}> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
 							</>
 							}
 						</tr>
@@ -57,6 +57,13 @@ export default function FriendList(props : any) {
 		</div>
  		);
 }
+
+
+// {props.originalId ?
+// 	<td> <PhotoProfil url={friends.profilePicture} id={friends.id} width={"4vw"} height={"4vw"}/></td> :
+// 	<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.id} width={"4vw"} height={"4vw"}/></td>
+// 	}
+
 // 	return (
 // 		<div className="blueBoxFriend"
 // 		style={{
