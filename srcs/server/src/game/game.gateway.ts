@@ -63,6 +63,15 @@ export class GameGateway
     this.gameService.update(client, updateGameDto.id, updateGameDto.move);
   }
 
+  /** Pause the game */
+  @SubscribeMessage('pause')
+  pause(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateGameDto: UpdateGameDto,
+  ) {
+    this.gameService.pause(client, updateGameDto.id);
+  }
+
   /** join game (new player) */
   @SubscribeMessage('joinGame')
   join(

@@ -38,8 +38,11 @@ const Game = (props: any) => {
     if (event.key === 'w' || event.key === 'W') {
       socket.emit('updateGame', { move: movement.UP, id: props.id });
     }
-    if (event.key === 's' || event.key === 'S') {
+    else if (event.key === 's' || event.key === 'S') {
       socket.emit('updateGame', { move: movement.DOWN, id: props.id });
+    }
+    else if (event.key === 'p' || event.key === 'P') {
+      socket.emit('pause', { id: props.id });
     }
   };
 
@@ -69,17 +72,33 @@ const Game = (props: any) => {
     [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL],
   );
 
+  const handlePause = useCallback(
+    (duration: number) => {
+      setMessage(`The game is paused : ${duration}s`);
+      const timer = setInterval(() => {
+        --duration;
+        setMessage(`The game is paused : ${duration}s`);
+        if (duration <= 0) {
+          clearInterval(timer);
+           setMessage('');
+        }
+      }, 1000)
+    }, []
+  );
+
   useEffect(() => {
     initGame();
     socket.on('updateGrid', handleGridUpdate);
     socket.on('updateScores', handleScoresUpdate);
     socket.on('gameEnd', handleGameEnd);
+    socket.on('pause', handlePause);
     if (props.action !== props.actionVal.VIEW_GAME)
       document.addEventListener('keydown', handleMove);
     return () => {
       socket.off('updateGrid', handleGridUpdate);
       socket.off('updateScores', handleScoresUpdate);
       socket.off('gameEnd', handleGameEnd);
+      socket.off('pause', handlePause);
       document.removeEventListener('keydown', handleMove);
     };
   }, [props.action]);

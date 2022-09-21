@@ -73,10 +73,6 @@ const GameLobby = (props: any) => {
     [Action.CREATE_GAME],
   );
 
-  const handleException = useCallback((data: any) => {
-    setMessage({ message: data.message });
-  }, []);
-
   const handleReconnect = useCallback(
     (gameId: any) => {
       setMessage({});
@@ -147,7 +143,7 @@ const GameLobby = (props: any) => {
     socket.on('gameList', handleGameList);
     socket.on('reconnect', handleReconnect);
     socket.on('gameId', handleGameId);
-    socket.on('exception', handleException);
+    socket.on('exception', handleInfo);
     socket.on('opponentFound', handleOpponentFound);
     socket.on('info', handleInfo);
     // get all games
@@ -157,7 +153,7 @@ const GameLobby = (props: any) => {
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);
-      socket.off('exception', handleException);
+      socket.off('exception', handleInfo);
       socket.off('opponentFound', handleOpponentFound);
       socket.off('info', handleInfo);
     };

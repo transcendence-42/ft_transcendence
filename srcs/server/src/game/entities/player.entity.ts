@@ -8,8 +8,10 @@ export class Player extends Client {
     this.updating = false;
     this.name = socket.handshake.query.name.toString();
     this.pic = socket.handshake.query.pic.toString();
+    this.pauseCount = 1;
   }
   score?: number;
   side?: number;
   updating?: boolean;
+  pauseCount?: number;
 }

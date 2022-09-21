@@ -6,11 +6,13 @@ import {
   UserAlreadyInGameException,
   GameNotFoundException,
   PlayerNotFoundException,
+  CannotPauseGameException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import Redis from 'redis';
 import { Match } from 'src/match/entities/match.entity';
+import { UserNotFoundException } from 'src/user/exceptions';
 
 // Enums
 const enum Move {
@@ -40,6 +42,7 @@ const enum Status {
   STARTED,
   FINISHED,
   NEWBALL,
+  PAUSED,
 }
 
 const enum Motive {
@@ -61,6 +64,7 @@ const Params = Object.freeze({
   BALLSIZE: 12,
   BALL_ACCELERATION_TIME: 10,
   BALL_MAX_SPEED: 12,
+  PAUSE_TIME: 30,
 });
 
 @Injectable()
@@ -293,9 +297,34 @@ export class GameService {
     else this._cancelGame(game);
   }
 
+  /** pause a game */
+  pause(client: Socket, id: string) {
+    const game: Game = this.games.find((game) => game.id === id);
+    if (!game) throw new GameNotFoundException(id);
+    // check if user can pause the game
+    const userId: number = +client.handshake.query.userId;
+    const player: Player = game.players.find((p) => p.userId === userId);
+    if (!player) throw new UserNotFoundException(userId);
+    // Game is already paused
+    if (game.status === Status.PAUSED)
+      throw new CannotPauseGameException('the game is already paused');
+    // Player cannot pause
+    if (player.pauseCount === 0)
+      throw new CannotPauseGameException('you have used all your pauses');
+    // Pause the game and unpause it after a delay with a callback
+    game.status = Status.PAUSED;
+    --player.pauseCount;
+    const ballSpeed = game.gamePhysics.ball.speed;
+    this.server.to(game.id).emit('pause', +Params.PAUSE_TIME);
+    // UnPause after a delay
+    setTimeout(() => {
+      game.status = Status.STARTED;
+      game.gamePhysics.ball.speed = ballSpeed;
+    }, Params.PAUSE_TIME * 1000);
+  }
+
   /** join a game (player) */
   join(client: Socket, id: string) {
-    console.log('toto');
     let game = this.games.find((game) => game.id === id);
     if (!game) throw new GameNotFoundException(id);
     // remove user from matchmaking
@@ -759,16 +788,18 @@ export class GameService {
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
     const gameInterval = setInterval(() => {
-      this._moveWorldForward(game);
-      // check scores and end the game if one player scores 9
-      const loserId = this._weHaveALoser(game);
-      if (loserId !== -1) {
-        this._endGame(game, Motive.WIN, loserId);
-        clearInterval(gameInterval);
-        return;
+      if (game.status === Status.STARTED) {
+        this._moveWorldForward(game);
+        // check scores and end the game if one player scores 9
+        const loserId = this._weHaveALoser(game);
+        if (loserId !== -1) {
+          this._endGame(game, Motive.WIN, loserId);
+          clearInterval(gameInterval);
+          return;
+        }
+        this._updateGridFromPhysics(game);
+        this.server.to(game.id).emit('updateGrid', game.gameGrid);
       }
-      this._updateGridFromPhysics(game);
-      this.server.to(game.id).emit('updateGrid', game.gameGrid);
     }, 30);
   }
 
