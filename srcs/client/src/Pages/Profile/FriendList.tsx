@@ -23,7 +23,7 @@ export default function FriendList(props : any) {
 		  "currentStatus": 1,
 		  "eloRating": 0},
 		  {
-			"id": 4,
+			"id": 1,
 			"username": "Johny",
 			"profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
 			"currentStatus": 0,
@@ -44,7 +44,7 @@ export default function FriendList(props : any) {
 						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
 							{
 							<>
-								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.id} width={"4vw"} height={"4vw"}/></td>
+								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
 								<td style={{marginRight: "2vw" }}> {friends.username} </td>
 								<td style={{marginRight: "2vw"}}> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
 							</>

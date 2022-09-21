@@ -3,6 +3,8 @@ import {useState, useEffect} from 'react'
 import "./profile.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
+import AddFriend from './Button/AddFriend'
+import BlockFriend from './Button/BlockFriend'
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
 import ChangePseudo from './Button/ChangePseudo'
@@ -20,6 +22,7 @@ export default function Profile () {
 
     let location = useLocation();
     const {userID} : any  = location.state;
+    const {originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
@@ -34,7 +37,6 @@ export default function Profile () {
             if (update === 0)
 		        setUpdate(1);
         }, 100);
-
 	}
 
     useEffect(() => {
@@ -74,9 +76,18 @@ export default function Profile () {
                         {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
-                        <ChangePseudo id={userID} up={toggleUpdate}/>
-                        <ChangePicture id={userID} up={toggleUpdate}/>
-                        <DoubleAuth/>
+                        { userID === originalId ?
+                        <>
+                            <ChangePseudo id={userID} up={toggleUpdate}/>
+                            <ChangePicture id={userID} up={toggleUpdate}/>
+                            <DoubleAuth/>
+                        </>
+                        :
+                        <>
+                            <AddFriend id={userID} originalId={originalId}/>
+                            <BlockFriend id={userID} originalId={originalId}/>
+                        </>
+                        }
                     </div>
                     </div>
                     <div className="ladder">
@@ -88,7 +99,7 @@ export default function Profile () {
                     <MatchHistory matchesList={matchesList} id={userID}/>
                 </div>
                 <div className="friend">
-                    <FriendList friendList={friendList} id={userID}/>
+                    <FriendList friendList={friendList} id={userID} originalId={originalId}/>
                 </div>
             </div>
 

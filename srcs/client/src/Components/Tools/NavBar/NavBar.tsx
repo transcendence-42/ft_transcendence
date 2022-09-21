@@ -146,7 +146,8 @@ export default function NavBar ()
         }
      }, [cookies, fromAuth]);
 
-    if (isLogged)
+    // if (isLogged)
+    if (1)
     {
         return (
             <div className="navBar">
@@ -170,7 +171,9 @@ export default function NavBar ()
                         <button onClick={deco} className="playFlickering">Logout</button>
                     </div>
                     <div className="buttonInNavBar">
-                        <Link  to="/profile" state={{userID}}> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"}  width={"5vw"} height={"5vw"}/> </Link>
+                        <Link state={{userID:userID, originalId: userID}} to="/profile">  <div className="btn textBlue" >
+                            <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"}  width={"5vw"} height={"5vw"}/>
+                        </div> </Link>
                     </div>
                 </div>
           </div>
