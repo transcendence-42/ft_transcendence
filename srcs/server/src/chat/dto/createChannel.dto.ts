@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ChannelUserDto } from './channelUserDto';
 
 export class CreateChannelDto {
   @IsString()
@@ -9,9 +11,10 @@ export class CreateChannelDto {
   @IsNotEmpty()
   type: string;
 
-  @IsString()
   @IsNotEmpty()
-  ownerId: string;
+  @ValidateNested({each: true})
+  @Type(() => ChannelUserDto)
+  usersList: ChannelUserDto[];
 
   @IsString()
   @IsOptional()

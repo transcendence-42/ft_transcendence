@@ -38,6 +38,7 @@ export class ChatGateway
   }
 
   afterInit(server: any) {
+    this.chatService.initBot();
     this.chatService.server = server;
   }
 

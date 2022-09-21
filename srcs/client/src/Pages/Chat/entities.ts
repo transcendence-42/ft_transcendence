@@ -1,8 +1,7 @@
 export interface Message {
   content: string;
-  date: number;
-  id: string;
-  channel: Channel;
+  fromUserId :string;
+  toChannelId: Channel;
 }
 
 export interface Channel {
@@ -27,4 +26,9 @@ export interface ChatUser {
   name: string;
   channels?: string[];
   directMessges?: string[];
+}
+
+export interface ChannelUserDto {
+    id: string;
+    role: string;
 }

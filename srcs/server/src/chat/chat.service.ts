@@ -3,7 +3,13 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Events } from './entities/Events';
-import { Channel, ChannelTypes, ChatUser } from './entities';
+import {
+  Channel,
+  ChannelTypes,
+  ChannelUser,
+  ChatUser,
+  Message,
+} from './entities';
 import { Inject } from '@nestjs/common';
 import {
   RedisClientType,
@@ -29,30 +35,14 @@ export class ChatService {
       RedisScripts
     >,
   ) {
-    this.allClients = [];
     this.allMessages = [];
-    this.allChannels = [
-      {
-        name: '42Ai',
-        id: '09423423423',
-        usersIdList: ['243242'],
-        type: 'public',
-      },
-      {
-        name: 'electronics',
-        id: '0923423',
-        usersIdList: ['2242'],
-        type: 'public',
-      },
-    ];
   }
 
   @WebSocketServer()
   server: Server;
 
-  allClients: ChatUser[];
   allMessages: MessageDto[];
-  allChannels: Channel[];
+  messageBotId: string;
 
   handleMessage(client: Socket, message: MessageDto) {
     console.log(
@@ -60,8 +50,15 @@ export class ChatService {
         client.id
       }`,
     );
-    message.id = String(message.date + Math.random() * 100);
-    this.allMessages.push(message);
+    const date = Date.now();
+    const msg: Message = {
+      id: String(date + Math.random() * 100),
+      date,
+      content: message.content,
+      fromUserId: message.fromUserId,
+      toChannelId: message.toChannelId,
+    };
+    this.allMessages.push(msg);
     console.log(`This is a list of all messages`);
     this.allMessages.map((msg) => console.log(msg));
     console.log(`End of all messags`);
@@ -83,17 +80,24 @@ export class ChatService {
     }
     client.join(joinChannelDto.id);
     if (
-      !channel.usersIdList.find((userId) => userId === joinChannelDto.userId)
+      !channel.usersList.find((user: ChannelUser) => user.id === joinChannelDto.userId)
     ) {
-      channel.usersIdList.push(joinChannelDto.userId);
+      const joinedChannelAt = Date.now();
+      const channelUser: ChannelUser = {
+        id: joinChannelDto.userId,
+        role: 'user', //to be included in the joinChannelDto
+        joinedChannelAt, 
+      }
+      channel.usersList.push(channelUser);
       this.setChannel(channel);
     }
     client.emit(Events.joinChannelResponse, {
       msg: 'changed channel',
       channel,
     });
-    const userId = this.allClients.find((cli) => cli.socketId === client.id).id;
-    this._joinedChannelBot(userId, joinChannelDto.id);
+    // manage bot sending message
+    // const userId = this.allClients.find((cli) => cli.socketId === client.id).id;
+    // this._joinedChannelBot(userId, joinChannelDto.id);
   }
 
   handleSetId(client: Socket, hasUserId: string) {
@@ -145,15 +149,30 @@ export class ChatService {
         return;
       }
     }
-    const channel: Channel = {
+    const createdAt = Date.now();
+    let channel: Channel = {
       id: uuidv4(),
       name: channelDto.name,
-      usersIdList: [channelDto.ownerId],
       type: channelDto.type,
+      createdAt,
+      usersList: [],
       password: channelDto.password,
     };
+    channel.usersList = channelDto.usersList.map((user) => {
+      const channelUser: ChannelUser = {
+        id: user.id,
+        role: user.role,
+        joinedChannelAt: createdAt,
+      };
+      return channelUser;
+    });
 
     this.setChannel(channel);
+    client.join(channel.id);
+    // emit to all user ids in usersList a addedToChannel event with channel.id 
+    // as data.
+    // On reception they will emit a addedToChannel with data channel.id event 
+    // which will make them join the specified channel id
     client.emit(Events.createChannelResponse, {
       msg: 'channel created successfuly',
       channel,
@@ -221,14 +240,18 @@ export class ChatService {
 
   // trying to emit private channels only to the people who are inside it
   // and protected to everyone
+  initBot() {
+    this.messageBotId = uuidv4();
+  }
 
   private _joinedChannelBot(userId: string, channelId: string) {
     const date = Date.now();
-    const message: MessageDto = {
+    const message: Message = {
       content: `User ${userId} has joined channelName`,
       id: String(date + Math.random() * 100),
       date,
-      channelId,
+      toChannelId: channelId,
+      fromUserId: '0000000000',
     };
     this.server.to(channelId).emit(Events.userJoined, message);
   }

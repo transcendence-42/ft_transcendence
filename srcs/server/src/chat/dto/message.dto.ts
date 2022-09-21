@@ -1,17 +1,15 @@
-import { IsNotEmpty, IsNotEmptyObject, IsNumber, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength} from 'class-validator';
 
 export class MessageDto {
   @IsString()
   @MaxLength(128)
   content: string;
 
-  @IsNumber()
-  date: number;
-
   @IsString()
-  id: string;
+  @IsNotEmpty()
+  fromUserId: string;
 
   @IsString()
   @IsNotEmpty()
-  channelId: string;
+  toChannelId: string;
 }

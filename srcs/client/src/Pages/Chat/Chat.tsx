@@ -34,7 +34,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleSubmitMessage = (e: any) => {
     if (message === '') return;
     const date = Date.now();
-    const messageToSend: Message = { id: '', content: message, date, channel: currentChannel };
+    const messageToSend: Message = {
+      content: message,
+      toChannelId: currentChannel.id,
+      fromUserId: user.id
+    };
     socket.emit(Events.sendMessage, messageToSend);
     setMessage('');
   };
@@ -71,6 +75,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     if (createChannelName === '') return alert("Channel name can't be empty");
     else if (createChannelType === 'protected' && createChannelPassword === '')
       return alert("Password can't be empty!");
+    const channelUsersclass []
     const payload = {
       name: createChannelName,
       type: createChannelType,
