@@ -128,20 +128,11 @@
   width: auto;
   height: 75px;
 }
-.chatInputField {
-  color: black;
-  width: auto;
-  height: auto;
-  font-size: 25px;
-}
 
+.chatInputField,
+.createChannelPassword,
+.createChannelFriends,
 .createChannel {
-  color: black;
-  font-size: 25px;
-  width: auto;
-  height: auto;
-}
-.createChannelPassword {
   color: black;
   font-size: 25px;
   width: auto;

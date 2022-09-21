@@ -14,7 +14,7 @@ export class CreateChannelDto {
   @IsNotEmpty()
   @ValidateNested({each: true})
   @Type(() => ChannelUserDto)
-  usersList: ChannelUserDto[];
+  users: ChannelUserDto[];
 
   @IsString()
   @IsOptional()

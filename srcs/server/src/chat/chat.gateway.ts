@@ -15,7 +15,6 @@ import {
   UpdateOneChannelDto,
 } from './dto';
 import { Events } from './entities/Events';
-import * as Cookie from 'cookie';
 import { ChatUser } from './entities';
 
 @WebSocketGateway(4444, {
@@ -43,7 +42,7 @@ export class ChatGateway
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    const userId = this._parseIdCookie(client.handshake.headers.cookie);
+    const userId = this.chatService.parseIdCookie(client.handshake.headers.cookie);
     console.log(`This is user id ${userId}`);
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
@@ -84,9 +83,14 @@ export class ChatGateway
     return this.chatService.handleJoinChannel(client, channel);
   }
 
+  @SubscribeMessage(Events.addedToRoom)
+  handleAddedToRoom(client: Socket, channelId: string) {
+    return this.chatService.handleAddedToRoom(client, channelId);
+  }
+
   @SubscribeMessage(Events.setId)
   handleSetId(client: Socket) {
-    const userId = this._parseIdCookie(client.handshake.headers.cookie);
+    const userId = this.chatService.parseIdCookie(client.handshake.headers.cookie);
     return this.chatService.handleSetId(client, userId);
   }
 
@@ -104,14 +108,6 @@ export class ChatGateway
   createChannel(client: Socket, channel: CreateChannelDto) {
     console.log(`User creating channel ${JSON.stringify(channel, null, 4)}`);
     return this.chatService.createChannel(client, channel);
-  }
-
-  private _parseIdCookie(cookies) {
-    if (cookies) {
-      const cookiesObj = Cookie.parse(cookies);
-      if (cookiesObj['id']) return cookiesObj['id'];
-    }
-    return null;
   }
 
   @SubscribeMessage(Events.updateOneChannel)

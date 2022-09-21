@@ -1,7 +1,15 @@
 import './chat.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
-import { Message, Channel, JoinChannelDto, ChatUser } from './entities';
+import {
+  Message,
+  MessageDto,
+  Channel,
+  JoinChannelDto,
+  ChatUser,
+  ChannelUser,
+  CreateChannelDto
+} from './entities';
 import { Events } from './events';
 import { ChannelTypes } from './channelTypes';
 
@@ -9,7 +17,7 @@ const lobbyChannel: Channel = {
   name: 'lobby',
   type: ChannelTypes.public,
   id: '',
-  userIdList: []
+  users: []
 };
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
@@ -23,6 +31,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [message, setMessage] = useState('');
   const [createChannelName, setCreateChannelName] = useState('');
   const [createChannelPassword, setCreateChannelPassword] = useState('');
+  const [createChannelFriends, setCreateChannelFriends] = useState('');
   const [createChannelType, setCreateChannelType] = useState('public');
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
 
@@ -33,8 +42,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   };
   const handleSubmitMessage = (e: any) => {
     if (message === '') return;
-    const date = Date.now();
-    const messageToSend: Message = {
+    const messageToSend: MessageDto = {
       content: message,
       toChannelId: currentChannel.id,
       fromUserId: user.id
@@ -62,7 +70,6 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     socket.emit(Events.joinChannel, {
       name: channelDto.name,
       id: channelDto.id,
-      type: channelDto.type,
       userId: user.id,
       password: channelDto.password
     });
@@ -75,12 +82,24 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     if (createChannelName === '') return alert("Channel name can't be empty");
     else if (createChannelType === 'protected' && createChannelPassword === '')
       return alert("Password can't be empty!");
-    const channelUsersclass []
-    const payload = {
+
+    let users = [];
+    const channelUser: ChannelUser = {
+      id: user.id,
+      role: 'owner'
+    };
+    users.push(channelUser);
+    const channelUserFriend = {
+      id: createChannelFriends,
+      role: 'user'
+    };
+    if (createChannelFriends !== '')
+      users.push(channelUserFriend);
+    const payload: CreateChannelDto = {
       name: createChannelName,
       type: createChannelType,
-      password: createChannelPassword,
-      ownerId: user.id
+      users, 
+      password: createChannelPassword
     };
     socket.emit(Events.createChannel, payload);
     setCreateChannelName('');
@@ -93,14 +112,14 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
       // Will be deleted in favour of using cookies
       socket.emit(Events.setId);
-      socket.on(Events.setIdResponse, (id: string) => {
-        document.cookie = `id=${id}`;
-        console.log(`Setting id from server ${id}`);
-        socket.emit(Events.addUser, id);
-      });
-      socket.on(Events.addUserResponse, (user: ChatUser) => {
-        setUser(user);
-      });
+    });
+    socket.on(Events.setIdResponse, (id: string) => {
+      document.cookie = `id=${id}`;
+      console.log(`Setting id from server ${id}`);
+      socket.emit(Events.addUser, id);
+    });
+    socket.on(Events.addUserResponse, (user: ChatUser) => {
+      setUser(user);
     });
 
     socket.on(Events.createChannelResponse, (data: { msg: string; channel: Channel }) => {
@@ -132,6 +151,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     socket.on(Events.updateChannels, (channels) => {
       setAllChannels(channels);
     });
+    socket.on(Events.addedToRoom, (channelId: string) => {
+      console.log(`Recieved event added to room`);
+      socket.emit(Events.addedToRoom, channelId);
+    });
     // // console.log(`This is the list of all users`);
     // allUsers.map((user) => console.log(`This is user ${JSON.stringify(user, null, 4)}`));
     return () => {
@@ -143,8 +166,9 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       socket.off(Events.addUserResponse);
       socket.off(Events.setIdResponse);
       socket.off(Events.createChannelResponse);
+      socket.off(Events.addedToRoom);
     };
-  }, []);
+  });
 
   return (
     <div className="chat">
@@ -171,6 +195,12 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             className="createChannelPassword"
             onChange={(e) => setCreateChannelPassword(e.target.value)}
             value={createChannelPassword}
+          />
+          <div style={{ color: 'white' }}>Add a friend to your channel</div>
+          <input
+            className="createChannelFriends"
+            onChange={(e) => setCreateChannelFriends(e.target.value)}
+            value={createChannelFriends}
           />
           <button className="createChanneButton" type="submit">
             Create Channel
@@ -208,8 +238,9 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <ul className="messages">
             <>
               {allMessages?.map((message: Message) => {
-                if (message.channel.name === currentChannel.name)
+                if (message.toChannelId === currentChannel.id)
                   return <li key={message.id}>{message.content}</li>;
+                return '';
               })}
             </>
           </ul>

@@ -3,6 +3,7 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Events } from './entities/Events';
+import * as Cookie from 'cookie';
 import {
   Channel,
   ChannelTypes,
@@ -80,15 +81,17 @@ export class ChatService {
     }
     client.join(joinChannelDto.id);
     if (
-      !channel.usersList.find((user: ChannelUser) => user.id === joinChannelDto.userId)
+      !channel.users.find(
+        (user: ChannelUser) => user.id === joinChannelDto.userId,
+      )
     ) {
       const joinedChannelAt = Date.now();
       const channelUser: ChannelUser = {
         id: joinChannelDto.userId,
         role: 'user', //to be included in the joinChannelDto
-        joinedChannelAt, 
-      }
-      channel.usersList.push(channelUser);
+        joinedChannelAt,
+      };
+      channel.users.push(channelUser);
       this.setChannel(channel);
     }
     client.emit(Events.joinChannelResponse, {
@@ -155,10 +158,10 @@ export class ChatService {
       name: channelDto.name,
       type: channelDto.type,
       createdAt,
-      usersList: [],
+      users: [],
       password: channelDto.password,
     };
-    channel.usersList = channelDto.usersList.map((user) => {
+    channel.users = channelDto.users.map((user) => {
       const channelUser: ChannelUser = {
         id: user.id,
         role: user.role,
@@ -169,9 +172,19 @@ export class ChatService {
 
     this.setChannel(channel);
     client.join(channel.id);
-    // emit to all user ids in usersList a addedToChannel event with channel.id 
+    channel.users.forEach(async (user) => {
+      if (user.role !== 'owner') {
+        const userDbJson = this.getUser(user.id).then((userDb) =>
+          this.server.to(userDb.socketId).emit(Events.addedToRoom),
+        );
+        // const userDbObj: ChatUser = JSON.parse(userDbJson);
+        // this.server.to(userDbObj.socketId).emit(Events.addedToRoom);
+      }
+    });
+    // channel.users.forEach((user) => user.role !== 'owner' ? this.server.to(user.))
+    // emit to all user ids in users a addedToChannel event with channel.id
     // as data.
-    // On reception they will emit a addedToChannel with data channel.id event 
+    // On reception they will emit a addedToChannel with data channel.id event
     // which will make them join the specified channel id
     client.emit(Events.createChannelResponse, {
       msg: 'channel created successfuly',
@@ -180,6 +193,16 @@ export class ChatService {
 
     allChannels.push(channel);
     this.server.emit(Events.updateChannels, allChannels);
+  }
+
+  async handleAddedToRoom(client: Socket, channelId: string) {
+    const allChannels = await this.getAllChannels();
+    const allUsers = await this.getAllUsers();
+    const userId = this.parseIdCookie(client.handshake.headers.cookie);
+    const user = allUsers.find((user) => user.id === userId);
+    const chan = allChannels.find((channel) => channel.id === channelId);
+    console.log(`User ${user.name} is joinined room ${chan.name}`);
+    client.join(channelId);
   }
 
   async getAllUsers() {
@@ -242,6 +265,14 @@ export class ChatService {
   // and protected to everyone
   initBot() {
     this.messageBotId = uuidv4();
+  }
+
+  parseIdCookie(cookies) {
+    if (cookies) {
+      const cookiesObj = Cookie.parse(cookies);
+      if (cookiesObj['id']) return cookiesObj['id'];
+    }
+    return null;
   }
 
   private _joinedChannelBot(userId: string, channelId: string) {

@@ -13,4 +13,5 @@ export const Events = Object.freeze({
   setIdResponse: 'setIdResponse',
   joinChannelResponse: 'joinChannelResponse',
   updateOneChannel: 'updateOneChannel',
+  addedToRoom: 'addedToRoom',
 });

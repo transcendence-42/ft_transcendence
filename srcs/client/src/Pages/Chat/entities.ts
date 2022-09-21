@@ -1,7 +1,11 @@
-export interface Message {
+export interface MessageDto {
   content: string;
-  fromUserId :string;
+  fromUserId: string;
   toChannelId: Channel;
+}
+
+export interface Message extends MessageDto {
+  id: string;
 }
 
 export interface Channel {
@@ -9,13 +13,12 @@ export interface Channel {
   name: string;
   type: string;
   password?: string;
-  userIdList: string[];
+  users: ChannelUser[];
 }
 
 export interface JoinChannelDto {
   id: string;
-  name: string;
-  type: string;
+  name: string; //debugging purposes
   userId: string;
   password?: string;
 }
@@ -28,7 +31,14 @@ export interface ChatUser {
   directMessges?: string[];
 }
 
-export interface ChannelUserDto {
-    id: string;
-    role: string;
+export interface ChannelUser {
+  id: string;
+  role: string;
+}
+
+export interface CreateChannelDto {
+  name: string;
+  type: string;
+  users: ChannelUser[];
+  password?: string;
 }
