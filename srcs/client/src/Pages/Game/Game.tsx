@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Canvas from '../../Components/Canvas/Canvas';
 
 const Game = (props: any) => {
@@ -20,6 +20,7 @@ const Game = (props: any) => {
   const [grid, setGrid] = useState({} as any);
   const [scores, setScores] = useState([]);
   const [message, setMessage] = useState('');
+  const timer = useRef({} as NodeJS.Timer);
 
   // Init
   const initGame = () => {
@@ -59,31 +60,34 @@ const Game = (props: any) => {
 
   const handleGameEnd = useCallback(
     (motive: number) => {
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
       if (motive === Motive.WIN)
         setMessage('The game is over. Moving back to lobby');
-      if (motive === Motive.ABANDON)
+      else if (motive === Motive.ABANDON)
         setMessage('One player abandoned. Moving back to lobby');
-      if (motive === Motive.CANCEL)
+      else if (motive === Motive.CANCEL)
         setMessage('Player canceled the game. Moving back to lobby');
       setTimeout(() => {
-        props.backToLobby({ id: 'lobby', action: props.actionVal.GO_LOBBY });
+        props.backTo({ id: 'lobby', action: props.actionVal.GO_LOBBY });
       }, 4000);
     },
-    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL],
+    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL, timer],
   );
 
   const handlePause = useCallback(
     (duration: number) => {
       setMessage(`The game is paused : ${duration}s`);
-      const timer = setInterval(() => {
+      timer.current = setInterval(() => {
         --duration;
         setMessage(`The game is paused : ${duration}s`);
         if (duration <= 0) {
-          clearInterval(timer);
-           setMessage('');
+          clearInterval(timer.current);
+          setMessage('');
         }
       }, 1000)
-    }, []
+    }, [timer]
   );
 
   useEffect(() => {

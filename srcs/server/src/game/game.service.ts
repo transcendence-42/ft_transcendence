@@ -299,7 +299,7 @@ export class GameService {
 
   /** pause a game */
   pause(client: Socket, id: string) {
-    const game: Game = this.games.find((game) => game.id === id);
+    const game: Game = this.games.find((g) => g.id === id);
     if (!game) throw new GameNotFoundException(id);
     // check if user can pause the game
     const userId: number = +client.handshake.query.userId;
@@ -318,8 +318,10 @@ export class GameService {
     this.server.to(game.id).emit('pause', +Params.PAUSE_TIME);
     // UnPause after a delay
     setTimeout(() => {
-      game.status = Status.STARTED;
-      game.gamePhysics.ball.speed = ballSpeed;
+      if (this.games.find((g) => g.id === id)) {
+        game.status = Status.STARTED;
+        game.gamePhysics.ball.speed = ballSpeed;
+      }
     }, Params.PAUSE_TIME * 1000);
   }
 

@@ -55,7 +55,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route
               path="/lobby"
-              element={<GameLobby origin={{ name: 'home', loc: '/' }} />}
+              element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/home" element={<Home />} />

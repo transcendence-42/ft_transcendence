@@ -47,11 +47,11 @@ export const mapOriginal = Object.freeze({
     shadowColor: '#05021E'
   },
   score: {
-    size: 50,
+    size: 70,
     style: 'bold',
     fill: '#ffffff',
     shadow: 15,
     shadowColor: '#05021E'
   },
-  fontFamily: 'Press Start 2P'
+  fontFamily: 'Arial'
 });

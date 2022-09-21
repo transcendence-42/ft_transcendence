@@ -133,6 +133,7 @@ const GameLobby = (props: any) => {
     // Player : cancel if 1 player / abandon if match started
     if (game.action !== Action.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
+      
       backTo({ id: 'lobby', action: Action.GO_LOBBY });
     }
   };
@@ -277,6 +278,7 @@ const GameLobby = (props: any) => {
               id={game.id}
               action={game.action}
               actionVal={Action}
+              backTo={backTo}
               setMatchMaking={setMatchMaking}
               matchMakingVal={MatchMaking}
               className="translate-middle"
