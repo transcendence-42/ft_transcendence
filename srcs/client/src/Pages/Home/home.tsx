@@ -84,26 +84,29 @@ if (!(contextValue.isConnected))
 {
     return (
     <>
-    
-        <div >
-          <h1 className="h1 pinkText">ENTER THE PONG CONTEST !</h1>
+    <body>
+      <div className="container">
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
         </div>
-        <div className=" blueText">
-          <br />
+        <div className=" row blueText text-center pt-5">
           <h4 >Confront other players online and become the best at Pong! </h4>
         </div>
-        <div className=" container">
-          <div className="col-size field">
-            <div className="net"></div>
-            <div className="ping"></div>
-            <div className="pong"></div>
-            <div className="ball"></div>
+        <div className="row field1 text-center pt-5">
+          <div className="col"></div>
+          <div className=" field text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6">
+            <div className="net text-center"></div>
+            <div className="ping text-center"></div>
+            <div className="pong text-center"></div>
+            <div className="ball text-center"></div>
            </div>
+           <div className="col"></div>
         </div>
-        <div className=" blueText   ">
-          <br />
+        <div className=" row blueText pt-5 ">
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
+        </div>
+        </body>
     </>
     );
   }
@@ -115,6 +118,7 @@ if (!(contextValue.isConnected))
      <div >
           <h1 className="h1 pinkText">ENTER THE PONG CONTEST !</h1>
         </div>
+    
         <div className=" container">
           <div className="col-size field">
             <div className="net"></div>
@@ -138,25 +142,3 @@ if (!(contextValue.isConnected))
   );
 }
 }
-
-
-// return (
-//   <>
-//      <div className="title1" data-testid="tracker">
-//         <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>  
-//       </div>   
-//         <div className="homeElement1">
-//           <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
-//                                                               online and become the best at Pong! </h2>
-//         </div>
-//         <div className="containerForField">
-//           <div className="field">
-//             <div className="net"></div>
-//             <div className="ping"></div>
-//             <div className="pong"></div>
-//             <div className="ball"></div>
-
-//         </div>
-//       </div>
-//   </>
-//   );

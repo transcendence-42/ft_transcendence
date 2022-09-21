@@ -12,7 +12,7 @@
 	margin: 5px;
 	padding: 25px;
 }
-.container
+.container1
 {
 	display: flex;
 	width: 100%;
@@ -20,7 +20,7 @@
 	margin: auto; 
 	margin-top: 5%;
 }
-.container>* {
+.container1>* {
     margin: 0 10px;
     flex: 1;
 }
