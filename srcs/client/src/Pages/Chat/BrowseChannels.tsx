@@ -1,3 +1,6 @@
+import React from 'react';
+import './BrowseChannels.css';
+
 export default function BrowseChannels() {
 
     return (
@@ -6,7 +9,7 @@ export default function BrowseChannels() {
                 <p>Channel name</p>
             </div>
             <div className="col">
-                <button className="btn-join">Join</button>
+                <button className="rounded-4 btn-pink btn-join">Join</button>
             </div>
         </div>
         // <>

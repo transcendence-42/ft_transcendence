@@ -1,7 +1,13 @@
-.test {
-    background-color: black;
+.item-custom {
+    --bs-list-group-color: white; 
+    background-color: rgb(5, 2, 30);
 }
 
-.checkbox-style {
-    font-size: 100%;
+.form-control-margin {
+    margin-bottom: 2em;
+}
+
+.collapse-margin {
+    margin-top: 1em;
+    margin-bottom: -1rem;
 }

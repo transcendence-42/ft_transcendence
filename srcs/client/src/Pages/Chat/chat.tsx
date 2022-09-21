@@ -1,9 +1,10 @@
-import './chat.css';
-import '../../Components/Tools/Box.css';
 // import { useState, useEffect } from 'react';
 // import { Socket } from 'socket.io-client';
 import { Message, Channel } from './entities';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import '../../Components/Tools/Box.css';
+import './chat.css';
+import React from 'react';
 import { useState } from 'react';
 import PongAdvancedModal from '../../Components/Modal/PongAdvancedModal';
 import BrowseChannels from './BrowseChannels';
@@ -60,12 +61,10 @@ const Chat = () => {
                 <div className='col-2 rounded-4 vh-100 blue-box-chat'>
                     <div className='row'>
                         <div className='col'>
-                            <br></br>
-                            <p className='yellow-titles'>CHANNELS</p>
+                            <p className='yellow-titles titles-position'>CHANNELS</p>
                         </div>
                         <div className='col'>
-                            <br></br>
-                            <button className='float-end rounded-4 dropdown-toggle color-dropdown channel-button' data-bs-toggle="dropdown" aria-expanded="false"></button>
+                            <button className='float-end rounded-4 dropdown-toggle color-dropdown channel-button titles-position' data-bs-toggle="dropdown" aria-expanded="false"></button>
                             <ul className="dropdown-menu channel-menu blue-box-chat">
                                 <li className='dropdown-item' onClick={handleShowBrowseChannel}>Browse channels</li>
                                 <li className='dropdown-item' onClick={handleShowCreateChannel}>Create a channel</li>
@@ -83,14 +82,12 @@ const Chat = () => {
                             <p>Channel name</p>
                         </div>
                     </div>
-                    <br></br>
-                    <br></br>
                     <div className='row'>
                         <div className='col'>
-                            <p className='yellow-titles'>MESSAGES</p>
+                            <p className='yellow-titles titles-position'>MESSAGES</p>
                         </div>
                         <div className='col'>
-                            <button className='message-button float-end rounded-4' onClick={handleShowFriendList}>+</button>
+                            <button className='message-button float-end rounded-4 titles-position' onClick={handleShowFriendList}>+</button>
                         </div>
                     </div>
                     <div className='row'>
@@ -108,8 +105,7 @@ const Chat = () => {
                 <div className='col-8 rounded-4 blue-box-chat'>
                     <div className='row'>
                         <div className='col'>
-                            <br></br>
-                            <p className='blue-titles'>Channel Name</p>
+                            <p className='blue-titles channel-name-margin'>@ Channel Name</p>
                         </div>
                     </div>
                     <div className='row'>
@@ -121,8 +117,7 @@ const Chat = () => {
                 <div className='col-2 rounded-4 blue-box-chat'>
                     <div className='row'>
                         <div className='col'>
-                            <br></br>
-                            <p className='blue-titles center-position'>MEMBERS</p>
+                            <p className='blue-titles center-position titles-position'>MEMBERS</p>
                         </div>
                     </div>
                 </div>

@@ -47,6 +47,10 @@
 					0px 0px 25.6977px #187BCA;
 }
 
+.titles-position {
+	margin-top: 2em;
+}
+
 .message-button {
 	text-align: right;
 	border: none;
@@ -65,8 +69,13 @@
 
 .input-field-chat {
 	color: black;
-	font-size: 100%;
 	outline: none;
+	margin-left: 1em;
+}
+
+.channel-name-margin {
+	margin-left: 1em;
+	margin-top: 2em;
 }
 
 .scroll-bar {
@@ -88,6 +97,10 @@
 
 .channel-menu {
     background-color: rgb(5, 2, 30);
+	--bs-dropdown-link-color: #80FFFF;
+
+	--bs-dropdown-link-hover-color: #80FFFF;
+	--bs-dropdown-link-hover-bg: #214141;
 }
 
 .dropdown-menu .dropdown-item:active {

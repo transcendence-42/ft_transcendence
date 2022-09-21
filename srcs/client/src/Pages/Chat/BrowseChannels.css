@@ -1,6 +1,5 @@
 .btn-join {
-    --bs-btn-active-border-color:transparent;
-    --bs-btn-active-bg:transparent;
-    --bs-btn-active-color:transparent !important;
-    /* background-color: black; */
+    color: #FF80F2;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }

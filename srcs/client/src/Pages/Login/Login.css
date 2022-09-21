@@ -56,8 +56,10 @@ justify-content: center;
 	border-radius: 3vw;
     margin-right: 10%;
 }
+
 input  
 {
-    font-size: 1%;
+	/* commented font-size because it affected the chat */
+    /* font-size: 1%; */
     color: transparent;
 }
