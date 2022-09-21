@@ -42,7 +42,9 @@ export class ChatGateway
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    const userId = this.chatService.parseIdCookie(client.handshake.headers.cookie);
+    const userId = this.chatService.parseIdCookie(
+      client.handshake.headers.cookie,
+    );
     console.log(`This is user id ${userId}`);
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
@@ -57,9 +59,7 @@ export class ChatGateway
     }
     console.log(`This is the list of all users`);
     const allUsers = await this.chatService.getAllUsers();
-    allUsers.map((user) =>
-      console.log(`${JSON.stringify(user, null, 4)}`),
-    );
+    allUsers.map((user) => console.log(`${JSON.stringify(user, null, 4)}`));
 
     const allChannels = await this.chatService.getAllChannels();
 
@@ -90,7 +90,9 @@ export class ChatGateway
 
   @SubscribeMessage(Events.setId)
   handleSetId(client: Socket) {
-    const userId = this.chatService.parseIdCookie(client.handshake.headers.cookie);
+    const userId = this.chatService.parseIdCookie(
+      client.handshake.headers.cookie,
+    );
     return this.chatService.handleSetId(client, userId);
   }
 

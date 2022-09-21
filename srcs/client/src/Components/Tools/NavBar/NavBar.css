@@ -1,37 +1,32 @@
+.navbar-brand {
+    font-family: 'Montserrat', normal;
+    font-style: sans-serif;
+    color: #80FFFF;
+    text-shadow:	0px 0px 7.49518px #6ABDFF,
+  	    			0px 0px 14.9904px #3D9FEE,
+		    		0px 0px 25.6977px #187BCA;
+}
 
-.navBar{
-	height: 8vw;
-	width: auto;
-	display: flex;
-	flex-direction: row;
-	/* border: 5px solid white; */
-	align-items: center;
-    /* background-color: transparent; */
-  }
+.navbar-nav > li {
+    padding-left:20px;
+    padding-right:20px;
+}
 
-.menuInNavBar{
-	width: 100%;
-	display: flex;
-	justify-content: flex-end;
-	font-size: 1vw;
-	flex-direction: row;
-	align-items: center;
-  }
+.navbar-nav .nav-link.active {
+    color: #FFE710;
+}
 
-.buttonInNavBar{
-	color: rgb(255, 6, 6);
-	margin-left: 2vw;
-	margin-right: 2vw;
-  }
+.nav-link {
+    font-family: 'Montserrat', sans-serif;
+    font-style: sans-serif;
 
-  .buttonInNavBar:first-child{
-	color: rgb(8, 218, 255);
-	margin-right: auto;
-	margin-left: 2%;
-	font-size: 2vw;
-  }
+    color: #FFE710;
+    text-shadow:	0px 0px 7.49518px #FF6ADE,
+                    0px 0px 14.9904px #EA3DEE,
+                    0px 0px 25.6977px #CA18A3;
+}
 
-  a {
-	text-decoration: none; 
-  }
-
+.navbar-button {
+    border: none;
+    background-color: rgb(5, 2, 30);
+}

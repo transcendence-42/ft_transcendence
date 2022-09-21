@@ -23,6 +23,7 @@ const lobbyChannel: Channel = {
 export default function Chat({ socket, ...props }: { socket: Socket }) {
   const currChanInLocalStorage = window.localStorage.getItem('currentChannel');
   const defaultChannel = currChanInLocalStorage ? JSON.parse(currChanInLocalStorage) : lobbyChannel;
+  const [trueUser, setTrueUser] = useState(null);
   const [user, setUser] = useState({} as ChatUser);
   const [allMessages, setAllMessages] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
@@ -93,18 +94,21 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       id: createChannelFriends,
       role: 'user'
     };
-    if (createChannelFriends !== '')
-      users.push(channelUserFriend);
+    if (createChannelFriends !== '') users.push(channelUserFriend);
     const payload: CreateChannelDto = {
       name: createChannelName,
       type: createChannelType,
-      users, 
+      users,
       password: createChannelPassword
     };
     socket.emit(Events.createChannel, payload);
     setCreateChannelName('');
     setCreateChannelPassword('');
   };
+
+  useEffect(() => {
+    console.log('je fetch');
+  }, [trueUser]);
 
   useEffect(() => {
     socket.on('connect', () => {

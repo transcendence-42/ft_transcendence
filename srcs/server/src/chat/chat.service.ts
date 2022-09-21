@@ -116,7 +116,7 @@ export class ChatService {
       'Toto',
       'Judu',
       'Masto',
-      'Flo mon Beig',
+      'Flo monBg',
       'Nouf',
       'Karpathy',
       'Lex',
