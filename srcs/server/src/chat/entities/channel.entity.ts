@@ -1,4 +1,4 @@
-import { ChannelUser } from "./channelUser.entity";
+import { ChannelUser } from './channelUser.entity';
 
 export class Channel {
   id: string;

@@ -1,24 +1,24 @@
 import React from 'react';
 import './BrowseChannels.css';
+import { Channel } from './entities';
 
-export default function BrowseChannels() {
-
-    return (
-        <div className="row row-color">
-            <div className="col">
-                <p>Channel name</p>
-            </div>
-            <div className="col">
-                <button className="rounded-4 btn-pink btn-join">Join</button>
-            </div>
+export default function BrowseChannels({ allChannels, handleJoinChannel, ...props }: any) {
+  return (
+    <div className="row row-color">
+      {allChannels.map((channel: Channel) => (
+        <div className="channels" key={channel.id}>
+          <div className="col">
+            <p>{channel.name}</p>
+          </div>
+          <div className="col">
+            <button
+              className="rounded-4 btn-pink btn-join"
+              onClick={(e) => handleJoinChannel(e, channel.id)}>
+              Join
+            </button>
+          </div>
         </div>
-        // <>
-        //     <ul className="list-group list-group-color">
-        //         <li className="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-        //             Channel name
-        //             <button className="btn-join">Join</button>
-        //         </li>
-        //     </ul>
-        // </>
-    );
+      ))}
+    </div>
+  );
 }

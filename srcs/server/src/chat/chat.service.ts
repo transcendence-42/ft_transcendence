@@ -140,7 +140,7 @@ export class ChatService {
 
   async createChannel(client: Socket, channelDto: CreateChannelDto) {
     // if channel name taken but channel is private it's okay
-    let allChannels = await this.getAllChannels();
+    const allChannels = await this.getAllChannels();
     console.log(`all channels = ${allChannels}`);
     for (const channel of allChannels) {
       console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
@@ -153,7 +153,7 @@ export class ChatService {
       }
     }
     const createdAt = Date.now();
-    let channel: Channel = {
+    const channel: Channel = {
       id: uuidv4(),
       name: channelDto.name,
       type: channelDto.type,
@@ -208,7 +208,7 @@ export class ChatService {
   async getAllUsers() {
     this.redis.select(REDIS_DB.USERS_DB);
     const all = await this.redis.keys('*');
-    let allUsers: ChatUser[] = [];
+    const allUsers: ChatUser[] = [];
     await Promise.all(
       all.map(async (key: string) => {
         if (key === 'PING' || key === 'ping') return;
@@ -248,7 +248,7 @@ export class ChatService {
   async getAllChannels() {
     this.redis.select(REDIS_DB.CHANNELS_DB);
     const all = await this.redis.keys('*');
-    let allChannels: Channel[] = [];
+    const allChannels: Channel[] = [];
     await Promise.all(
       all.map(async (key: string) => {
         if (key === 'PING' || key === 'ping') return;

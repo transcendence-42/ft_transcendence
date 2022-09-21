@@ -112,6 +112,6 @@ export class ChatGateway
     return this.chatService.createChannel(client, channel);
   }
 
-  @SubscribeMessage(Events.updateOneChannel)
-  updateOneChannel(client: Socket, channel: UpdateOneChannelDto) {}
+  // @SubscribeMessage(Events.updateOneChannel)
+  // updateOneChannel(client: Socket, channel: UpdateOneChannelDto) {}
 }

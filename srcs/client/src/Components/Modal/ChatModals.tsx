@@ -2,7 +2,7 @@ import { Children } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import '../../Styles';
 
-const PongAdvancedModal = (props: any) => {
+const ChatModal = (props: any) => {
   /**
    * @props title:        Title of the modal
    *        mainText:     Main information of the modal in increased size.
@@ -28,14 +28,12 @@ const PongAdvancedModal = (props: any) => {
             {props.textBtn1}
           </button>
         )}
-        {props.handleBtn2 && (
-          <button type="button" className="btn btn-pink text-pink" onClick={props.handleBtn2}>
-            {props.textBtn2}
-          </button>
-        )}
+        <button type="submit" className="btn btn-pink text-pink">
+          {props.textBtn1}
+        </button>
       </Modal.Footer>
     </Modal>
   );
 };
 
-export default PongAdvancedModal;
+export default ChatModal;
