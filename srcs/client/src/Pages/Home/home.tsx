@@ -82,7 +82,7 @@ useEffect(() => {
 ** If we are connected we have the options of playing and watch, otherwise we do not have it 
 ** The contextValue.isConnected is the context init in App.tsx  
 */
-if ((contextValue.isConnected))
+if (!(contextValue.isConnected))
 {
     return (
     <>
