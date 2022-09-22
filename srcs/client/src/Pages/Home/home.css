@@ -28,3 +28,33 @@ html, body
 {
 	height: 400px;
 }
+.container {
+
+	
+	align-items: center;
+	justify-content: center;
+  }
+  .animated-word {
+	font-family: Helvetica;
+	letter-spacing: 0.4em;
+	font-weight: 600;
+	font-size: 100px;
+	text-align: center;
+	color: #202125;
+	cursor: pointer;
+	max-width: 600px; 
+	width: 100%; 
+	outline: 3px solid;
+	outline-color: #80FFFF;
+	outline-offset: 70px;
+	transition: all 600ms cubic-bezier(0.2, 0, 0, 0.8);
+  }
+  
+  .animated-word:hover {
+	color: #80FFFF;;
+	outline-color: rgba(71, 126, 232, 0);
+	text-shadow:	0px 0px 7.49518px #6ABDFF,
+	0px 0px 14.9904px #3D9FEE,
+  0px 0px 25.6977px #187BCA;
+	outline-offset: 300px;
+  }

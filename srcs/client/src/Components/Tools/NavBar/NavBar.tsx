@@ -6,8 +6,8 @@ import '../Box.css';
 import { Link } from "react-router-dom";
 import Context from "../../../Context/Context";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Nav, Navbar, NavDropdown } from "react-bootstrap";
-import { HiUser } from "react-icons/hi";
+import { Nav, Navbar} from "react-bootstrap";
+
 
 
 
