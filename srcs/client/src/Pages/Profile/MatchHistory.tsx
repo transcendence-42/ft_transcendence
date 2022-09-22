@@ -1,7 +1,7 @@
 import React from 'react'
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/Box.css"
-import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
+import PhotoProfilDropdown from '../../Components/Tools/Button/PhotoProfilDropdown'
 import WinLose from './WinLose'
 
 
@@ -173,7 +173,7 @@ export default function MatchHistory(props : any) {
 					{test.map((matches: any, index: number) =>(
 					index < 10 &&
 					<tr key={index} style={{fontSize: "2vw"}}>
-						<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
+						<td> <PhotoProfilDropdown url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
 						<td colSpan={2}>
 							<table>
 								<tbody>
@@ -199,7 +199,7 @@ export default function MatchHistory(props : any) {
 								</tbody>
 							</table>
 						</td>
-						<td> <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
+						<td> <PhotoProfilDropdown url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"} width={"4vw"} height={"4vw"}/></td>
 						<td> <WinLose size={"2vw"} id={props.id} players={matches.players}/></td>
 					</tr>
 					))}

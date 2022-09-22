@@ -24,6 +24,41 @@
 				0px 0px 25.6977px #187BCA;
 }
 
+.textIron{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #a19d94;
+  text-shadow:	0px 0px 7.49518px  #a19d94;
+}
+
+.textBronze{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #CD7F32;
+  text-shadow:	0px 0px 7.49518px #CD7F32;
+}
+
+.textSilver{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #C0C0C0;
+  text-shadow:	0px 0px 7.49518px #C0C0C0,
+  				0px 0px 14.9904px #C0C0C0,
+				0px 0px 15.6977px #C0C0C0;
+}
+
+.textGold{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #daa520;
+  text-shadow:	0px 0px 7.49518px #daa520,
+  				0px 0px 14.9904px #daa520,
+				0px 0px 10.6977px #daa520;
+}
 /* BOOTSTRAP */
 
 

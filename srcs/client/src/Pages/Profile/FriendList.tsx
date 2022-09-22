@@ -52,6 +52,7 @@ export default function FriendList(props : any) {
 			"eloRating": 0}
 	  ];
 
+
 	return (
 		<div className="blueBoxFriend"
 		style={{
@@ -59,17 +60,16 @@ export default function FriendList(props : any) {
 		 height: "100%",
 		}}>
 			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
-				{
-				<table className="scrollBox" style={{alignItems: "flex-start"}} >
+				{<table className="table  scroll m-1 align-middle  ">
 					<tbody>
 						{ test_requested &&
 						test_requested.map((friends: any, index: number) =>(
-						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
+						<tr key={index} style={{fontSize: "2vw"}}>
 							{
 							<>
 								<td className="pinkText"> New  </td>
 								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
-								<td style={{marginRight: "2vw" }}> {friends.username} </td>
+								<td> {friends.username} </td>
 								<td> <FriendshipAccepted id={friends.id} originalId={props.originalId}/></td>
 								<td> <FriendshipRejected id={friends.id} originalId={props.originalId}/></td>
 							</>
@@ -78,12 +78,12 @@ export default function FriendList(props : any) {
 						))}
 						{ test_friends ?
 						test_friends.map((friends: any, index: number) =>(
-						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
+						<tr key={index} style={{fontSize: "2vw"}}>
 							{
 							<>
 								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
-								<td style={{marginRight: "2vw" }}> {friends.username} </td>
-								<td style={{marginRight: "2vw"}}> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
+								<td> {friends.username} </td>
+								<td> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
 							</>
 							}
 						</tr>

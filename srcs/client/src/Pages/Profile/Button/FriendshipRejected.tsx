@@ -20,7 +20,7 @@ export default function FriendshipAccepted(props : any) {
 				originalId: props.originalId,
 				status:2}))}
 			>
-				<div className="redText" style={{fontSize: "1.2vw"}}> Accept </div>
+				<div className="redText" style={{fontSize: "1.2vw"}}> Reject </div>
 			</button>
 		</>
  		);

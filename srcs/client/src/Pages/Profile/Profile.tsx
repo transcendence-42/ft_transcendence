@@ -39,40 +39,40 @@ export default function Profile () {
         }, 100);
 	}
 
-    useEffect(() => {
-        let request = "http://127.0.0.1:4200/users/" + userID;
-        console.log(request);
-        const user_json = getFetch({url : request});
-        user_json.then((responseObject)=> {
-            // console.log("User =>", responseObject);
-            setUser(responseObject);
-        })
-        request = "http://127.0.0.1:4200/users/" + userID + "/friends";
-        const friend_json = getFetchFriends({url : request});
-        friend_json.then((responseObject)=> {
-            // console.log("Friend =>", responseObject);
-            setFriendList(responseObject);})
-        request = "http://127.0.0.1:4200/users/" + userID + "/matches";
-            const matches_json = getFetchMatch({url : request});
-            matches_json.then((responseObject)=> {
-                // console.log("Matches =>", responseObject);
-                setMatchesList(responseObject);})
-        },[userID, update]);
+    // useEffect(() => {
+    //     let request = "http://127.0.0.1:4200/users/" + userID;
+    //     console.log(request);
+    //     const user_json = getFetch({url : request});
+    //     user_json.then((responseObject)=> {
+    //         // console.log("User =>", responseObject);
+    //         setUser(responseObject);
+    //     })
+    //     request = "http://127.0.0.1:4200/users/" + userID + "/friends";
+    //     const friend_json = getFetchFriends({url : request});
+    //     friend_json.then((responseObject)=> {
+    //         // console.log("Friend =>", responseObject);
+    //         setFriendList(responseObject);})
+    //     request = "http://127.0.0.1:4200/users/" + userID + "/matches";
+    //         const matches_json = getFetchMatch({url : request});
+    //         matches_json.then((responseObject)=> {
+    //             // console.log("Matches =>", responseObject);
+    //             setMatchesList(responseObject);})
+    //     },[userID, update]);
 
     console.log(user);
-    if(user)
-    {
+    // if(user)
+    // {
         return (
             <>
             <div className="profilAndLadder" data-testid="tracker">
                 <div className="profil">
                     <div className="picture">
-                        <PhotoProfil url={user.profilePicture} width={"10vw"} height={"10vw"}/>
+                        {/* <PhotoProfil url={user.profilePicture} width={"10vw"} height={"10vw"}/> */}
                     </div>
                     <div className="status">
-                        <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
+                        {/* <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div> */}
                         <br/>
-                        <OnlineOffline status={user.currentStatus} size={"1.5vw"}/>
+                        {/* <OnlineOffline status={user.currentStatus} size={"1.5vw"}/> */}
                         {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
@@ -91,7 +91,8 @@ export default function Profile () {
                     </div>
                     </div>
                     <div className="ladder">
-                            <Ladder stats={user.stats} elo={user.eloRating}/>
+                            <Ladder />
+                            {/* <Ladder stats={user.stats} elo={user.eloRating}/> */}
                 </div>
             </div>
             <div className='matchFriend'>
@@ -105,7 +106,7 @@ export default function Profile () {
 
             </>
         );
-    }
+    // }
     return(<></>);
 }
 
