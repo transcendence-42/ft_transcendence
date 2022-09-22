@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import Context from "../../../Context/Context";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { HiUser } from "react-icons/hi";
+
 
 
 export default function NavBar ()
@@ -99,50 +101,48 @@ export default function NavBar ()
     if (contextValue.isConnected)
     {
         return (
-            <nav className="navbar navbar-expand-md bg-dark">
-                <div className="">
-                    <div className="buttonInNavBar">
-                        <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <button onClick={deco} className="playFlickering">Logout</button>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
-                    </div>
-                </div>
-          </nav>
+            <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">
+            
+            <Link to="/" >
+                    <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
+                    <h2 className="blueText px-2" data-testid="HomeLink"> PONG</h2>
+                    </Link>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav className="navbar-nav ms-auto ">
+                    <Nav.Link className="" >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/leaderboard"> <h2 className="yellowText">Leaderboard</h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className=""  >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className=""  >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/profile">  <h2 className="yellowText"> Profile </h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className="" >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/" onClick={deco}>  <h2 className="yellowText"  style={{animation:"flicker 2.5s infinite alternate"}}>logout </h2> </Link>
+                    </Nav.Link>
+                </Nav>
+                </Navbar.Collapse>
+       
+    </Navbar>
         )
     }
     else
     {
         return (
         <Navbar className="navbar bg-dark pt-5 pb-4 px-5" bg="transparent" variant="transparent"  expand="md" collapseOnSelect>
-            
                 <Link to="/">
                     <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
                     <h2 className="blueText px-2" data-testid="HomeLink"> PONG</h2>
                     </Link>
-           
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
                 <Nav className="navbar-nav ms-auto ">
-                    <Nav.Link className="" >
-                        <span></span><span></span><span></span><span></span>
-                        <Link to="/" className="pl-5">   <h2 className="yellowText" > Home </h2></Link>
-                    </Nav.Link>
                     <Nav.Link className="">
                         <span></span><span></span><span></span><span></span>
                         <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
@@ -220,3 +220,31 @@ export default function NavBar ()
     //         </Nav>
     //         </Navbar.Collapse>
     // </Navbar>
+
+
+    // FORMER CO
+    // <nav className="navbar navbar-expand-md bg-dark">
+    //             <div className="">
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <button onClick={deco} className="playFlickering">Logout</button>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+    //                 </div>
+    //             </div>
+    //       </nav>
