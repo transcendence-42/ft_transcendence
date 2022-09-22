@@ -12,17 +12,10 @@ import {
   Message,
 } from './entities';
 import { Inject } from '@nestjs/common';
-import {
-  RedisClientType,
-  RedisFunctions,
-  RedisModules,
-  RedisScripts,
-} from '@redis/client';
+import Redis from 'redis';
 
-// To do
-// Add Dtos to payloads
 enum REDIS_DB {
-  USERS_DB = 0,
+  USERS_DB = 1,
   CHANNELS_DB,
   MSG_DB,
 }
@@ -30,11 +23,7 @@ enum REDIS_DB {
 export class ChatService {
   constructor(
     @Inject('REDIS_CLIENT')
-    private readonly redis: RedisClientType<
-      RedisModules,
-      RedisFunctions,
-      RedisScripts
-    >,
+    private readonly redis: Redis.RedisClientType,
   ) {
     this.allMessages = [];
   }
@@ -67,7 +56,10 @@ export class ChatService {
   }
 
   async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
-    const channel = await this.getChannel(joinChannelDto.id);
+    const channel: Channel = await this.getObject(
+      joinChannelDto.id,
+      REDIS_DB.CHANNELS_DB,
+    );
     console.log(
       `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
     );
@@ -92,7 +84,8 @@ export class ChatService {
         joinedChannelAt,
       };
       channel.users.push(channelUser);
-      this.setChannel(channel);
+
+      this.setObject(channel.id, channel, REDIS_DB.CHANNELS_DB);
     }
     client.emit(Events.joinChannelResponse, {
       msg: 'changed channel',
@@ -121,26 +114,24 @@ export class ChatService {
       'Karpathy',
       'Lex',
     ];
-    const allUsers = await this.getAllUsers();
-    const userExists = allUsers.filter((userDb) => userDb.id === id);
-    if (userExists.length === 0) {
+    const userDb: ChatUser = await this.getObject(id, REDIS_DB.USERS_DB);
+    if (!userDb) {
       const chatUser: ChatUser = {
         socketId: client.id,
         id,
         name: names[Math.floor(Math.random() * 10) % names.length],
       };
       console.log(`Adding user name: ${chatUser.name}, id: ${id}`);
-      this.redis.select(REDIS_DB.USERS_DB);
-      this.redis.set(chatUser.id, JSON.stringify(chatUser));
-      allUsers.push(chatUser);
+      this.setObject(chatUser.id, chatUser, REDIS_DB.USERS_DB);
       client.emit(Events.addUserResponse, chatUser);
+      const allUsers: ChatUser[] = await this.getAll(REDIS_DB.USERS_DB);
       this.server.emit(Events.updateUsers, allUsers);
     }
   }
 
   async createChannel(client: Socket, channelDto: CreateChannelDto) {
     // if channel name taken but channel is private it's okay
-    const allChannels = await this.getAllChannels();
+    const allChannels: Channel[] = await this.getAll(REDIS_DB.CHANNELS_DB);
     console.log(`all channels = ${allChannels}`);
     for (const channel of allChannels) {
       console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
@@ -170,15 +161,15 @@ export class ChatService {
       return channelUser;
     });
 
-    this.setChannel(channel);
+    this.setObject(channel.id, channel, REDIS_DB.CHANNELS_DB);
     client.join(channel.id);
     channel.users.forEach(async (user) => {
       if (user.role !== 'owner') {
-        const userDbJson = this.getUser(user.id).then((userDb) =>
-          this.server.to(userDb.socketId).emit(Events.addedToRoom),
+        const userDb: ChatUser = await this.getObject(
+          user.id,
+          REDIS_DB.USERS_DB,
         );
-        // const userDbObj: ChatUser = JSON.parse(userDbJson);
-        // this.server.to(userDbObj.socketId).emit(Events.addedToRoom);
+        this.server.to(userDb.socketId).emit(Events.addedToRoom);
       }
     });
     // channel.users.forEach((user) => user.role !== 'owner' ? this.server.to(user.))
@@ -196,8 +187,8 @@ export class ChatService {
   }
 
   async handleAddedToRoom(client: Socket, channelId: string) {
-    const allChannels = await this.getAllChannels();
-    const allUsers = await this.getAllUsers();
+    const allChannels: Channel[] = await this.getAll(REDIS_DB.CHANNELS_DB);
+    const allUsers: ChatUser[] = await this.getAll(REDIS_DB.USERS_DB);
     const userId = this.parseIdCookie(client.handshake.headers.cookie);
     const user = allUsers.find((user) => user.id === userId);
     const chan = allChannels.find((channel) => channel.id === channelId);
@@ -205,60 +196,30 @@ export class ChatService {
     client.join(channelId);
   }
 
-  async getAllUsers() {
-    this.redis.select(REDIS_DB.USERS_DB);
-    const all = await this.redis.keys('*');
-    const allUsers: ChatUser[] = [];
+  async getAll<T>(dataBase: REDIS_DB): Promise<T[]> {
+    this.redis.select(dataBase);
+    const allKeys = await this.redis.keys('*');
+    const allValues: T[] = [];
     await Promise.all(
-      all.map(async (key: string) => {
-        if (key === 'PING' || key === 'ping') return;
-        const userJson = await this.redis.get(key);
-        const userObj: ChatUser = JSON.parse(userJson);
-        allUsers.push(userObj);
+      allKeys.map(async (key: string) => {
+        const value: T = await this.getObject(key, dataBase);
+        allValues.push(value);
         return;
       }),
     );
-    return allUsers;
+    return allValues;
   }
 
-  setChannel(channel: Channel) {
-    this.redis.select(REDIS_DB.CHANNELS_DB);
-    this.redis.set(channel.id, JSON.stringify(channel));
+  async setObject<T>(key: string, value: T, dataBase: number) {
+    await this.redis.select(dataBase);
+    await this.redis.json.set(key, '.', JSON.parse(JSON.stringify(value)));
   }
 
-  setUser(user: ChatUser) {
-    this.redis.select(REDIS_DB.USERS_DB);
-    this.redis.set(user.id, JSON.stringify(user));
-  }
-
-  async getUser(userId: string): Promise<ChatUser> {
-    this.redis.select(REDIS_DB.USERS_DB);
-    const user = await this.redis.get(userId);
-    const parsedUser: ChatUser = JSON.parse(user);
-    return parsedUser;
-  }
-
-  async getChannel(channelId: string): Promise<Channel> {
-    this.redis.select(REDIS_DB.CHANNELS_DB);
-    const channelJson = await this.redis.get(channelId);
-    const channelObj = JSON.parse(channelJson);
-    return channelObj;
-  }
-
-  async getAllChannels() {
-    this.redis.select(REDIS_DB.CHANNELS_DB);
-    const all = await this.redis.keys('*');
-    const allChannels: Channel[] = [];
-    await Promise.all(
-      all.map(async (key: string) => {
-        if (key === 'PING' || key === 'ping') return;
-        const channelJson = await this.redis.get(key);
-        const channelObj: Channel = JSON.parse(channelJson);
-        allChannels.push(channelObj);
-        return;
-      }),
-    );
-    return allChannels;
+  async getObject<T>(key: string, dataBase: REDIS_DB): Promise<T> {
+    await this.redis.select(dataBase);
+    const type = await this.redis.type(key);
+    const jsonObj: T = await this.redis.json.get(key, {path: '.'}) as any;
+    return jsonObj;
   }
 
   // trying to emit private channels only to the people who are inside it

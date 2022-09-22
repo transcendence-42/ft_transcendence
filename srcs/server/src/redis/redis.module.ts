@@ -12,10 +12,13 @@ import * as Redis from 'redis';
     {
       inject: ['REDIS_OPTIONS'],
       provide: 'REDIS_CLIENT',
-      useFactory: async (options: { url: string }, legacyMode: true) => {
+      useFactory: async (options: { url: string }) => {
         const client = Redis.createClient(options);
         await client.connect();
-        client.on('connect', () => console.log('Redis module connected'))
+        client.on('connect', () => {
+          console.log('Redis module connected');
+          client.select(0).then(() => client.del('ping'));
+        });
         return client;
       },
     },

@@ -15,7 +15,13 @@ import {
   UpdateOneChannelDto,
 } from './dto';
 import { Events } from './entities/Events';
-import { ChatUser } from './entities';
+import { ChatUser, Channel } from './entities';
+
+enum REDIS_DB {
+  USERS_DB = 1,
+  CHANNELS_DB,
+  MSG_DB,
+}
 
 @WebSocketGateway(4444, {
   cors: {
@@ -42,13 +48,16 @@ export class ChatGateway
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    const userId = this.chatService.parseIdCookie(
+    const userId: string = this.chatService.parseIdCookie(
       client.handshake.headers.cookie,
     );
     console.log(`This is user id ${userId}`);
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
-      const user: ChatUser = await this.chatService.getUser(userId);
+      const user: ChatUser = await this.chatService.getObject(
+        userId,
+        REDIS_DB.USERS_DB,
+      );
       console.log(`User ${JSON.stringify(user, null, 4)} reconnected`);
       client.emit(Events.addUserResponse, user);
     } else {
@@ -58,14 +67,25 @@ export class ChatGateway
       );
     }
     console.log(`This is the list of all users`);
-    const allUsers = await this.chatService.getAllUsers();
-    allUsers.map((user) => console.log(`${JSON.stringify(user, null, 4)}`));
+    try {
+      const allUsers = await this.chatService.getAll<ChatUser>(
+        REDIS_DB.USERS_DB,
+      );
+      client.emit(Events.updateUsers, allUsers);
+      allUsers.map((user) => console.log(`${JSON.stringify(user, null, 4)}`));
+    } catch (err) {
+      console.log('Currently there are no users');
+    }
 
-    const allChannels = await this.chatService.getAllChannels();
-
+    try {
+      const allChannels = await this.chatService.getAll<Channel>(
+        REDIS_DB.CHANNELS_DB,
+      );
+      client.emit(Events.updateChannels, allChannels);
+    } catch (err) {
+      console.log('Currenlty there are no channels');
+    }
     client.emit(Events.updateMessages, this.chatService.allMessages);
-    client.emit(Events.updateChannels, allChannels);
-    client.emit(Events.updateUsers, allUsers);
   }
 
   handleDisconnect(client: Socket) {
