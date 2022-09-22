@@ -112,6 +112,7 @@
   color: black;
   outline: none;
   margin-left: 1em;
+  width: 40%;
 }
 
 .channel-name-margin {
@@ -121,7 +122,14 @@
 
 .scroll-bar {
   height: 240px;
+  margin-right: 1em;
 }
+
+.scroll-bar-messages {
+  height: 410px;
+  margin-right: 1em;
+}
+
 
 .center-position {
   text-align: center;
@@ -146,4 +154,29 @@
 
 .dropdown-menu .dropdown-item:active {
   color: #80ffff !important;
+}
+
+.message-position {
+  margin-left: 1em;
+}
+
+::-webkit-scrollbar {
+  margin-left: 1em;
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(5, 2, 30);
+  
+}
+
+::-webkit-scrollbar-thumb {
+  background:#80ffff;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.521);
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(5, 2, 30);
 }

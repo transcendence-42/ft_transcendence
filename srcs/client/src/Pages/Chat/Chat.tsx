@@ -256,6 +256,22 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className="blue-titles channel-name-margin">@ Channel Name</p>
             </div>
           </div>
+          <div className='row'>
+            <div className='col overflow-auto scroll-bar-messages'>
+              <p className='message-position'>Il fait beau aujourd'hui</p>
+              <p className='message-position'>Oui t'as vu</p>
+              <p className='message-position'>youhou</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>
+            </div>
+          </div>
           <div className="row">
             <div className="col input-position">
               <input
@@ -269,6 +285,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="row">
             <div className="col">
               <p className="blue-titles center-position titles-position">MEMBERS</p>
+            </div>
+          </div>
+          <div className="row">
+            <div className='col'>
+              <p className='center-position'>Judu</p>
             </div>
           </div>
         </div>

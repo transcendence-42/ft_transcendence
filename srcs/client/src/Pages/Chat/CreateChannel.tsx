@@ -1,16 +1,16 @@
 import './CreateChannel.css';
-import { useState } from 'react';
 import React from 'react';
+import { useState } from 'react';
 import { ChannelUser, CreateChannelDto } from './entities';
 import { Events } from './events';
 //  <form style={{ margin: '15px ' }} onSubmit={handleCreateChannel}>
 //       <div style={{ color: 'white' }}> Create a Channel</div>
 //       <input
 //         className="createChannel"
-//         onChange={(e) => setCreateChannelName(e.target.value)}
+//         onclick={(e) => setCreateChannelName(e.target.value)}
 //         value={createChannelName}
 //       />
-//       <select onChange={(e) => setChannelType(e.target.value)}>
+//       <select onclick={(e) => setChannelType(e.target.value)}>
 //         <option value="public">Public</option>
 //         <option value="private">Private</option>
 //         <option value="protected">Protected</option>
@@ -18,13 +18,13 @@ import { Events } from './events';
 //       <div style={{ color: 'white' }}>Set a password for your channel</div>
 //       <input
 //         className="createChannelPassword"
-//         onChange={(e) => setCreateChannelPassword(e.target.value)}
+//         onclick={(e) => setCreateChannelPassword(e.target.value)}
 //         value={createChannelPassword}
 //       />
 //       <div style={{ color: 'white' }}>Add a friend to your channel</div>
 //       <input
 //         className="createChannelFriends"
-//         onChange={(e) => setCreateChannelFriends(e.target.value)}
+//         onclick={(e) => setCreateChannelFriends(e.target.value)}
 //         value={createChannelFriends}
 //       />
 //       <button className="createChanneButton" type="submit">
@@ -58,28 +58,83 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
     setChannelName('');
     setChannelPassword('');
   };
+
   return (
-    <>
-      <form id="createChannelForm" className="form-label" onSubmit={handleCreateChannel}>
-        <label className="form-label">Name</label>
+    // <> Noufel code with select
+    //   <form id="createChannelForm" className="form-label" onSubmit={handleCreateChannel}>
+    //     <label className="form-label">Name</label>
+    //     <input
+    //       type="name"
+    //       className="form-control form-control-margin"
+    //       placeholder="# channel-name"
+    //       onclick={(e) => setChannelName(e.target.value)}
+    //       value={channelName}>
+    //     </input>
+    //     <ul className="list-group">
+    //       <select onclick={(e) => setChannelType(e.target.value)}>
+    //         <option value="public" id="coucou">
+    //           Public
+    //         </option>
+    //         <option value="private" id="coucou">
+    //           Private
+    //         </option>
+    //         <option value="protected">
+    //           Protected
+    //         </option>
+    //       </select>
+    //       <input
+    //           type="name"
+    //           id="coucou"
+    //           className="form-control password-margin"
+    //           placeholder="Password"
+    //           disabled>
+    //       </input>
+    //     </ul>
+    //   </form>
+    // </>
+
+    <> checkbox working
+      <label className="form-label">Name</label>
+      <input type="name" className="form-control form-control-margin" placeholder="# channel-name"></input>
+      <div className="form-check">
+        <input className="form-check-input radio-custom" type="radio" name="channelRadios" id="channelRadio1" value="option1" 
+        onClick={() => {
+          const bsCollapse = document.getElementById('collapseProtected');
+          bsCollapse?.classList.remove('show');
+        }}
+        ></input>
+        <label className="form-check-label" htmlFor="channelRadios1">
+          Public
+        </label>
+      </div>
+      <div className="form-check">
+        <input className="form-check-input radio-custom" type="radio" name="channelRadios" id="channelRadio2" value="option2"
+        onClick={() => {
+          const bsCollapse = document.getElementById('collapseProtected');
+          bsCollapse?.classList.remove('show');
+        }}
+        ></input>
+        <label className="form-check-label" htmlFor="channelRadios2">
+          Private
+        </label>
+      </div>
+      <div className="form-check">
         <input
-          type="name"
-          className="form-control form-control-margin"
-          placeholder="# channel-name"
-          onChange={(e) => setChannelName(e.target.value)}
-          value={channelName}></input>
-        <ul className="list-group">
-          <select onChange={(e) => setChannelType(e.target.value)}>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-            <option value="protected">Protected</option>
-          </select>
-          <input
-            type="name"
-            className="form-control form-control-margin"
-            placeholder="Password"></input>
-        </ul>
-      </form>
+          className="form-check-input radio-custom"
+          type="radio"
+          name="channelRadios"
+          id="channelRadio3"
+          value="option3"
+          data-bs-toggle="collapse" data-bs-target="#collapseProtected" aria-expanded="false" aria-controls="collapseProtected">
+        </input>
+        <label className="form-check-label" htmlFor="channelRadios3">
+          Protected
+        </label>
+        <div className="collapse collapse-margin" id="collapseProtected">
+          <input type="name" className="form-control form-control-margin" placeholder="Password"></input>
+        </div>
+      </div>
     </>
   );
 }
+
