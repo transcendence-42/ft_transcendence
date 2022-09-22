@@ -9,13 +9,14 @@
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.49",
     "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
     "bootstrap": "^5.2.1",
     "cors": "^2.8.5",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
+    "react-bootstrap-icons": "^1.8.4",
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-use-cookie": "^1.4.0",
@@ -50,6 +51,7 @@
     ]
   },
   "devDependencies": {
+    "@types/react-dom": "^18.0.6",
     "@types/react-router-dom": "^5.3.3",
     "react-select-event": "^5.5.1",
     "webpack-dev-server": "^4.11.0"
