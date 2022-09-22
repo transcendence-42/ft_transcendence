@@ -126,7 +126,7 @@ export class GameService {
     this._addOrUpdateClient(client);
     // if the user id is in a game, reconnect the client to the game
     await this.redis.select(DB.PLAYERS);
-    const gameId: any = await this.redis.hGet(userId, 'gameId');
+    const gameId: any = await this.redis.get(userId);
     if (gameId) {
       client.join(gameId);
       client.emit('reconnect', gameId);
@@ -153,7 +153,7 @@ export class GameService {
     });
     // Warn the room if the player is in game
     await this.redis.select(DB.PLAYERS);
-    const gameId: any = await this.redis.hGet(userId, 'gameId');
+    const gameId: any = await this.redis.get(userId);
     if (gameId && this.server)
       this.server.to(gameId).emit('info', {
         message: `${userName} has left.`,
@@ -166,37 +166,24 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private async _addPlayerToGame(player: Player, side: string, gameId: string) {
-    // check if user is already in game
-    await this.redis.select(DB.PLAYERS);
-    const isPlayerInGame: any = await this.redis.hGet(player.userId, gameId);
-    if (isPlayerInGame) {
-      throw new UserAlreadyInGameException(player.userId);
-    }
+  private async _addPlayerToGame(player: Player, side: string, game: Game) {
     // Add it to the game room and leave lobby
     player.socket.leave(Params.LOBBY);
-    player.socket.join(gameId);
-    // Add player to game
-    await this.redis.set(player.userId, gameId);
-    // Complete information on game db and player db
-    await this.redis.select(DB.GAMES);
-    await this.redis.json.set(gameId, `$.player[${player.userId}]`, {
+    player.socket.join(game.id);
+    // Add player in player db with its game for further checks
+    await this.redis.select(DB.PLAYERS);
+    await this.redis.set(player.userId, game.id);
+    // Complete information on game db
+    game.players.push({
       userId: player.userId,
       side: side,
-    });
-    await this.redis.select(DB.PLAYERS);
-    await this.redis.hSet(player.userId, {
-      side: side,
-      score: '0',
-      pauseCount: '1',
-      updating: '0',
     });
   }
 
   /** Check if a player is already in a game */
   private async _isPlayerInGame(userId: string): Promise<boolean> {
     await this.redis.select(DB.PLAYERS);
-    return (await this.redis.hGet(userId, 'gameId')) !== null;
+    return (await this.redis.get(userId)) !== null;
   }
 
   /** Check if a viewer is already in a game */
@@ -213,9 +200,13 @@ export class GameService {
   }
 
   /** Create the game list from the global server data */
-  private async _createGameList(): Promise<object> {
+  private async _createGameList(): Promise<Game[]> {
     await this.redis.select(DB.GAMES);
-    const games: any = await this.redis.keys('*');
+    let games: any = [];
+    let gameKeys: string[] = await this.redis.keys('*');
+    gameKeys = gameKeys.filter((k: string) => k !== 'ping');
+    if (gameKeys.length > 0)
+      games = (await this.redis.json.mGet(gameKeys, '$')).flat(1);
     const gameList = games.map((g: any) => {
       return {
         id: g.id,
@@ -301,14 +292,16 @@ export class GameService {
   /** get Game */
   private async _getGame(id: string): Promise<any> {
     await this.redis.select(DB.GAMES);
-    const game: any = await this.redis.json.get(id, { path: '$' });
+    const game: any = await this.redis.json.GET(id, { path: '$' });
     if (!game) throw new GameNotFoundException(id);
-    return game;
+    console.log('game:');
+    console.log(game[0]);
+    return game[0];
   }
 
   /** Create a new game */
   async create(players: Player[]) {
-    // 1 : Chech if one of the user is already in a game or in match making
+    // Check if one of the user is already in a game or in match making
     players.forEach(async (p) => {
       if (await this._isPlayerInGame(p.userId))
         throw new UserAlreadyInGameException(p.userId);
@@ -317,18 +310,19 @@ export class GameService {
     });
     // create a new game
     const newGame: Game = new Game(v4());
+    // add players to the game and give them the game id
+    players.forEach(async (p, i) => {
+      const side: string = i ? Side.RIGHT : Side.LEFT;
+      await this._addPlayerToGame(p, side, newGame);
+      p.socket.emit('gameId', { id: newGame.id });
+    });
+    // update game on redis
     await this.redis.select(DB.GAMES);
     await this.redis.json.set(
       newGame.id,
       '$',
       JSON.parse(JSON.stringify(newGame)),
     );
-    // add players to the game and give them the game id
-    players.forEach(async (p, i) => {
-      const side: string = i ? Side.RIGHT : Side.LEFT;
-      await this._addPlayerToGame(p, side, newGame.id);
-      p.socket.emit('gameId', { id: newGame.id });
-    });
     // Broadcast new gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -364,7 +358,7 @@ export class GameService {
   /** one player abandons the game */
   async abandonGame(client: Socket, id: string): Promise<Match> {
     await this.redis.select(DB.GAMES);
-    const game: any = await this.redis.json.get(id, { path: '$' });
+    const game: any = (await this.redis.json.get(id, { path: '$' }))[0];
     if (!game) throw new GameNotFoundException(id);
     const userId: string = client.handshake.query.userId.toString();
     if (game.players.length > 1)
@@ -374,23 +368,25 @@ export class GameService {
 
   /** pause a game */
   async pause(client: Socket, id: string) {
-    // Get game
-    const game: any = await this._getGame(id);
+    // Get game and player
+    const game: Game = await this._getGame(id);
+    const userId: string = client.handshake.query.userId.toString();
+    const player: Player = game.players.find((p) => p.userId === userId);
     // check if game is already paused
     if (game.status === Status.PAUSED)
       throw new CannotPauseGameException('the game is already paused');
     // check if user can pause the game
-    const userId: string = client.handshake.query.userId.toString();
-    await this.redis.select(DB.PLAYERS);
-    const pauseCount = await this.redis.hGet(userId, 'pauseCount');
-    if (+pauseCount === 0) {
+    if (player.pauseCount === 0) {
       throw new CannotPauseGameException('you have used all your pauses');
     }
     // Pause the game and unpause it after a delay with a callback
-    await this.redis.json.set(id, '$.status', Status.PAUSED);
-    await this.redis.select(DB.PLAYERS);
-    await this.redis.hSet(userId, 'pauseCount', (+pauseCount - 1).toString());
+    game.status === Status.PAUSED;
+    game.players.map((p) =>
+      p.userId === userId ? { ...p, pauseCount: --p.pauseCount } : p,
+    );
     const ballSpeed = game.gamePhysics.ball.speed;
+    // update redis
+    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
     this.server.to(id).emit('pause', +Params.PAUSE_TIME);
     // UnPause after a delay
     setTimeout(async () => {
@@ -882,7 +878,7 @@ export class GameService {
         this.server.to(game.id).emit('updateGrid', game.gameGrid);
         // write in redis
         await this.redis.select(DB.GAMES);
-        await this.redis.json.set(id, '$', game);
+        await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
         // read from redis (to get players moves)
         game = await this._getGame(id);
       }
@@ -900,7 +896,7 @@ export class GameService {
       this._movePaddleFromInput(game, userId, move);
       // write in redis
       await this.redis.select(DB.GAMES);
-      await this.redis.json.set(id, '$', game);
+      await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
     }
   }
 }
