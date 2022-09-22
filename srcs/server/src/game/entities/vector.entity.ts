@@ -5,11 +5,4 @@ export class Vector {
   }
   x: number;
   y: number;
-
-  toJson?(): any {
-    return {
-      x: this.x,
-      y: this.y,
-    };
-  }
 }

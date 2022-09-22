@@ -65,11 +65,11 @@ export class GameGateway
 
   /** Pause the game */
   @SubscribeMessage('pause')
-  pause(
+  async pause(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.pause(client, updateGameDto.id);
+    await this.gameService.pause(client, updateGameDto.id);
   }
 
   /** join game (new player) */

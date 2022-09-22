@@ -13,7 +13,7 @@ import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import Redis from 'redis';
 import { Match } from 'src/match/entities/match.entity';
 import { UserNotFoundException } from 'src/user/exceptions';
-import { GameGateway } from './game.gateway';
+import { nickName } from './extra/surnames';
 
 // Enums
 const enum Move {
@@ -68,6 +68,19 @@ const Params = Object.freeze({
   PAUSE_TIME: 30,
 });
 
+const enum DB {
+  GAME = 0,
+  PLAYERS_IN_GAME,
+  VIEWERS_IN_GAME,
+  MATCHMAKING,
+  GRID_LEFT,
+  GRID_RIGHT,
+  GRID_BALL,
+  PHY_LEFT,
+  PHY_RIGHT,
+  PHY_BALL,
+}
+
 @Injectable()
 export class GameService {
   constructor(
@@ -82,10 +95,6 @@ export class GameService {
   games: Game[];
   players: Player[];
 
-  // private async _init() {
-
-  // }
-
   /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
@@ -93,25 +102,21 @@ export class GameService {
   /** client connection */
   async clientConnection(client: Socket) {
     // get query information
-    const userId: number = +client.handshake.query.userId;
+    const userId: string = client.handshake.query.userId.toString();
+    const userName: string = client.handshake.query.name.toString();
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // if the user id is in a game, reconnect the client to the game
-    const games: any = await this.redis.json.get('games', { path: 'games' });
-    if (games) {
-      const game = games.find(
-        (game: any) =>
-          game.players.filter((p: any) => p.userId === +userId).length === 1,
-      );
-      if (game) {
-        client.join(game.id);
-        client.emit('reconnect', game.id);
-      } else {
-        client.join(Params.LOBBY);
-        if (this.server)
-          this.server.to(Params.LOBBY).emit('info', {
-            message: `user ${userId} (${client.id}) joined the lobby`,
-          });
-      }
+    await this.redis.select(DB.PLAYERS_IN_GAME);
+    const gameId: any = await this.redis.get(userId);
+    if (gameId) {
+      client.join(gameId);
+      client.emit('reconnect', gameId);
+    } else {
+      client.join(Params.LOBBY);
+      if (this.server)
+        this.server.to(Params.LOBBY).emit('info', {
+          message: `${userName}, ${nickName()}, joined the lobby`,
+        });
     }
   }
 
@@ -330,12 +335,20 @@ export class GameService {
   }
 
   /** pause a game */
-  pause(client: Socket, id: string) {
-    const game: Game = this.games.find((g) => g.id === id);
+  async pause(client: Socket, id: string) {
+    const iGame = await this.redis.json.arrIndex('game', 'games', { id: id });
+    const game: any = await this.redis.json.get('game', {
+      path: `games[${iGame}]`,
+    });
     if (!game) throw new GameNotFoundException(id);
     // check if user can pause the game
     const userId: number = +client.handshake.query.userId;
-    const player: Player = game.players.find((p) => p.userId === userId);
+    const iPlayer = await this.redis.json.arrIndex(
+      'game',
+      `game[${iGame}].players`,
+      { userId: userId },
+    );
+    const player: Player = game.players.find((p: any) => p.userId === userId);
     if (!player) throw new UserNotFoundException(userId);
     // Game is already paused
     if (game.status === Status.PAUSED)
@@ -344,8 +357,15 @@ export class GameService {
     if (player.pauseCount === 0)
       throw new CannotPauseGameException('you have used all your pauses');
     // Pause the game and unpause it after a delay with a callback
-    game.status = Status.PAUSED;
-    --player.pauseCount;
+    await this.redis.json.set('game', `game[${iGame}].status`, Status.PAUSED);
+    const count: any = await this.redis.json.get('game', {
+      path: `game[${iGame}].players[${iPlayer}].pauseCount`,
+    });
+    await this.redis.json.set(
+      'game',
+      `game[${iGame}].players[${iPlayer}].pauseCount`,
+      count - 1,
+    );
     const ballSpeed = game.gamePhysics.ball.speed;
     this.server.to(game.id).emit('pause', +Params.PAUSE_TIME);
     // UnPause after a delay
@@ -388,7 +408,7 @@ export class GameService {
     if (!game) throw new GameNotFoundException(id);
     const userId: number = +client.handshake.query.userId;
     if (!(await this._isViewerInGame(userId))) {
-      const iGame = await this.redis.json.arrIndex('game', 'games', id);
+      const iGame = await this.redis.json.arrIndex('game', 'games', { id: id });
       await this.redis.json.arrAppend('games', `games[${iGame}].viewers`, {
         ...JSON.parse(JSON.stringify({ socket: client, userId: userId })),
       });
