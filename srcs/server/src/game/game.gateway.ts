@@ -44,7 +44,7 @@ export class GameGateway
   @SubscribeMessage('createGame')
   async create(@ConnectedSocket() client: Socket) {
     const players: Player[] = [];
-    players.push(new Player(client, +client.handshake.query.userId));
+    players.push(new Player(client, client.handshake.query.userId.toString()));
     await this.gameService.create(players);
   }
 
@@ -56,11 +56,11 @@ export class GameGateway
 
   /** Update game grid by movement */
   @SubscribeMessage('updateGame')
-  update(
+  async update(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.update(client, updateGameDto.id, updateGameDto.move);
+    await this.gameService.update(client, updateGameDto.id, updateGameDto.move);
   }
 
   /** Pause the game */
@@ -101,11 +101,11 @@ export class GameGateway
 
   /** Get the game grid */
   @SubscribeMessage('getGameGrid')
-  getGameGrid(
+  async getGameGrid(
     @ConnectedSocket() client: Socket,
     @MessageBody() updateGameDto: UpdateGameDto,
   ) {
-    this.gameService.getGameGrid(client, updateGameDto.id);
+    await this.gameService.getGameGrid(client, updateGameDto.id);
   }
 
   /** One player abandons the game */

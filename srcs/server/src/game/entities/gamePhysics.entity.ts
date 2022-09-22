@@ -4,10 +4,10 @@ import { Vector } from './vector.entity';
 export class Physic {
   coordinates: Vector;
   dimensions: Dimensions;
-  type: number;
+  type: string;
   direction?: Vector;
   speed?: number;
-  side?: number;
+  side?: string;
   timerFunction?: NodeJS.Timer;
 }
 

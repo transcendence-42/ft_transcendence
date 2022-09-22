@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import { Client } from './client.entity';
 
 export class Player extends Client {
-  constructor(socket: Socket, userId: number) {
+  constructor(socket: Socket, userId: string) {
     super(socket, userId);
     this.score = 0;
     this.updating = false;
@@ -11,7 +11,7 @@ export class Player extends Client {
     this.pauseCount = 1;
   }
   score?: number;
-  side?: number;
+  side?: string;
   updating?: boolean;
   pauseCount?: number;
 }
