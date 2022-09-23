@@ -1,5 +1,7 @@
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import './chat.css';
+import { Dropdown } from 'bootstrap';
+import 'bootstrap';
+import './Chat.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import ChatModal from '../../Components/Modal/ChatModals';
@@ -194,70 +196,85 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         handleBtn2={handleCloseFriendList}>
         <FriendList />
       </PongAdvancedModal>
-      <div className="row row-color main-row-margin">
-        <div className="col-2 rounded-4 vh-100 blue-box-chat first-column">
-          <div className="row h-50 mt-2">
-            <div className="col">
-              <p className="yellow-titles titles-position">CHANNELS</p>
+      <div className="row row-color mx-5 main-row">
+        <div className="col-2 rounded-4 blue-box-chat">
+          <div className='channels-div h-50'>
+            <div className="row mt-2">
+              <div className="col">
+                <p className="yellow-titles titles-position">CHANNELS</p>
+              </div>
+              <div className="col">
+                <button
+                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                </button>
+                <ul className="dropdown-menu channel-menu blue-box-chat">
+                  <li className="dropdown-item" onClick={handleShowBrowseChannel}>
+                    Browse channels
+                  </li>
+                  <li className="dropdown-item" onClick={handleShowCreateChannel}>
+                    Create a channel
+                  </li>
+                </ul>
+              </div>
+              <div className='row'>
+
+              </div>
             </div>
-            <div className="col">
-              <button
-                className="float-end rounded-4 dropdown-toggle color-dropdown channel-button titles-position"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"></button>
-              <ul className="dropdown-menu channel-menu blue-box-chat">
-                <li className="dropdown-item" onClick={handleShowBrowseChannel}>
-                  Browse channels
-                </li>
-                <li className="dropdown-item" onClick={handleShowCreateChannel}>
-                  Create a channel
-                </li>
-              </ul>
+            <div className="row h-75">
+              <div className="col  overflow-auto scroll-bar-channels ">
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+                <p>Channel name</p>
+              </div>
             </div>
           </div>
-          <div className="row h-50">
-            <div className="col overflow-auto scroll-bar-channels">
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
+          <div className='messages-div h-50'>
+            <div className="row">
+              <div className="col ">
+                <p className="yellow-titles titles-position">MESSAGES</p>
+              </div>
+              <div className="col">
+                <button
+                  className="message-button float-end rounded-4 titles-position"
+                  onClick={handleShowFriendList}>
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              <p className="yellow-titles titles-position">MESSAGES</p>
-            </div>
-            <div className="col">
-              <button
-                className="message-button float-end rounded-4 titles-position"
-                onClick={handleShowFriendList}>
-                +
-              </button>
-            </div>
-          </div>
-          <div className="row ">
-            <div className="col overflow-auto scroll-bar-direct">
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Scroll</p>
+            <div className="row h-75">
+              <div className="col  overflow-auto scroll-bar-direct ">
+                <p>Message</p>
+                <p>Message</p>
+                <p>Message</p>
+                <p>Message</p>
+                <p>Message</p>
+                <p>Message</p>
+                <p>Scroll</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="col-8 rounded-4 blue-box-chat">
+        <div className="col-8 rounded-4 blue-box-chat ">
           <div className="row">
-            <div className="col">
+            <div className="col ">
               <p className="blue-titles channel-name-margin">@ Channel Name</p>
             </div>
           </div>
-          <div className='row'>
-            <div className='col overflow-auto scroll-bar-messages '>
+          <div className='row h-75 pt-3'>
+            <div className='col h-100 overflow-auto scroll-bar-messages '>
               <p className='message-position'>Il fait beau aujourd'hui</p>
               <p className='message-position'>Oui t'as vu</p>
               <p className='message-position'>youhou</p>
@@ -272,12 +289,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className='message-position'>Blabla</p>
             </div>
           </div>
-          <div className="row">
-            <div className="col input-position">
+          <div className="row pt-2 ">
+            <div className="col text-center">
               <input
                 type="text"
                 className="rounded-3 input-field-chat yellow-box-chat"
-                placeholder="Send a message..."></input>
+                placeholder="Send a message...">
+              </input>
             </div>
           </div>
         </div>

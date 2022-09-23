@@ -98,7 +98,7 @@ export default function NavBar ()
     */
     
 
-    if (!contextValue.isConnected)
+    if (contextValue.isConnected)
     {
         return (
             <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">

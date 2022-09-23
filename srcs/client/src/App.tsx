@@ -12,6 +12,7 @@ import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
+import { socket } from './Socket';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -48,23 +49,22 @@ function App() {
   return (
     <Context.Provider value={contextValue}>
     <BrowserRouter>
-        <div className="main">
           <NavBar />
             <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             < Route path="/leaderboard" element={<Leaderboard />} />
+            < Route path="/chat" element={<Chat socket={socket}/>} />
             <Route  path='/'element={<AuthenticatedRoute res/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
-              < Route path="/chat" element={<Chat />} />
+      
               < Route path="/profile" element={<Profile />} />
               < Route path="/mapchoice" element={<MapChoice />} />
               < Route path="/matchmaking" element={<Matchmaking />} />
             </Route>
           </Routes>
-        </div>
       </ BrowserRouter>
       </Context.Provider>
   );
