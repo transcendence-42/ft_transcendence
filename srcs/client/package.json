@@ -7,7 +7,6 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.11.49",
     "@types/react": "^18.0.17",
     "bootstrap": "^5.2.1",
     "cors": "^2.8.5",
@@ -21,6 +20,7 @@
     "react-scripts": "5.0.1",
     "react-use-cookie": "^1.4.0",
     "redux-persist": "^6.0.0",
+    "socket.io-client": "^4.5.2",
     "typescript": "^4.7.4",
     "web-vitals": "^2.1.4"
   },

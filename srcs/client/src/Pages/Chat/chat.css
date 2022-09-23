@@ -1,99 +1,196 @@
-/* 
-.text
-{
-	box-sizing: border-box;
-	position: absolute;
-	left: 45%;
-	color: yellow;
-	border: 3px solid #80FFFF;
-	box-shadow: 0px 4px 15px #80FFFF,
-				4px 0px 10px rgba(30, 166, 166, 0.95),
-				0px 0px 10px rgba(255, 255, 255, 0.521);
-	border-radius: 40px;
-	margin: 5px;
-	padding: 25px;
+.row-color {
+  font-family: 'Montserrat', sans-serif;
+
+  color: #80ffff;
+}
+
+.main-row-margin {
+  margin-top: 3em;
+  margin-left: 5em;
+  margin-right: 5em;
+  margin-bottom: 4em;
+  min-width: 300px;
+}
+
+.blue-box-chat {
+  border: 3px solid #80ffff;
+  box-shadow: 0px 4px 15px #80ffff, 4px 0px 10px rgba(30, 166, 166, 0.95),
+    0px 0px 10px rgba(255, 255, 255, 0.521);
+}
+
+.yellow-box-chat {
+  border: 3px solid #dcca2a;
+  box-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
+}
+
+.yellow-titles {
+  font-family: 'Montserrat', sans-serif;
+  /* to hide text when resizing page */
+  overflow: hidden;
+
+  color: #ffe710;
+  text-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
+}
+
+.blue-titles {
+  font-family: 'Montserrat', sans-serif;
+  /* to hide text when resizing page */
+  overflow: hidden;
+
+  color: #80ffff;
+  text-shadow: 0px 0px 7.49518px #6abdff, 0px 0px 14.9904px #3d9fee, 0px 0px 25.6977px #187bca;
+}
+
+/* .titles-position {
+  margin-top: 2em;
 } */
 
-.chat {
-	display: flex;
-	justify-content: space-between;
+.message-button {
+  text-align: right;
+  border: none;
+  background-color: rgb(5, 2, 30);
+
+  color: #ffe710;
+  text-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
 }
 
-.blueBoxChat {
-	box-sizing: border-box;
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	flex-direction: column;
-
-	border: 3px solid #80FFFF;
-	box-shadow: 0px 4px 15px #80FFFF,
-				4px 0px 10px rgba(30, 166, 166, 0.95),
-				0px 0px 10px rgba(255, 255, 255, 0.521);
-	border-radius: 3vw;
-	margin: 2px;
-	padding: 2px;
+.channel-button {
+  border: none;
+  background-color: rgb(5, 2, 30);
 }
 
-.yellowPinkBoxChat {
-	box-sizing: border-box;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	border: 3px solid #DCCA2A;
-	box-shadow: 0px 0px 7.49518px #FF6ADE,
-				0px 0px 14.9904px #EA3DEE,
-				0px 0px 25.6977px #CA18A3;
-	border-radius: 40px;
-	margin: 1vw;
-	padding: 0.1vw;
+.messages {
+  list-style-type: none;
+  color: white;
+  font-size: 25px;
+}
+.channels {
+  color: white;
+  font-size: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.conversation {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  color: white;
+  font-size: 25;
+}
+.submitBtn {
+  font-size: 25px;
+  width: 50px;
+  height: auto;
 }
 
-.yellowTextChat {
-	text-decoration: none;
-	font-family: 'Montserrat', sans-serif;
-	font-style: sans-serif;
-	font-weight: var(--weight);
-	line-height: var(--height);
-	/* identical to box height */
+.createChanneButton {
+  font-size: 25px;
+  width: auto;
+  height: 55px;
+}
+
+.channelButton {
+  font-size: 25px;
+  width: auto;
+  height: 75px;
+}
+
+.chatInputField,
+.createChannelPassword,
+.createChannelFriends,
+.createChannel {
+  color: black;
+  font-size: 25px;
+  width: auto;
+  height: auto;
+}
+
+.joinChannelPwdInput {
+  color: black;
+}
+.input-field-chat {
+  color: black;
+  outline: none;
+  margin-left: 1em;
+  width: 40%;
+}
+
+.channel-name-margin {
+  margin-left: 1em;
+  margin-top: 2em;
+}
+
+.scroll-bar-channels {
+  position: absolute;
+  height: 10%;
+  margin-right: 1em;
+  overflow: hidden;
+	overflow: scroll;
   
-	text-align: center;
-	color: #FFE710;
-	text-shadow:	0px 0px 7.49518px #FF6ADE,
-					0px 0px 14.9904px #EA3DEE,
-				  	0px 0px 25.6977px #CA18A3;
 }
 
-.yellowBlueBoxChat {
-	box-sizing: border-box;
-	display: flex;
-	justify-content: center;
-
-	border: 3px solid #DCCA2A;
-	box-shadow: 0px 4px 10px rgba(30, 166, 166, 0.95),
-				0px 4px 10px rgba(30, 166, 166, 0.95),
-				0px 0px 15px rgba(128, 255, 255, 0.25);
-	border-radius: 40px;
-	margin: 2px;
-	padding: 2px;
-}
-
-.friends {
-	margin: 10%;
-}
-
-/* a supprimer */
-.name {
-	text-decoration: none;
-	font-family: 'Montserrat', sans-serif;
-	font-style: sans-serif;
-	font-weight: var(--weight);
-	line-height: var(--height);
-	/* identical to box height */
+.scroll-bar-direct {
+  position: absolute;
+  height: 10%;
+  margin-right: 1em;
+  overflow: hidden;
+	overflow: scroll;
   
-	text-align: center;
-	line-height: 300%;
-	/* pour ecartement entre chaque nom */
-	color: rgba(30, 166, 166, 0.95);
+}
+
+.scroll-bar-messages {
+  height: 15em;
+  margin-right: 1em;
+}
+
+
+.center-position {
+  text-align: center;
+}
+
+.input-position {
+  position: absolute;
+  bottom: 0;
+}
+
+.color-dropdown {
+  color: #ffe710;
+}
+
+.channel-menu {
+  background-color: rgb(5, 2, 30);
+  --bs-dropdown-link-color: #80ffff;
+
+  --bs-dropdown-link-hover-color: #80ffff;
+  --bs-dropdown-link-hover-bg: #214141;
+}
+
+.dropdown-menu .dropdown-item:active {
+  color: #80ffff !important;
+}
+
+.message-position {
+  margin-left: 1em;
+}
+
+::-webkit-scrollbar {
+  margin-left: 1em;
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(5, 2, 30);
+  
+}
+
+::-webkit-scrollbar-thumb {
+  background:#80ffff;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.521);
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(5, 2, 30);
 }

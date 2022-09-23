@@ -1,0 +1,19 @@
+/* Modal */
+.modal-content {
+    border: 2px solid #b4e8f1;
+    /* enlever color si ca change toutes les modales */
+	  color: white;
+    background-color: rgb(5, 2, 30);
+    box-shadow: 0px 0px 5px #60c2c2,
+                inset 0px 0px 5px #60c2c2,
+                        0px 0px 6px #214141,
+                        inset 0px 0px 6px #214141;
+  }
+  
+  .modal-header {
+     border-bottom: 1px dashed #b4e8f1;
+  }
+  
+  .modal-footer {
+    border-top: 1px dashed #b4e8f1;
+  }
