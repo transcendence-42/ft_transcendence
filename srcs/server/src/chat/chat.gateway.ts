@@ -8,13 +8,10 @@ import {
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
 import { OnModuleInit } from '@nestjs/common';
-import {
-  MessageDto,
-  CreateChannelDto,
-  JoinChannelDto,
-} from './dto';
+import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { ChatUser, Channel } from './entities';
 import { eEvent } from './constants';
+import { Hashtable } from './interfaces/hashtable.interface';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -67,24 +64,24 @@ export class ChatGateway
     }
     console.log(`This is the list of all users`);
     try {
-      const allUsers = await this.chatService.getAll<ChatUser>(
-        REDIS_DB.USERS_DB,
-      );
+      const allUsers: Hashtable<ChatUser> =
+        await this.chatService.getAllAsHashtable(REDIS_DB.USERS_DB);
       client.emit(eEvent.UpdateUsers, allUsers);
-      allUsers.map((user) => console.log(`${JSON.stringify(user, null, 4)}`));
+      Object.values(allUsers).map((user) =>
+        console.log(`${JSON.stringify(user, null, 4)}`),
+      );
     } catch (err) {
       console.log('Currently there are no users');
     }
 
     try {
-      const allChannels = await this.chatService.getAll<Channel>(
-        REDIS_DB.CHANNELS_DB,
-      );
+      const allChannels: Hashtable<Channel> =
+        await this.chatService.getAllAsHashtable(REDIS_DB.CHANNELS_DB);
       client.emit(eEvent.UpdateChannels, allChannels);
     } catch (err) {
       console.log('Currenlty there are no channels');
     }
-    const allMessages = await this.chatService.getAll(REDIS_DB.MSG_DB);
+    const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
     client.emit(eEvent.UpdateMessages, allMessages);
     // this.chatService.getJson();
   }

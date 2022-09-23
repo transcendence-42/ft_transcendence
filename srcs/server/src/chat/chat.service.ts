@@ -6,6 +6,7 @@ import * as Cookie from 'cookie';
 import { Channel, ChannelUser, ChatUser, Message } from './entities';
 import { eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Inject } from '@nestjs/common';
+import { Hashtable } from './interfaces/hashtable.interface';
 import Redis from 'redis';
 
 enum REDIS_DB {
@@ -40,7 +41,7 @@ export class ChatService {
       toChannelOrUserId: message.toChannelOrUserId,
     };
     await this.setObject<Message>(msg.id, msg, REDIS_DB.MSG_DB);
-    const allMessages = await this.getAll(REDIS_DB.MSG_DB);
+    const allMessages = await this.getAllAsArray(REDIS_DB.MSG_DB);
     // this.allMessages.push(msg);
     console.log(`This is a list of all messages`);
     allMessages.map((msg) => console.log(JSON.stringify(msg, null, 4)));
@@ -88,8 +89,11 @@ export class ChatService {
       channel,
     });
     // manage bot sending message
-    // const userId = this.allClients.find((cli) => cli.socketId === client.id).id;
-    // this._joinedChannelBot(userId, joinChannelDto.id);
+    this._joinedChannelBot(
+      joinChannelDto.userId,
+      joinChannelDto.id,
+      channel.name,
+    );
   }
 
   handleSetId(client: Socket, hasUserId: string) {
@@ -122,43 +126,41 @@ export class ChatService {
       console.log(`Adding user name: ${chatUser.name}, id: ${id}`);
       this.setObject(chatUser.id, chatUser, REDIS_DB.USERS_DB);
       client.emit(eEvent.AddUserResponse, chatUser);
-      const allUsers: ChatUser[] = await this.getAll(REDIS_DB.USERS_DB);
+      const allUsers: Hashtable<ChatUser> = await this.getAllAsHashtable(
+        REDIS_DB.USERS_DB,
+      );
       this.server.emit(eEvent.UpdateUsers, allUsers);
     }
   }
 
   async createChannel(client: Socket, channelDto: CreateChannelDto) {
     // if channel name taken but channel is private it's okay
-    const allChannels: Channel[] = await this.getAll(REDIS_DB.CHANNELS_DB);
+    const allChannels: Hashtable<Channel> = await this.getAllAsHashtable(
+      REDIS_DB.CHANNELS_DB,
+    );
     console.log(`all channels = ${allChannels}`);
-    for (const channel of allChannels) {
-      console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
-      if (channel.name === channelDto.name) {
-        console.log('Found a channel with the same name');
-        client.emit(eEvent.CreateChannelResponse, {
-          msg: 'channel name already taken',
-        });
-        return;
-      }
+    if (allChannels[channelDto.name]) {
+      console.log('Found a channel with the same name');
+      client.emit(eEvent.CreateChannelResponse, {
+        msg: 'channel name already taken',
+      });
+      return;
     }
     const createdAt = Date.now();
+    const channelUser: ChannelUser = {
+      id: channelDto.ownerId,
+      role: eChannelUserRole.Owner,
+      joinedChannelAt: createdAt,
+      isMuted: false,
+    };
     const channel: Channel = {
       id: uuidv4(),
       name: channelDto.name,
       type: channelDto.type,
       createdAt,
-      users: [],
+      users: { [channelDto.ownerId]: channelUser },
       password: channelDto.password,
     };
-    channel.users = channelDto.users.map((user) => {
-      const channelUser: ChannelUser = {
-        id: user.id,
-        role: user.role,
-        joinedChannelAt: createdAt,
-        isMuted: false,
-      };
-      return channelUser;
-    });
 
     this.setObject(channel.id, channel, REDIS_DB.CHANNELS_DB);
     client.join(channel.id);
@@ -167,22 +169,40 @@ export class ChatService {
       channel,
     });
 
-    allChannels.push(channel);
+    allChannels[channel.id] = channel;
     this.server.emit(eEvent.UpdateChannels, allChannels);
   }
 
   async handleAddedToRoom(client: Socket, channelId: string) {
-    const allChannels: Channel[] = await this.getAll(REDIS_DB.CHANNELS_DB);
-    const allUsers: ChatUser[] = await this.getAll(REDIS_DB.USERS_DB);
+    const allChannels: Hashtable<Channel> = await this.getAllAsHashtable(
+      REDIS_DB.CHANNELS_DB,
+    );
+    const allUsers: Hashtable<ChatUser> = await this.getAllAsHashtable(
+      REDIS_DB.USERS_DB,
+    );
     const userId = this.parseIdCookie(client.handshake.headers.cookie);
-    const user = allUsers.find((user) => user.id === userId);
-    const chan = allChannels.find((channel) => channel.id === channelId);
+    const user = allUsers[userId];
+    const chan = allChannels[channelId];
     console.log(`User ${user.name} is joinined room ${chan.name}`);
     client.join(channelId);
   }
 
-  async getAll<T>(dataBase: REDIS_DB): Promise<T[]> {
-    this.redis.select(dataBase);
+  async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {
+    await this.redis.select(dataBase);
+    const allKeys = await this.redis.keys('*');
+    const allKeyValues: Hashtable<T> = {};
+    await Promise.all(
+      allKeys.map(async (key: string) => {
+        const value: T = await this.getObject(key, dataBase);
+        allKeyValues[key] = value;
+        return;
+      }),
+    );
+    return allKeyValues;
+  }
+
+  async getAllAsArray<T>(dataBase: REDIS_DB): Promise<T[]> {
+    await this.redis.select(dataBase);
     const allKeys = await this.redis.keys('*');
     const allValues: T[] = [];
     await Promise.all(
@@ -222,7 +242,7 @@ export class ChatService {
   }
 
   async getJson() {
-    this.redis.select(2);
+    await this.redis.select(2);
     console.log('this is res');
     const res = await this.redis.json.get(
       '$.users[?(@.id==="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]',
@@ -236,15 +256,21 @@ export class ChatService {
     console.log(JSON.stringify(res2, null, 4));
   }
 
-  private _joinedChannelBot(userId: string, channelId: string) {
+  private async _joinedChannelBot(
+    userId: string,
+    channelId: string,
+    channelName: string,
+  ) {
+    const user: ChatUser = await this.getObject(userId, REDIS_DB.USERS_DB);
     const date = Date.now();
     const message: Message = {
-      content: `User ${userId} has joined channelName`,
+      content: `User ${user.name} has joined ${channelName}`,
       id: String(date + Math.random() * 100),
       sentDate: date,
       toChannelOrUserId: channelId,
-      fromUserId: '0000000000',
+      fromUserId: this.messageBotId,
     };
-    this.server.to(channelId).emit(eEvent.UserJoined, message);
+    this.server.to(channelId).emit(eEvent.UpdateOneMessage, message);
+    this.setObject(message.id, message, REDIS_DB.MSG_DB);
   }
 }

@@ -3,7 +3,11 @@ import { eChannelType, eChannelUserRole } from "./constants";
 export interface MessageDto {
   content: string;
   fromUserId: string;
-  toChannelOrUserId: Channel;
+  toChannelOrUserId: string;
+}
+
+export interface Hashtable<T> {
+  [key: string]: T
 }
 
 export interface Message extends MessageDto {
@@ -15,7 +19,7 @@ export interface Channel {
   id: string;
   name: string;
   type: eChannelType;
-  users: ChannelUser[];
+  users: Hashtable<ChannelUser>;
   createdAt: number;
   messages?: Message[];
   password?: string;
@@ -24,6 +28,7 @@ export interface Channel {
 export interface JoinChannelDto {
   id: string;
   name: string; //debugging purposes
+  type: eChannelType,
   userId: string;
   password?: string;
 }
@@ -32,7 +37,8 @@ export interface ChatUser {
   socketId: string;
   id: string;
   name: string;
-  channels?: Channel[];
+  profilePicture: string;
+  channels?: Hashtable<Channel>;
   directMessges?: Message[];
 }
 
@@ -46,6 +52,6 @@ export interface ChannelUser {
 export interface CreateChannelDto {
   name: string;
   type: eChannelType;
-  users: ChannelUser[];
+  ownerId: string;
   password?: string;
 }

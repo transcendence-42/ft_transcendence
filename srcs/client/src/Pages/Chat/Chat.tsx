@@ -13,25 +13,32 @@ import {
   JoinChannelDto,
   ChatUser,
   Message,
+  Hashtable,
+  ChannelUser
 } from './entities';
 import { eEvent, eChannelType, eChannelUserRole} from './constants';
+
+const isEmpty = (obj: any) => {
+  for (const i in obj) return false;
+  return true;
+}
 
 const lobbyChannel: Channel = {
   name: 'lobby',
   type: eChannelType.Public,
-  id: '',
+  id: '24098932842',
   createdAt: 0,
-  users: []
+  users: {}
 };
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
   const currChanInLocalStorage = window.localStorage.getItem('currentChannel');
-  const defaultChannel = currChanInLocalStorage ? JSON.parse(currChanInLocalStorage) : lobbyChannel;
+  const defaultChannel: Channel = currChanInLocalStorage ? JSON.parse(currChanInLocalStorage) : lobbyChannel;
   const [trueUser, setTrueUser] = useState(null);
   const [user, setUser] = useState({} as ChatUser);
-  const [allMessages, setAllMessages] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
-  const [allChannels, setAllChannels] = useState([] as Channel[]);
+  const [allMessages, setAllMessages] = useState([] as Message[]);
+  const [allUsers, setAllUsers] = useState({} as Hashtable<ChatUser>);
+  const [allChannels, setAllChannels] = useState({} as Hashtable<Channel>);
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
 
@@ -72,7 +79,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   const handleJoinChannel = (e: any, channelId: string) => {
     e.preventDefault();
-    const channel = allChannels.find((chan: Channel) => chan.id === channelId);
+    const channel: Channel = allChannels[channelId];
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
       console.log(`Channel with id ${channelId} doesnt exist`);
@@ -131,17 +138,37 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       } else return alert(`${data.msg}`);
     });
 
-    socket.on(eEvent.UpdateMessages, (messages) => {
-      setAllMessages(messages);
+    socket.on(eEvent.UpdateMessages, (messages: Message[]) => {
+      setAllMessages(messages.sort((a, b) => (a.sentDate < b.sentDate) ? 1: -1));
     });
+
+    socket.on(eEvent.UpdateOneMessage, (message: Message) => {
+      console.log(`Updating one message ${JSON.stringify(message, null, 4)}`)
+        const newAllMessages: Message[] = allMessages;
+        allMessages.push(message);
+      setAllMessages(newAllMessages);
+    })
 
     socket.on(eEvent.UpdateUsers, (allUsers) => {
       setAllUsers(allUsers);
     });
 
+    socket.on(eEvent.UpdateOneUser, (user: ChatUser) => {
+      const newAllUsers: Hashtable<ChatUser> = allUsers;
+      allUsers[user.id] = user;
+      setAllUsers(newAllUsers);
+    })
+
     socket.on(eEvent.UpdateChannels, (channels) => {
       setAllChannels(channels);
     });
+
+    socket.on(eEvent.UpdateOneChannel, (channel: Channel) => {
+      const newAllChannels: Hashtable<Channel> = allChannels;
+      allChannels[channel.id] = channel;
+      setAllChannels(newAllChannels);
+    })
+
     socket.on(eEvent.AddedToRoom, (channelId: string) => {
       console.log(`Recieved event added to room`);
       socket.emit(eEvent.AddedToRoom, channelId);
@@ -151,8 +178,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     return () => {
       socket.off('connect');
       socket.off(eEvent.UpdateMessages);
+      socket.off(eEvent.UpdateOneMessage);
       socket.off(eEvent.UpdateUsers);
+      socket.off(eEvent.UpdateOneUser);
       socket.off(eEvent.UpdateChannels);
+      socket.off(eEvent.UpdateOneChannel);
       socket.off(eEvent.UpdateOneChannel);
       socket.off(eEvent.AddUserResponse);
       socket.off(eEvent.SetIdResponse);
@@ -217,7 +247,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             <div className="col overflow-auto scroll-bar">
               <>
     <div className="row row-color">
-      {allChannels.map((channel: Channel) => (
+      <>
+      {!isEmpty(allChannels) && Object.values(allChannels).map((channel: Channel) => (
         <div className="channels" key={channel.id}>
           <div className="col">
             <p>{channel.name}</p>
@@ -230,7 +261,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </button>
           </div>
         </div>
-      ))}
+      ))}</>
     </div>
               </>
             </div>
@@ -261,14 +292,15 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="row">
             <>{console.log(`List of all users${JSON.stringify(allUsers)}`)}</>
 
-              <> {allMessages?.map((message: Message) => (<div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
-                <div className='messageFromUser'>User: {(allUsers.find((user: ChatUser) => (user.id === message.fromUserId)) || {name: "no name"}).name}</div>
+              <> {allMessages?.map((message: Message) => 
+              (message.toChannelOrUserId === currentChannel.id ? <div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
+                <div className='messageFromUser'>User: {(allUsers[message.fromUserId] || {name: "Pong Bot"}).name}</div>
                 <br/>
                 <div className="messageDate"> .  Date:  {new Date(message.sentDate).toLocaleString()}</div>
                 <br/>
                 <div className="messageContent"> .   Message: .   {message.content}</div>
                 <br/>
-              </div>))}
+              </div>: ''))}
               </>
             <div className="col input-position">
               <input
@@ -286,6 +318,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="row">
             <div className="col">
               <p className="blue-titles center-position titles-position">MEMBERS</p>
+              <>{!isEmpty(currentChannel) && Object.values(currentChannel.users).map((user: ChannelUser) => <div key={user.id}>{allUsers && allUsers[user.id]?.name}</div>)}
+      {console.log(`Are the objects empty ${!isEmpty(allChannels)}`)}
+      {console.log(`list of channels ${JSON.stringify(allChannels, null, 4)}`)}
+              </>
             </div>
           </div>
         </div>

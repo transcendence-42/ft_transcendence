@@ -14,19 +14,10 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
     if (channelName === '') return alert("channel name can't be empty");
     else if (channelType === eChannelType.Protected && channelPassword === '')
       return alert("Password can't be empty!");
-
-    let users = [];
-    const channelUser: ChannelUser = {
-      id: userId,
-      role: eChannelUserRole.Owner,
-      isMuted: false,
-      joinedChannelAt: 0,
-    };
-    users.push(channelUser);
     const payload: CreateChannelDto = {
       name: channelName,
       type: channelType,
-      users,
+      ownerId: userId,
       password: channelPassword
     };
     socket.emit(eEvent.CreateChannel, payload);
@@ -47,7 +38,7 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
           <select onChange={(e) => setChannelType(parseInt(e.target.value))}>
             <option value={eChannelType.Public}>Public</option>
             <option value={eChannelType.Private}>Private</option>
-            <option selected value={eChannelType.Protected}>Protected</option>
+            <option value={eChannelType.Protected}>Protected</option>
           </select>
           <input
           onChange={(e) => setChannelPassword(e.target.value)}

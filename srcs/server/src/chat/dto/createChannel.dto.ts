@@ -12,10 +12,9 @@ export class CreateChannelDto {
   @IsNotEmpty()
   type: eChannelType;
 
+  @IsString()
   @IsNotEmpty()
-  @ValidateNested({each: true})
-  @Type(() => ChannelUserDto)
-  users: ChannelUserDto[];
+  ownerId: string;
 
   @IsString()
   @IsOptional()
