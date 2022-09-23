@@ -219,18 +219,15 @@ export class GameService {
 
   /** Remove game */
   private async _removeGame(gameId: string) {
+    const game: Game = await this._getGame(gameId);
     // remove players
-    const players: any = await this.redis.json.get(gameId, {
-      path: '$.players',
-    });
+    const players: Player[] = game.players;
     await this.redis.select(DB.PLAYERS);
     for (let i = 0; i < players.length; ++i) {
       await this.redis.del(players[i].userId);
     }
     // remove viewers
-    const viewers: any = await this.redis.json.get(gameId, {
-      path: '$.viewers',
-    });
+    const viewers: Client[] = game.players;
     await this.redis.select(DB.VIEWERS);
     for (let i = 0; i < viewers.length; ++i) {
       await this.redis.del(viewers[i].userId);
@@ -262,7 +259,8 @@ export class GameService {
     this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // save game result in database
-    const game: any = await this.redis.json.get(gameId, { path: '$' });
+    await this.redis.select(DB.GAMES);
+    const game: Game = await this._getGame(gameId);
     const createMatchDto: CreateMatchDto = {
       players: game.players.map((p: any) => ({
         playerId: p.userId,
@@ -335,10 +333,6 @@ export class GameService {
 
   /** one viewer leave the game */
   async viewerLeaves(client: Socket, id: string) {
-    // get the game
-    await this.redis.select(DB.GAMES);
-    const game: any = await this.redis.json.get(id, { path: '$' });
-    if (!game) throw new GameNotFoundException(id);
     // remove the viewer
     const userId: string = client.handshake.query.userId.toString();
     await this.redis.json.del(id, `$.viewers['${userId}']`);
@@ -354,9 +348,7 @@ export class GameService {
 
   /** one player abandons the game */
   async abandonGame(client: Socket, id: string): Promise<Match> {
-    await this.redis.select(DB.GAMES);
-    const game: any = (await this.redis.json.get(id, { path: '$' }))[0];
-    if (!game) throw new GameNotFoundException(id);
+    const game: Game = await this._getGame(id);
     const userId: string = client.handshake.query.userId.toString();
     if (game.players.length > 1)
       return await this._endGame(id, Motive.ABANDON, userId);
@@ -418,8 +410,6 @@ export class GameService {
 
   /** view a game (viewer) */
   async view(client: Socket, id: string) {
-    // Get game
-    await this._getGame(id);
     const userId: string = client.handshake.query.userId.toString();
     // Add the user as a viewer
     await this.redis.select(DB.VIEWERS);
@@ -437,7 +427,7 @@ export class GameService {
   /** reconnect a game (existing player) */
   async reconnect(client: Socket, id: string) {
     // Get game
-    const game: any = await this._getGame(id);
+    const game: Game = await this._getGame(id);
   }
 
   /** *********************************************************************** */
@@ -518,7 +508,7 @@ export class GameService {
   /** get game grid on request */
   async getGameGrid(client: Socket, id: string) {
     // read from redis
-    const game = await this._getGame(id);
+    const game: Game = await this._getGame(id);
     client.emit('updateGrid', game.gameGrid);
     client.emit('updateScores', this._buildScoreObject(game));
   }
@@ -863,7 +853,7 @@ export class GameService {
   /** Start a game */
   private async _startGame(id: string) {
     // read from redis
-    let game = await this._getGame(id);
+    let game: Game = await this._getGame(id);
     this._initGame(game, Side.RIGHT);
     await this.redis.select(DB.GAMES);
     await this.redis.json.set(id, `$.status`, Status.STARTED);
@@ -892,7 +882,7 @@ export class GameService {
   /** update a game (moves) */
   async update(client: Socket, id: string, move: number) {
     // read from redis
-    const game = await this._getGame(id);
+    const game: Game = await this._getGame(id);
     // Update player position if game started
     if (game.status === Status.STARTED) {
       // Update move
