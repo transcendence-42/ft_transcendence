@@ -1,7 +1,7 @@
 import { Vector } from './vector.entity';
 
 export class PlayerGrid {
-  side: string;
+  side: number;
   coordinates: Vector;
 }
 

@@ -11,7 +11,7 @@ export class Player extends Client {
     this.pauseCount = 1;
   }
   score?: number;
-  side?: string;
+  side?: number;
   updating?: boolean;
   pauseCount?: number;
 }

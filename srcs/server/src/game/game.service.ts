@@ -21,28 +21,28 @@ const enum Move {
 }
 
 const enum Body {
-  PADDLE = 'paddle',
-  BALL = 'ball',
-  WALL = 'wall',
-  GOAL = 'goal',
+  PADDLE = 0,
+  BALL,
+  WALL,
+  GOAL,
 }
 
 const enum Wall {
-  TOP = 'top',
-  BOTTOM = 'bottom',
+  TOP = 0,
+  BOTTOM,
 }
 
 const enum Side {
-  LEFT = 'left',
-  RIGHT = 'right',
+  LEFT = 0,
+  RIGHT,
 }
 
 const enum Status {
-  CREATED = 'created',
-  STARTED = 'started',
-  FINISHED = 'finished',
-  NEWBALL = 'newball',
-  PAUSED = 'paused',
+  CREATED = 0,
+  STARTED,
+  FINISHED,
+  NEWBALL,
+  PAUSED,
 }
 
 const enum Motive {
@@ -76,21 +76,21 @@ const enum DB {
   PHYSICS,
 }
 
+type BallIntervall = { game: string; interval?: NodeJS.Timer };
+
 @Injectable()
 export class GameService {
   constructor(
     private readonly matchService: MatchService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis.RedisClientType,
   ) {
-    this.games = [];
-    this.players = [];
     this.clients = [];
+    this.ballIntervals = [];
   }
 
   server: Server;
-  games: Game[];
-  players: Player[];
   clients: Client[];
+  ballIntervals: BallIntervall[];
 
   /** *********************************************************************** */
   /** SOCKET                                                                  */
@@ -166,7 +166,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private async _addPlayerToGame(player: Player, side: string, game: Game) {
+  private async _addPlayerToGame(player: Player, side: number, game: Game) {
     // Add it to the game room and leave lobby
     player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
@@ -177,6 +177,7 @@ export class GameService {
     game.players.push({
       userId: player.userId,
       side: side,
+      score: 0,
     });
   }
 
@@ -186,14 +187,8 @@ export class GameService {
     return (await this.redis.get(userId)) !== null;
   }
 
-  /** Check if a viewer is already in a game */
-  private async _isViewerInGame(userId: string): Promise<boolean> {
-    await this.redis.select(DB.VIEWERS);
-    return (await this.redis.hGet(userId, 'gameId')) !== null;
-  }
-
   /** Get the side of a player in a game from his id */
-  private _getSideOfPlayer(game: Game, userId: string): string {
+  private _getSideOfPlayer(game: Game, userId: string): number {
     const player: Player = game.players.find((p) => p.userId === userId);
     if (!player) throw new PlayerNotFoundException(userId);
     return player.side;
@@ -229,17 +224,17 @@ export class GameService {
       path: '$.players',
     });
     await this.redis.select(DB.PLAYERS);
-    players.forEach(async (p: any) => {
-      await this.redis.del(p.userId);
-    });
+    for (let i = 0; i < players.length; ++i) {
+      await this.redis.del(players[i].userId);
+    }
     // remove viewers
     const viewers: any = await this.redis.json.get(gameId, {
       path: '$.viewers',
     });
     await this.redis.select(DB.VIEWERS);
-    viewers.forEach(async (v: any) => {
-      await this.redis.del(v.userId);
-    });
+    for (let i = 0; i < viewers.length; ++i) {
+      await this.redis.del(viewers[i].userId);
+    }
     // remove the game from the list in storage
     await this.redis.select(DB.GAMES);
     await this.redis.del(gameId);
@@ -294,28 +289,30 @@ export class GameService {
     await this.redis.select(DB.GAMES);
     const game: any = await this.redis.json.GET(id, { path: '$' });
     if (!game) throw new GameNotFoundException(id);
-    console.log('game:');
-    console.log(game[0]);
     return game[0];
   }
 
   /** Create a new game */
   async create(players: Player[]) {
     // Check if one of the user is already in a game or in match making
-    players.forEach(async (p) => {
-      if (await this._isPlayerInGame(p.userId))
-        throw new UserAlreadyInGameException(p.userId);
-      const isMatchMaking = await this.redis.sIsMember('matchMaking', p.userId);
-      if (isMatchMaking) await this.redis.sRem('matchMaking', p.userId);
-    });
+    for (let i = 0; i < players.length; ++i) {
+      if (await this._isPlayerInGame(players[i].userId))
+        throw new UserAlreadyInGameException(players[i].userId);
+      const isMatchMaking = await this.redis.sIsMember(
+        'matchMaking',
+        players[i].userId,
+      );
+      if (isMatchMaking)
+        await this.redis.sRem('matchMaking', players[i].userId);
+    }
     // create a new game
     const newGame: Game = new Game(v4());
     // add players to the game and give them the game id
-    players.forEach(async (p, i) => {
-      const side: string = i ? Side.RIGHT : Side.LEFT;
-      await this._addPlayerToGame(p, side, newGame);
-      p.socket.emit('gameId', { id: newGame.id });
-    });
+    for (let i = 0; i < players.length; ++i) {
+      const side: number = i ? Side.RIGHT : Side.LEFT;
+      await this._addPlayerToGame(players[i], side, newGame);
+      this._getSocket(players[i].userId).emit('gameId', { id: newGame.id });
+    }
     // update game on redis
     await this.redis.select(DB.GAMES);
     await this.redis.json.set(
@@ -401,18 +398,17 @@ export class GameService {
   /** join a game (player) */
   async join(client: Socket, id: string) {
     // Get game
-    const game: any = await this._getGame(id);
+    const game: Game = await this._getGame(id);
     // remove user from matchmaking
     const userId: string = client.handshake.query.userId.toString();
     await this.redis.select(DB.MATCHMAKING);
     if (await this.redis.sIsMember('users', userId))
       await this.redis.sRem('users', userId);
     // add new player to the game and emit new grid
-    await this._addPlayerToGame(
-      new Player(client, userId),
-      Side.RIGHT,
-      game.id,
-    );
+    await this._addPlayerToGame(new Player(client, userId), Side.RIGHT, game);
+    // update redis
+    await this.redis.select(DB.GAMES);
+    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
     // Start game
     await this._startGame(id);
     // update the lobby with the new player
@@ -541,7 +537,7 @@ export class GameService {
   }
 
   /** Increase score for player */
-  private _updateScore(side: string, game: Game) {
+  private _updateScore(side: number, game: Game) {
     game.players = game.players.map((player) =>
       player.side === side && player.updating === false
         ? { ...player, score: ++player.score, updating: true }
@@ -640,15 +636,19 @@ export class GameService {
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
-    if (game.gamePhysics.ball.timerFunction)
-      clearInterval(game.gamePhysics.ball.timerFunction);
-    game.gamePhysics.ball.timerFunction = setInterval(() => {
+    let interval = this.ballIntervals.find((i) => i.game === game.id);
+    if (interval) clearInterval(interval.interval);
+    else {
+      const len = this.ballIntervals.push({ game: game.id });
+      interval = this.ballIntervals[len - 1];
+    }
+    interval.interval = setInterval(() => {
       this._accelerateBall(game);
     }, Params.BALL_ACCELERATION_TIME * 1000);
   }
 
   /** Reset game physics */
-  private _resetGamePhysics(game: Game, side: string) {
+  private _resetGamePhysics(game: Game, side: number) {
     // Ball
     game.gamePhysics.ball.coordinates = {
       x:
@@ -672,9 +672,13 @@ export class GameService {
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
-    if (game.gamePhysics.ball.timerFunction)
-      clearInterval(game.gamePhysics.ball.timerFunction);
-    game.gamePhysics.ball.timerFunction = setInterval(() => {
+    let interval = this.ballIntervals.find((i) => i.game === game.id);
+    if (interval) clearInterval(interval.interval);
+    else {
+      const len = this.ballIntervals.push({ game: game.id });
+      interval = this.ballIntervals[len - 1];
+    }
+    interval.interval = setInterval(() => {
       this._accelerateBall(game);
     }, Params.BALL_ACCELERATION_TIME * 1000);
   }
@@ -729,7 +733,7 @@ export class GameService {
   /** Update the physics from player's move */
   private _movePaddleFromInput(game: Game, userId: string, input: number) {
     // get the correct paddle
-    const side: string = this._getSideOfPlayer(game, userId);
+    const side: number = this._getSideOfPlayer(game, userId);
     const playerIndex = game.gamePhysics.players.findIndex(
       (player) => player.side === side,
     );
@@ -837,7 +841,7 @@ export class GameService {
   }
 
   /** initialize game */
-  private _initGame(game: Game, side: string) {
+  private _initGame(game: Game, side: number) {
     if (game.status === Status.CREATED) {
       this._initGameGrid(game);
       this._initGamePhysics(game);
