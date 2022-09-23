@@ -8,16 +8,13 @@ import BrowseChannels from './BrowseChannels';
 import CreateChannel from './CreateChannel';
 import FriendList from './FriendList';
 import {
-  Message,
   MessageDto,
   Channel,
   JoinChannelDto,
   ChatUser,
-  ChannelUser,
-  CreateChannelDto
+  Message,
 } from './entities';
 import { eEvent, eChannelType, eChannelUserRole} from './constants';
-import { ChannelTypes } from './channelTypes';
 
 const lobbyChannel: Channel = {
   name: 'lobby',
@@ -59,13 +56,16 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
   };
-  const handleSubmitMessage = (e: any) => {
+  const handleSendMessage = (e: any) => {
     if (message === '') return;
+    console.log(`Heres current user ${JSON.stringify(user, null, 4)}`)
+    console.log(`Heres current channel ${JSON.stringify(currentChannel, null, 4)}`)
     const messageToSend: MessageDto = {
       content: message,
-      toChannelId: currentChannel.id,
+      toChannelOrUserId: currentChannel.id,
       fromUserId: user.id
     };
+    console.log("Emitting message")
     socket.emit(eEvent.SendMessage, messageToSend);
     setMessage('');
   };
@@ -97,10 +97,6 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   };
 
   useEffect(() => {
-    console.log('je fetch');
-  }, [trueUser]);
-
-  useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server successfully');
 
@@ -113,6 +109,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       socket.emit(eEvent.AddUser, id);
     });
     socket.on(eEvent.AddUserResponse, (user: ChatUser) => {
+      console.log(`REcieving user response ${JSON.stringify(user, null, 4)}`)
       setUser(user);
     });
 
@@ -218,13 +215,24 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
           <div className="row">
             <div className="col overflow-auto scroll-bar">
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
-              <p>Channel name</p>
+              <>
+    <div className="row row-color">
+      {allChannels.map((channel: Channel) => (
+        <div className="channels" key={channel.id}>
+          <div className="col">
+            <p>{channel.name}</p>
+          </div>
+          <div className="col">
+            <button
+              className="rounded-4 btn-pink btn-join"
+              onClick={(e) => handleJoinChannel(e, channel.id)}>
+              Join
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+              </>
             </div>
           </div>
           <div className="row">
@@ -241,28 +249,36 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
           <div className="row">
             <div className="col overflow-auto scroll-bar">
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Message</p>
-              <p>Scroll</p>
             </div>
           </div>
         </div>
         <div className="col-8 rounded-4 blue-box-chat">
           <div className="row">
             <div className="col">
-              <p className="blue-titles channel-name-margin">@ Channel Name</p>
+              <p className="blue-titles channel-name-margin">currentChannel: {currentChannel.name}</p>
             </div>
           </div>
           <div className="row">
+            <>{console.log(`List of all users${JSON.stringify(allUsers)}`)}</>
+
+              <> {allMessages?.map((message: Message) => (<div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
+                <div className='messageFromUser'>User: {(allUsers.find((user: ChatUser) => (user.id === message.fromUserId)) || {name: "no name"}).name}</div>
+                <br/>
+                <div className="messageDate"> .  Date:  {new Date(message.sentDate).toLocaleString()}</div>
+                <br/>
+                <div className="messageContent"> .   Message: .   {message.content}</div>
+                <br/>
+              </div>))}
+              </>
             <div className="col input-position">
               <input
+              onChange={(e) => setMessage(e.target.value)}
+              value={message}
                 type="text"
+                maxLength={128}
                 className="rounded-3 input-field-chat yellow-box-chat"
                 placeholder="Send a message..."></input>
+                <button type="button" onClick={handleSendMessage}>Send</button>
             </div>
           </div>
         </div>

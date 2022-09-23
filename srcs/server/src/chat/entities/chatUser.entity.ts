@@ -1,7 +1,10 @@
+import { Channel, Message } from './';
+
 export class ChatUser {
   socketId: string;
   id: string;
   name: string;
-  channels?: string[];
-  directMessges?: string[];
+  profilePicture: string;
+  channels?: Channel[];
+  directMessges?: Message[];
 }

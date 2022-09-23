@@ -1,7 +1,6 @@
-export class Message {
+import { MessageDto } from "../dto";
+
+export class Message extends MessageDto{
     id: string;
-    fromUserId: string;
-    toChannelOrUserId: string;
     sentDate: number;
-    content: string;
 }

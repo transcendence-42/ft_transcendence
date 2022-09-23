@@ -3,12 +3,7 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as Cookie from 'cookie';
-import {
-  Channel,
-  ChannelUser,
-  ChatUser,
-  Message,
-} from './entities';
+import { Channel, ChannelUser, ChatUser, Message } from './entities';
 import { eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Inject } from '@nestjs/common';
 import Redis from 'redis';
@@ -23,17 +18,14 @@ export class ChatService {
   constructor(
     @Inject('REDIS_CLIENT')
     private readonly redis: Redis.RedisClientType,
-  ) {
-    this.allMessages = [];
-  }
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
-  allMessages: Message[];
   messageBotId: string;
 
-  handleMessage(client: Socket, message: MessageDto) {
+  async handleMessage(client: Socket, message: MessageDto) {
     console.log(
       `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
         client.id
@@ -41,17 +33,19 @@ export class ChatService {
     );
     const date = Date.now();
     const msg: Message = {
-      id: String(date + Math.random() * 100),
+      id: message.fromUserId + String(date + Math.random() * 100),
       sentDate: date,
       content: message.content,
       fromUserId: message.fromUserId,
-      toChannelOrUserId: message.toChannelId,
+      toChannelOrUserId: message.toChannelOrUserId,
     };
-    this.allMessages.push(msg);
+    await this.setObject<Message>(msg.id, msg, REDIS_DB.MSG_DB);
+    const allMessages = await this.getAll(REDIS_DB.MSG_DB);
+    // this.allMessages.push(msg);
     console.log(`This is a list of all messages`);
-    this.allMessages.map((msg) => console.log(msg));
+    allMessages.map((msg) => console.log(JSON.stringify(msg, null, 4)));
     console.log(`End of all messags`);
-    this.server.emit(eEvent.UpdateMessages, this.allMessages);
+    this.server.emit(eEvent.UpdateMessages, allMessages);
   }
 
   async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
@@ -82,7 +76,7 @@ export class ChatService {
         id: joinChannelDto.userId,
         role: eChannelUserRole.User, //to be included in the joinChannelDto
         joinedChannelAt,
-        muteTimeout: 0,
+        isMuted: false,
       };
       // channel.users.push(channelUser);
       channel.users[joinChannelDto.userId] = channelUser;
@@ -122,6 +116,8 @@ export class ChatService {
         socketId: client.id,
         id,
         name: names[Math.floor(Math.random() * 10) % names.length],
+        profilePicture:
+          'https://cdn.discordapp.com/avatars/805814511000354867/32ec044071e86e151aeab667f6acc48f.webp?size=32',
       };
       console.log(`Adding user name: ${chatUser.name}, id: ${id}`);
       this.setObject(chatUser.id, chatUser, REDIS_DB.USERS_DB);
@@ -159,7 +155,7 @@ export class ChatService {
         id: user.id,
         role: user.role,
         joinedChannelAt: createdAt,
-        muteTimeout: 0
+        isMuted: false,
       };
       return channelUser;
     });

@@ -147,3 +147,18 @@
 .dropdown-menu .dropdown-item:active {
   color: #80ffff !important;
 }
+
+
+.myMessages {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  /* flex-direction: column; */
+}
+
+.otherMessages {
+  /* flex-direction: column; */
+  display: flex;
+  align-items: right;
+  justify-content: right;
+}

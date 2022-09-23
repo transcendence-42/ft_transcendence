@@ -11,5 +11,5 @@ export class MessageDto {
 
   @IsString()
   @IsNotEmpty()
-  toChannelId: string;
+  toChannelOrUserId: string;
 }

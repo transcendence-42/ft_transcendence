@@ -4,5 +4,5 @@ export class ChannelUser {
   id: string;
   role: eChannelUserRole;
   joinedChannelAt: number;
-  muteTimeout: number;
+  isMuted: boolean;
 }

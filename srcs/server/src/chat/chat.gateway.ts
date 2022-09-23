@@ -84,8 +84,9 @@ export class ChatGateway
     } catch (err) {
       console.log('Currenlty there are no channels');
     }
-    client.emit(eEvent.UpdateMessages, this.chatService.allMessages);
-    this.chatService.getJson();
+    const allMessages = await this.chatService.getAll(REDIS_DB.MSG_DB);
+    client.emit(eEvent.UpdateMessages, allMessages);
+    // this.chatService.getJson();
   }
 
   handleDisconnect(client: Socket) {
