@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { eChannelType } from '../constants';
 import { ChannelUserDto } from './channelUserDto';
 
 export class CreateChannelDto {
@@ -7,9 +8,9 @@ export class CreateChannelDto {
   @IsNotEmpty()
   name: string;
 
-  @IsString()
+  @IsEnum(eChannelType)
   @IsNotEmpty()
-  type: string;
+  type: eChannelType;
 
   @IsNotEmpty()
   @ValidateNested({each: true})

@@ -1,0 +1,17 @@
+export enum eEvent {
+  CreateChannel = 'createChannel',
+  CreateChannelResponse = 'createChannelResponse',
+  JoinChannel = 'joinChannel',
+  SendMessage = 'sendMessage',
+  UpdateMessages = 'updateMessages',
+  UpdateChannels = 'updateChannels',
+  AddUser = 'addUser',
+  AddUserResponse = 'addUserResponse',
+  UpdateUsers = 'updateUsers',
+  UserJoined = 'userJoined',
+  SetId = 'setId',
+  SetIdResponse = 'setIdResponse',
+  JoinChannelResponse = 'joinChannelResponse',
+  UpdateOneChannel = 'updateOneChannel',
+  AddedToRoom = 'addedToRoom',
+}

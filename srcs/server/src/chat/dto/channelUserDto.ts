@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { eChannelUserRole } from '../constants';
 
 export class ChannelUserDto {
   @IsString()
@@ -6,6 +7,6 @@ export class ChannelUserDto {
   id: string;
 
   @IsNotEmpty()
-  @IsString()
-  role: string;
+  @IsEnum(eChannelUserRole)
+  role: eChannelUserRole;
 }

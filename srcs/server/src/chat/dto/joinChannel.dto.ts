@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { eChannelType } from '../constants';
 
 export class JoinChannelDto {
   @IsNotEmpty()
@@ -10,8 +11,8 @@ export class JoinChannelDto {
   name: string;
 
   @IsNotEmpty()
-  @IsString()
-  type: string;
+  @IsEnum(eChannelType)
+  type: eChannelType;
 
   @IsNotEmpty()
   @IsString()

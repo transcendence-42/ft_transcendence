@@ -2,7 +2,7 @@ import './CreateChannel.css';
 import { useState } from 'react';
 import React from 'react';
 import { ChannelUser, CreateChannelDto } from './entities';
-import { Events } from './events';
+import { eEvent } from './constants';
 //  <form style={{ margin: '15px ' }} onSubmit={handleCreateChannel}>
 //       <div style={{ color: 'white' }}> Create a Channel</div>
 //       <input
@@ -54,7 +54,7 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
       users,
       password: channelPassword
     };
-    socket.emit(Events.createChannel, payload);
+    socket.emit(eEvent.CreateChannel, payload);
     setChannelName('');
     setChannelPassword('');
   };

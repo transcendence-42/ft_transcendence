@@ -1,3 +1,4 @@
+import { eChannelType } from "./constants";
 export interface MessageDto {
   content: string;
   fromUserId: string;
@@ -11,9 +12,11 @@ export interface Message extends MessageDto {
 export interface Channel {
   id: string;
   name: string;
-  type: string;
-  password?: string;
+  type: eChannelType;
   users: ChannelUser[];
+  createdAt: number;
+  messages?: Message[];
+  password?: string;
 }
 
 export interface JoinChannelDto {

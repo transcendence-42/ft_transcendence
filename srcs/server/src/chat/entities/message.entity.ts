@@ -1,7 +1,7 @@
 export class Message {
     id: string;
     fromUserId: string;
-    toChannelId: string;
-    date: number;
+    toChannelOrUserId: string;
+    sentDate: number;
     content: string;
 }

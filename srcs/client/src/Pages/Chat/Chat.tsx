@@ -16,13 +16,14 @@ import {
   ChannelUser,
   CreateChannelDto
 } from './entities';
-import { Events } from './events';
+import { eEvent, eChannelType, eChannelUserRole} from './constants';
 import { ChannelTypes } from './channelTypes';
 
 const lobbyChannel: Channel = {
   name: 'lobby',
-  type: ChannelTypes.public,
+  type: eChannelType.Public,
   id: '',
+  createdAt: 0,
   users: []
 };
 
@@ -65,7 +66,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       toChannelId: currentChannel.id,
       fromUserId: user.id
     };
-    socket.emit(Events.sendMessage, messageToSend);
+    socket.emit(eEvent.SendMessage, messageToSend);
     setMessage('');
   };
 
@@ -78,14 +79,14 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       return;
     }
     if (
-      channel['type'] === ChannelTypes.protected &&
+      channel['type'] === eChannelType.Protected &&
       getValueOf(channelId, joinChannelPassword) === ''
     ) {
       return alert('You must provide a Password!');
     }
 
     const channelDto: JoinChannelDto = { userId: user.id, ...channel };
-    socket.emit(Events.joinChannel, {
+    socket.emit(eEvent.JoinChannel, {
       name: channelDto.name,
       id: channelDto.id,
       userId: user.id,
@@ -104,18 +105,18 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       console.log('Connected to server successfully');
 
       // Will be deleted in favour of using cookies
-      socket.emit(Events.setId);
+      socket.emit(eEvent.SetId);
     });
-    socket.on(Events.setIdResponse, (id: string) => {
+    socket.on(eEvent.SetIdResponse, (id: string) => {
       document.cookie = `id=${id}`;
       console.log(`Setting id from server ${id}`);
-      socket.emit(Events.addUser, id);
+      socket.emit(eEvent.AddUser, id);
     });
-    socket.on(Events.addUserResponse, (user: ChatUser) => {
+    socket.on(eEvent.AddUserResponse, (user: ChatUser) => {
       setUser(user);
     });
 
-    socket.on(Events.createChannelResponse, (data: { msg: string; channel: Channel }) => {
+    socket.on(eEvent.CreateChannelResponse, (data: { msg: string; channel: Channel }) => {
       if (!data.channel) {
         return alert(data.msg);
       }
@@ -124,7 +125,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       return alert(data.msg);
     });
 
-    socket.on(Events.joinChannelResponse, (data) => {
+    socket.on(eEvent.JoinChannelResponse, (data) => {
       console.log(
         `Answer recieved form the server for joinChanel ${JSON.stringify(data, null, 4)}`
       );
@@ -133,33 +134,33 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       } else return alert(`${data.msg}`);
     });
 
-    socket.on(Events.updateMessages, (messages) => {
+    socket.on(eEvent.UpdateMessages, (messages) => {
       setAllMessages(messages);
     });
 
-    socket.on(Events.updateUsers, (allUsers) => {
+    socket.on(eEvent.UpdateUsers, (allUsers) => {
       setAllUsers(allUsers);
     });
 
-    socket.on(Events.updateChannels, (channels) => {
+    socket.on(eEvent.UpdateChannels, (channels) => {
       setAllChannels(channels);
     });
-    socket.on(Events.addedToRoom, (channelId: string) => {
+    socket.on(eEvent.AddedToRoom, (channelId: string) => {
       console.log(`Recieved event added to room`);
-      socket.emit(Events.addedToRoom, channelId);
+      socket.emit(eEvent.AddedToRoom, channelId);
     });
     // // console.log(`This is the list of all users`);
     // allUsers.map((user) => console.log(`This is user ${JSON.stringify(user, null, 4)}`));
     return () => {
       socket.off('connect');
-      socket.off(Events.updateMessages);
-      socket.off(Events.updateUsers);
-      socket.off(Events.updateChannels);
-      socket.off(Events.updateOneChannel);
-      socket.off(Events.addUserResponse);
-      socket.off(Events.setIdResponse);
-      socket.off(Events.createChannelResponse);
-      socket.off(Events.addedToRoom);
+      socket.off(eEvent.UpdateMessages);
+      socket.off(eEvent.UpdateUsers);
+      socket.off(eEvent.UpdateChannels);
+      socket.off(eEvent.UpdateOneChannel);
+      socket.off(eEvent.AddUserResponse);
+      socket.off(eEvent.SetIdResponse);
+      socket.off(eEvent.CreateChannelResponse);
+      socket.off(eEvent.AddedToRoom);
     };
   });
 

@@ -1,5 +1,8 @@
+import { eChannelUserRole } from '../constants';
+
 export class ChannelUser {
-    id: string;
-    joinedChannelAt: number;
-    role: string;
+  id: string;
+  role: eChannelUserRole;
+  joinedChannelAt: number;
+  muteTimeout: number;
 }

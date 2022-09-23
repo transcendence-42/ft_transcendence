@@ -12,10 +12,9 @@ import {
   MessageDto,
   CreateChannelDto,
   JoinChannelDto,
-  UpdateOneChannelDto,
 } from './dto';
-import { Events } from './entities/Events';
 import { ChatUser, Channel } from './entities';
+import { eEvent } from './constants';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -59,7 +58,7 @@ export class ChatGateway
         REDIS_DB.USERS_DB,
       );
       console.log(`User ${JSON.stringify(user, null, 4)} reconnected`);
-      client.emit(Events.addUserResponse, user);
+      client.emit(eEvent.AddUserResponse, user);
     } else {
       console.log(
         `Client ${client.id} connected to the chat websocket`,
@@ -71,7 +70,7 @@ export class ChatGateway
       const allUsers = await this.chatService.getAll<ChatUser>(
         REDIS_DB.USERS_DB,
       );
-      client.emit(Events.updateUsers, allUsers);
+      client.emit(eEvent.UpdateUsers, allUsers);
       allUsers.map((user) => console.log(`${JSON.stringify(user, null, 4)}`));
     } catch (err) {
       console.log('Currently there are no users');
@@ -81,34 +80,35 @@ export class ChatGateway
       const allChannels = await this.chatService.getAll<Channel>(
         REDIS_DB.CHANNELS_DB,
       );
-      client.emit(Events.updateChannels, allChannels);
+      client.emit(eEvent.UpdateChannels, allChannels);
     } catch (err) {
       console.log('Currenlty there are no channels');
     }
-    client.emit(Events.updateMessages, this.chatService.allMessages);
+    client.emit(eEvent.UpdateMessages, this.chatService.allMessages);
+    this.chatService.getJson();
   }
 
   handleDisconnect(client: Socket) {
     console.log(`client ${client.id} disconnected`);
   }
 
-  @SubscribeMessage(Events.sendMessage)
+  @SubscribeMessage(eEvent.SendMessage)
   handleMessage(client: Socket, message: MessageDto) {
     return this.chatService.handleMessage(client, message);
   }
 
-  @SubscribeMessage(Events.joinChannel)
+  @SubscribeMessage(eEvent.JoinChannel)
   handleJoinChannel(client: Socket, channel: JoinChannelDto) {
     console.log(`This is channel joining ${JSON.stringify(channel, null, 4)}`);
     return this.chatService.handleJoinChannel(client, channel);
   }
 
-  @SubscribeMessage(Events.addedToRoom)
+  @SubscribeMessage(eEvent.AddedToRoom)
   handleAddedToRoom(client: Socket, channelId: string) {
     return this.chatService.handleAddedToRoom(client, channelId);
   }
 
-  @SubscribeMessage(Events.setId)
+  @SubscribeMessage(eEvent.SetId)
   handleSetId(client: Socket) {
     const userId = this.chatService.parseIdCookie(
       client.handshake.headers.cookie,
@@ -116,7 +116,7 @@ export class ChatGateway
     return this.chatService.handleSetId(client, userId);
   }
 
-  @SubscribeMessage(Events.addUser)
+  @SubscribeMessage(eEvent.AddUser)
   handleAddUser(client: Socket, id: string) {
     return this.chatService.addUser(client, id);
   }
@@ -126,7 +126,7 @@ export class ChatGateway
   // return this.chatService.getChannelsList(client);
   // }
 
-  @SubscribeMessage(Events.createChannel)
+  @SubscribeMessage(eEvent.CreateChannel)
   createChannel(client: Socket, channel: CreateChannelDto) {
     console.log(`User creating channel ${JSON.stringify(channel, null, 4)}`);
     return this.chatService.createChannel(client, channel);
