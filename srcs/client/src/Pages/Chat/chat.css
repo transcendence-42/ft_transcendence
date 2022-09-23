@@ -9,6 +9,7 @@
   margin-left: 5em;
   margin-right: 5em;
   margin-bottom: 4em;
+  min-width: 300px;
 }
 
 .blue-box-chat {
@@ -40,9 +41,9 @@
   text-shadow: 0px 0px 7.49518px #6abdff, 0px 0px 14.9904px #3d9fee, 0px 0px 25.6977px #187bca;
 }
 
-.titles-position {
+/* .titles-position {
   margin-top: 2em;
-}
+} */
 
 .message-button {
   text-align: right;
@@ -120,13 +121,26 @@
   margin-top: 2em;
 }
 
-.scroll-bar {
-  height: 240px;
+.scroll-bar-channels {
+  position: absolute;
+  height: 10%;
   margin-right: 1em;
+  overflow: hidden;
+	overflow: scroll;
+  
+}
+
+.scroll-bar-direct {
+  position: absolute;
+  height: 10%;
+  margin-right: 1em;
+  overflow: hidden;
+	overflow: scroll;
+  
 }
 
 .scroll-bar-messages {
-  height: 410px;
+  height: 15em;
   margin-right: 1em;
 }
 

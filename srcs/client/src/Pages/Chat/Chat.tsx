@@ -195,8 +195,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         <FriendList />
       </PongAdvancedModal>
       <div className="row row-color main-row-margin">
-        <div className="col-2 rounded-4 vh-100 blue-box-chat">
-          <div className="row">
+        <div className="col-2 rounded-4 vh-100 blue-box-chat first-column">
+          <div className="row h-50 mt-2">
             <div className="col">
               <p className="yellow-titles titles-position">CHANNELS</p>
             </div>
@@ -215,8 +215,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </ul>
             </div>
           </div>
-          <div className="row">
-            <div className="col overflow-auto scroll-bar">
+          <div className="row h-50">
+            <div className="col overflow-auto scroll-bar-channels">
               <p>Channel name</p>
               <p>Channel name</p>
               <p>Channel name</p>
@@ -238,8 +238,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </button>
             </div>
           </div>
-          <div className="row">
-            <div className="col overflow-auto scroll-bar">
+          <div className="row ">
+            <div className="col overflow-auto scroll-bar-direct">
               <p>Message</p>
               <p>Message</p>
               <p>Message</p>
@@ -257,7 +257,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
           <div className='row'>
-            <div className='col overflow-auto scroll-bar-messages'>
+            <div className='col overflow-auto scroll-bar-messages '>
               <p className='message-position'>Il fait beau aujourd'hui</p>
               <p className='message-position'>Oui t'as vu</p>
               <p className='message-position'>youhou</p>
