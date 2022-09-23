@@ -98,33 +98,33 @@ export default function NavBar ()
     */
     
 
-    if (contextValue.isConnected)
+    if (!contextValue.isConnected)
     {
         return (
             <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">
             
             <Link to="/" >
                     <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
-                    <h2 className="blueText px-2" data-testid="HomeLink"> PONG</h2>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
                     </Link>
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
                 <Nav className="navbar-nav ms-auto ">
                     <Nav.Link className="" >
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/leaderboard"> <h2 className="yellowText">Leaderboard</h2> </Link>
+                        <Link to="/leaderboard"> <h2 className="yellowText mt-2 ">Leaderboard</h2> </Link>
                     </Nav.Link>
                     <Nav.Link className=""  >
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/chat">  <h2 className="yellowText" > Chat </h2> </Link>
+                        <Link to="/chat">  <h2 className="yellowText mt-2 " > Chat </h2> </Link>
                     </Nav.Link>
                     <Nav.Link className=""  >
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/profile">  <h2 className="yellowText"> Profile </h2> </Link>
+                        <Link to="/profile">  <h2 className="yellowText mt-2 "> Profile </h2> </Link>
                     </Nav.Link>
                     <Nav.Link className="" >
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/" onClick={deco}>  <h2 className="yellowText"  style={{animation:"flicker 2.5s infinite alternate"}}>logout </h2> </Link>
+                        <Link to="/" onClick={deco}>  <h2 className="yellowText mt-2 "  style={{animation:"flicker 2.5s infinite alternate"}}>logout </h2> </Link>
                     </Nav.Link>
                 </Nav>
                 </Navbar.Collapse>
@@ -135,21 +135,21 @@ export default function NavBar ()
     else
     {
         return (
-        <Navbar className="navbar bg-dark pt-5 pb-4 px-5" bg="transparent" variant="transparent"  expand="md" collapseOnSelect>
+        <Navbar className="navbar bg-dark pt-5 pb-4 px-5 " bg="transparent" variant="transparent"  expand="md" collapseOnSelect>
                 <Link to="/">
                     <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
-                    <h2 className="blueText px-2" data-testid="HomeLink"> PONG</h2>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
                     </Link>
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
                 <Nav className="navbar-nav ms-auto ">
                     <Nav.Link className="">
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                        <Link to="/leaderboard"> <h2 className="yellowText mt-2 " data-testid="LeaderboardLink">Leaderboard</h2> </Link>
                     </Nav.Link>
                     <Nav.Link className="" >
                         <span></span><span></span><span></span><span></span>
-                        <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+                        <Link to="/login">  <h2 className="yellowText mt-2" > Login </h2> </Link>
                     </Nav.Link>
                 </Nav>
                 </Navbar.Collapse>
