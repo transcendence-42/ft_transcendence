@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { Socket } from 'socket.io';
-import { OnModuleInit } from '@nestjs/common';
+import { OnModuleInit, Logger } from '@nestjs/common';
 import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { ChatUser, Channel } from './entities';
 import { eEvent } from './constants';
@@ -33,9 +33,10 @@ export class ChatGateway
     OnGatewayInit
 {
   constructor(private readonly chatService: ChatService) {}
+  private readonly logger = new Logger(ChatGateway.name);
 
   onModuleInit() {
-    console.log(`Module Chat is up`);
+    this.logger.log(`Module chat is up`);
   }
 
   afterInit(server: any) {

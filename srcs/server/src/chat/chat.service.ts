@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as Cookie from 'cookie';
 import { Channel, ChannelUser, ChatUser, Message } from './entities';
 import { eChannelType, eChannelUserRole, eEvent } from './constants';
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Hashtable } from './interfaces/hashtable.interface';
 import Redis from 'redis';
 
@@ -21,6 +21,7 @@ export class ChatService {
     private readonly redis: Redis.RedisClientType,
   ) {}
 
+  private readonly logger = new Logger(ChatService.name);
   @WebSocketServer()
   server: Server;
 

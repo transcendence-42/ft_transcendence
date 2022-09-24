@@ -41,6 +41,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [allChannels, setAllChannels] = useState({} as Hashtable<Channel>);
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
+  const [friends, setFriends] = useState({});
+  const [currentUser, setCurrentUser] = useState({})
 
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
   // state
@@ -103,6 +105,49 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     setJoinChannelPassword('');
   };
 
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:4200/auth/success/', {
+      credentials: 'include',
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": "true",
+      }
+    })
+    .then((response) => {
+      if (!response.ok)
+      {
+        console.warn("Failed to fetch user data")
+      }
+      return response.json();
+    })
+    .then((responseObj) => {
+      console.log(`User data rom success ${JSON.stringify(responseObj.user, null, 4)}`)
+      setTrueUser(responseObj.user);
+    })
+
+  },[])
+
+  useEffect(()=> {
+    fetch(`http://127.0.0.1:4200/users/${(trueUser && trueUser['id']) || "1"}/friends`, {
+    credentials: 'include',
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Credentials": "true"
+    }
+    }
+  )
+  .then((response) => {
+    if (response.ok) {console.warn("Erro while gettings friends")}
+    return response.json();
+  })
+  .then((responseObj) => {
+    console.log(`Freinds of user ${(trueUser && trueUser['id']) || "1"} are ${JSON.stringify(responseObj, null, 4)}`)
+  })
+}, [])
+
   useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server successfully');
@@ -139,7 +184,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     });
 
     socket.on(eEvent.UpdateMessages, (messages: Message[]) => {
-      setAllMessages(messages.sort((a, b) => (a.sentDate < b.sentDate) ? 1: -1));
+      setAllMessages(messages.sort((a, b) => (a.sentDate > b.sentDate) ? 1: -1));
     });
 
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
@@ -293,7 +338,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             <>{console.log(`List of all users${JSON.stringify(allUsers)}`)}</>
 
               <> {allMessages?.map((message: Message) => 
-              (message.toChannelOrUserId === currentChannel.id ? <div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
+              (user && message.toChannelOrUserId === currentChannel.id ? <div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
                 <div className='messageFromUser'>User: {(allUsers[message.fromUserId] || {name: "Pong Bot"}).name}</div>
                 <br/>
                 <div className="messageDate"> .  Date:  {new Date(message.sentDate).toLocaleString()}</div>

@@ -8,6 +8,7 @@ import { MatchModule } from './match/match.module';
 import { RatingModule } from './rating/rating.module';
 import { ChatModule } from './chat/chat.module';
 import { RedisModule } from './redis/redis.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -20,6 +21,18 @@ import { RedisModule } from './redis/redis.module';
     RatingModule,
     ChatModule,
     RedisModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            ignore: 'req.headers,res.headers',
+            levelFirst:true, 
+          },
+        },
+      },
+    }),
   ],
   controllers: [],
 })

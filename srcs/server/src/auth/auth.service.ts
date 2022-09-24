@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import {
   FtRegisterUserDto,
@@ -27,6 +27,7 @@ export class AuthService {
   ) {}
   private readonly LOGIN_PAGE: string = this.config.get('LOGIN_PAGE');
   private readonly HOME_PAGE: string = this.config.get('HOME_PAGE');
+  private readonly logger = new Logger(AuthService.name);
 
   /******************************* 42 Oauth2 Flow ******************************/
 
@@ -35,10 +36,10 @@ export class AuthService {
       user.isTwoFactorActivated === true &&
       user.isTwoFactorAuthenticated === false
     ) {
-      console.debug(`redirecting to 2fa`);
+      this.logger.debug(`redirecting to 2fa`)
       res.redirect('http://127.0.0.1:3042/2fa');
     } else {
-      console.debug(`redirecting to Home`);
+      this.logger.debug(`redirecting to home`)
       return res.redirect(this.HOME_PAGE);
     }
   }
@@ -123,10 +124,10 @@ export class AuthService {
       user.isTwoFactorActivated === true &&
       user.isTwoFactorAuthenticated === false
     ) {
-      console.debug(`redirecting to 2fa`);
+      this.logger.log(`redirecting to 2fa`)
       res.redirect('http://127.0.0.1:3042/2fa');
     } else {
-      console.debug(`redirecting to Home`);
+      this.logger.log(`redirecting to Home`)
       return res.redirect(this.HOME_PAGE);
     }
   }
@@ -170,7 +171,7 @@ export class AuthService {
     if (session) {
       session.destroy();
       res.clearCookie('auth_session', { path: '/' });
-      console.debug(`Logout User ${JSON.stringify(user, null, 4)}`);
+      this.logger.log(`Logout User ${JSON.stringify(user, null, 4)}`)
       res.send({ message: 'user logged-out successfuly' });
     }
   }
