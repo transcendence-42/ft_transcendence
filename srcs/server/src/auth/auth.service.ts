@@ -36,22 +36,22 @@ export class AuthService {
       user.isTwoFactorActivated === true &&
       user.isTwoFactorAuthenticated === false
     ) {
-      this.logger.debug(`redirecting to 2fa`)
+      this.logger.debug(`redirecting to 2fa`);
       res.redirect('http://127.0.0.1:3042/2fa');
     } else {
-      this.logger.debug(`redirecting to home`)
+      this.logger.debug(`redirecting to home`);
       return res.redirect(this.HOME_PAGE);
     }
   }
 
+  /* this function validates the user by doing two things:
+   * 1- Checks whether the user already has an account
+   * using the local authentication method. If so, it throws and exception.
+   * 2- Creates a new user if the user is not registered
+   * returns an object containing a RequestUser and a message to specify if the user
+   * logged in or signed up
+   */
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
-    /* this function validates the user by doing two things:
-     * 1- Checks whether the user already has an account
-     * using the local authentication method. If so, it throws and exception.
-     * 2- Creates a new user if the user is not registered
-     * returns an object containing a RequestUser and a message to specify if the user
-     * logged in or signed up
-     */
     const credentialsByEmail: Credentials =
       await this.userService.getUserCredentialsByEmail(userInfo.email);
     if (credentialsByEmail !== null && credentialsByEmail.password !== null)
@@ -81,10 +81,10 @@ export class AuthService {
     return user;
   }
 
+  /* creates a user using the information from FortyTwo Oauth2 flow
+   * this means that the user doesn't have a password in the Credentials table
+   */
   async ftRegisterUser(userInfo: FtRegisterUserDto) {
-    /* creates a user using the information from FortyTwo Oauth2 flow
-     * this means that the user doesn't have a password in the Credentials table
-     */
     const user = await this.userService.createUserWithoutPassword(userInfo);
     return user;
   }
@@ -124,10 +124,10 @@ export class AuthService {
       user.isTwoFactorActivated === true &&
       user.isTwoFactorAuthenticated === false
     ) {
-      this.logger.log(`redirecting to 2fa`)
+      this.logger.log(`redirecting to 2fa`);
       res.redirect('http://127.0.0.1:3042/2fa');
     } else {
-      this.logger.log(`redirecting to Home`)
+      this.logger.log(`redirecting to Home`);
       return res.redirect(this.HOME_PAGE);
     }
   }
@@ -152,13 +152,13 @@ export class AuthService {
 
   /********************************** Successful Login *****************************/
 
+  /* this function is called upon successful login and deletes
+   * the authMessage property which contains either:
+   * "User Logged-in" or "User Registered" type message.
+   */
   async handleSuccessLogin(
     requestUser: RequestUser,
   ): Promise<{ message: string; user: User }> {
-    /* this function is called upon successful login and deletes
-     * the authMessage property which contains either:
-     * "User Logged-in" or "User Registered" type message.
-     */
     const message: string = requestUser.authentication;
     delete requestUser.authentication;
     const user: User = await this.userService.findOne(requestUser.id);
@@ -171,7 +171,7 @@ export class AuthService {
     if (session) {
       session.destroy();
       res.clearCookie('auth_session', { path: '/' });
-      this.logger.log(`Logout User ${JSON.stringify(user, null, 4)}`)
+      this.logger.log(`Logout User ${JSON.stringify(user, null, 4)}`);
       res.send({ message: 'user logged-out successfuly' });
     }
   }
@@ -183,11 +183,11 @@ export class AuthService {
     return this.pipeQrCodeStream(res, otpAuthUrl);
   }
 
+  /* Genereates A two factor authentification secret for the user and
+   * adds it to the database and generates a Qr Code to be used by the user
+   * to sync their google auth app with our application
+   */
   async generateTwoFactorCode(user: RequestUser): Promise<string> {
-    /* Genereates A two factor authentification secret for the user and
-     * adds it to the database and generates a Qr Code to be used by the user
-     * to sync their google auth app with our application
-     */
     const secret: string = authenticator.generateSecret();
     const otpAuthUrl: string = authenticator.keyuri(
       user.username,
@@ -198,13 +198,13 @@ export class AuthService {
     return otpAuthUrl;
   }
 
+  /* In order to turn on Two Factor Authentication, we need to validate
+   * the user's code against our own to see if the secret matches
+   */
   async turnOnTwoFactorAuth(
     user: RequestUser,
     twoFactorCode: string,
   ): Promise<{ message: string }> {
-    /* In order to turn on Two Factor Authentication, we need to validate
-     * the user's code against our own to see if the secret matches
-     */
     const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
     if (isCodeValid) {
       await this.userService.setTwoFactorAuthentification(user.id, true);
@@ -213,8 +213,8 @@ export class AuthService {
     throw new UnauthorizedException('Bad 2FA Code');
   }
 
+  /* returns a Generated Qr Code as a stream for Two Factor Auth */
   async pipeQrCodeStream(stream: Response, otpAuthUrl: string) {
-    /* returns a Generated Qr Code as a stream for Two Factor Auth */
     return toFileStream(stream, otpAuthUrl);
   }
 
@@ -240,9 +240,9 @@ export class AuthService {
   }
   /********************************** Helpers ********************************/
 
+  /* Creates a RequestUser object from credentials object. Used mainly to save
+   * space and for clarity of code */
   createRequestUserFromCredentials(credentials: Credentials): RequestUser {
-    /* Creates a RequestUser object from credentials object. Used mainly to save
-     * space and for clarity of code */
     const requestUser: RequestUser = {
       id: credentials.userId,
       username: credentials.username,
@@ -253,9 +253,9 @@ export class AuthService {
     return requestUser;
   }
 
+  /* Checks if username and email are taken
+   * we do this by checking if the username and the password exist in the database */
   async areCredentialsTaken(username: string, email: string) {
-    /* Checks if username and email are taken
-     * we do this by checking if the username and the password exist in the database */
     const userCredentialsByEmail: Credentials =
       await this.userService.getUserCredentialsByEmail(email);
     if (userCredentialsByEmail !== null) return true;

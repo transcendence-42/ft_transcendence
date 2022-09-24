@@ -20,4 +20,9 @@ RUN     apk update && apk upgrade && apk add --update --no-cache \
 # launch command as root
 EXPOSE  5432
 
-CMD     ["postgres"]
+COPY ./scripts/docker-entrypoint.dev.sh /
+COPY ./conf/dev-mock-data.sql /
+
+ENTRYPOINT ["./docker-entrypoint.dev.sh"]
+
+# CMD     ["postgres"]

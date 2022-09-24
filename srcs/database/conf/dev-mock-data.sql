@@ -80,7 +80,7 @@ SET row_security = off;
 --
 
 --
--- Database "transcendence-db" dump
+-- Database "transcendence_db" dump
 --
 
 --
@@ -102,15 +102,15 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: transcendence-db; Type: DATABASE; Schema: -; Owner: transcendence
+-- Name: transcendence_db; Type: DATABASE; Schema: -; Owner: transcendence
 --
 
-CREATE DATABASE "transcendence-db" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+CREATE DATABASE "transcendence_db" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
 
 
-ALTER DATABASE "transcendence-db" OWNER TO transcendence;
+ALTER DATABASE "transcendence_db" OWNER TO transcendence;
 
-\connect -reuse-previous=on "dbname='transcendence-db'"
+\connect -reuse-previous=on "dbname='transcendence_db'"
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;

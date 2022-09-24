@@ -1,23 +1,24 @@
-# syntax=docker/dockerfile:1
 FROM    alpine:3.16
 
-# args 
-ARG     POSTGRES_USER=${POSTGRES_USER}
-ARG     POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-ARG     POSTGRES_DB=${POSTGRES_DB}
-ARG     PGDATA=${PGDATA}
+COPY ./conf/dev-mock-data.sql ./
 
-# install MariaDB from package manager and shadow (login and pass utilities)
-RUN     apk update && apk upgrade && apk add --update --no-cache \
-            postgresql14 \
-            icu-data-full \
- &&     rm -f /var/cache/apk/* \
-\
-# configuration
- &&     mkdir -p "$PGDATA" \
- &&     chmod 777 "$PGDATA"
+COPY ./scripts/docker-entrypoint.dev.sh ./
 
-# launch command as root
-EXPOSE  5432
+ENV POSTGRES_USER=transcendence
+ENV POSTGRES_PASSWORD=5euApbMoLVtNgEcKs44e
+ENV POSTGRES_DB=transcendence_db
 
-CMD     ["postgres"]
+RUN apk update && apk upgrade && apk add --update --no-cache postgresql
+
+RUN adduser -D ${POSTGRES_USER}
+
+RUN mkdir /run/postgresql \
+    && chown postgres:postgres /run/postgresql
+
+EXPOSE 5432
+
+USER postgres
+
+# ENTRYPOINT ["./docker-entrypoint.dev.sh"]
+
+CMD ["sh"]
