@@ -24,13 +24,13 @@ pg_ctl start -D /var/lib/postgresql/data
 # adduser ${POSTGRES_USER}
 
 psql -c 'CREATE DATABASE '${POSTGRES_DB}';'
-psql -c 'CREATE USER '${POSTGRES_USER}' WITH ENCRYPTED PASSWORD '"'${POSTGRES_PASSWORD}';"
+psql -c 'CREATE USER '${POSTGRES_USER}' WITH ENCRYPTED PASSWORD '"'${POSTGRES_PASSWORD}' CREATEDB CREATEROLE;"
 psql -c 'GRANT ALL PRIVILEGES ON DATABASE '${POSTGRES_DB}' TO '${POSTGRES_USER}';'
+psql -c 'ALTER DATABASE '${POSTGRES_DB}' OWNER TO '${POSTGRES_USER}';'
 
 ### Importing mock database
 echo "Importing mock database"
 psql -U ${POSTGRES_USER} ${POSTGRES_DB} < /dev-mock-data.sql
-
 echo "data import done..."
 touch /tmp/.ready
 

@@ -58,12 +58,23 @@ model Achievement {
 
 model Channel {
   id          Int             @id @default(autoincrement())
-  name        String          @unique
-  channelMode Int             @default(0)
+  name        String
+  type        String
   password    String?
   owner       User            @relation(fields: [ownerId], references: [id])
   ownerId     Int
   users       UserOnChannel[]
+}
+
+model UserOnChannel {
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  isTmpMuted   Boolean @default(false)
+  isTmpBanned  Boolean @default(false)
+
+  @@id([channelId, userId])
 }
 
 model Credentials {
@@ -91,16 +102,6 @@ model Rating {
   rating   Int
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int 
-}
-
-model UserOnChannel {
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  mode      Int     @default(0)
-
-  @@id([channelId, userId])
 }
 
 model PlayerOnMatch {

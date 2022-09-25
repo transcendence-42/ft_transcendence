@@ -1,10 +1,14 @@
-import { UserOnChannel } from './userOnChannel.entity';
+
+import {User} from './user.entity'
+import {UserOnChannel} from './userOnChannel.entity'
+
 
 export class Channel {
-  id: number;
-  name: string;
-  channelMode: number;
-  ownerId: number;
-  password?: string;
-  users?: UserOnChannel[];
+  id: number ;
+name: string ;
+type: string ;
+password: string  | null;
+owner?: User ;
+ownerId: number ;
+users?: UserOnChannel[] ;
 }
