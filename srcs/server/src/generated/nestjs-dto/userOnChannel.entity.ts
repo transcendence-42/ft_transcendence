@@ -1,4 +1,5 @@
 
+import {UserRole} from '@prisma/client'
 import {Channel} from './channel.entity'
 import {User} from './user.entity'
 
@@ -8,6 +9,7 @@ export class UserOnChannel {
 channelId: number ;
 user?: User ;
 userId: number ;
-isTmpMuted: boolean ;
-isTmpBanned: boolean ;
+role: UserRole ;
+mutedTill: Date ;
+bannedTill: Date ;
 }

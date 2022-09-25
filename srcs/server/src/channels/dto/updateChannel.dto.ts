@@ -5,5 +5,4 @@ export class UpdateChannelDto {
   type?: string;
   password?: string;
   ownerId?: number;
-  users?: UserOnChannel;
 }

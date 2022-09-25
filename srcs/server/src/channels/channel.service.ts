@@ -3,13 +3,26 @@ import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Channel } from 'src/generated/nestjs-dto/channel.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
-import { NoChannelsInDatabaseException } from './exceptions';
+import { ChannelNotFoundException, NoChannelsInDatabaseException } from './exceptions';
 
 @Injectable()
 export class ChannelService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOne(channelId: number) {}
+  async findOne(id: number) {
+    try {
+    const channel: Channel = await this.prisma.channel.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        users: true,
+      }
+    });
+    } catch (e) {
+      throw new ChannelNotFoundException(id);
+    }
+  }
 
   async findAll(paginationQuerry: PaginationQueryDto): Promise<Channel[]> {
     if (!paginationQuerry.limit) {
@@ -29,9 +42,22 @@ export class ChannelService {
     return result;
   }
 
-  deleteOne(channelId: number) {}
+  async update(id: number, updateChannelDto: UpdateChannelDto) {
+    try {
+      const result: Channel = await this.prisma.channel.update({
+        where: {id},
+        data: {...updateChannelDto},
+      });
+    } catch (e) {
+      throw new ChannelNotFoundException(id);
+    }
+  }
 
-  deleteMany() {}
+  //to do: add userOnChannel endpoint
+  //add delete
+  //createChannel
+  delete(channelId: number) {}
+  updateUserOnChannel(id: number, updateUserOnChannelDto) {
 
-  update(id: number, updateChannelDto: UpdateChannelDto) {}
+  }
 }

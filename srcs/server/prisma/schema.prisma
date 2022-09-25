@@ -24,6 +24,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+  DIRECT
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  USER
+}
+
 model User {
   id                  Int               @id @default(autoincrement())
   username            String            @unique
@@ -59,7 +72,7 @@ model Achievement {
 model Channel {
   id          Int             @id @default(autoincrement())
   name        String
-  type        String
+  type        ChannelType
   password    String?
   owner       User            @relation(fields: [ownerId], references: [id])
   ownerId     Int
@@ -71,8 +84,9 @@ model UserOnChannel {
   channelId Int
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  isTmpMuted   Boolean @default(false)
-  isTmpBanned  Boolean @default(false)
+  role      UserRole
+  mutedTill   DateTime  @default(now())
+  bannedTill  DateTime  @default(now())
 
   @@id([channelId, userId])
 }
