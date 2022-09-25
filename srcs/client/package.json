@@ -54,6 +54,7 @@
     "@types/node": "^18.7.18",
     "@types/react-bootstrap": "^0.32.30",
     "@types/react-router-dom": "^5.3.3",
+    "prettier": "^2.7.1",
     "react-select-event": "^5.5.1",
     "webpack-dev-server": "^4.11.0"
   }

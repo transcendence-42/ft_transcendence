@@ -16,12 +16,12 @@ import {
   Hashtable,
   ChannelUser
 } from './entities';
-import { eEvent, eChannelType, eChannelUserRole} from './constants';
+import { eEvent, eChannelType, eChannelUserRole } from './constants';
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
   return true;
-}
+};
 
 const lobbyChannel: Channel = {
   name: 'lobby',
@@ -33,7 +33,9 @@ const lobbyChannel: Channel = {
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
   const currChanInLocalStorage = window.localStorage.getItem('currentChannel');
-  const defaultChannel: Channel = currChanInLocalStorage ? JSON.parse(currChanInLocalStorage) : lobbyChannel;
+  const defaultChannel: Channel = currChanInLocalStorage
+    ? JSON.parse(currChanInLocalStorage)
+    : lobbyChannel;
   const [trueUser, setTrueUser] = useState(null);
   const [user, setUser] = useState({} as ChatUser);
   const [allMessages, setAllMessages] = useState([] as Message[]);
@@ -42,7 +44,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
   const [friends, setFriends] = useState({});
-  const [currentUser, setCurrentUser] = useState({})
+  const [currentUser, setCurrentUser] = useState({});
 
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
   // state
@@ -67,14 +69,14 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   };
   const handleSendMessage = (e: any) => {
     if (message === '') return;
-    console.log(`Heres current user ${JSON.stringify(user, null, 4)}`)
-    console.log(`Heres current channel ${JSON.stringify(currentChannel, null, 4)}`)
+    console.log(`Heres current user ${JSON.stringify(user, null, 4)}`);
+    console.log(`Heres current channel ${JSON.stringify(currentChannel, null, 4)}`);
     const messageToSend: MessageDto = {
       content: message,
       toChannelOrUserId: currentChannel.id,
       fromUserId: user.id
     };
-    console.log("Emitting message")
+    console.log('Emitting message');
     socket.emit(eEvent.SendMessage, messageToSend);
     setMessage('');
   };
@@ -105,48 +107,53 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     setJoinChannelPassword('');
   };
 
-
   useEffect(() => {
     fetch('http://127.0.0.1:4200/auth/success/', {
       credentials: 'include',
       headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": "true",
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Credentials': 'true'
       }
     })
-    .then((response) => {
-      if (!response.ok)
-      {
-        console.warn("Failed to fetch user data")
+      .then((response) => {
+        if (!response.ok) {
+          console.warn('Failed to fetch user data');
+        }
+        return response.json();
+      })
+      .then((responseObj) => {
+        console.log(`User data rom success ${JSON.stringify(responseObj.user, null, 4)}`);
+        setTrueUser(responseObj.user);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`http://127.0.0.1:4200/users/${(trueUser && trueUser['id']) || '1'}/friends`, {
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Credentials': 'true'
       }
-      return response.json();
     })
-    .then((responseObj) => {
-      console.log(`User data rom success ${JSON.stringify(responseObj.user, null, 4)}`)
-      setTrueUser(responseObj.user);
-    })
-
-  },[])
-
-  useEffect(()=> {
-    fetch(`http://127.0.0.1:4200/users/${(trueUser && trueUser['id']) || "1"}/friends`, {
-    credentials: 'include',
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Credentials": "true"
-    }
-    }
-  )
-  .then((response) => {
-    if (response.ok) {console.warn("Erro while gettings friends")}
-    return response.json();
-  })
-  .then((responseObj) => {
-    console.log(`Freinds of user ${(trueUser && trueUser['id']) || "1"} are ${JSON.stringify(responseObj, null, 4)}`)
-  })
-}, [])
+      .then((response) => {
+        if (!response.ok) {
+          console.warn('Erro while gettings friends');
+        }
+        return response.json();
+      })
+      .then((responseObj) => {
+        console.log(
+          `Freinds of user ${(trueUser && trueUser['id']) || '1'} are ${JSON.stringify(
+            responseObj,
+            null,
+            4
+          )}`
+        );
+      })// waits for the user to be fetched before connecting
+      .then(() => socket.connect()); 
+  }, []);
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -161,7 +168,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       socket.emit(eEvent.AddUser, id);
     });
     socket.on(eEvent.AddUserResponse, (user: ChatUser) => {
-      console.log(`REcieving user response ${JSON.stringify(user, null, 4)}`)
+      console.log(`Recieving user response ${JSON.stringify(user, null, 4)}`);
       setUser(user);
     });
 
@@ -178,21 +185,23 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       console.log(
         `Answer recieved form the server for joinChanel ${JSON.stringify(data, null, 4)}`
       );
+
       if (data.channel) {
+        handleCloseBrowseChannel();
         setCurrentChannel(data.channel);
       } else return alert(`${data.msg}`);
     });
 
     socket.on(eEvent.UpdateMessages, (messages: Message[]) => {
-      setAllMessages(messages.sort((a, b) => (a.sentDate > b.sentDate) ? 1: -1));
+      setAllMessages(messages.sort((a, b) => (a.sentDate > b.sentDate ? 1 : -1)));
     });
 
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
-      console.log(`Updating one message ${JSON.stringify(message, null, 4)}`)
-        const newAllMessages: Message[] = allMessages;
-        allMessages.push(message);
+      console.log(`Updating one message ${JSON.stringify(message, null, 4)}`);
+      const newAllMessages: Message[] = allMessages;
+      allMessages.push(message);
       setAllMessages(newAllMessages);
-    })
+    });
 
     socket.on(eEvent.UpdateUsers, (allUsers) => {
       setAllUsers(allUsers);
@@ -202,7 +211,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       const newAllUsers: Hashtable<ChatUser> = allUsers;
       allUsers[user.id] = user;
       setAllUsers(newAllUsers);
-    })
+    });
 
     socket.on(eEvent.UpdateChannels, (channels) => {
       setAllChannels(channels);
@@ -212,14 +221,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       const newAllChannels: Hashtable<Channel> = allChannels;
       allChannels[channel.id] = channel;
       setAllChannels(newAllChannels);
-    })
-
-    socket.on(eEvent.AddedToRoom, (channelId: string) => {
-      console.log(`Recieved event added to room`);
-      socket.emit(eEvent.AddedToRoom, channelId);
     });
-    // // console.log(`This is the list of all users`);
-    // allUsers.map((user) => console.log(`This is user ${JSON.stringify(user, null, 4)}`));
+
     return () => {
       socket.off('connect');
       socket.off(eEvent.UpdateMessages);
@@ -291,23 +294,25 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="row">
             <div className="col overflow-auto scroll-bar">
               <>
-    <div className="row row-color">
-      <>
-      {!isEmpty(allChannels) && Object.values(allChannels).map((channel: Channel) => (
-        <div className="channels" key={channel.id}>
-          <div className="col">
-            <p>{channel.name}</p>
-          </div>
-          <div className="col">
-            <button
-              className="rounded-4 btn-pink btn-join"
-              onClick={(e) => handleJoinChannel(e, channel.id)}>
-              Join
-            </button>
-          </div>
-        </div>
-      ))}</>
-    </div>
+                <div className="row row-color">
+                  <>
+                    {!isEmpty(allChannels) &&
+                      Object.values(allChannels).map((channel: Channel) => (
+                        <div className="channels" key={channel.id}>
+                          <div className="col">
+                            <p>{channel.name}</p>
+                          </div>
+                          <div className="col">
+                            <button
+                              className="rounded-4 btn-pink btn-join"
+                              onClick={(e) => handleJoinChannel(e, channel.id)}>
+                              Join
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </>
+                </div>
               </>
             </div>
           </div>
@@ -324,38 +329,54 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
           <div className="row">
-            <div className="col overflow-auto scroll-bar">
-            </div>
+            <div className="col overflow-auto scroll-bar"></div>
           </div>
         </div>
         <div className="col-8 rounded-4 blue-box-chat">
           <div className="row">
             <div className="col">
-              <p className="blue-titles channel-name-margin">currentChannel: {currentChannel.name}</p>
+              <p className="blue-titles channel-name-margin">
+                currentChannel: {currentChannel.name}
+              </p>
             </div>
           </div>
           <div className="row">
             <>{console.log(`List of all users${JSON.stringify(allUsers)}`)}</>
 
-              <> {allMessages?.map((message: Message) => 
-              (user && message.toChannelOrUserId === currentChannel.id ? <div className={message.fromUserId === user.id ? "myMessages" : "otherMessages"} key={message.id}>
-                <div className='messageFromUser'>User: {(allUsers[message.fromUserId] || {name: "Pong Bot"}).name}</div>
-                <br/>
-                <div className="messageDate"> .  Date:  {new Date(message.sentDate).toLocaleString()}</div>
-                <br/>
-                <div className="messageContent"> .   Message: .   {message.content}</div>
-                <br/>
-              </div>: ''))}
-              </>
+            <>
+              {allMessages?.map((message: Message) =>
+                user && message.toChannelOrUserId === currentChannel.id ? (
+                  <div
+                    className={message.fromUserId === user.id ? 'myMessages' : 'otherMessages'}
+                    key={message.id}>
+                    <div className="messageFromUser">
+                      User: {(allUsers[message.fromUserId] || { name: 'Pong Bot' }).name}
+                    </div>
+                    <br />
+                    <div className="messageDate">
+                      {' '}
+                      . Date: {new Date(message.sentDate).toLocaleString()}
+                    </div>
+                    <br />
+                    <div className="messageContent"> . Message: . {message.content}</div>
+                    <br />
+                  </div>
+                ) : (
+                  ''
+                )
+              )}
+            </>
             <div className="col input-position">
               <input
-              onChange={(e) => setMessage(e.target.value)}
-              value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                value={message}
                 type="text"
                 maxLength={128}
                 className="rounded-3 input-field-chat yellow-box-chat"
                 placeholder="Send a message..."></input>
-                <button type="button" onClick={handleSendMessage}>Send</button>
+              <button type="button" onClick={handleSendMessage}>
+                Send
+              </button>
             </div>
           </div>
         </div>
@@ -363,9 +384,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="row">
             <div className="col">
               <p className="blue-titles center-position titles-position">MEMBERS</p>
-              <>{!isEmpty(currentChannel) && Object.values(currentChannel.users).map((user: ChannelUser) => <div key={user.id}>{allUsers && allUsers[user.id]?.name}</div>)}
-      {console.log(`Are the objects empty ${!isEmpty(allChannels)}`)}
-      {console.log(`list of channels ${JSON.stringify(allChannels, null, 4)}`)}
+              <>
+                {!isEmpty(currentChannel) &&
+                  Object.values(currentChannel.users).map((user: ChannelUser) => (
+                    <div key={user.id}>{allUsers && allUsers[user.id]?.name}</div>
+                  ))}
+                {console.log(`Are the objects empty ${!isEmpty(allChannels)}`)}
+                {console.log(`list of channels ${JSON.stringify(allChannels, null, 4)}`)}
               </>
             </div>
           </div>

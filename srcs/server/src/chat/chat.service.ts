@@ -28,11 +28,6 @@ export class ChatService {
   messageBotId: string;
 
   async handleMessage(client: Socket, message: MessageDto) {
-    console.log(
-      `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
-        client.id
-      }`,
-    );
     const date = Date.now();
     const msg: Message = {
       id: message.fromUserId + String(date + Math.random() * 100),
@@ -43,10 +38,6 @@ export class ChatService {
     };
     await this.setObject<Message>(msg.id, msg, REDIS_DB.MSG_DB);
     const allMessages = await this.getAllAsArray(REDIS_DB.MSG_DB);
-    // this.allMessages.push(msg);
-    console.log(`This is a list of all messages`);
-    allMessages.map((msg) => console.log(JSON.stringify(msg, null, 4)));
-    console.log(`End of all messags`);
     this.server.emit(eEvent.UpdateMessages, allMessages);
   }
 
@@ -55,7 +46,7 @@ export class ChatService {
       joinChannelDto.id,
       REDIS_DB.CHANNELS_DB,
     );
-    console.log(
+    this.logger.debug(
       `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
     );
 
@@ -79,6 +70,7 @@ export class ChatService {
         role: eChannelUserRole.User, //to be included in the joinChannelDto
         joinedChannelAt,
         isMuted: false,
+        isBanned: false,
       };
       // channel.users.push(channelUser);
       channel.users[joinChannelDto.userId] = channelUser;
@@ -97,9 +89,10 @@ export class ChatService {
     );
   }
 
+  getAllMessages(client: Socket, userId) {}
+
   handleSetId(client: Socket, hasUserId: string) {
     if (hasUserId) return;
-    console.log(`Setting id for user ${client.id}`);
     const userId = uuidv4();
     client.emit(eEvent.SetIdResponse, userId);
   }
@@ -121,10 +114,9 @@ export class ChatService {
         socketId: client.id,
         id,
         name: names[Math.floor(Math.random() * 10) % names.length],
-        profilePicture:
-          'https://cdn.discordapp.com/avatars/805814511000354867/32ec044071e86e151aeab667f6acc48f.webp?size=32',
+        // profilePicture:
+        //   'https://cdn.discordapp.com/avatars/805814511000354867/32ec044071e86e151aeab667f6acc48f.webp?size=32',
       };
-      console.log(`Adding user name: ${chatUser.name}, id: ${id}`);
       this.setObject(chatUser.id, chatUser, REDIS_DB.USERS_DB);
       client.emit(eEvent.AddUserResponse, chatUser);
       const allUsers: Hashtable<ChatUser> = await this.getAllAsHashtable(
@@ -134,14 +126,16 @@ export class ChatService {
     }
   }
 
+  async addToRooms(client: Socket, userId) {
+
+  }
+
   async createChannel(client: Socket, channelDto: CreateChannelDto) {
     // if channel name taken but channel is private it's okay
     const allChannels: Hashtable<Channel> = await this.getAllAsHashtable(
       REDIS_DB.CHANNELS_DB,
     );
-    console.log(`all channels = ${allChannels}`);
     if (allChannels[channelDto.name]) {
-      console.log('Found a channel with the same name');
       client.emit(eEvent.CreateChannelResponse, {
         msg: 'channel name already taken',
       });
@@ -153,6 +147,7 @@ export class ChatService {
       role: eChannelUserRole.Owner,
       joinedChannelAt: createdAt,
       isMuted: false,
+      isBanned: false,
     };
     const channel: Channel = {
       id: uuidv4(),
@@ -174,19 +169,19 @@ export class ChatService {
     this.server.emit(eEvent.UpdateChannels, allChannels);
   }
 
-  async handleAddedToRoom(client: Socket, channelId: string) {
-    const allChannels: Hashtable<Channel> = await this.getAllAsHashtable(
-      REDIS_DB.CHANNELS_DB,
-    );
-    const allUsers: Hashtable<ChatUser> = await this.getAllAsHashtable(
-      REDIS_DB.USERS_DB,
-    );
-    const userId = this.parseIdCookie(client.handshake.headers.cookie);
-    const user = allUsers[userId];
-    const chan = allChannels[channelId];
-    console.log(`User ${user.name} is joinined room ${chan.name}`);
-    client.join(channelId);
-  }
+  // async handleAddedToRoom(client: Socket, channelId: string) {
+  //   const allChannels: Hashtable<Channel> = await this.getAllAsHashtable(
+  //     REDIS_DB.CHANNELS_DB,
+  //   );
+  //   const allUsers: Hashtable<ChatUser> = await this.getAllAsHashtable(
+  //     REDIS_DB.USERS_DB,
+  //   );
+  //   const userId = this.parseIdCookie(client.handshake.headers.cookie);
+  //   const user = allUsers[userId];
+  //   const chan = allChannels[channelId];
+  //   this.logger.debug(`User ${user.name} is joinined room ${chan.name}`);
+  //   client.join(channelId);
+  // }
 
   async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {
     await this.redis.select(dataBase);
@@ -244,7 +239,6 @@ export class ChatService {
 
   async getJson() {
     await this.redis.select(2);
-    console.log('this is res');
     const res = await this.redis.json.get(
       '$.users[?(@.id==="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]',
     );
@@ -252,9 +246,6 @@ export class ChatService {
       '5d7dc013-a32e-45ea-8767-d65954214f9b',
       { path: '.users[?(@.id=="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]' },
     );
-    console.log(JSON.stringify(res, null, 4));
-    console.log('this is res 2');
-    console.log(JSON.stringify(res2, null, 4));
   }
 
   private async _joinedChannelBot(

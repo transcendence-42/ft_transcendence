@@ -1,5 +1,6 @@
 export enum eChannelType {
-  Public,
-  Private,
-  Protected,
+  Public = "public",
+  Private = "private",
+  Protected = "protected",
+  Direct = "direct",
 }

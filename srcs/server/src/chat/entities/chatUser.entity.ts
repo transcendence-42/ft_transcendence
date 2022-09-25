@@ -1,11 +1,10 @@
 import { Hashtable } from '../interfaces/hashtable.interface';
-import { Channel, Message } from './';
+import { Message } from './';
 
 export class ChatUser {
-  socketId: string;
   id: string;
+  socketId: string;
   name: string;
-  profilePicture: string;
-  channels?: Hashtable<Channel>;
+  channelsId?: string[];
   directMessges?: Message[];
 }

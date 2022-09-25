@@ -35,7 +35,7 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
           onChange={(e) => setChannelName(e.target.value)}
           value={channelName}></input>
         <ul className="list-group">
-          <select onChange={(e) => setChannelType(parseInt(e.target.value))}>
+          <select onChange={(e) => setChannelType(e.target.value as eChannelType)}>
             <option value={eChannelType.Public}>Public</option>
             <option value={eChannelType.Private}>Private</option>
             <option value={eChannelType.Protected}>Protected</option>

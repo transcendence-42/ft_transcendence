@@ -1,4 +1,4 @@
-import { eChannelType, eChannelUserRole } from "./constants";
+import { eChannelType, eChannelUserRole } from './constants';
 
 export interface MessageDto {
   content: string;
@@ -7,7 +7,7 @@ export interface MessageDto {
 }
 
 export interface Hashtable<T> {
-  [key: string]: T
+  [key: string]: T;
 }
 
 export interface Message extends MessageDto {
@@ -28,7 +28,7 @@ export interface Channel {
 export interface JoinChannelDto {
   id: string;
   name: string; //debugging purposes
-  type: eChannelType,
+  type: eChannelType;
   userId: string;
   password?: string;
 }
@@ -38,7 +38,7 @@ export interface ChatUser {
   id: string;
   name: string;
   profilePicture: string;
-  channels?: Hashtable<Channel>;
+  channelsId?: string[];
   directMessges?: Message[];
 }
 
@@ -47,6 +47,7 @@ export interface ChannelUser {
   role: eChannelUserRole;
   joinedChannelAt: number;
   isMuted: boolean;
+  isBanned: boolean;
 }
 
 export interface CreateChannelDto {

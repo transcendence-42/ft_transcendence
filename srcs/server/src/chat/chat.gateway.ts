@@ -48,64 +48,67 @@ export class ChatGateway
     const userId: string = this.chatService.parseIdCookie(
       client.handshake.headers.cookie,
     );
-    console.log(`This is user id ${userId}`);
+    this.logger.debug(
+      `User with id ${userId} and socket id ${client.id} is trying to reconnect`,
+    );
     if (userId) {
       // Updating socket id to match the new socket id of the user on refresh
       const user: ChatUser = await this.chatService.getObject(
         userId,
         REDIS_DB.USERS_DB,
       );
-      console.log(`User ${JSON.stringify(user, null, 4)} reconnected`);
+      this.logger.debug(`User ${JSON.stringify(user, null, 4)} reconnected`);
       client.emit(eEvent.AddUserResponse, user);
-    } else {
-      console.log(
-        `Client ${client.id} connected to the chat websocket`,
-        userId ? `With id ${userId}` : `witout id`,
-      );
-    }
-    console.log(`This is the list of all users`);
-    try {
-      const allUsers: Hashtable<ChatUser> =
-        await this.chatService.getAllAsHashtable(REDIS_DB.USERS_DB);
-      client.emit(eEvent.UpdateUsers, allUsers);
-      Object.values(allUsers).map((user) =>
-        console.log(`${JSON.stringify(user, null, 4)}`),
-      );
-    } catch (err) {
-      console.log('Currently there are no users');
-    }
+      this.logger.debug(`This is the list of all users`);
+      try {
+        const allUsers: Hashtable<ChatUser> =
+          await this.chatService.getAllAsHashtable(REDIS_DB.USERS_DB);
+        client.emit(eEvent.UpdateUsers, allUsers);
+        Object.values(allUsers).map((user) =>
+          this.logger.debug(`${JSON.stringify(user, null, 4)}`),
+        );
+      } catch (err) {
+        this.logger.debug('Currently there are no users');
+      }
 
-    try {
-      const allChannels: Hashtable<Channel> =
-        await this.chatService.getAllAsHashtable(REDIS_DB.CHANNELS_DB);
-      client.emit(eEvent.UpdateChannels, allChannels);
-    } catch (err) {
-      console.log('Currenlty there are no channels');
+      try {
+        const allChannels: Hashtable<Channel> =
+          await this.chatService.getAllAsHashtable(REDIS_DB.CHANNELS_DB);
+        client.emit(eEvent.UpdateChannels, allChannels);
+      } catch (err) {
+        this.logger.debug('Currenlty there are no channels');
+      }
+      const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
+      client.emit(eEvent.UpdateMessages, allMessages);
     }
-    const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
-    client.emit(eEvent.UpdateMessages, allMessages);
-    // this.chatService.getJson();
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`client ${client.id} disconnected`);
+    this.logger.debug(`client ${client.id} disconnected`);
   }
 
   @SubscribeMessage(eEvent.SendMessage)
   handleMessage(client: Socket, message: MessageDto) {
+    this.logger.debug(
+      `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
+        client.id
+      }`,
+    );
     return this.chatService.handleMessage(client, message);
   }
 
   @SubscribeMessage(eEvent.JoinChannel)
   handleJoinChannel(client: Socket, channel: JoinChannelDto) {
-    console.log(`This is channel joining ${JSON.stringify(channel, null, 4)}`);
+    this.logger.debug(
+      `This is channel joining ${JSON.stringify(channel, null, 4)}`,
+    );
     return this.chatService.handleJoinChannel(client, channel);
   }
 
-  @SubscribeMessage(eEvent.AddedToRoom)
-  handleAddedToRoom(client: Socket, channelId: string) {
-    return this.chatService.handleAddedToRoom(client, channelId);
-  }
+  // @SubscribeMessage(eEvent.AddedToRoom)
+  // handleAddedToRoom(client: Socket, channelId: string) {
+  //   return this.chatService.handleAddedToRoom(client, channelId);
+  // }
 
   @SubscribeMessage(eEvent.SetId)
   handleSetId(client: Socket) {
@@ -127,7 +130,9 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.CreateChannel)
   createChannel(client: Socket, channel: CreateChannelDto) {
-    console.log(`User creating channel ${JSON.stringify(channel, null, 4)}`);
+    this.logger.debug(
+      `User creating channel ${JSON.stringify(channel, null, 4)}`,
+    );
     return this.chatService.createChannel(client, channel);
   }
 

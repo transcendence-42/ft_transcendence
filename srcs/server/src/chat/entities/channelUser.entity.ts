@@ -5,4 +5,5 @@ export class ChannelUser {
   role: eChannelUserRole;
   joinedChannelAt: number;
   isMuted: boolean;
+  isBanned: boolean;
 }
