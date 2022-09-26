@@ -10,9 +10,10 @@ import {
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
-import Redis from 'redis';
 import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
+import Redis, { ChainableCommander } from 'ioredis';
+import { pipe } from 'rxjs';
 
 // Enums
 const enum Move {
@@ -74,21 +75,27 @@ const enum DB {
   MATCHMAKING,
 }
 
+// Types
 type BallIntervall = { game: string; interval?: NodeJS.Timer };
+type GamePipeline = { id: string; pipeline: ChainableCommander };
 
 @Injectable()
 export class GameService {
+  // Constructor
   constructor(
     private readonly matchService: MatchService,
-    @Inject('REDIS_CLIENT') private readonly redis: Redis.RedisClientType,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
     this.clients = [];
     this.ballIntervals = [];
+    this.gamePipelines = [];
   }
 
+  // Attributes
   server: Server;
   clients: Client[];
   ballIntervals: BallIntervall[];
+  gamePipelines: GamePipeline[];
 
   /** *********************************************************************** */
   /** SOCKET                                                                  */
@@ -111,6 +118,13 @@ export class GameService {
   private _getSocket(id: string): Socket {
     const client = this.clients.find((c) => c.userId === id);
     if (client) return client.socket;
+    return null;
+  }
+
+  /** get redis pipeline from user id */
+  private _getPipeline(id: string): ChainableCommander {
+    const game = this.gamePipelines.find((g) => g.id === id);
+    if (game) return game.pipeline;
     return null;
   }
 
@@ -164,19 +178,30 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private async _addPlayerToGame(player: Player, side: number, game: Game) {
+  private _addPlayerToGame(
+    player: Player,
+    side: number,
+    game: Game,
+    pipeline: ChainableCommander,
+  ) {
     // Add it to the game room and leave lobby
     player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
     // Add player in player db with its game for further checks
-    await this.redis.select(DB.PLAYERS);
-    await this.redis.set(player.userId, game.id);
+    pipeline.select(DB.PLAYERS);
+    pipeline.set(player.userId, game.id);
     // Complete information on game db
-    game.players.push({
-      userId: player.userId,
-      side: side,
-      score: 0,
-    });
+    pipeline.select(DB.GAMES);
+    pipeline.call(
+      'JSON.ARRAPPEND',
+      game.id,
+      '$.players',
+      JSON.stringify({
+        userId: player.userId,
+        side: side,
+        score: 0,
+      }),
+    );
   }
 
   /** Check if a player is already in a game */
@@ -197,12 +222,16 @@ export class GameService {
     await this.redis.select(DB.GAMES);
     let games: any = [];
     let gameKeys: string[] = await this.redis.keys('*');
-    console.log('keys');
-    console.log(gameKeys);
     gameKeys = gameKeys.filter((k: string) => k !== 'ping');
-    if (gameKeys.length > 0)
-      games = (await this.redis.json.mGet(gameKeys, '$')).flat(1);
-    const gameList = games.map((g: any) => {
+    if (gameKeys.length > 0) {
+      games = await this.redis.call('JSON.MGET', ...gameKeys, '$');
+    }
+    // filter non json keys
+    games = games.filter((g: any) => g);
+    // building game list
+    const gameList = games.map((gString: any) => {
+      const gArr: Game[] = JSON.parse(gString);
+      const g: Game = gArr[0];
       return {
         id: g.id,
         players: g.players.map((p: any) => ({
@@ -284,10 +313,13 @@ export class GameService {
 
   /** get Game */
   private async _getGame(id: string): Promise<any> {
-    await this.redis.select(DB.GAMES);
-    const game: any = await this.redis.json.GET(id, { path: '$' });
-    if (!game) throw new GameNotFoundException(id);
-    return game[0];
+    const pipeline = this.redis.pipeline();
+    pipeline.select(DB.GAMES);
+    pipeline.call('JSON.GET', id, '$');
+    const game: any = await pipeline.exec();
+    if (game && game[1] && game[1][1] && !game[1][0])
+      return JSON.parse(game[1][1])[0];
+    throw new GameNotFoundException(id);
   }
 
   /** Create a new game */
@@ -296,28 +328,32 @@ export class GameService {
     for (let i = 0; i < players.length; ++i) {
       if (await this._isPlayerInGame(players[i].userId))
         throw new UserAlreadyInGameException(players[i].userId);
-      const isMatchMaking = await this.redis.sIsMember(
+      const isMatchMaking = await this.redis.sismember(
         'matchMaking',
         players[i].userId,
       );
       if (isMatchMaking)
-        await this.redis.sRem('matchMaking', players[i].userId);
+        await this.redis.srem('matchMaking', players[i].userId);
     }
     // create a new game
     const newGame: Game = new Game(v4());
+    // create a game pipeline for redis
+    const pipeline = this.redis.pipeline();
+    this.gamePipelines.push({
+      id: newGame.id,
+      pipeline: pipeline,
+    });
+    // Add new game to pipeline
+    pipeline.select(DB.GAMES);
+    pipeline.call('JSON.SET', newGame.id, '$', JSON.stringify(newGame));
     // add players to the game and give them the game id
     for (let i = 0; i < players.length; ++i) {
       const side: number = i ? Side.RIGHT : Side.LEFT;
-      await this._addPlayerToGame(players[i], side, newGame);
+      this._addPlayerToGame(players[i], side, newGame, pipeline);
       this._getSocket(players[i].userId).emit('gameId', { id: newGame.id });
     }
     // update game on redis
-    await this.redis.select(DB.GAMES);
-    await this.redis.json.set(
-      newGame.id,
-      '$',
-      JSON.parse(JSON.stringify(newGame)),
-    );
+    await pipeline.exec();
     // Broadcast new gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -335,7 +371,7 @@ export class GameService {
   async viewerLeaves(client: Socket, id: string) {
     // remove the viewer
     const userId: string = client.handshake.query.userId.toString();
-    await this.redis.json.del(id, `$.viewers['${userId}']`);
+    await this.redis.call('JSON.DEL', id, `$.viewers['${userId}']`);
     await this.redis.select(DB.VIEWERS);
     await this.redis.del(userId);
     // quit room and join lobby
@@ -375,32 +411,43 @@ export class GameService {
     );
     const ballSpeed = game.gamePhysics.ball.speed;
     // update redis
-    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
+    await this.redis.call('JSON.SET', id, '$', JSON.stringify(game));
     this.server.to(id).emit('pause', +Params.PAUSE_TIME);
     // UnPause after a delay
     setTimeout(async () => {
       await this.redis.select(DB.GAMES);
       if (await this.redis.exists(id)) {
-        await this.redis.json.set(id, '$.status', Status.STARTED);
-        await this.redis.json.set(id, '$.gamePhysics.ball.speed', ballSpeed);
+        await this.redis.call('JSON.SET', id, '$.status', Status.STARTED);
+        await this.redis.call(
+          'JSON.SET',
+          id,
+          '$.gamePhysics.ball.speed',
+          ballSpeed,
+        );
       }
     }, Params.PAUSE_TIME * 1000);
   }
 
   /** join a game (player) */
   async join(client: Socket, id: string) {
-    // Get game
+    // get game
     const game: Game = await this._getGame(id);
+    // get pipeline
+    const pipeline = this._getPipeline(id);
     // remove user from matchmaking
     const userId: string = client.handshake.query.userId.toString();
     await this.redis.select(DB.MATCHMAKING);
-    if (await this.redis.sIsMember('users', userId))
-      await this.redis.sRem('users', userId);
+    if (await this.redis.sismember('users', userId))
+      await this.redis.srem('users', userId);
     // add new player to the game and emit new grid
-    await this._addPlayerToGame(new Player(client, userId), Side.RIGHT, game);
+    this._addPlayerToGame(
+      new Player(client, userId),
+      Side.RIGHT,
+      game,
+      pipeline,
+    );
     // update redis
-    await this.redis.select(DB.GAMES);
-    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
+    await pipeline.exec();
     // Start game
     await this._startGame(id);
     // update the lobby with the new player
@@ -411,17 +458,24 @@ export class GameService {
   /** view a game (viewer) */
   async view(client: Socket, id: string) {
     const userId: string = client.handshake.query.userId.toString();
+    // create a temp pipeline to group commands
+    const pipeline = this.redis.pipeline();
     // Add the user as a viewer
-    this.redis.select(DB.VIEWERS).then(async () => {
-      console.log(`I write the info ${userId} on db ${DB.VIEWERS}`);
-      await this.redis.set(userId, id);
-    });
+    pipeline.select(DB.VIEWERS);
+    pipeline.set(userId, id);
     // Complete information on game db
     await this.redis.select(DB.GAMES);
-    if (await this.redis.exists(id))
-      await this.redis.json.set(id, `$.viewer[${userId}]`, { userId: userId });
+    if (await this.redis.exists(id)) pipeline.select(DB.GAMES);
+    pipeline.call(
+      'JSON.SET',
+      id,
+      `$.viewer[${userId}]`,
+      JSON.stringify({ userId: userId }),
+    );
     client.join(id);
     client.leave(Params.LOBBY);
+    // update redis
+    await pipeline.exec();
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -437,15 +491,15 @@ export class GameService {
     const userId: string = client.handshake.query.userId.toString();
     await this.redis.select(DB.MATCHMAKING);
     if (await this.redis.exists(userId)) {
-      if (value) await this.redis.sAdd('users', userId);
-      if (!value) await this.redis.sRem('users', userId);
+      if (value) await this.redis.sadd('users', userId);
+      if (!value) await this.redis.srem('users', userId);
     }
     // MaaaaatchMakiiiing
-    const len = (await this.redis.sMembers('users')).length;
+    const len = (await this.redis.smembers('users')).length;
     while (len > 1) {
       // Create a match with the two players
-      const p1 = await this.redis.sPop('users');
-      const p2 = await this.redis.sPop('users');
+      const p1 = await this.redis.spop('users');
+      const p2 = await this.redis.spop('users');
       const playersToMatch = [];
       playersToMatch.push({ userId: p1 });
       playersToMatch.push({ userId: p2 });
@@ -848,13 +902,18 @@ export class GameService {
 
   /** Start a game */
   private async _startGame(id: string) {
-    // read from redis
+    // game initialization (grid + physics)
     let game: Game = await this._getGame(id);
     this._initGame(game, Side.RIGHT);
-    await this.redis.select(DB.GAMES);
-    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
-    await this.redis.json.set(id, `$.status`, Status.STARTED);
     game.status = Status.STARTED;
+    // game pipeline
+    const pipeline = this._getPipeline(id);
+    // update game (init + status) in redis
+    pipeline.select(DB.GAMES);
+    pipeline.call('JSON.SET', id, '$', JSON.stringify(game));
+    pipeline.call('JSON.SET', id, `$.status`, Status.STARTED);
+    await pipeline.exec();
+    // game loop
     const gameInterval = setInterval(async () => {
       if (game.status === Status.STARTED) {
         this._moveWorldForward(game);
@@ -868,19 +927,22 @@ export class GameService {
         this._updateGridFromPhysics(game);
         this.server.to(game.id).emit('updateGrid', game.gameGrid);
         // write in redis
-        await this.redis.select(DB.GAMES);
+        pipeline.select(DB.GAMES);
         if (await this.redis.exists(id)) {
-          await this.redis.json.set(
+          pipeline.call(
+            'JSON.SET',
             id,
             '$.gamePhysics.ball',
-            JSON.parse(JSON.stringify(game.gamePhysics.ball)),
+            JSON.stringify(game.gamePhysics.ball),
           );
-          await this.redis.json.set(
+          pipeline.call(
+            'JSON.SET',
             id,
             '$.players',
-            JSON.parse(JSON.stringify(game.players)),
+            JSON.stringify(game.players),
           );
         }
+        await pipeline.exec();
         // read from redis (to get players moves updated)
         game = await this._getGame(id);
       }
@@ -891,6 +953,8 @@ export class GameService {
   async update(client: Socket, id: string, move: number) {
     // read from redis
     const game: Game = await this._getGame(id);
+    // get pipeline
+    const pipeline = this._getPipeline(id);
     // Update player position if game started
     if (game.status === Status.STARTED) {
       // Update move
@@ -898,13 +962,12 @@ export class GameService {
       const side: number = this._getSideOfPlayer(game, userId);
       this._movePaddleFromInput(game, side, move);
       // write in redis
-      await this.redis.select(DB.GAMES);
-      await this.redis.json.set(
+      pipeline.select(DB.GAMES);
+      pipeline.call(
+        'JSON.SET',
         id,
         `$.gamePhysics.players[?(@.side==${side})]`,
-        JSON.parse(
-          JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
-        ),
+        JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
       );
     }
   }

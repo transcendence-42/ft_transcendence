@@ -24,10 +24,10 @@ const Game = (props: any) => {
 
   // Init
   const initGame = () => {
-    if (props.action === props.actionVal.JOIN_GAME) {
+    if (props.action === props.event.JOIN_GAME) {
       socket.emit('joinGame', { id: props.id });
       props.setMatchMaking(props.matchMakingVal.IN_GAME);
-    } else if (props.action === props.actionVal.VIEW_GAME)
+    } else if (props.action === props.event.VIEW_GAME)
       socket.emit('viewGame', { id: props.id });
     socket.emit('getGameGrid', { id: props.id });
   };
@@ -68,7 +68,7 @@ const Game = (props: any) => {
       else if (motive === eMotive.CANCEL)
         setMessage('Player canceled the game. Moving back to lobby');
       setTimeout(() => {
-        props.backTo({ id: 'lobby', action: props.actionVal.GO_LOBBY });
+        props.backTo({ id: 'lobby', action: props.event.GO_LOBBY });
       }, 4000);
     },
     [props, eMotive.WIN, eMotive.ABANDON, eMotive.CANCEL, timer],
@@ -94,7 +94,7 @@ const Game = (props: any) => {
     socket.on('updateScores', handleScoresUpdate);
     socket.on('gameEnd', handleGameEnd);
     socket.on('pause', handlePause);
-    if (props.action !== props.actionVal.VIEW_GAME)
+    if (props.action !== props.event.VIEW_GAME)
       document.addEventListener('keydown', handleMove);
     return () => {
       socket.off('updateGrid', handleGridUpdate);
