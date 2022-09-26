@@ -1,6 +1,6 @@
 import { UserRole } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, isNumber, IsNumber } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateUserOnChannelDto {
   @ApiProperty({ enum: UserRole })

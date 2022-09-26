@@ -9,6 +9,7 @@ import { RatingModule } from './rating/rating.module';
 import { ChatModule } from './chat/chat.module';
 import { RedisModule } from './redis/redis.module';
 import { LoggerModule } from 'nestjs-pino';
+import { ChannelModule } from './channels/channel.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { LoggerModule } from 'nestjs-pino';
     RatingModule,
     ChatModule,
     RedisModule,
+    ChannelModule,
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {
@@ -28,7 +30,7 @@ import { LoggerModule } from 'nestjs-pino';
           options: {
             colorize: true,
             ignore: 'req.headers,res.headers',
-            levelFirst:true, 
+            levelFirst: true,
           },
         },
       },

@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { UserOnChannel } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { Logger } from 'nestjs-pino';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Channel } from 'src/generated/nestjs-dto/channel.entity';
-import { CreateUserOnChannelDto } from 'src/generated/nestjs-dto/create-userOnChannel.dto';
-import { UpdateUserOnChannelDto } from 'src/generated/nestjs-dto/update-userOnChannel.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UpdateChannelDto } from './dto/updateChannel.dto';
 import {
+  CreateUserOnChannelDto,
+  UpdateChannelDto,
+  CreateChannelDto,
+  UpdateUserOnChannelDto,
+} from './dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  ChannelAlreadyExistsException,
   ChannelNotFoundException,
   NoChannelsInDatabaseException,
 } from './exceptions';
+import { UserNotFoundException } from 'src/user/exceptions';
 
 @Injectable()
 export class ChannelService {
@@ -21,19 +25,16 @@ export class ChannelService {
   ) {}
 
   async findOne(id: number): Promise<Channel> {
-    try {
-      const channel: Channel = await this.prisma.channel.findUnique({
-        where: {
-          id,
-        },
-        include: {
-          users: true,
-        },
-      });
-      return channel;
-    } catch (e) {
-      throw new ChannelNotFoundException(id);
-    }
+    const channel: Channel = await this.prisma.channel.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        users: true,
+      },
+    });
+    if (!channel) throw new ChannelNotFoundException(id);
+    return channel;
   }
 
   async findAll(paginationQuerry: PaginationQueryDto): Promise<Channel[]> {
@@ -54,6 +55,17 @@ export class ChannelService {
     return result;
   }
 
+  async create(createChannelDto: CreateChannelDto): Promise<Channel> {
+    try {
+      const channel = await this.prisma.channel.create({
+        data: { ...createChannelDto },
+      });
+      return channel;
+    } catch (e) {
+      throw new ChannelAlreadyExistsException(createChannelDto.name);
+    }
+  }
+
   async update(
     id: number,
     updateChannelDto: UpdateChannelDto,
@@ -69,8 +81,17 @@ export class ChannelService {
     }
   }
 
-  //add delete
-  //createChannel
+  async delete(id: number): Promise<Channel> {
+    try {
+      const channel = await this.prisma.channel.delete({
+        where: { id },
+      });
+      return channel;
+    } catch (e) {
+      throw new ChannelNotFoundException(id);
+    }
+  }
+
   async createUserOnChannel(
     createUserOnChannelDto: CreateUserOnChannelDto,
   ): Promise<UserOnChannel> {
@@ -103,9 +124,21 @@ export class ChannelService {
       this.logger.error(
         `Prisma failed to update UserOnChannel ${e['message']}`,
       );
-      throw new ChannelNotFoundException(channelId);
+      throw new UserNotFoundException(userId);
     }
   }
 
-  delete(channelId: number) {}
+  async deleteUserOnChannel(
+    channelId: number,
+    userId: number,
+  ): Promise<UserOnChannel> {
+    try {
+      const userOnChannel = await this.prisma.userOnChannel.delete({
+        where: { channelId_userId: { channelId, userId } },
+      });
+      return userOnChannel;
+    } catch (e) {
+      throw new UserNotFoundException(userId);
+    }
+  }
 }

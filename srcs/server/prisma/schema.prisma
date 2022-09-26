@@ -85,8 +85,8 @@ model UserOnChannel {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   role      UserRole
-  mutedTill   DateTime  @default(now())
-  bannedTill  DateTime  @default(now())
+  mutedTill   DateTime @db.Timestamp() @default(now())
+  bannedTill  DateTime  @db.Timestamp() @default(now())
 
   @@id([channelId, userId])
 }
