@@ -43,6 +43,9 @@ const Game = (props: any) => {
     else if (event.key === 'p' || event.key === 'P') {
       socket.emit('pause', { id: props.id });
     }
+    else if (event.key === 'c' || event.key === 'C') {
+      socket.emit('continue', { id: props.id });
+    }
   };
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {

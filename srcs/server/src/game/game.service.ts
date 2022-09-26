@@ -76,7 +76,6 @@ const enum DB {
 
 // Types
 type BallIntervall = { game: string; interval?: NodeJS.Timer };
-type GamePipeline = { id: string; pipeline: ChainableCommander };
 type GameLoop = { id: string; interval: NodeJS.Timer };
 
 @Injectable()
@@ -88,7 +87,6 @@ export class GameService {
   ) {
     this.clients = [];
     this.ballIntervals = [];
-    this.gamePipelines = [];
     this.gameLoops = [];
   }
 
@@ -96,7 +94,6 @@ export class GameService {
   server: Server;
   clients: Client[];
   ballIntervals: BallIntervall[];
-  gamePipelines: GamePipeline[];
   gameLoops: GameLoop[];
 
   /** *********************************************************************** */
@@ -166,17 +163,6 @@ export class GameService {
         message: `${userName} has left.`,
         data: { userId: userId },
       });
-  }
-
-  /** *********************************************************************** */
-  /** PIPELINE                                                                */
-  /** *********************************************************************** */
-
-  /** get redis pipeline from user id */
-  private _getPipeline(id: string): ChainableCommander {
-    const game = this.gamePipelines.find((g) => g.id === id);
-    if (game) return game.pipeline;
-    return null;
   }
 
   /** *********************************************************************** */
@@ -363,10 +349,6 @@ export class GameService {
     const newGame: Game = new Game(v4());
     // create a game pipeline for redis
     const pipeline = this.redis.pipeline();
-    this.gamePipelines.push({
-      id: newGame.id,
-      pipeline: pipeline,
-    });
     // Add new game to pipeline
     pipeline.select(DB.GAMES);
     pipeline.call('JSON.SET', newGame.id, '$', JSON.stringify(newGame));
@@ -460,7 +442,7 @@ export class GameService {
     // get game
     const game: Game = await this._getGame(id);
     // get pipeline
-    const pipeline = this._getPipeline(id);
+    const pipeline = this.redis.pipeline();
     // remove user from matchmaking
     const userId: string = client.handshake.query.userId.toString();
     await this.redis.select(DB.MATCHMAKING);
@@ -915,7 +897,7 @@ export class GameService {
     game.gamePhysics.ball = ball;
   }
 
-  /** initialize game */
+  /** Initialize game */
   private _initGame(game: Game, side: number) {
     if (game.status === Status.CREATED) {
       this._initGameGrid(game);
@@ -935,6 +917,41 @@ export class GameService {
     return '';
   }
 
+  /** Game loop */
+  private async _gameLoop(game: Game, interval: NodeJS.Timer) {
+    if (game.status === Status.STARTED) {
+      const pipeline = this.redis.pipeline();
+      this._moveWorldForward(game);
+      // check scores and end the game if one player scores 9
+      const loserId = this._weHaveALoser(game);
+      if (loserId !== '') {
+        this._endGame(game.id, Motive.WIN, loserId);
+        clearInterval(interval);
+        return;
+      }
+      this._updateGridFromPhysics(game);
+      this.server.to(game.id).emit('updateGrid', game.gameGrid);
+      // write in redis
+      await this.redis.select(DB.GAMES);
+      if (await this.redis.exists(game.id)) {
+        pipeline.select(DB.GAMES);
+        pipeline.call(
+          'JSON.SET',
+          game.id,
+          '$.gamePhysics.ball',
+          JSON.stringify(game.gamePhysics.ball),
+        );
+        pipeline.call(
+          'JSON.SET',
+          game.id,
+          '$.players',
+          JSON.stringify(game.players),
+        );
+      }
+      await pipeline.exec();
+    }
+  }
+
   /** Start a game */
   private async _startGame(id: string) {
     // game initialization (grid + physics)
@@ -942,7 +959,7 @@ export class GameService {
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
     // game pipeline
-    const pipeline = this._getPipeline(id);
+    const pipeline = this.redis.pipeline();
     // update game (init + status) in redis
     pipeline.select(DB.GAMES);
     pipeline.call('JSON.SET', id, '$', JSON.stringify(game));
@@ -950,37 +967,21 @@ export class GameService {
     await pipeline.exec();
     // game loop
     const gameInterval = setInterval(async () => {
-      if (game.status === Status.STARTED) {
-        this._moveWorldForward(game);
-        // check scores and end the game if one player scores 9
-        const loserId = this._weHaveALoser(game);
-        if (loserId !== '') {
-          this._endGame(game.id, Motive.WIN, loserId);
-          clearInterval(gameInterval);
-          return;
-        }
-        this._updateGridFromPhysics(game);
-        this.server.to(game.id).emit('updateGrid', game.gameGrid);
-        // write in redis
-        pipeline.select(DB.GAMES);
-        if (await this.redis.exists(id)) {
-          pipeline.call(
-            'JSON.SET',
-            id,
-            '$.gamePhysics.ball',
-            JSON.stringify(game.gamePhysics.ball),
-          );
-          pipeline.call(
-            'JSON.SET',
-            id,
-            '$.players',
-            JSON.stringify(game.players),
-          );
-        }
-        await pipeline.exec();
-        // read from redis (to get players moves updated)
-        game = await this._getGame(id);
-      }
+      await this._gameLoop(game, gameInterval);
+      game = await this._getGame(game.id);
+    }, 30);
+    this.gameLoops.push({ id: id, interval: gameInterval });
+  }
+
+  /** continue a game after a server reboot */
+  async continue(client: Socket, id: string) {
+    let game: Game = await this._getGame(id);
+    // reinit grid and physics to restore ball interval
+    this._initGame(game, Side.RIGHT);
+    // new game loop
+    const gameInterval = setInterval(async () => {
+      await this._gameLoop(game, gameInterval);
+      game = await this._getGame(game.id);
     }, 30);
     this.gameLoops.push({ id: id, interval: gameInterval });
   }
@@ -990,7 +991,7 @@ export class GameService {
     // read from redis
     const game: Game = await this._getGame(id);
     // get pipeline
-    const pipeline = this._getPipeline(id);
+    const pipeline = this.redis.pipeline();
     // Update player position if game started
     if (game.status === Status.STARTED) {
       // Update move
@@ -1005,6 +1006,7 @@ export class GameService {
         `$.gamePhysics.players[?(@.side==${side})]`,
         JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
       );
+      await pipeline.exec();
     }
   }
 }
