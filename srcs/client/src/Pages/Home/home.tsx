@@ -89,7 +89,7 @@ if (!(contextValue.isConnected))
     <body>
       <div className="container">
         <div className="row pt-5">
-          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST NOW !</h1>
         </div>
         <div className=" row blueText text-center pt-5">
           <h4 >Confront other players online and become the best at Pong! </h4>
@@ -119,7 +119,7 @@ if (!(contextValue.isConnected))
       <body>
         <div className="container-fluid">
           <div className="row pt-5 pb-5">
-            <h1 className=" pinkText text-center ">ENTER THE PONG CONTEST NOW!</h1>
+            <h1 className=" h1 pinkText text-center ">ENTER THE PONG CONTEST NOW !</h1>
           </div>
           <div className=" text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6 pb-5">
               <div className="ping text-center"></div>
