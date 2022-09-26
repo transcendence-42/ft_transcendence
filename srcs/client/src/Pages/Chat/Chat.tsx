@@ -1,5 +1,4 @@
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import { Dropdown } from 'bootstrap';
 import 'bootstrap';
 import './Chat.css';
 import { useState, useEffect } from 'react';
@@ -183,7 +182,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         closeHandler={handleCloseCreateChannel}
         textBtn1="Cancel"
         handleBtn1={handleCloseCreateChannel}
-        textBtn2="Create">
+        textBtn2="Create"
+        handleBtn2={handleCloseCreateChannel}>
         <CreateChannel socket={socket} userId={user?.id} />
       </ChatModal>
       <PongAdvancedModal
@@ -196,11 +196,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         handleBtn2={handleCloseFriendList}>
         <FriendList />
       </PongAdvancedModal>
-      <div className="row row-color mx-5 main-row">
+      <div className="row mx-5 main-row">
         <div className="col-2 rounded-4 blue-box-chat">
           <div className='channels-div h-50'>
             <div className="row mt-2">
-              <div className="col">
+              <div className="col overflow-auto">
                 <p className="yellow-titles titles-position">CHANNELS</p>
               </div>
               <div className="col">
@@ -209,7 +209,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                   data-bs-toggle="dropdown"
                   aria-expanded="false">
                 </button>
-                <ul className="dropdown-menu channel-menu blue-box-chat">
+                <ul className="dropdown-menu channel-menu">
                   <li className="dropdown-item" onClick={handleShowBrowseChannel}>
                     Browse channels
                   </li>
@@ -218,32 +218,37 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                   </li>
                 </ul>
               </div>
-              <div className='row'>
-
-              </div>
             </div>
             <div className="row h-75">
-              <div className="col  overflow-auto scroll-bar-channels ">
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
-                <p>Channel name</p>
+              <div className="col overflow-auto scroll-bar-channels ">
+                <table>
+                  <tbody>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                      <tr>
+                          <td>Channel</td>
+                      </tr>
+                  </tbody> 
+                </table>
               </div>
             </div>
           </div>
           <div className='messages-div h-50'>
             <div className="row">
-              <div className="col ">
+              <div className="col overflow-auto">
                 <p className="yellow-titles titles-position">MESSAGES</p>
               </div>
               <div className="col">
@@ -255,21 +260,36 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </div>
             </div>
             <div className="row h-75">
-              <div className="col  overflow-auto scroll-bar-direct ">
-                <p>Message</p>
-                <p>Message</p>
-                <p>Message</p>
-                <p>Message</p>
-                <p>Message</p>
-                <p>Message</p>
-                <p>Scroll</p>
+              <div className="col  overflow-auto scroll-bar-direct">
+              <table>
+                  <tbody>
+                      <tr>
+                          <td>User</td>
+                      </tr>
+                      <tr>
+                          <td>User</td>
+                      </tr>
+                      <tr>
+                          <td>User</td>
+                      </tr>
+                      <tr>
+                          <td>User</td>
+                      </tr>
+                      <tr>
+                          <td>User</td>
+                      </tr>
+                      <tr>
+                          <td>USer</td>
+                      </tr>
+                  </tbody> 
+                </table>
               </div>
             </div>
           </div>
         </div>
-        <div className="col-8 rounded-4 blue-box-chat ">
-          <div className="row">
-            <div className="col ">
+        <div className="col-8 rounded-4 blue-box-chat">
+          <div className="row mt-2">
+            <div className="col">
               <p className="blue-titles channel-name-margin">@ Channel Name</p>
             </div>
           </div>
@@ -279,7 +299,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className='message-position'>Oui t'as vu</p>
               <p className='message-position'>youhou</p>
               <p className='message-position'>Blabla</p>
-              <p className='message-position'>Blabla</p>
+              <p className='message-position'>Blabla</p>  
               <p className='message-position'>Blabla</p>
               <p className='message-position'>Blabla</p>
               <p className='message-position'>Blabla</p>
@@ -289,25 +309,37 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className='message-position'>Blabla</p>
             </div>
           </div>
-          <div className="row pt-2 ">
+          <div className="row pt-4">
             <div className="col text-center">
               <input
                 type="text"
-                className="rounded-3 input-field-chat yellow-box-chat"
+                className="rounded-3 input-field-chat"
                 placeholder="Send a message...">
               </input>
             </div>
           </div>
         </div>
         <div className="col-2 rounded-4 blue-box-chat">
-          <div className="row">
+          <div className="row mt-2">
             <div className="col">
               <p className="blue-titles center-position titles-position">MEMBERS</p>
             </div>
           </div>
           <div className="row">
-            <div className='col'>
-              <p className='center-position'>Judu</p>
+            <div className='col overflow-auto'>
+              <table>
+                <tbody>
+                    <tr>
+                        <td>User</td>
+                        <td>
+                          <button className='rounded-4 btn btn-chat btn-profile btn-pink'>Invite</button>
+                        </td>
+                        <td>
+                          <button className='rounded-4 btn btn-chat btn-profile btn-pink'>Block</button>
+                        </td>
+                    </tr>
+                </tbody> 
+              </table>
             </div>
           </div>
         </div>

@@ -93,7 +93,7 @@ export default function CreateChannel({ userId, socket, ...props }: any) {
     //   </form>
     // </>
 
-    <> checkbox working
+    <>
       <label className="form-label">Name</label>
       <input type="name" className="form-control form-control-margin" placeholder="# channel-name"></input>
       <div className="form-check">
