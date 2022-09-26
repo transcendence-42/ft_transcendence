@@ -1,3 +1,7 @@
+#root {
+	height: 100vh;
+  }
+
 html, body
 {
   background-color: rgb(5, 2, 30) !important;
@@ -27,6 +31,8 @@ html, body
 .field1
 {
 	height: 400px;
+
+	
 }
 .container {
 

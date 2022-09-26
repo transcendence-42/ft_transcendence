@@ -85,41 +85,46 @@ if (!(contextValue.isConnected))
     return (
     <>
     <body>
+      
+  
       <div className="container">
         <div className="row pt-5">
           <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
         </div>
-        <div className=" row blueText text-center pt-5">
-          <h4 >Confront other players online and become the best at Pong! </h4>
-        </div>
-        <div className="row field1 text-center pt-5">
-          <div className="col"></div>
-          <div className=" field text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6">
+          <div className=" row blueText text-center pt-5">
+            <h4 >Confront other players online ! </h4>
+          </div>
+        <div className="row field1 pt-5    ">
+          <div className="col col-xl col-sm col-md col-lg col-xl"></div>
+          <div className="  col  field  col-8 col-sm-8 col-md-6 col-lg col-xl ">
             <div className="net text-center"></div>
             <div className="ping text-center"></div>
             <div className="pong text-center"></div>
             <div className="ball text-center"></div>
            </div>
-           <div className="col"></div>
+           <div className="col col-xl col-sm col-md col-lg col-xl "></div>
         </div>
-        <div className=" row blueText pt-5 ">
+        <div className=" row blueText  ">
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
-        </div>
-        </body>
+      </div>
+      </body>
     </>
     );
   }
   else
   {
     return (
-      <>
-      <body>
-        <div className="container-fluid">
-          <div className="row pt-5 pb-5">
-            <h1 className=" h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
-          </div>
-          <div className=" text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6 pb-5">
+      <> 
+       <body>
+          <div className="container">
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
+        </div>
+        <div className=" row blueText text-center pt-5">
+          <h4 >Confront other players online and become the best at Pong! </h4>
+        </div>
+          <div className=" text-center col-10 col-sm-10 col-md-8 col-lg-8 col-xl-6 pb-5">
               <div className="ping text-center"></div>
               <div className="pong text-center"></div>
               <div className="ball text-center"></div>
