@@ -1,13 +1,13 @@
-import { eChannelType, eChannelUserRole } from './constants';
-
-export interface MessageDto {
-  content: string;
-  fromUserId: string;
-  toChannelOrUserId: string;
-}
+import { eChannelType, eUserRole} from './constants';
 
 export interface Hashtable<T> {
   [key: string]: T;
+}
+
+export interface MessageDto {
+  content: string;
+  fromUserId: number;
+  toChannelOrUserId: number;
 }
 
 export interface Message extends MessageDto {
@@ -15,44 +15,61 @@ export interface Message extends MessageDto {
   sentDate: number;
 }
 
-export interface Channel {
-  id: string;
-  name: string;
-  type: eChannelType;
-  users: Hashtable<ChannelUser>;
-  createdAt: number;
-  messages?: Message[];
-  password?: string;
-}
-
 export interface JoinChannelDto {
-  id: string;
+  id: number;
   name: string; //debugging purposes
   type: eChannelType;
-  userId: string;
+  userId: number;
   password?: string;
 }
 
 export interface ChatUser {
   socketId: string;
-  id: string;
+  id: number;
   name: string;
   profilePicture: string;
-  channelsId?: string[];
+  channels?: Channel[];
   directMessges?: Message[];
 }
 
-export interface ChannelUser {
-  id: string;
-  role: eChannelUserRole;
-  joinedChannelAt: number;
-  isMuted: boolean;
-  isBanned: boolean;
+export interface UserOnChannel {
+  channelId: number;
+  userId: number;
+  role: eUserRole;
+  joinedAt: Date;
+  mutedTill: Date;
+  bannedTill: Date;
+}
+
+export interface UpdateUserOnChannelDto {
+  role?: eUserRole;
+  mutedTill?: Date;
+  bannedTill?: Date;
+}
+
+export interface CreateUserOnChannelDto {
+
+}
+
+export interface Channel {
+  id: number;
+  name: string;
+  type: eChannelType;
+  users?: UserOnChannel[];
+  messages?: Message[];
+  password?: string;
+}
+
+export interface UpdateChannelDto {
+  name?: string;
+  type?: eChannelType;
+  password?: string;
+  ownerId?: number;
 }
 
 export interface CreateChannelDto {
   name: string;
   type: eChannelType;
-  ownerId: string;
+  ownerId: number;
   password?: string;
 }

@@ -58,8 +58,6 @@ export class ChatGateway
         REDIS_DB.USERS_DB,
       );
       this.logger.debug(`User ${JSON.stringify(user, null, 4)} reconnected`);
-      client.emit(eEvent.AddUserResponse, user);
-      this.logger.debug(`This is the list of all users`);
       try {
         const allUsers: Hashtable<ChatUser> =
           await this.chatService.getAllAsHashtable(REDIS_DB.USERS_DB);
@@ -103,37 +101,6 @@ export class ChatGateway
       `This is channel joining ${JSON.stringify(channel, null, 4)}`,
     );
     return this.chatService.handleJoinChannel(client, channel);
-  }
-
-  // @SubscribeMessage(eEvent.AddedToRoom)
-  // handleAddedToRoom(client: Socket, channelId: string) {
-  //   return this.chatService.handleAddedToRoom(client, channelId);
-  // }
-
-  @SubscribeMessage(eEvent.SetId)
-  handleSetId(client: Socket) {
-    const userId = this.chatService.parseIdCookie(
-      client.handshake.headers.cookie,
-    );
-    return this.chatService.handleSetId(client, userId);
-  }
-
-  @SubscribeMessage(eEvent.AddUser)
-  handleAddUser(client: Socket, id: string) {
-    return this.chatService.addUser(client, id);
-  }
-
-  // @SubscribeMessage('getChannelsList')
-  // getChannelsList(client: Socket) {
-  // return this.chatService.getChannelsList(client);
-  // }
-
-  @SubscribeMessage(eEvent.CreateChannel)
-  createChannel(client: Socket, channel: CreateChannelDto) {
-    this.logger.debug(
-      `User creating channel ${JSON.stringify(channel, null, 4)}`,
-    );
-    return this.chatService.createChannel(client, channel);
   }
 
   // @SubscribeMessage(Events.updateOneChannel)

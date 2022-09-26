@@ -28,7 +28,9 @@ export class UserService {
     stats: true,
     ratingHistory: true,
     ownedChannels: true,
-    channels: true,
+    channels: {
+      include: { users: true },
+    },
     friendshipRequested: true,
     friendshipAddressed: true,
     matches: true,

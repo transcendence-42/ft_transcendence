@@ -18,8 +18,7 @@ export class User {
   credentials?: Credentials | null;
   stats?: Stats | null;
   ratingHistory?: Rating[];
-  ownedChannels?: Channel[];
-  channels?: UserOnChannel[];
+  channels?: Channel[];
   friendshipRequested?: Friendship[];
   friendshipAddressed?: Friendship[];
   matches?: PlayerOnMatch[];

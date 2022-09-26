@@ -48,8 +48,7 @@ model User {
   credentials         Credentials?
   stats               Stats?
   ratingHistory       Rating[]
-  ownedChannels       Channel[]
-  channels            UserOnChannel[]
+  channels            Channel[]
   friendshipRequested Friendship[]      @relation("requester")
   friendshipAddressed Friendship[]      @relation("addressee")
   matches             PlayerOnMatch[]
@@ -80,13 +79,14 @@ model Channel {
 }
 
 model UserOnChannel {
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   role      UserRole
+  joinedAt      DateTime @db.Timestamp() @default(now())
   mutedTill   DateTime @db.Timestamp() @default(now())
   bannedTill  DateTime  @db.Timestamp() @default(now())
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([channelId, userId])
 }

@@ -14,9 +14,10 @@ import {
   ChatUser,
   Message,
   Hashtable,
-  ChannelUser
+  UserOnChannel
 } from './entities';
-import { eEvent, eChannelType, eChannelUserRole } from './constants';
+import { eEvent, eChannelType, eUserRole } from './constants';
+import { fetchUrl } from './utils';
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -25,10 +26,9 @@ const isEmpty = (obj: any) => {
 
 const lobbyChannel: Channel = {
   name: 'lobby',
-  type: eChannelType.Public,
-  id: '24098932842',
-  createdAt: 0,
-  users: {}
+  type: eChannelType.PUBLIC,
+  id: 24098932842,
+  users: []
 };
 
 export default function Chat({ socket, ...props }: { socket: Socket }) {
@@ -36,15 +36,14 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const defaultChannel: Channel = currChanInLocalStorage
     ? JSON.parse(currChanInLocalStorage)
     : lobbyChannel;
-  const [trueUser, setTrueUser] = useState(null);
   const [user, setUser] = useState({} as ChatUser);
   const [allMessages, setAllMessages] = useState([] as Message[]);
-  const [allUsers, setAllUsers] = useState({} as Hashtable<ChatUser>);
-  const [allChannels, setAllChannels] = useState({} as Hashtable<Channel>);
+  const [allUsers, setAllUsers] = useState([] as ChatUser[]);
+  // const [allChannels, setAllChannels] = useState([] as Channel[]);
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
   const [friends, setFriends] = useState({});
-  const [currentUser, setCurrentUser] = useState({});
+  const [userFetched, setUserFetched] = useState(false);
 
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
   // state
@@ -62,7 +61,17 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleCloseFriendList = () => setshowFriendList(false);
   const handleShowFriendList = () => setshowFriendList(true);
 
-  const getValueOf = (key: string, obj: Record<string, string>) => obj[key];
+  const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
+
+  const addChannel = (channel: any) => {
+    let updatedChannels: any = [];
+    console.log(`Here are all channels before updating ${user.channels}`);
+    if (user.channels) {
+      updatedChannels = user.channels;
+      updatedChannels.push(channel);
+      setUser((prevUser: ChatUser) => ({ ...prevUser, channels: updatedChannels }));
+    }
+  };
 
   const handleMessageChange = (e: any) => {
     setMessage(e.target.value);
@@ -81,16 +90,16 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     setMessage('');
   };
 
-  const handleJoinChannel = (e: any, channelId: string) => {
+  const handleJoinChannel = (e: any, channelId: number) => {
     e.preventDefault();
-    const channel: Channel = allChannels[channelId];
+    const channel: Channel = user.channels ? user.channels[channelId]: lobbyChannel;
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
       console.log(`Channel with id ${channelId} doesnt exist`);
       return;
     }
     if (
-      channel['type'] === eChannelType.Protected &&
+      channel['type'] === eChannelType.PROTECTED &&
       getValueOf(channelId, joinChannelPassword) === ''
     ) {
       return alert('You must provide a Password!');
@@ -108,92 +117,28 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   };
 
   useEffect(() => {
-    fetch('http://127.0.0.1:4200/auth/success/', {
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true'
-      }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.warn('Failed to fetch user data');
+    const initChatUser = async () => {
+      const response = await fetchUrl('http://127.0.0.1:4200/auth/success/', 'GET');
+      const { user } = response;
+      console.log(`Here the user obj ${JSON.stringify(user, null, 4)}`);
+      setUser(user);
+      if (user && user.id) {
+        const friends = await fetchUrl(`http://127.0.0.1:4200/users/${user.id}/friends`, 'GET');
+        if (!friends || friends.length !== 0) {
+          setFriends(friends);
+          socket.connect();
         }
-        return response.json();
-      })
-      .then((responseObj) => {
-        console.log(`User data rom success ${JSON.stringify(responseObj.user, null, 4)}`);
-        setTrueUser(responseObj.user);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch(`http://127.0.0.1:4200/users/${(trueUser && trueUser['id']) || '1'}/friends`, {
-      credentials: 'include',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true'
+      } else {
+        console.error(`There's a problem. Couldn't find user id to fetch friends`);
       }
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.warn('Erro while gettings friends');
-        }
-        return response.json();
-      })
-      .then((responseObj) => {
-        console.log(
-          `Freinds of user ${(trueUser && trueUser['id']) || '1'} are ${JSON.stringify(
-            responseObj,
-            null,
-            4
-          )}`
-        );
-      })// waits for the user to be fetched before connecting
-      .then(() => socket.connect()); 
+    };
+    initChatUser();
+    console.info(`Heres true user after init !! ${JSON.stringify(user, null, 4)}`);
   }, []);
 
   useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server successfully');
-
-      // Will be deleted in favour of using cookies
-      socket.emit(eEvent.SetId);
-    });
-    socket.on(eEvent.SetIdResponse, (id: string) => {
-      document.cookie = `id=${id}`;
-      console.log(`Setting id from server ${id}`);
-      socket.emit(eEvent.AddUser, id);
-    });
-    socket.on(eEvent.AddUserResponse, (user: ChatUser) => {
-      console.log(`Recieving user response ${JSON.stringify(user, null, 4)}`);
-      setUser(user);
-    });
-
-    socket.on(eEvent.CreateChannelResponse, (data: { msg: string; channel: Channel }) => {
-      if (!data.channel) {
-        return alert(data.msg);
-      }
-      setCurrentChannel(data.channel);
-      window.localStorage.setItem('currentChannel', JSON.stringify(data.channel));
-      return alert(data.msg);
-    });
-
-    socket.on(eEvent.JoinChannelResponse, (data) => {
-      console.log(
-        `Answer recieved form the server for joinChanel ${JSON.stringify(data, null, 4)}`
-      );
-
-      if (data.channel) {
-        handleCloseBrowseChannel();
-        setCurrentChannel(data.channel);
-      } else return alert(`${data.msg}`);
-    });
-
-    socket.on(eEvent.UpdateMessages, (messages: Message[]) => {
-      setAllMessages(messages.sort((a, b) => (a.sentDate > b.sentDate ? 1 : -1)));
     });
 
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
@@ -203,41 +148,25 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       setAllMessages(newAllMessages);
     });
 
-    socket.on(eEvent.UpdateUsers, (allUsers) => {
-      setAllUsers(allUsers);
-    });
-
     socket.on(eEvent.UpdateOneUser, (user: ChatUser) => {
-      const newAllUsers: Hashtable<ChatUser> = allUsers;
+      const newAllUsers: ChatUser[] = allUsers;
       allUsers[user.id] = user;
       setAllUsers(newAllUsers);
     });
 
-    socket.on(eEvent.UpdateChannels, (channels) => {
-      setAllChannels(channels);
-    });
-
     socket.on(eEvent.UpdateOneChannel, (channel: Channel) => {
-      const newAllChannels: Hashtable<Channel> = allChannels;
-      allChannels[channel.id] = channel;
-      setAllChannels(newAllChannels);
+      // const newAllChannels: Channel[] = user.channels;
+      // user.channels[channel.id] = channel;
+      // setAllChannels(newAllChannels);
     });
 
     return () => {
       socket.off('connect');
       socket.off(eEvent.UpdateMessages);
       socket.off(eEvent.UpdateOneMessage);
-      socket.off(eEvent.UpdateUsers);
       socket.off(eEvent.UpdateOneUser);
-      socket.off(eEvent.UpdateChannels);
-      socket.off(eEvent.UpdateOneChannel);
-      socket.off(eEvent.UpdateOneChannel);
-      socket.off(eEvent.AddUserResponse);
-      socket.off(eEvent.SetIdResponse);
-      socket.off(eEvent.CreateChannelResponse);
-      socket.off(eEvent.AddedToRoom);
     };
-  });
+  }, []);
 
   return (
     <>
@@ -249,27 +178,33 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         handleBtn1={handleCloseBrowseChannel}
         textBtn2="Validate"
         handleBtn2={handleCloseBrowseChannel}>
-        <BrowseChannels allChannels={allChannels} handleJoinChannel={handleJoinChannel} />
+        <BrowseChannels allChannels={user.channels} handleJoinChannel={handleJoinChannel} />
       </PongAdvancedModal>
-      <ChatModal
-        title="Create a channel"
-        show={showCreateChannel}
-        closeHandler={handleCloseCreateChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseCreateChannel}
-        textBtn2="Create">
-        <CreateChannel socket={socket} userId={user?.id} />
-      </ChatModal>
-      <PongAdvancedModal
-        title="Select a friend"
-        show={showFriendList}
-        closeHandler={handleCloseFriendList}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseFriendList}
-        textBtn2="Validate"
-        handleBtn2={handleCloseFriendList}>
-        <FriendList />
-      </PongAdvancedModal>
+      {console.log(`Heres hte user inside chatModal ${JSON.stringify(user, null, 4)}`)}
+      {user && (
+        <>
+          {' '}
+          <ChatModal
+            title="Create a channel"
+            show={showCreateChannel}
+            closeHandler={handleCloseCreateChannel}
+            textBtn1="Cancel"
+            handleBtn1={handleCloseCreateChannel}
+            textBtn2="Create">
+            <CreateChannel socket={socket} userId={user.id} addChannel={addChannel} />
+          </ChatModal>
+          <PongAdvancedModal
+            title="Select a friend"
+            show={showFriendList}
+            closeHandler={handleCloseFriendList}
+            textBtn1="Cancel"
+            handleBtn1={handleCloseFriendList}
+            textBtn2="Validate"
+            handleBtn2={handleCloseFriendList}>
+            <FriendList />
+          </PongAdvancedModal>{' '}
+        </>
+      )}
       <div className="row row-color main-row-margin">
         <div className="col-2 rounded-4 vh-100 blue-box-chat">
           <div className="row">
@@ -296,8 +231,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <>
                 <div className="row row-color">
                   <>
-                    {!isEmpty(allChannels) &&
-                      Object.values(allChannels).map((channel: Channel) => (
+                    {!isEmpty(user) &&
+                      user.channels?.map((channel: Channel) => (
                         <div className="channels" key={channel.id}>
                           <div className="col">
                             <p>{channel.name}</p>
@@ -386,11 +321,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className="blue-titles center-position titles-position">MEMBERS</p>
               <>
                 {!isEmpty(currentChannel) &&
-                  Object.values(currentChannel.users).map((user: ChannelUser) => (
-                    <div key={user.id}>{allUsers && allUsers[user.id]?.name}</div>
+                  currentChannel.users?.map((user: UserOnChannel) => (
+                    <div key={user.userId}>{allUsers && allUsers[user.userId]?.name}</div>
                   ))}
-                {console.log(`Are the objects empty ${!isEmpty(allChannels)}`)}
-                {console.log(`list of channels ${JSON.stringify(allChannels, null, 4)}`)}
+                {console.log(`Are the objects empty ${!isEmpty(user.channels)}`)}
+                {console.log(`list of channels ${JSON.stringify(user.channels, null, 4)}`)}
               </>
             </div>
           </div>
@@ -412,7 +347,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     //         value={createChannelName}
     //       />
     //       <select onChange={(e) => setCreateChannelType(e.target.value)}>
-    //         <option value="public">Public</option>
+    //         <option value="public".PUBLIC</option>
     //         <option value="private">Private</option>
     //         <option value="protected">Protected</option>
     //       </select>

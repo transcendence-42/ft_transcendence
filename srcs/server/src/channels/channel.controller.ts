@@ -62,7 +62,7 @@ export class ChannelController {
   @ApiNoContentResponse({ description: 'No channels' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  findAll(@Query() paginationQuerry: PaginationQueryDto) {
+  findAll(@Query() paginationQuerry?: PaginationQueryDto) {
     return this.channelService.findAll(paginationQuerry);
   }
 

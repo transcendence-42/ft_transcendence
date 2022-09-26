@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserOnChannel } from '@prisma/client';
+import { UserOnChannel, UserRole } from '@prisma/client';
 import { Logger } from 'nestjs-pino';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Channel } from 'src/generated/nestjs-dto/channel.entity';
@@ -16,11 +16,13 @@ import {
   NoChannelsInDatabaseException,
 } from './exceptions';
 import { UserNotFoundException } from 'src/user/exceptions';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly userService: UserService,
     private readonly logger: Logger,
   ) {}
 
@@ -38,12 +40,6 @@ export class ChannelService {
   }
 
   async findAll(paginationQuerry: PaginationQueryDto): Promise<Channel[]> {
-    if (!paginationQuerry.limit) {
-      paginationQuerry.limit = 0;
-    }
-    if (!paginationQuerry.offset) {
-      paginationQuerry.offset = 0;
-    }
     const result: Channel[] = await this.prisma.channel.findMany({
       skip: paginationQuerry.offset,
       take: paginationQuerry.limit,
@@ -58,10 +54,21 @@ export class ChannelService {
   async create(createChannelDto: CreateChannelDto): Promise<Channel> {
     try {
       const channel = await this.prisma.channel.create({
-        data: { ...createChannelDto },
+        data: {
+          ...createChannelDto,
+          users: {
+            create: [
+              { role: UserRole.OWNER, userId: createChannelDto.ownerId},
+            ],
+          },
+        },
+        include: {
+          users: true,
+        },
       });
       return channel;
     } catch (e) {
+      this.logger.error(`Failed to create channel ${e['message']} with code ${e['code']}`)
       throw new ChannelAlreadyExistsException(createChannelDto.name);
     }
   }

@@ -1,5 +1,5 @@
-export enum eChannelUserRole {
-  User,
-  Moderator,
-  Owner,
+export enum eUserRole {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  USER = 'USER'
 }
