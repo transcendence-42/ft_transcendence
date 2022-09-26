@@ -12,11 +12,8 @@ import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
-<<<<<<< HEAD
-import { socket } from './Socket';
-=======
+import { socket } from './socket';
 import GameLobby from './Pages/Game/GameLobby';
->>>>>>> da8d58d31e8a3e67c07ffb4d70f9a2c58293bab4
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -49,50 +46,28 @@ function App() {
    */
   return (
     <Context.Provider value={contextValue}>
-<<<<<<< HEAD
-    <BrowserRouter>
-=======
       <BrowserRouter>
-        <div className="main">
->>>>>>> da8d58d31e8a3e67c07ffb4d70f9a2c58293bab4
-          <NavBar />
-          <Routes>
-            <Route path="*" element={<Notfound />} />
-            <Route index element={<Home />} />
-            <Route path="/login" element={<Login />} />
-<<<<<<< HEAD
-            < Route path="/leaderboard" element={<Leaderboard />} />
-            < Route path="/chat" element={<Chat socket={socket}/>} />
-            <Route  path='/'element={<AuthenticatedRoute res/>}>
-              < Route path="/home" element={<Home />} />
-              < Route path="/about" element={<About />} />
-      
-              < Route path="/profile" element={<Profile />} />
-              < Route path="/mapchoice" element={<MapChoice />} />
-              < Route path="/matchmaking" element={<Matchmaking />} />
-            </Route>
-          </Routes>
-      </ BrowserRouter>
-      </Context.Provider>
-=======
-            <Route
-              path="/lobby"
-              element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
-            />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/" element={<AuthenticatedRoute res />}>
-              <Route path="/about" element={<About />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/mapchoice" element={<MapChoice />} />
-              <Route path="/matchmaking" element={<Matchmaking />} />
-            </Route>
-          </Routes>
-        </div>
+        <NavBar />
+        <Routes>
+          <Route path="*" element={<Notfound />} />
+          <Route index element={<Home />} />
+          <Route path="/chat" element={<Chat socket={socket}/>} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/lobby"
+            element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
+          />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<AuthenticatedRoute res />}>
+            <Route path="/about" element={<About />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/mapchoice" element={<MapChoice />} />
+            <Route path="/matchmaking" element={<Matchmaking />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </Context.Provider>
->>>>>>> da8d58d31e8a3e67c07ffb4d70f9a2c58293bab4
   );
 }
 
