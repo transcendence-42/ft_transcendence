@@ -25,7 +25,7 @@ export class FriendshipService {
 
   // FRIENDSHIP CRUD OPERATIONS ------------------------------------------------
   /** Remove a friendship */
-  async remove(deleteUserDto: DeleteFriendshipDto) {
+  async remove(deleteUserDto: DeleteFriendshipDto): Promise<Friendship> {
     try {
       const result: Friendship = await this.prisma.friendship.delete({
         where: {

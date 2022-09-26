@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -42,6 +42,11 @@ describe('User API e2e test', () => {
 
   beforeEach(async () => {
     await prisma.cleanDatabase();
+  });
+
+  afterAll(async () => {
+    await prisma.cleanDatabase();
+    await app.close();
   });
 
   describe('POST /users', () => {
@@ -199,12 +204,10 @@ describe('User API e2e test', () => {
       expect(result7.body).toMatchObject(User.prototype);
     });
 
-		it('should return 200 and a "BadRequestException" if name unicity constraint is violated', async () => {
-			// create 2 users
-      const user = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[0]);
-			const user1 = await request(app.getHttpServer())
+    it('should return 200 and a "BadRequestException" if name unicity constraint is violated', async () => {
+      // create 2 users
+      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
+      const user1 = await request(app.getHttpServer())
         .post('/users')
         .send(mockUserDto[1]);
       // patch one user to get the seconc user's name
@@ -216,12 +219,10 @@ describe('User API e2e test', () => {
       expect(result.body.message).toBe(`Bad request`);
     });
 
-		it('should return 200 and a "BadRequestException" if email unicity constraint is violated', async () => {
-			// create 2 users
-      const user = await request(app.getHttpServer())
-        .post('/users')
-        .send(mockUserDto[0]);
-			const user1 = await request(app.getHttpServer())
+    it('should return 200 and a "BadRequestException" if email unicity constraint is violated', async () => {
+      // create 2 users
+      await request(app.getHttpServer()).post('/users').send(mockUserDto[0]);
+      const user1 = await request(app.getHttpServer())
         .post('/users')
         .send(mockUserDto[1]);
       // patch one user to get the seconc user's name
