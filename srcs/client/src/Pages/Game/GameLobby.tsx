@@ -65,6 +65,20 @@ const GameLobby = (props: any) => {
     setGameList(gameList);
   }, []);
 
+  const handleScoreUpdate = useCallback((scoreData: any) => {
+    const updatedGameList = gameList.map((g: any) => {
+      if (g.id === scoreData.id) {
+        return ({
+          ...g,
+          players: scoreData.players,
+        })
+      } else {
+        return g;
+      }
+    })
+    setGameList(updatedGameList);
+  }, [gameList]);
+
   const handleGameId = useCallback(
     (data: any) => {
       setMessage({});
@@ -159,6 +173,13 @@ const GameLobby = (props: any) => {
       socket.off('info', handleInfo);
     };
   }, [handleOpponentFound]);
+
+  useEffect(() => {
+    socket.on('scoreUpdate', handleScoreUpdate);
+    return () => {
+      socket.off('scoreUpdate', handleScoreUpdate);
+    };
+  }, [gameList]);
 
   // Render
   return (

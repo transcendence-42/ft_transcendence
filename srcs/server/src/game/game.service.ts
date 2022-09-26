@@ -13,7 +13,6 @@ import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
-import { pipe } from 'rxjs';
 
 // Enums
 const enum Move {
@@ -58,7 +57,7 @@ const Params = Object.freeze({
   CANVASW: 900,
   CANVASH: 500,
   BALLSPEED: 6,
-  PLAYERSPEED: 10,
+  PLAYERSPEED: 15,
   BARWIDTH: 12,
   BARHEIGHT: 54,
   WALLSIZE: 15,
@@ -78,6 +77,7 @@ const enum DB {
 // Types
 type BallIntervall = { game: string; interval?: NodeJS.Timer };
 type GamePipeline = { id: string; pipeline: ChainableCommander };
+type GameLoop = { id: string; interval: NodeJS.Timer };
 
 @Injectable()
 export class GameService {
@@ -89,6 +89,7 @@ export class GameService {
     this.clients = [];
     this.ballIntervals = [];
     this.gamePipelines = [];
+    this.gameLoops = [];
   }
 
   // Attributes
@@ -96,6 +97,7 @@ export class GameService {
   clients: Client[];
   ballIntervals: BallIntervall[];
   gamePipelines: GamePipeline[];
+  gameLoops: GameLoop[];
 
   /** *********************************************************************** */
   /** SOCKET                                                                  */
@@ -118,13 +120,6 @@ export class GameService {
   private _getSocket(id: string): Socket {
     const client = this.clients.find((c) => c.userId === id);
     if (client) return client.socket;
-    return null;
-  }
-
-  /** get redis pipeline from user id */
-  private _getPipeline(id: string): ChainableCommander {
-    const game = this.gamePipelines.find((g) => g.id === id);
-    if (game) return game.pipeline;
     return null;
   }
 
@@ -174,6 +169,28 @@ export class GameService {
   }
 
   /** *********************************************************************** */
+  /** PIPELINE                                                                */
+  /** *********************************************************************** */
+
+  /** get redis pipeline from user id */
+  private _getPipeline(id: string): ChainableCommander {
+    const game = this.gamePipelines.find((g) => g.id === id);
+    if (game) return game.pipeline;
+    return null;
+  }
+
+  /** *********************************************************************** */
+  /** GAME LOOP                                                               */
+  /** *********************************************************************** */
+
+  /** get game loop interval to do a proper clear interval */
+  private _getInterval(id: string): NodeJS.Timer {
+    const game = this.gameLoops.find((g) => g.id === id);
+    if (game) return game.interval;
+    return null;
+  }
+
+  /** *********************************************************************** */
   /** GAME                                                                    */
   /** *********************************************************************** */
 
@@ -206,8 +223,11 @@ export class GameService {
 
   /** Check if a player is already in a game */
   private async _isPlayerInGame(userId: string): Promise<boolean> {
-    await this.redis.select(DB.PLAYERS);
-    return (await this.redis.get(userId)) !== null;
+    const pipeline = this.redis.pipeline();
+    pipeline.select(DB.PLAYERS);
+    pipeline.get(userId);
+    const res = await pipeline.exec();
+    return res[1] && res[1][1] !== null;
   }
 
   /** Get the side of a player in a game from his id */
@@ -219,9 +239,12 @@ export class GameService {
 
   /** Create the game list from the global server data */
   private async _createGameList(): Promise<Game[]> {
-    await this.redis.select(DB.GAMES);
+    const pipeline = this.redis.pipeline();
+    pipeline.select(DB.GAMES);
+    pipeline.keys('*');
+    const keys: any = await pipeline.exec();
     let games: any = [];
-    let gameKeys: string[] = await this.redis.keys('*');
+    let gameKeys: string[] = keys[1][1];
     gameKeys = gameKeys.filter((k: string) => k !== 'ping');
     if (gameKeys.length > 0) {
       games = await this.redis.call('JSON.MGET', ...gameKeys, '$');
@@ -246,24 +269,27 @@ export class GameService {
     return gameList;
   }
 
-  /** Remove game */
+  /** Remove game from storage */
   private async _removeGame(gameId: string) {
     const game: Game = await this._getGame(gameId);
+    // create a pipeline for redis commands
+    const pipeline = this.redis.pipeline();
     // remove players
     const players: Player[] = game.players;
-    await this.redis.select(DB.PLAYERS);
+    pipeline.select(DB.PLAYERS);
     for (let i = 0; i < players.length; ++i) {
-      await this.redis.del(players[i].userId);
+      pipeline.del(players[i].userId);
     }
     // remove viewers
     const viewers: Client[] = game.players;
-    await this.redis.select(DB.VIEWERS);
+    pipeline.select(DB.VIEWERS);
     for (let i = 0; i < viewers.length; ++i) {
-      await this.redis.del(viewers[i].userId);
+      pipeline.del(viewers[i].userId);
     }
     // remove the game from the list in storage
-    await this.redis.select(DB.GAMES);
-    await this.redis.del(gameId);
+    pipeline.select(DB.GAMES);
+    pipeline.del(gameId);
+    await pipeline.exec();
   }
 
   /** Cancel game */
@@ -288,7 +314,6 @@ export class GameService {
     this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // save game result in database
-    await this.redis.select(DB.GAMES);
     const game: Game = await this._getGame(gameId);
     const createMatchDto: CreateMatchDto = {
       players: game.players.map((p: any) => ({
@@ -317,8 +342,7 @@ export class GameService {
     pipeline.select(DB.GAMES);
     pipeline.call('JSON.GET', id, '$');
     const game: any = await pipeline.exec();
-    if (game && game[1] && game[1][1] && !game[1][0])
-      return JSON.parse(game[1][1])[0];
+    if (game && game[1] && game[1][1]) return JSON.parse(game[1][1])[0];
     throw new GameNotFoundException(id);
   }
 
@@ -386,6 +410,9 @@ export class GameService {
   async abandonGame(client: Socket, id: string): Promise<Match> {
     const game: Game = await this._getGame(id);
     const userId: string = client.handshake.query.userId.toString();
+    // clear the game loop if exists
+    const interval = this._getInterval(id);
+    if (interval) clearInterval(interval);
     if (game.players.length > 1)
       return await this._endGame(id, Motive.ABANDON, userId);
     else await this._cancelGame(id);
@@ -584,7 +611,15 @@ export class GameService {
         ? { ...player, score: ++player.score, updating: true }
         : player,
     );
-    this.server.to(Params.LOBBY).emit('gameList', this._createGameList());
+    this.server.to(Params.LOBBY).emit('scoreUpdate', {
+      id: game.id,
+      players: game.players.map((p: any) => ({
+        userId: p.userId,
+        pic: p.pic,
+        name: p.name,
+        score: p.score,
+      })),
+    });
   }
 
   /** Open scores for update */
@@ -947,6 +982,7 @@ export class GameService {
         game = await this._getGame(id);
       }
     }, 30);
+    this.gameLoops.push({ id: id, interval: gameInterval });
   }
 
   /** update a game (moves) */
