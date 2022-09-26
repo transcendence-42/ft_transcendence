@@ -58,11 +58,8 @@
     ]
   },
   "devDependencies": {
-<<<<<<< HEAD
     "@types/react-dom": "^18.0.6",
-=======
     "@types/bootstrap": "^5.2.4",
->>>>>>> da8d58d31e8a3e67c07ffb4d70f9a2c58293bab4
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/parser": "^5.37.0",
     "add": "^2.0.6",
