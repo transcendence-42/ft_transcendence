@@ -164,6 +164,18 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     };
   });
 
+  //ENTER
+  // const [input, setInput] = useState('');
+
+  // const handleKeyDown = event => {
+  //   console.log('User pressed: ', event.key);
+
+  //   if (event.key === 'Enter') {
+  //     // logic here
+  //     console.log('Enter key pressed ✅');
+  //   }
+  // };
+
   return (
     <>
       <PongAdvancedModal
@@ -314,6 +326,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <input
                 type="text"
                 className="rounded-3 input-field-chat"
+                // onChange={event => setInput(event.target.value)}
+                // onKeyDown={handleKeyDown}
                 placeholder="Send a message...">
               </input>
             </div>
