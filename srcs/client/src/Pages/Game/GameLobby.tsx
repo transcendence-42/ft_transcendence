@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 
 const GameLobby = (props: any) => {
   // Enums
-  enum Action {
+  enum eEvents {
     GO_LOBBY = 0,
     VIEW_GAME,
     CREATE_GAME,
@@ -26,7 +26,7 @@ const GameLobby = (props: any) => {
     RECO_GAME,
   }
 
-  enum MatchMaking {
+  enum eMatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
     IN_GAME,
@@ -36,10 +36,10 @@ const GameLobby = (props: any) => {
   const socket = useContext(SocketContext);
 
   // States
-  const [game, setGame] = useState({ action: Action.GO_LOBBY, id: 'lobby' });
+  const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
   const [message, setMessage] = useState({} as any);
   const [gameList, setGameList] = useState([] as any);
-  const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
+  const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
 
   // Modal states
@@ -57,9 +57,9 @@ const GameLobby = (props: any) => {
 
   // Socket events handlers
   const handleConnect = useCallback(() => {
-    setGame({ action: Action.GO_LOBBY, id: 'lobby' });
+    setGame({ action: eEvents.GO_LOBBY, id: 'lobby' });
     socket.emit('findAllGame');
-  }, [socket, Action]);
+  }, [socket, eEvents]);
 
   const handleGameList = useCallback((gameList: any) => {
     setGameList(gameList);
@@ -68,21 +68,21 @@ const GameLobby = (props: any) => {
   const handleGameId = useCallback(
     (data: any) => {
       setMessage({});
-      setGame({ id: data.id, action: Action.CREATE_GAME });
+      setGame({ id: data.id, action: eEvents.CREATE_GAME });
     },
-    [Action.CREATE_GAME],
+    [eEvents.CREATE_GAME],
   );
 
   const handleReconnect = useCallback(
     (gameId: any) => {
       setMessage({});
-      setGame({ id: gameId, action: Action.RECO_GAME });
+      setGame({ id: gameId, action: eEvents.RECO_GAME });
     },
-    [Action.RECO_GAME],
+    [eEvents.RECO_GAME],
   );
 
   const handleMatchMaking = useCallback(
-    (value: MatchMaking) => {
+    (value: eMatchMaking) => {
       setMatchMaking(value);
       socket.emit('matchMaking', { value: true });
     },
@@ -91,15 +91,15 @@ const GameLobby = (props: any) => {
 
   const handleOpponentFound = useCallback(() => {
     console.log('action : ' + game.action + 'id: ' + game.id);
-    if (game.action === Action.VIEW_GAME) {
+    if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
     }
     handleShowMatchMaking();
     setTimeout(() => {
       handleCloseMatchMaking();
-      setMatchMaking(MatchMaking.IN_GAME);
+      setMatchMaking(eMatchMaking.IN_GAME);
     }, 2000);
-  }, [MatchMaking.IN_GAME, Action.VIEW_GAME, game, socket]);
+  }, [eMatchMaking.IN_GAME, eEvents.VIEW_GAME, game, socket]);
 
   const handleInfo = useCallback((info: any) => {
     setMessage({ message: info.message });
@@ -110,31 +110,31 @@ const GameLobby = (props: any) => {
 
   // component event handlers
   const handleNewGame = () => {
-    setMatchMaking(MatchMaking.IN_GAME);
+    setMatchMaking(eMatchMaking.IN_GAME);
     socket.emit('createGame');
   };
 
   const backTo = (room: any) => {
     socket.emit('findAllGame');
     setMessage({});
-    setMatchMaking(MatchMaking.NOT_IN_QUEUE);
+    setMatchMaking(eMatchMaking.NOT_IN_QUEUE);
     setGame(room);
   };
 
   const handleBackTo = () => {
     handleCloseGoBack();
     // Viewer : remove the viewer and change its room in the server
-    if (game.action === Action.VIEW_GAME) {
+    if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
       if (props.origin.name !== 'lobby')
         navigate(props.origin.loc);
-      else backTo({ id: 'lobby', action: Action.GO_LOBBY });
+      else backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
     }
     // Player : cancel if 1 player / abandon if match started
-    if (game.action !== Action.VIEW_GAME) {
+    if (game.action !== eEvents.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
       
-      backTo({ id: 'lobby', action: Action.GO_LOBBY });
+      backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
     }
   };
 
@@ -204,7 +204,7 @@ const GameLobby = (props: any) => {
           >
             <PaletteOutlinedIcon />
           </button>
-          {game && game.action === Action.GO_LOBBY && (
+          {game && game.action === eEvents.GO_LOBBY && (
             <button
               type="button"
               className="btn btn-blue text-blue me-2 mb-4"
@@ -213,7 +213,7 @@ const GameLobby = (props: any) => {
               Create New Game
             </button>
           )}
-          {game && game.action === Action.VIEW_GAME && (
+          {game && game.action === eEvents.VIEW_GAME && (
             <button
               type="button"
               className="btn btn-blue text-blue me-2 mb-4"
@@ -222,7 +222,7 @@ const GameLobby = (props: any) => {
               Go back to {props.origin.name}
             </button>
           )}
-          {game && game.action > Action.VIEW_GAME && (
+          {game && game.action > eEvents.VIEW_GAME && (
             <button
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleShowGoBack}
@@ -230,20 +230,20 @@ const GameLobby = (props: any) => {
               Go back to {props.origin.name} 
             </button>
           )}
-          {matchMaking === MatchMaking.NOT_IN_QUEUE ? (
+          {matchMaking === eMatchMaking.NOT_IN_QUEUE ? (
             <button
               className="btn btn-pink text-pink mb-4"
               style={{ cursor: 'pointer' }}
-              onClick={() => handleMatchMaking(MatchMaking.IN_QUEUE)}
+              onClick={() => handleMatchMaking(eMatchMaking.IN_QUEUE)}
             >
               Join queue
             </button>
           ) : (
-            matchMaking === MatchMaking.IN_QUEUE && (
+            matchMaking === eMatchMaking.IN_QUEUE && (
               <button
                 className="btn btn-pink text-pink mb-4"
                 style={{ cursor: 'pointer' }}
-                onClick={() => handleMatchMaking(MatchMaking.NOT_IN_QUEUE)}
+                onClick={() => handleMatchMaking(eMatchMaking.NOT_IN_QUEUE)}
               >
                 <span
                   className="spinner-grow spinner-grow-sm"
@@ -261,26 +261,26 @@ const GameLobby = (props: any) => {
       {/* Content : game list or game screen*/}
       <div id="game-content" className="row">
         <div className="col-xs-6 col-md-3"></div>
-        {game && game.action === Action.GO_LOBBY && (
+        {game && game.action === eEvents.GO_LOBBY && (
           <div className="col-xs-6 col-md-6">
             <GameList
               gameList={gameList}
               setGame={setGame}
               handleNewGame={handleNewGame}
-              actionVal={Action}
+              event={eEvents}
             />
           </div>
         )}
-        {game && game.action > Action.GO_LOBBY && (
+        {game && game.action > eEvents.GO_LOBBY && (
           <div id="stage" className="col-xs-6 col-md-6">
             <Game
               socket={socket}
               id={game.id}
               action={game.action}
-              actionVal={Action}
+              event={eEvents}
               backTo={backTo}
               setMatchMaking={setMatchMaking}
-              matchMakingVal={MatchMaking}
+              matchMakingVal={eMatchMaking}
               className="translate-middle"
               map={gameMap}
             />

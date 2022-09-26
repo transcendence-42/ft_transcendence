@@ -3,12 +3,12 @@ import Canvas from '../../Components/Canvas/Canvas';
 
 const Game = (props: any) => {
   // Enum
-  enum movement {
+  enum eMovement {
     UP = 0,
     DOWN,
   }
 
-  const enum Motive {
+  enum eMotive {
     WIN = 0,
     LOSE,
     ABANDON,
@@ -29,18 +29,16 @@ const Game = (props: any) => {
       props.setMatchMaking(props.matchMakingVal.IN_GAME);
     } else if (props.action === props.actionVal.VIEW_GAME)
       socket.emit('viewGame', { id: props.id });
-    else if (props.action === props.actionVal.RECO_GAME)
-      socket.emit('reconnectGame', { id: props.id });
     socket.emit('getGameGrid', { id: props.id });
   };
 
   // Handlers
   const handleMove = (event: any) => {
     if (event.key === 'w' || event.key === 'W') {
-      socket.emit('updateGame', { move: movement.UP, id: props.id });
+      socket.emit('updateGame', { move: eMovement.UP, id: props.id });
     }
     else if (event.key === 's' || event.key === 'S') {
-      socket.emit('updateGame', { move: movement.DOWN, id: props.id });
+      socket.emit('updateGame', { move: eMovement.DOWN, id: props.id });
     }
     else if (event.key === 'p' || event.key === 'P') {
       socket.emit('pause', { id: props.id });
@@ -63,17 +61,17 @@ const Game = (props: any) => {
       if (timer.current) {
         clearInterval(timer.current);
       }
-      if (motive === Motive.WIN)
+      if (motive === eMotive.WIN)
         setMessage('The game is over. Moving back to lobby');
-      else if (motive === Motive.ABANDON)
+      else if (motive === eMotive.ABANDON)
         setMessage('One player abandoned. Moving back to lobby');
-      else if (motive === Motive.CANCEL)
+      else if (motive === eMotive.CANCEL)
         setMessage('Player canceled the game. Moving back to lobby');
       setTimeout(() => {
         props.backTo({ id: 'lobby', action: props.actionVal.GO_LOBBY });
       }, 4000);
     },
-    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL, timer],
+    [props, eMotive.WIN, eMotive.ABANDON, eMotive.CANCEL, timer],
   );
 
   const handlePause = useCallback(

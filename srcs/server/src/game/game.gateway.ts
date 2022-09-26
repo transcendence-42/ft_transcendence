@@ -90,15 +90,6 @@ export class GameGateway
     await this.gameService.view(client, updateGameDto.id);
   }
 
-  /** Reconnect game (existing player) */
-  @SubscribeMessage('reconnectGame')
-  async reconnect(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() updateGameDto: UpdateGameDto,
-  ) {
-    await this.gameService.reconnect(client, updateGameDto.id);
-  }
-
   /** Get the game grid */
   @SubscribeMessage('getGameGrid')
   async getGameGrid(

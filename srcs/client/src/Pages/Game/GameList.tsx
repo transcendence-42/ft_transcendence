@@ -54,7 +54,7 @@ const GameList = (props: any) => {
                       onClick={() =>
                         props.setGame({
                           id: game.id,
-                          action: props.actionVal.JOIN_GAME,
+                          action: props.event.JOIN_GAME,
                         })
                       }
                     >
@@ -68,7 +68,7 @@ const GameList = (props: any) => {
                     onClick={() =>
                       props.setGame({
                         id: game.id,
-                        action: props.actionVal.VIEW_GAME,
+                        action: props.event.VIEW_GAME,
                       })
                     }
                   >

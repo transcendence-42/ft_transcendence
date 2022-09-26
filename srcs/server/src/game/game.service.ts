@@ -72,8 +72,6 @@ const enum DB {
   PLAYERS,
   VIEWERS,
   MATCHMAKING,
-  GRID,
-  PHYSICS,
 }
 
 type BallIntervall = { game: string; interval?: NodeJS.Timer };
@@ -199,6 +197,8 @@ export class GameService {
     await this.redis.select(DB.GAMES);
     let games: any = [];
     let gameKeys: string[] = await this.redis.keys('*');
+    console.log('keys');
+    console.log(gameKeys);
     gameKeys = gameKeys.filter((k: string) => k !== 'ping');
     if (gameKeys.length > 0)
       games = (await this.redis.json.mGet(gameKeys, '$')).flat(1);
@@ -412,22 +412,19 @@ export class GameService {
   async view(client: Socket, id: string) {
     const userId: string = client.handshake.query.userId.toString();
     // Add the user as a viewer
-    await this.redis.select(DB.VIEWERS);
-    await this.redis.set(userId, id);
+    this.redis.select(DB.VIEWERS).then(async () => {
+      console.log(`I write the info ${userId} on db ${DB.VIEWERS}`);
+      await this.redis.set(userId, id);
+    });
     // Complete information on game db
     await this.redis.select(DB.GAMES);
-    await this.redis.json.set(id, `$.viewer[${userId}]`, { userId: userId });
+    if (await this.redis.exists(id))
+      await this.redis.json.set(id, `$.viewer[${userId}]`, { userId: userId });
     client.join(id);
     client.leave(Params.LOBBY);
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
-  }
-
-  /** reconnect a game (existing player) */
-  async reconnect(client: Socket, id: string) {
-    // Get game
-    const game: Game = await this._getGame(id);
   }
 
   /** *********************************************************************** */
@@ -721,9 +718,8 @@ export class GameService {
   }
 
   /** Update the physics from player's move */
-  private _movePaddleFromInput(game: Game, userId: string, input: number) {
+  private _movePaddleFromInput(game: Game, side: number, input: number) {
     // get the correct paddle
-    const side: number = this._getSideOfPlayer(game, userId);
     const playerIndex = game.gamePhysics.players.findIndex(
       (player) => player.side === side,
     );
@@ -856,6 +852,7 @@ export class GameService {
     let game: Game = await this._getGame(id);
     this._initGame(game, Side.RIGHT);
     await this.redis.select(DB.GAMES);
+    await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
     await this.redis.json.set(id, `$.status`, Status.STARTED);
     game.status = Status.STARTED;
     const gameInterval = setInterval(async () => {
@@ -872,8 +869,19 @@ export class GameService {
         this.server.to(game.id).emit('updateGrid', game.gameGrid);
         // write in redis
         await this.redis.select(DB.GAMES);
-        await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
-        // read from redis (to get players moves)
+        if (await this.redis.exists(id)) {
+          await this.redis.json.set(
+            id,
+            '$.gamePhysics.ball',
+            JSON.parse(JSON.stringify(game.gamePhysics.ball)),
+          );
+          await this.redis.json.set(
+            id,
+            '$.players',
+            JSON.parse(JSON.stringify(game.players)),
+          );
+        }
+        // read from redis (to get players moves updated)
         game = await this._getGame(id);
       }
     }, 30);
@@ -887,10 +895,17 @@ export class GameService {
     if (game.status === Status.STARTED) {
       // Update move
       const userId: string = client.handshake.query.userId.toString();
-      this._movePaddleFromInput(game, userId, move);
+      const side: number = this._getSideOfPlayer(game, userId);
+      this._movePaddleFromInput(game, side, move);
       // write in redis
       await this.redis.select(DB.GAMES);
-      await this.redis.json.set(id, '$', JSON.parse(JSON.stringify(game)));
+      await this.redis.json.set(
+        id,
+        `$.gamePhysics.players[?(@.side==${side})]`,
+        JSON.parse(
+          JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
+        ),
+      );
     }
   }
 }
