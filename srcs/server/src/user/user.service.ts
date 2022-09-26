@@ -9,10 +9,10 @@ import {
   LocalRegisterUserDto,
 } from '../auth/dto/registerUser.dto';
 import {
-	BadRequestException,
   NoUsersInDatabaseException,
   UserAlreadyExistsException,
   UserNotFoundException,
+  BadRequestException,
 } from './exceptions/';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { FriendshipService } from 'src/friendship/friendship.service';
@@ -41,8 +41,8 @@ export class UserService {
     players: {
       include: {
         player: true,
-      }
-    }
+      },
+    },
   };
 
   /** Create a new user */
@@ -60,9 +60,7 @@ export class UserService {
           create: userStat,
         },
         ratingHistory: {
-          create: {
-            rating: 1000,
-          },
+          create: { rating: 1000 },
         },
       },
     });
@@ -102,8 +100,10 @@ export class UserService {
       return result;
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') throw new BadRequestException()
-				else throw new UserNotFoundException(id);
+        if (e.code === 'P2002') throw new BadRequestException();
+        else {
+          throw new UserNotFoundException(id);
+        }
       }
     }
   }
@@ -165,6 +165,12 @@ export class UserService {
             username: userInfo.username,
           },
         },
+        stats: {
+          create: { wins: 0, losses: 0 },
+        },
+        ratingHistory: {
+          create: { rating: 1000 },
+        },
       },
       include: {
         credentials: true,
@@ -187,6 +193,12 @@ export class UserService {
             email: userInfo.email,
             password: hash,
           },
+        },
+        stats: {
+          create: { wins: 0, losses: 0 },
+        },
+        ratingHistory: {
+          create: { rating: 1000 },
         },
       },
     });

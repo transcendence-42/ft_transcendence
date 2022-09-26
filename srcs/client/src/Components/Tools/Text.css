@@ -84,9 +84,8 @@
 	font-style: sans-serif;
 	font-weight: 500;
 	font-size: 2vw;
-	animation: flicker 2.5s infinite alternate;
 	color: #FFE710;
-	padding: 6%;
+
   }
 
   /* Flickering animation */

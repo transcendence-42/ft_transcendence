@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import { useCookies } from 'react-cookie';
 import Context from "../../../Context/Context";
 
-
 export default function NavBar ()
 {
 

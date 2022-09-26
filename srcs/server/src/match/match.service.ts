@@ -130,7 +130,7 @@ export class MatchService {
     iLeft: number,
     iRight: number,
     createMatchDto: CreateMatchDto,
-  ) {
+  ): Promise<User> {
     let pLeftNewElo: number;
     let pRightNewElo: number;
     let pLeftNewStats: object;
@@ -168,7 +168,7 @@ export class MatchService {
       eloRating: Math.round(pLeftNewElo),
       stats: pLeftNewStats,
     });
-    await this.userService.update(pRight.id, {
+    return await this.userService.update(pRight.id, {
       eloRating: Math.round(pRightNewElo),
       stats: pRightNewStats,
     });
