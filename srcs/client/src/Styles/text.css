@@ -1,0 +1,22 @@
+/* Text */
+.text-pink {
+  --weight: 400;
+  font-family: 'Montserrat', normal;
+  font-style: sans-serif;
+  font-weight: var(--weight);  
+  color: #FF80F2;
+  text-shadow:	0px 0px 7.49518px #FF6ADE,
+                0px 0px 14.9904px #EA3DEE,
+                0px 0px 25.6977px #CA18A3;
+}
+
+.text-blue{
+  --weight: 400;
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  color: #80FFFF;
+  text-shadow:	0px 0px 7.49518px #6ABDFF,
+  				      0px 0px 14.9904px #3D9FEE,
+				        0px 0px 25.6977px #187BCA;
+}

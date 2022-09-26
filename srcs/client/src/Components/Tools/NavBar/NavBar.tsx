@@ -10,7 +10,6 @@ import { Nav, Navbar} from "react-bootstrap";
 
 
 
-
 export default function NavBar ()
 {
     const [fromAuth, setFromAuth] = useState(false);

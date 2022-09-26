@@ -28,6 +28,11 @@ describe('Match API e2e test', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    await prisma.cleanDatabase();
+    await app.close();
+  });
+
   beforeEach(async () => {
     await prisma.cleanDatabase();
     // create fresh users for match

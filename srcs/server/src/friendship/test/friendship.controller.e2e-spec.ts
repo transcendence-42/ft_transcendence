@@ -11,6 +11,7 @@ import { Friendship } from '../entities/friendship.entity';
 
 describe('Frienship API e2e test', () => {
   let app: INestApplication;
+  let httpServer: any;
   let prisma: PrismaService;
   let userService: UserService;
   let mockP1: User;
@@ -25,6 +26,12 @@ describe('Frienship API e2e test', () => {
     userService = moduleRef.get<UserService>(UserService);
     prisma = moduleRef.get<PrismaService>(PrismaService);
     await app.init();
+    httpServer = app.getHttpServer();
+  });
+
+  afterAll(async () => {
+    await prisma.cleanDatabase();
+    await app.close();
   });
 
   beforeEach(async () => {
@@ -37,10 +44,10 @@ describe('Frienship API e2e test', () => {
   describe('DELETE /friendship', () => {
     it('should return 200 and a Friendship if we successfully deleted the friendship', async () => {
       // Create a friendship to delete
-      await request(app.getHttpServer())
+      await request(httpServer)
         .put('/users/' + mockP1.id + '/friends')
         .send({ addresseeId: mockP2.id });
-      const result = await request(app.getHttpServer())
+      const result = await request(httpServer)
         .delete('/friendship')
         .send({ requesterId: mockP1.id, addresseeId: mockP2.id });
       expect(result.statusCode).toBe(200);
@@ -48,7 +55,7 @@ describe('Frienship API e2e test', () => {
     });
 
     it('should return 404 and a specific message if the friendship is not found', async () => {
-      const result = await request(app.getHttpServer())
+      const result = await request(httpServer)
         .delete('/friendship')
         .send({ requesterId: mockP1.id, addresseeId: mockP2.id });
       expect(result.statusCode).toBe(404);
@@ -62,10 +69,10 @@ describe('Frienship API e2e test', () => {
   describe('UPDATE /friendship', () => {
     it('should return 200 and a Friendship if we successfully updated the friendship', async () => {
       // Create a friendship to delete
-      await request(app.getHttpServer())
+      await request(httpServer)
         .put('/users/' + mockP1.id + '/friends')
         .send({ addresseeId: mockP2.id });
-      const result = await request(app.getHttpServer())
+      const result = await request(httpServer)
         .patch('/friendship')
         .send({ requesterId: mockP1.id, addresseeId: mockP2.id, status: 2 });
       expect(result.statusCode).toBe(200);
@@ -74,7 +81,7 @@ describe('Frienship API e2e test', () => {
     });
 
     it('should return 404 and a specific message if the friendship is not found', async () => {
-      const result = await request(app.getHttpServer())
+      const result = await request(httpServer)
         .patch('/friendship')
         .send({ requesterId: mockP1.id, addresseeId: mockP2.id, status: 2 });
       expect(result.statusCode).toBe(404);

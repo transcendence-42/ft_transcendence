@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -13,7 +12,6 @@ import { MatchService } from './match.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import {
   ApiBadRequestResponse,
-  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
