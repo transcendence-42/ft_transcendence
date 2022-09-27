@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
 import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import Context from "../../../Context/Context";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Nav, Navbar} from "react-bootstrap";
 
-import { useCookies } from 'react-cookie';
 
 
 export default function NavBar ()
 {
-    // eslint-disable-next-line
-    const [user, setUser] = useState(null);
-    const [isLogged, setIsLogged] = useState(false);
-    // eslint-disable-next-line
-    const [cookies, setCookie] = useCookies(undefined);
     const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
-
+    const contextValue = useContext(Context);   
+    /*
     /*
     ** Fetching data and allow the user to connect using "useState" to true
     */
@@ -49,17 +46,16 @@ export default function NavBar ()
                 return Promise.reject();
 
             }
-            console.log("ici end");
             throw console.log("Fail parsing 42auth");
         })
         .then((responseObject) => {
             if (responseObject.message)
             {
-                setUser((responseObject));
                 console.log(responseObject);
                 console.log("Success parsing 42auth");
-                setIsLogged(true);
+              
                 localStorage.setItem("pathIsFree", JSON.stringify(true));
+                contextValue.updateIsConnected(true);
                 return;
             }
             throw new Error('Something went wrong');
@@ -87,125 +83,167 @@ export default function NavBar ()
             console.log(responseObject)
             if (responseObject.message)
             {
-                setUser(null);
                 console.log("Disconnect from our services");
-                setIsLogged(false);
-                localStorage.removeItem("pathIsFree");
+                localStorage.removeItem('pathIsFree');
+                contextValue.updateIsConnected(false);
                 return;
             }
          })
          .catch((err) => console.log(err));
      };
 
-   /*
-    ** Here it allows us to access the data into the local storage and not loosing our state "connected"
-    */
-    useEffect(() => {
-        const data = window.localStorage.getItem("StillConnected");
-        if (data)
-        {
-            setIsLogged(JSON.parse(data));
-        }
-
-      }, []);
-
-    /*
-    ** Here it allows us to create the data into the local storage
-    */
-    useEffect(() => {
-        window.localStorage.setItem("StillConnected", JSON.stringify(isLogged));
-    });
-
-
-   /*
-    ** Here it allows us to access the data into the local storage and not loosing our state from "auth42"
-    */
-    useEffect(() => {
-        const data = localStorage.getItem("fromAuth");
-        if (data)
-        {
-            setFromAuth(JSON.parse(data));
-        }
-
-      }, []);
-
-    /*
-    ** Here it create the data to be into the local storage
-    */
-    useEffect(() => {
-        localStorage.setItem("fromAuth", JSON.stringify(fromAuth));
-    });
-
     /*
     ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
-     useEffect(() => {
-        if (cookies !== undefined && fromAuth === true)
-        {
-            getUser();
-            setFromAuth(false) ;
-        }
-     }, [cookies, fromAuth]);
+    
 
-    if (isLogged)
+    if (contextValue.isConnected)
     {
         return (
-            <nav className="navbar navbar-expand-lg">
-                <div className="container-fluid">
-                    <Link to ="/" className="navbar-brand">PONG</Link>
-                    <button className="navbar-toggler navbar-button" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-                        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li className="nav-item active">
-                                <Link to ="/home" className="nav-link active">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/about" className="nav-link active">About</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/chat" className="nav-link active">Chat</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/leaderboard" className="nav-link active">Leaderboard</Link>
-                            </li>
-                            <li className="nav-item">
-                                <button onClick={deco} className="nav-link active navbar-button">Logout</button>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/profile" state={{userID}} className="nav-link active"> Profile </Link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+            <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">
+            
+            <Link to="/" >
+                    <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
+                    </Link>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav className="navbar-nav ms-auto ">
+                    <Nav.Link className="" >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/leaderboard"> <h2 className="yellowText mt-2 ">Leaderboard</h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className=""  >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/chat">  <h2 className="yellowText mt-2 " > Chat </h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className=""  >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/profile">  <h2 className="yellowText mt-2 "> Profile </h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className="" >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/" onClick={deco}>  <h2 className="yellowText mt-2 "  style={{animation:"flicker 2.5s infinite alternate"}}>logout </h2> </Link>
+                    </Nav.Link>
+                </Nav>
+                </Navbar.Collapse>
+       
+    </Navbar>
         )
     }
     else
     {
         return (
-            <nav className="navbar navbar-expand-lg">
-                <div className="container-fluid">
-                    <Link to ="/" className="navbar-brand">PONG</Link>
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li className="nav-item">
-                                <Link to ="/" className="nav-link active" aria-current="page">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/about" className="nav-link active" aria-current="page">About</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/leaderboard" className="nav-link active" aria-current="page">Leaderboard</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to ="/login" className="nav-link active" aria-current="page">Login</Link>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+        <Navbar className="navbar bg-dark pt-5 pb-4 px-5 " bg="transparent" variant="transparent"  expand="md" collapseOnSelect>
+                <Link to="/">
+                    <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
+                    </Link>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav className="navbar-nav ms-auto ">
+                    <Nav.Link className="">
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/leaderboard"> <h2 className="yellowText mt-2 " data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                    </Nav.Link>
+                    <Nav.Link className="" >
+                        <span></span><span></span><span></span><span></span>
+                        <Link to="/login">  <h2 className="yellowText mt-2" > Login </h2> </Link>
+                    </Nav.Link>
+                </Nav>
+                </Navbar.Collapse>
+        </Navbar>
         )
     }
 }
+
+
+
+
+
+{/* <nav className="navbar navbar-dark bg-dark navbar-expand-md">
+                <div className="container">
+                    <div className="navbar-brand">
+                        <Link to="/">
+                            <h2 className="blueText" data-testid="HomeLink"> PONG</h2>
+                        </Link>
+                    </div>
+                <div className="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#fullMenu" >
+                    <span className="navbar-toggler-icon"></span>
+                </div>
+                    <div className="collapse navbar-collapse" id="fullMenu">
+                        <ul className="navbar-nav">
+                            <li >
+                                <Link to="/" className="">   <h2 className="yellowText" > Home </h2> </Link>
+                            </li>
+                            <div className="nav-item">
+                                <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
+                            </div>
+                            <div className="nav-item">
+                                <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+                            </div>
+                            <div className="nav-item">
+                                <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+                            </div>
+                        </ul>
+                
+            </div>
+            </div>
+        </nav> */}
+
+
+
+
+    //     <Navbar className="navbar" bg="transparent" variant="transparent"sticky="top" expand="md" collapseOnSelect>
+    //     <Navbar.Brand>
+    //         <Link to="/"><h2 className="blueText" data-testid="HomeLink"> PONG</h2></Link>
+    //     </Navbar.Brand>
+    //     <Navbar.Toggle className="coloring" />
+    //         <Navbar.Collapse>
+    //         <Nav>
+    //             <Nav.Link >
+    //                 <Link to="/" className="">   <h2 className="yellowText" > Home </h2></Link>
+    //             </Nav.Link>
+    //             <Nav.Link >
+    //                 <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
+    //             </Nav.Link>
+    //             <Nav.Link >
+    //                 <Link to="/login">  <h2 className="yellowText" > Login </h2> </Link>
+    //             </Nav.Link>
+    //             <NavDropdown title="LOGIN">
+    //                 <NavDropdown.Item href="#products/profile">Profil</NavDropdown.Item>
+    //                 <NavDropdown.Item href="#products/chocolate">Edit Profil</NavDropdown.Item>
+    //                 <NavDropdown.Divider />
+    //                 <NavDropdown.Item href="#products/promo">Disconnect</NavDropdown.Item>
+    //             </NavDropdown>
+    //         </Nav>
+    //         </Navbar.Collapse>
+    // </Navbar>
+
+
+    // FORMER CO
+    // <nav className="navbar navbar-expand-md bg-dark">
+    //             <div className="">
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <button onClick={deco} className="playFlickering">Logout</button>
+    //                 </div>
+    //                 <div className="buttonInNavBar">
+    //                     <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+    //                 </div>
+    //             </div>
+    //       </nav>

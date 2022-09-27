@@ -1,71 +1,60 @@
-.home {
-  
-  text-align: center;
-
-  }
-
-.title
+html, body
 {
-  position: relative;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 40px;
-    padding-top: 3%;
+  background-color: rgb(5, 2, 30) !important;
+  width: 100%;
+  height: 100%;
 }
-  .homeElement1{
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 3%;
-  }
-  .homeElement2{
-    position: absolute;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100px;
-    padding-top: 3%;
-    
-
-  }
-
-  .pongImage{
-    
-    width: 80%;
-    max-width: 90vh;
-    max-height: 90vh;
-  }
-
 
   .blueContainer1
 {
-  position: absolute;
-  left: 0;
-	justify-content: center;
-  width: 30%;
 	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 	border-radius: 3vw;
-	margin: 15%;
-	padding: 2px;
+
 }
 
 .blueContainer2
 {
-  position: absolute;
-  right: 0;
-	justify-content: center;
-  width: 30%;
-
 	border: 3px solid #80FFFF;
 	box-shadow: 0px 4px 15px #80FFFF,
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 	border-radius: 3vw;
-	margin: 15%;
-	padding: 2px;
+
 }
+.field1
+{
+	height: 400px;
+}
+.container {
+
+	
+	align-items: center;
+	justify-content: center;
+  }
+  .animated-word {
+	font-family: Helvetica;
+	letter-spacing: 0.4em;
+	font-weight: 600;
+	font-size: 100px;
+	text-align: center;
+	color: #202125;
+	cursor: pointer;
+	max-width: 600px; 
+	width: 100%; 
+	outline: 3px solid;
+	outline-color: #80FFFF;
+	outline-offset: 70px;
+	transition: all 600ms cubic-bezier(0.2, 0, 0, 0.8);
+  }
+  
+  .animated-word:hover {
+	color: #80FFFF;;
+	outline-color: rgba(71, 126, 232, 0);
+	text-shadow:	0px 0px 7.49518px #6ABDFF,
+	0px 0px 14.9904px #3D9FEE,
+  0px 0px 25.6977px #187BCA;
+	outline-offset: 300px;
+  }

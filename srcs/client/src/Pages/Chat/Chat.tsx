@@ -1,5 +1,7 @@
+import 'bootstrap';
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import './chat.css';
+import '../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js'
+import './Chat.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import ChatModal from '../../Components/Modal/ChatModals';
@@ -38,6 +40,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [message, setMessage] = useState('');
   const [friends, setFriends] = useState([]);
   const [userFetched, setUserFetched] = useState(false);
+  const [createDirectId, setCreateDirectid] = useState('');
 
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
   // state
@@ -69,6 +72,20 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       updateOwnChannels(userOnChannel);
       return channel['id'];
     } else return alert(`Error while creating channel! ${channel.message}`);
+  };
+const createDirect = async (e: any, friendId: number, userId: number) => {
+    const channelName = friendId.toString() + '_' + userId.toString();
+    const channelId = await handleCreateChannel(
+      e,
+      channelName,
+      eChannelType.DIRECT,
+      userId
+    );
+    if (channelId) {
+      handleAddToChannel(friendId, channelId);
+      handleCloseFriendList();
+    }
+    else return alert(`couldnt create channel with user ${friendId}`);
   };
 
   const handleCreateChannel = (
@@ -238,155 +255,133 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     };
   }, []);
 
+  //ENTER
+  // const [input, setInput] = useState('');
+
+  // const handleKeyDown = event => {
+  //   console.log('User pressed: ', event.key);
+
+  //   if (event.key === 'Enter') {
+  //     // logic here
+  //     console.log('Enter key pressed ✅');
+  //   }
+  // };
+
   return (
     <>
-      {allChannels && (
-        <PongAdvancedModal
-          title="Browse channels"
-          show={showBrowseChannel}
-          closeHandler={handleCloseBrowseChannel}
-          textBtn1="Cancel"
-          handleBtn1={handleCloseBrowseChannel}
-          textBtn2="Validate"
-          handleBtn2={handleCloseBrowseChannel}>
-          <BrowseChannels allChannels={allChannels} />
-        </PongAdvancedModal>
-      )}
-      {console.log(`Heres hte user inside chatModal ${JSON.stringify(user, null, 4)}`)}
-      {user && (
-        <>
-          {' '}
-          <ChatModal
-            title="Create a channel"
-            show={showCreateChannel}
-            closeHandler={handleCloseCreateChannel}
-            textBtn1="Cancel"
-            handleBtn1={handleCloseCreateChannel}
-            textBtn2="Create">
-            <CreateChannel
-              socket={socket}
-              userId={user.id}
-              handleCreateChannel={handleCreateChannel}
-            />
-          </ChatModal>
-          <PongAdvancedModal
-            title="Select a friend"
-            show={showFriendList}
-            closeHandler={handleCloseFriendList}
-            textBtn1="Cancel"
-            handleBtn1={handleCloseFriendList}
-            textBtn2="Validate"
-            handleBtn2={handleCloseFriendList}>
-            <FriendList
-              userId={user.id}
+      <PongAdvancedModal
+        title="Browse channels"
+        show={showBrowseChannel}
+        closeHandler={handleCloseBrowseChannel}
+        textBtn1="Cancel"
+        handleBtn1={handleCloseBrowseChannel}
+        textBtn2="Validate"
+        handleBtn2={handleCloseBrowseChannel}>
+        <BrowseChannels allChannels={allChannels} />
+      </PongAdvancedModal>
+      <ChatModal
+        title="Create a channel"
+        show={showCreateChannel}
+        closeHandler={handleCloseCreateChannel}
+        textBtn1="Cancel"
+        handleBtn1={handleCloseCreateChannel}
+        textBtn2="Create"
+        handleBtn2={handleCloseCreateChannel}>
+        <CreateChannel               userId={user.id}
               friends={friends}
               handleCreateChannel={handleCreateChannel}
-              handleAddToChannel={handleAddToChannel}
-            />
-          </PongAdvancedModal>{' '}
-        </>
-      )}
-      <div className="row row-color main-row-margin">
-        <div className="col-2 rounded-4 vh-100 blue-box-chat">
-          <div className="row">
-            <div className="col">
-              <p className="yellow-titles titles-position">CHANNELS</p>
+              handleAddToChannel={handleAddToChannel} />
+      </ChatModal>
+      <PongAdvancedModal
+        title="Select a friend"
+        show={showFriendList}
+        closeHandler={handleCloseFriendList}
+        textBtn1="Cancel"
+        handleBtn1={handleCloseFriendList}
+        textBtn2="Validate"
+        handleBtn2={createDirect}>
+                        
+        <FriendList userId={user.id}
+              friends={friends} setCreateDirectId={setCreateDirectid}/>
+      </PongAdvancedModal>
+      <div className="row mx-5 main-row">
+        <div className="col-2 rounded-4 blue-box-chat">
+          <div className='channels-div h-50'>
+            <div className="row mt-2">
+              <div className="col overflow-auto">
+                <p className="yellow-titles titles-position">CHANNELS</p>
+              </div>
+              <div className="col">
+                <button
+                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                </button>
+                <ul className="dropdown-menu channel-menu">
+                  <li className="dropdown-item" onClick={handleShowBrowseChannel}>
+                    Browse channels
+                  </li>
+                  <li className="dropdown-item" onClick={handleShowCreateChannel}>
+                    Create a channel
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="col">
-              <button
-                className="float-end rounded-4 dropdown-toggle color-dropdown channel-button titles-position"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"></button>
-              <ul className="dropdown-menu channel-menu blue-box-chat">
-                <li className="dropdown-item" onClick={handleShowBrowseChannel}>
-                  Browse channels
-                </li>
-                <li className="dropdown-item" onClick={handleShowCreateChannel}>
-                  Create a channel
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col overflow-auto scroll-bar">
-              <>
-                <div className="row row-color">
-                  <>
-                    {!isEmpty(user) &&
-                      user.channels?.map((UserOnChannel: UserOnChannel) =>
-                        UserOnChannel.channel.type === eChannelType.DIRECT ? (
-                          ''
-                        ) : (
-                          <div className="channels" key={UserOnChannel.channelId}>
-                            <div className="col">
-                              <button
-                                className="rounded-4 btn-pink btn-join"
-                                onClick={(e) => openChannel(e, UserOnChannel.channel)}>
-                                {UserOnChannel.channel.name}
-                              </button>
-                            </div>
-                          </div>
-                        )
-                      )}
-                  </>
-                </div>
-              </>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              <p className="yellow-titles titles-position">MESSAGES</p>
-            </div>
-            <div className="col">
-              <button
-                className="message-button float-end rounded-4 titles-position"
-                onClick={handleShowFriendList}>
-                +
-              </button>
+            <div className="row h-75">
+              <div className="col overflow-auto scroll-bar-channels ">
+                <table>
+                  <tbody>
+                      <tr>
+                          <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
+                          </td>
+                         </tr>
+                  </tbody> 
+                </table>
+              </div>
             </div>
           </div>
-          <div className="row">
-            <>
-              {!isEmpty(user) &&
-                user.channels?.map((UserOnChannel: UserOnChannel) =>
-                  UserOnChannel.channel.type === eChannelType.DIRECT ? (
-                    <div className="channels" key={UserOnChannel.channelId}>
-                      <div className="col">
-                        <button
-                          className="rounded-4 btn-pink btn-join"
-                          onClick={(e) => openChannel(e, UserOnChannel.channel)}>
-                          {friends?.find(
-                            (friend: ChatUser) =>
-                              friend.id ===
-                              UserOnChannel.channel.users?.find((usr) => usr.userId !== user.id)
-                                ?.userId
-                          )
-                            ? 'yes'
-                            : 'no'}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    ''
-                  )
-                )}
-            </>
-            <div className="col overflow-auto scroll-bar"></div>
+          <div className='messages-div h-50'>
+            <div className="row">
+              <div className="col overflow-auto">
+                <p className="yellow-titles titles-position">MESSAGES</p>
+              </div>
+              <div className="col">
+                <button
+                  className="message-button float-end rounded-4 titles-position"
+                  onClick={handleShowFriendList}>
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="row h-75">
+              <div className="col  overflow-auto scroll-bar-direct">
+              <table>
+                  <tbody>
+                      <tr>
+                          <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
+                          </td>
+                      </tr>
+                  </tbody> 
+                </table>
+              </div>
+            </div>
           </div>
         </div>
         <div className="col-8 rounded-4 blue-box-chat">
-          <div className="row">
+          <div className="row mt-2">
             <div className="col">
               <p className="blue-titles channel-name-margin">
                 currentChannel: {currentChannel.name}
               </p>
             </div>
           </div>
-          <div className="row">
-            <>{console.log(`List of all users${JSON.stringify(allUsers)}`)}</>
-
-            <>
-              {allMessages?.map((message: Message) =>
+          <div className='row h-75 pt-3'>
+            <div className='col h-100 overflow-auto scroll-bar-messages '>
+              <p className='message-position'> {allMessages?.map((message: Message) =>
                 user && message.toChannelOrUserId === currentChannel.id ? (
                   <div
                     className={message.fromUserId === user.id ? 'myMessages' : 'otherMessages'}
@@ -406,24 +401,28 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                 ) : (
                   ''
                 )
-              )}
-            </>
-            <div className="col input-position">
+              )}</p>
+            </div>
+          </div>
+          <div className="row pt-4">
+            <div className="col text-center">
               <input
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
                 type="text"
                 maxLength={128}
-                className="rounded-3 input-field-chat yellow-box-chat"
+                className="rounded-3 input-field-chat"
                 placeholder="Send a message..."></input>
               <button type="button" onClick={handleSendMessage}>
                 Send
               </button>
+                {/* onChange={event => setInput(event.target.value)} */}
+                {/* onKeyDown={handleKeyDown} */}
             </div>
           </div>
         </div>
         <div className="col-2 rounded-4 blue-box-chat">
-          <div className="row">
+          <div className="row mt-2">
             <div className="col">
               <p className="blue-titles center-position titles-position">MEMBERS</p>
               <>
@@ -441,124 +440,40 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </>
             </div>
           </div>
+          <div className="row">
+            <div className='col overflow-auto'>
+              <table>
+                <tbody>
+                    <tr>
+                        <td>User</td>
+                        <td>
+                          <button
+                            className="rounded-4 dropdown-toggle color-dropdown channel-button "
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                          </button>
+                          <ul className="dropdown-menu channel-menu text-center">
+                            <li className="dropdown-item">
+                              Mute
+                            </li>
+                            <li className="dropdown-item">
+                              Ban
+                            </li>
+                            <li className="dropdown-item">
+                              Kick
+                            </li>
+                            <li className="dropdown-item">
+                              Block
+                            </li>
+                          </ul>
+                        </td>
+                    </tr>
+                </tbody> 
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </>
-    // <div className="chat">
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '20%',
-    //       height: '80vh'
-    //     }}>
-    //     <form style={{ margin: '15px ' }} onSubmit={handleCreateChannel}>
-    //       <div style={{ color: 'white' }}> Create a Channel</div>
-    //       <input
-    //         className="createChannel"
-    //         onChange={(e) => setCreateChannelName(e.target.value)}
-    //         value={createChannelName}
-    //       />
-    //       <select onChange={(e) => setCreateChannelType(e.target.value)}>
-    //         <option value="public".PUBLIC</option>
-    //         <option value="private">Private</option>
-    //         <option value="protected">Protected</option>
-    //       </select>
-    //       <div style={{ color: 'white' }}>Set a password for your channel</div>
-    //       <input
-    //         className="createChannelPassword"
-    //         onChange={(e) => setCreateChannelPassword(e.target.value)}
-    //         value={createChannelPassword}
-    //       />
-    //       <div style={{ color: 'white' }}>Add a friend to your channel</div>
-    //       <input
-    //         className="createChannelFriends"
-    //         onChange={(e) => setCreateChannelFriends(e.target.value)}
-    //         value={createChannelFriends}
-    //       />
-    //       <button className="createChanneButton" type="submit">
-    //         Create Channel
-    //       </button>
-    //     </form>
-    //     <br />
-    //     <div className="channels">
-    //       {allChannels.map((channel: Channel) => (
-    //         <form key={channel.id} onSubmit={(e) => handleJoinChannel(e, channel.id)}>
-    //           <button className="channelButton" type="submit">
-    //             {channel.name}
-    //           </button>
-    //           <input
-    //             className={`joinChannelPwdInput ${channel.id}`}
-    //             value={getValueOf(channel.id, joinChannelPassword)}
-    //             onChange={(e) => setJoinChannelPassword(e.target.value)}
-    //           />
-    //         </form>
-    //       ))}
-    //     </div>
-    //   </div>
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '60%',
-    //       height: '80vh',
-    //       color: 'white'
-    //     }}>
-    //     <div className="channel">
-    //       -------Channel: {currentChannel.name}-------
-    //       <br />
-    //       <br />
-    //     </div>
-    //     <div className="conversation">
-    //       <ul className="messages">
-    //         <>
-    //           {allMessages?.map((message: Message) => {
-    //             if (message.toChannelId === currentChannel.id)
-    //               return <li key={message.id}>{message.content}</li>;
-    //             return '';
-    //           })}
-    //         </>
-    //       </ul>
-    //     </div>
-    //     <div className="chatInput">
-    //       <input
-    //         className="chatInputField"
-    //         placeholder="send a message.."
-    //         onChange={handleMessageChange}
-    //         value={message}></input>
-    //       <button className="btn btn-light" onClick={handleSubmitMessage}>
-    //         Send!
-    //       </button>
-    //     </div>
-    //   </div>
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '20%',
-    //       height: '80vh',
-    //       color: 'white'
-    //     }}>
-    //     <div style={{ margin: '15px' }} className="currentUser">
-    //       <div style={{ fontSize: '20px' }}>Current User:</div>
-    //       <div className="user">
-    //         <br />
-    //         Username: {user?.name}
-    //         <br />
-    //         id: {user?.id}
-    //       </div>
-    //     </div>
-    //     Connected Users:
-    //     <br />
-    //     <div style={{ margin: '15px' }} className="listOfUsers">
-    //       {allUsers &&
-    //         allUsers.map((user: ChatUser) => (
-    //           <div key={user.id} className="connectedUser">
-    //             <br />
-    //             Username: {user.name}
-    //             <br />
-    //             id: {user.id}
-    //           </div>
-    //         ))}
-    //     </div>
-    //   </div>
-    // </div>
   );
 }

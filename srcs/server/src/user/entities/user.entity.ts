@@ -1,9 +1,9 @@
-import { Credentials } from '../../generated/nestjs-dto/credentials.entity';
-import { Stats } from '../../generated/nestjs-dto/stats.entity';
-import { Rating } from '../../generated/nestjs-dto/rating.entity';
-import { Channel } from '../../generated/nestjs-dto/channel.entity';
-import { UserOnChannel } from '../../generated/nestjs-dto/userOnChannel.entity';
-import { UserAchievement } from '../../generated/nestjs-dto/userAchievement.entity';
+import { Credentials } from './credentials.entity';
+import { Stats } from './stats.entity';
+import { Rating } from 'src/rating/entities/rating.entity';
+import { Channel } from './channel.entity';
+import { UserOnChannel } from './userOnChannel.entity';
+import { UserAchievement } from './userAchievement.entity';
 import { PlayerOnMatch } from 'src/match/entities/playerOnMatch.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 

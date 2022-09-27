@@ -19,6 +19,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  refs,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,6 +30,7 @@ import { User } from './entities/user.entity';
 import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { Rating } from './entities/rating.entity';
+import { Match } from 'src/match/entities/match.entity';
 
 @Controller('users')
 export class UserController {
@@ -93,8 +95,8 @@ export class UserController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiOkResponse({
-    description: 'Updated user',
-    type: User,
+    description: 'Updated user OR update error',
+    schema: { anyOf: refs(User, BaseApiException) },
     isArray: false,
   })
   @ApiNotFoundResponse({
@@ -202,6 +204,30 @@ export class UserController {
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const res = await this.userService.findUserRatings(id, paginationQuery);
+    return res;
+  }
+
+  // MATCH OPERATIONS ----------------------------------------------------------
+  /** Get match history for a user */
+  @ApiTags('Matches')
+  @Get(':id/matches')
+  @ApiOperation({ summary: 'History of all matches of a user' })
+  @ApiOkResponse({
+    description: 'Array of all matches',
+    type: Match,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  async getUserMatches(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    const res = await this.userService.findUserMatches(id, paginationQuery);
     return res;
   }
 }

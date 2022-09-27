@@ -8,11 +8,14 @@ import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
   // console.debug = function () {}; // used to silence console.debugs
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+
+  // Redis store
   const redisClient = Redis.createClient({
     url: config.get('REDIS_URL'),
     legacyMode: true,
@@ -23,7 +26,7 @@ async function bootstrap() {
     console.debug('\x1b[32m%s\x1b[0m', 'Connected to', 'Redis');
   });
 
-  // For DTO validation
+  // DTO validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // do not handle properties not defined in dto
@@ -34,8 +37,11 @@ async function bootstrap() {
     }),
   );
 
-  // For setting secure HTTP Headers
+  // Secure HTTP Headers
   app.use(helmet());
+
+  // Custom webSocket with port depending on environment file
+  app.useWebSocketAdapter(new SocketIoAdapter(app, config));
 
   // For Swagger UI
   const options = new DocumentBuilder()

@@ -41,7 +41,7 @@ export default function BrowseChannels({ allChannels, ...props }: any) {
             </div>
             <div className="col">
               <button
-                className="rounded-4 btn-pink btn-join"
+                className="btn rounded-4 btn-pink btn-join"
                 onClick={(e) => handleJoinChannel(e, channel)}>
                 Join
               </button>

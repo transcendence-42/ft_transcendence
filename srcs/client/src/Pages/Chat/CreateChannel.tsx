@@ -9,7 +9,6 @@ export default function CreateChannel({ userId, socket, handleCreateChannel, ...
   const [channelType, setChannelType] = useState(eChannelType.PUBLIC);
 
   return (
-    <>
       <form
         id="createChannelForm"
         className="form-label"
@@ -35,6 +34,6 @@ export default function CreateChannel({ userId, socket, handleCreateChannel, ...
             placeholder="Password"></input>
         </ul>
       </form>
-    </>
   );
 }
+

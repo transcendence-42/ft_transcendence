@@ -8,7 +8,7 @@ import { CreateRatingDto } from './dto/create-rating.dto';
 export class RatingService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createRatingDto: CreateRatingDto) {
+  async create(createRatingDto: CreateRatingDto): Promise<Rating> {
     try {
       const result: Rating = await this.prisma.rating.create({
         data: {

@@ -8,13 +8,9 @@
 
   
   .field {
-    align-items: center;
-    justify-content: center;
+    width: 80%;
+    height: 80%;
     position: relative;
-    margin-top: 4%;
-    width: 50%;
-    height: 300px;
-    margin-left: 25%;
     border-width: 6px;
     border-style: solid;
     filter: brightness(1.25);
@@ -28,8 +24,7 @@
     
     .net {
       width: 0;
-      height: 95%;
-      
+      height: 100%;
       position: absolute;
       top: 0;
       left: 50%;
@@ -45,9 +40,8 @@
     .ping, .pong {
       width: 4px;
       height: 30px;
-      
       position: absolute;
-      
+   
       background: var(--color);
       box-shadow:	0px 0px 7.49518px #FF6ADE,
   				0px 0px 14.9904px #EA3DEE,
@@ -73,10 +67,8 @@
     .ball {
       width: 5px;
       height: 5px;
-      
       position: absolute;
       background: var(--color);
-      
       animation: ball 6s infinite linear;
     }
   

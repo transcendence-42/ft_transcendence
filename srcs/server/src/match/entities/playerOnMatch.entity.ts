@@ -6,7 +6,7 @@ export class PlayerOnMatch {
   matchId: number;
   player?: User;
   playerId: number;
-  playerNum: number;
-  playerScore: number;
-  winProbability: number;
+  side: number;
+  score: number;
+  status?: number;
 }
