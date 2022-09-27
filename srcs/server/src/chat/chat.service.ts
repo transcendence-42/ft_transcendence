@@ -91,13 +91,14 @@ export class ChatService {
   }
 
   updateOneChannel(client: Socket, channelId: number, type: ChannelType) {
+    this.logger.log(channelId, type);
     if (
       type === ChannelType.PRIVATE ||
       type === ChannelType.DIRECT
     ) {
       return;
     }
-    client.emit(eEvent.UpdateOneChannel, channelId);
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
   getAllMessages(client: Socket, userId) {}
 

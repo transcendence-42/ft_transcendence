@@ -13,6 +13,7 @@ import { ChatUser, Channel } from './entities';
 import { eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { ChannelType } from '@prisma/client';
+import { channel } from 'diagnostics_channel';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -81,12 +82,13 @@ export class ChatGateway
   @SubscribeMessage(eEvent.UpdateOneChannel)
   updateOneChannel(
     client: Socket,
-    payload: { channelId: number; type: ChannelType },
+    channel: { id: number; type: ChannelType },
   ) {
+    this.logger.debug(`gateway ${channel.id} and type ${channel.type}`)
     return this.chatService.updateOneChannel(
       client,
-      payload.channelId,
-      payload.type,
+      channel.id,
+      channel.type,
     );
   }
 }

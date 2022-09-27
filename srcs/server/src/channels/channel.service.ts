@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserOnChannel, UserRole } from '@prisma/client';
+import { ChannelType, UserOnChannel, UserRole } from '@prisma/client';
 import { Logger } from 'nestjs-pino';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { Channel } from 'src/generated/nestjs-dto/channel.entity';
@@ -53,6 +53,16 @@ export class ChannelService {
 
   async create(createChannelDto: CreateChannelDto): Promise<Channel> {
     try {
+      if (
+        createChannelDto.type === ChannelType.PROTECTED ||
+        createChannelDto.type === ChannelType.PUBLIC
+      ) {
+        const nameTaken = await this.prisma.channel.findFirst({
+          where: { name: createChannelDto.name },
+        });
+        if (nameTaken)
+          throw new ChannelAlreadyExistsException(createChannelDto.name);
+      }
       const channel = await this.prisma.channel.create({
         data: {
           ...createChannelDto,

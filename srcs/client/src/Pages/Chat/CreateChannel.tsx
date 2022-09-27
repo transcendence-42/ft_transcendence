@@ -4,7 +4,7 @@ import { CreateChannelDto } from './entities';
 import { eChannelType, eEvent } from './constants';
 import { fetchUrl } from './utils';
 
-export default function CreateChannel({ userId, socket, addChannel, ...props }: any) {
+export default function CreateChannel({ userId, socket, updateOwnChannels, ...props }: any) {
   const [channelName, setChannelName] = useState('');
   const [channelPassword, setChannelPassword] = useState('');
   const [channelType, setChannelType] = useState(eChannelType.PUBLIC);
@@ -20,14 +20,19 @@ export default function CreateChannel({ userId, socket, addChannel, ...props }: 
       ownerId: userId,
       password: channelPassword
     };
-    const getChannel = async () => {
+    const createChannel = async () => {
       const channel = await fetchUrl('http://127.0.0.1:4200/channel/', 'PUT', createChannelDto);
       if (channel['id']) {
+        const userOnChannel = await fetchUrl(
+          `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
+          'GET'
+        );
         const payload = { id: channel.id, type: channel.type };
         socket.emit(eEvent.UpdateOneChannel, payload);
+        updateOwnChannels(userOnChannel);
       } else return alert(`Error while creating channel! ${channel.message}`);
     };
-    getChannel();
+    createChannel();
   };
   return (
     <>

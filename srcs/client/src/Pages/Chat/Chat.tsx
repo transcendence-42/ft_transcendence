@@ -7,15 +7,7 @@ import PongAdvancedModal from '../../Components/Modal/PongAdvancedModal';
 import BrowseChannels from './BrowseChannels';
 import CreateChannel from './CreateChannel';
 import FriendList from './FriendList';
-import {
-  MessageDto,
-  Channel,
-  JoinChannelDto,
-  ChatUser,
-  Message,
-  Hashtable,
-  UserOnChannel
-} from './entities';
+import { MessageDto, Channel, JoinChannelDto, ChatUser, Message, UserOnChannel } from './entities';
 import { eEvent, eChannelType, eUserRole } from './constants';
 import { fetchUrl } from './utils';
 
@@ -64,6 +56,15 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
 
+  const updateOwnChannels = (userOnChannel: UserOnChannel) => {
+    let updateAllChannels: UserOnChannel[] = [];
+    if (user.channels) {
+      updateAllChannels = user.channels;
+    }
+    updateAllChannels?.push(userOnChannel);
+    setUser((prevUser: ChatUser) => ({ ...prevUser, channels: updateAllChannels }));
+  };
+
   const addChannel = (channel: any) => {
     const updatedChannels: Channel[] = allChannels;
     console.log(`Here are all channels before updating ${user.channels}`);
@@ -90,7 +91,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   const openChannel = (e: any, channel: Channel) => {
     setCurrentChannel(channel);
-  }
+  };
 
   const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
@@ -127,8 +128,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         const friends = await fetchUrl(`http://127.0.0.1:4200/users/${user.id}/friends`, 'GET');
         if (!friends || friends.length !== 0) {
           setFriends(friends);
-          socket.connect();
         }
+        socket.connect();
+        const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, 'GET');
+        if (channels) setAllChannels(channels);
       } else {
         console.error(`There's a problem. Couldn't find user id to fetch friends`);
       }
@@ -182,7 +185,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         handleBtn1={handleCloseBrowseChannel}
         textBtn2="Validate"
         handleBtn2={handleCloseBrowseChannel}>
-        <BrowseChannels allChannels={user.channels} handleJoinChannel={handleJoinChannel} />
+        <BrowseChannels allChannels={allChannels} handleJoinChannel={handleJoinChannel} />
       </PongAdvancedModal>
       {console.log(`Heres hte user inside chatModal ${JSON.stringify(user, null, 4)}`)}
       {user && (
@@ -195,7 +198,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             textBtn1="Cancel"
             handleBtn1={handleCloseCreateChannel}
             textBtn2="Create">
-            <CreateChannel socket={socket} userId={user.id} addChannel={addChannel} />
+            <CreateChannel socket={socket} userId={user.id} updateOwnChannels={updateOwnChannels} />
           </ChatModal>
           <PongAdvancedModal
             title="Select a friend"
@@ -242,7 +245,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                             <button
                               className="rounded-4 btn-pink btn-join"
                               onClick={(e) => openChannel(e, UserOnChannel.channel)}>
-                                {UserOnChannel.channel.name}
+                              {UserOnChannel.channel.name}
                             </button>
                           </div>
                         </div>
