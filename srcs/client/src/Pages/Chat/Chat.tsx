@@ -1,5 +1,6 @@
-import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import '../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js'
 import './Chat.css';
 import { useState, useEffect } from 'react';
 import { Socket } from 'socket.io-client';

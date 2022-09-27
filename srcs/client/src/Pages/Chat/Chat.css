@@ -117,7 +117,6 @@ html, body {
   height: 100%;
   overflow: hidden;
 	overflow: scroll;
-  
 }
 
 .scroll-bar-messages {
@@ -126,7 +125,6 @@ html, body {
 	overflow: scroll;
 
 }
-
 
 .center-position {
   text-align: center;
@@ -172,7 +170,6 @@ html, body {
   box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.521);
 }
 
-
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(5, 2, 30);
 }
@@ -187,7 +184,6 @@ html, body {
   color: black;
   outline: none;
   width: 90%;
-  color: white;
   border: 2px solid #eb89d6;
   background-color: rgb(5, 2, 30);
   box-shadow:	0px 0px 5px #FF6ADE,
