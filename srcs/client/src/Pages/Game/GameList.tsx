@@ -1,6 +1,6 @@
 import './Game.css';
 import '../../Styles';
-
+import { Link } from 'react-router-dom';
 
 const GameList = (props: any) => {
   const defaultPic: string = '/img/default-user.jpg';
@@ -18,7 +18,13 @@ const GameList = (props: any) => {
                 {game.players[0] && (
                   <>
                     <td className="align-middle text-end">
-                      {game.players[0].name}
+                      <Link
+                        to="/prof"
+                        state={{ id: game.players[0].userId }}
+                        className="text-pink"
+                      >
+                        {game.players[0].name}
+                      </Link>
                     </td>
                     <td className="align-middle">
                       <img
@@ -48,7 +54,7 @@ const GameList = (props: any) => {
                   />
                 </td>
                 <td className="align-middle text-start">
-                  {(!game.players[1] &&
+                  {!game.players[1] ? (
                     <button
                       className="btn btn-pink text-pink"
                       onClick={() =>
@@ -60,6 +66,14 @@ const GameList = (props: any) => {
                     >
                       Join
                     </button>
+                  ) : (
+                    <Link
+                      to="/prof"
+                      state={{ id: game.players[1].userId }}
+                      className="text-pink"
+                    >
+                      {game.players[1].name}
+                    </Link>
                   )}
                 </td>
                 <td>

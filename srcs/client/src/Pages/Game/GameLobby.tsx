@@ -15,8 +15,16 @@ import Matchmaking from './modals/MatchMaking';
 import MapSelect from './modals/MapSelect';
 import GoBack from './modals/GoBack';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const GameLobby = (props: any) => {
+  /** 
+   * @props origin.name:  Name of the previous page
+   *        origin.loc:   Location of the previous page to go back
+   *        gameId?:      Id of the game on which apply the action. Can be ''.
+   *        action?:      0: Do nothing | 1: Join | 2: Spectacte
+   */
+
   // Enums
   enum eEvents {
     GO_LOBBY = 0,
@@ -31,6 +39,9 @@ const GameLobby = (props: any) => {
     IN_QUEUE,
     IN_GAME,
   }
+
+  // const location: any = useLocation();
+  // const { origin, gameId, action } = location.state;
 
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
@@ -56,11 +67,6 @@ const GameLobby = (props: any) => {
   const handleShowMapSelect = () => setShowMapSelect(true);
 
   // Socket events handlers
-  const handleConnect = useCallback(() => {
-    setGame({ action: eEvents.GO_LOBBY, id: 'lobby' });
-    socket.emit('findAllGame');
-  }, [socket, eEvents]);
-
   const handleGameList = useCallback((gameList: any) => {
     setGameList(gameList);
   }, []);
@@ -152,9 +158,17 @@ const GameLobby = (props: any) => {
     }
   };
 
+  const init = () => {
+    setGame({ action: eEvents.GO_LOBBY, id: 'lobby' });
+    socket.emit('findAllGame');
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
+
   useEffect(() => {
     // Socket listeners
-    socket.on('connect', handleConnect);
     socket.on('gameList', handleGameList);
     socket.on('reconnect', handleReconnect);
     socket.on('gameId', handleGameId);
@@ -164,7 +178,6 @@ const GameLobby = (props: any) => {
     // get all games
     socket.emit('findAllGame');
     return () => {
-      socket.off('connect', handleConnect);
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);

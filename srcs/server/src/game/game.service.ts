@@ -203,6 +203,8 @@ export class GameService {
         side: side,
         score: 0,
         pauseCount: 1,
+        pic: player.pic,
+        name: player.name,
       }),
     );
   }
@@ -1066,5 +1068,26 @@ export class GameService {
         )
         .exec();
     }
+  }
+
+  /** *********************************************************************** */
+  /** PLAYER INFO                                                             */
+  /** *********************************************************************** */
+
+  /** returns player info to requester */
+  async handlePlayerInfo(client: Socket, id: string) {
+    let player = {};
+    // if the player is playing in game
+    const playedGame: any = (
+      await this.redis.multi().select(DB.PLAYERS).get(id).exec()
+    )[1][1];
+    console.log(await this.redis.multi().select(DB.PLAYERS).get(id).exec());
+    if (playedGame) player = { id: id, game: playedGame, is: 1 };
+    // if the player is spectating a game
+    const viewedGame: any = (
+      await this.redis.multi().select(DB.VIEWERS).get(id).exec()
+    )[1][1];
+    if (viewedGame) player = { id: id, game: viewedGame, is: 1 };
+    client.emit('playerInfo', player);
   }
 }

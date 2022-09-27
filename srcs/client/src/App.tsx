@@ -14,6 +14,7 @@ import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
+import FakeProfile from './Pages/tmpProfile/FakeProfile';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -57,6 +58,7 @@ function App() {
               path="/lobby"
               element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
+            <Route path="/prof" element={<FakeProfile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/home" element={<Home />} />
             <Route path="/" element={<AuthenticatedRoute res />}>

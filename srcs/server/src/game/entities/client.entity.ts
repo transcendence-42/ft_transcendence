@@ -5,7 +5,6 @@ export class Client {
     this.socket = socket;
     this.userId = userId;
   }
-
   socket?: Socket;
   userId?: string;
   pic?: string;

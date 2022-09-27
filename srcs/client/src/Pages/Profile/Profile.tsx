@@ -1,10 +1,9 @@
 import React from "react";
-import {useState, useEffect} from 'react'
+import {useState} from 'react'
 import TREE from './tree.jpg'
 import "./profile.css"
 import "../../Components/Tools/Text.css"
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
-import {getFetch} from './getFetch'
 import { useLocation } from "react-router-dom";
 
 /* Pour exporter l'id on include UseParams and we call it with the variable.id */

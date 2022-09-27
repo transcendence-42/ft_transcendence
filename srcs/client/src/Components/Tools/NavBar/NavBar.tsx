@@ -1,17 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import "./NavBar.css"
-import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-import { useCookies } from 'react-cookie';
 import Context from "../../../Context/Context";
 
 export default function NavBar ()
 {
 
    
-    const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
     const contextValue = useContext(Context);
     
@@ -121,7 +118,7 @@ export default function NavBar ()
                         <button onClick={deco} className="playFlickering">Logout</button>
                     </div>
                     <div className="buttonInNavBar">
-                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
+                        <Link  to="/profile" state={{userID}}>  </Link>
                     </div>
                 </div>
           </div>
