@@ -27,9 +27,8 @@ export class UserService {
   readonly includedUserRelations: object = {
     stats: true,
     ratingHistory: true,
-    ownedChannels: true,
     channels: {
-      include: { users: true },
+      include: { channel: true },
     },
     friendshipRequested: true,
     friendshipAddressed: true,

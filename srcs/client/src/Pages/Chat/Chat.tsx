@@ -39,6 +39,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const [user, setUser] = useState({} as ChatUser);
   const [allMessages, setAllMessages] = useState([] as Message[]);
   const [allUsers, setAllUsers] = useState([] as ChatUser[]);
+  const [allChannels, setAllChannels] = useState([] as Channel[]);
   // const [allChannels, setAllChannels] = useState([] as Channel[]);
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
@@ -64,13 +65,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
 
   const addChannel = (channel: any) => {
-    let updatedChannels: any = [];
+    const updatedChannels: Channel[] = allChannels;
     console.log(`Here are all channels before updating ${user.channels}`);
-    if (user.channels) {
-      updatedChannels = user.channels;
-      updatedChannels.push(channel);
-      setUser((prevUser: ChatUser) => ({ ...prevUser, channels: updatedChannels }));
-    }
+    updatedChannels.push(channel);
+    setAllChannels(updatedChannels);
   };
 
   const handleMessageChange = (e: any) => {
@@ -90,17 +88,20 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
     setMessage('');
   };
 
-  const handleJoinChannel = (e: any, channelId: number) => {
+  const openChannel = (e: any, channel: Channel) => {
+    setCurrentChannel(channel);
+  }
+
+  const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
-    const channel: Channel = user.channels ? user.channels[channelId]: lobbyChannel;
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
-      console.log(`Channel with id ${channelId} doesnt exist`);
+      console.log(`Channel doesnt exist`);
       return;
     }
     if (
       channel['type'] === eChannelType.PROTECTED &&
-      getValueOf(channelId, joinChannelPassword) === ''
+      getValueOf(channel.id, joinChannelPassword) === ''
     ) {
       return alert('You must provide a Password!');
     }
@@ -154,10 +155,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       setAllUsers(newAllUsers);
     });
 
-    socket.on(eEvent.UpdateOneChannel, (channel: Channel) => {
-      // const newAllChannels: Channel[] = user.channels;
-      // user.channels[channel.id] = channel;
-      // setAllChannels(newAllChannels);
+    socket.on(eEvent.UpdateOneChannel, (channelId) => {
+      const getNewChannel = async () => {
+        const url = 'http://127.0.0.1:4200/channel/' + channelId;
+        const channel = await fetchUrl(url, 'GET');
+        addChannel(channel);
+      };
+      getNewChannel();
     });
 
     return () => {
@@ -232,16 +236,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                 <div className="row row-color">
                   <>
                     {!isEmpty(user) &&
-                      user.channels?.map((channel: Channel) => (
-                        <div className="channels" key={channel.id}>
-                          <div className="col">
-                            <p>{channel.name}</p>
-                          </div>
+                      user.channels?.map((UserOnChannel: UserOnChannel) => (
+                        <div className="channels" key={UserOnChannel.channelId}>
                           <div className="col">
                             <button
                               className="rounded-4 btn-pink btn-join"
-                              onClick={(e) => handleJoinChannel(e, channel.id)}>
-                              Join
+                              onClick={(e) => openChannel(e, UserOnChannel.channel)}>
+                                {UserOnChannel.channel.name}
                             </button>
                           </div>
                         </div>

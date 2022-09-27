@@ -28,7 +28,7 @@ export interface ChatUser {
   id: number;
   name: string;
   profilePicture: string;
-  channels?: Channel[];
+  channels?: UserOnChannel[];
   directMessges?: Message[];
 }
 
@@ -39,6 +39,7 @@ export interface UserOnChannel {
   joinedAt: Date;
   mutedTill: Date;
   bannedTill: Date;
+  channel: Channel;
 }
 
 export interface UpdateUserOnChannelDto {

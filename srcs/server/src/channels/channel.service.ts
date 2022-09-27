@@ -58,7 +58,7 @@ export class ChannelService {
           ...createChannelDto,
           users: {
             create: [
-              { role: UserRole.OWNER, userId: createChannelDto.ownerId},
+              { role: UserRole.OWNER, userId: createChannelDto.ownerId },
             ],
           },
         },
@@ -68,7 +68,9 @@ export class ChannelService {
       });
       return channel;
     } catch (e) {
-      this.logger.error(`Failed to create channel ${e['message']} with code ${e['code']}`)
+      this.logger.error(
+        `Failed to create channel ${e['message']} with code ${e['code']}`,
+      );
       throw new ChannelAlreadyExistsException(createChannelDto.name);
     }
   }
@@ -116,6 +118,19 @@ export class ChannelService {
       throw new ChannelNotFoundException(createUserOnChannelDto.userId);
     }
   }
+
+  async findUserOnChannel(
+    channelId: number,
+    userId: number,
+  ): Promise<UserOnChannel> {
+    const userOnChannel = await this.prisma.userOnChannel.findUnique({
+      where: { channelId_userId: { userId, channelId } },
+      include: { channel: true },
+    });
+    if (!userOnChannel) throw new UserNotFoundException(userId);
+    return userOnChannel;
+  }
+
   async updateUserOnChannel(
     channelId: number,
     userId: number,

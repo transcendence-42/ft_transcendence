@@ -8,6 +8,7 @@ import { eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Inject, Logger } from '@nestjs/common';
 import { Hashtable } from './interfaces/hashtable.interface';
 import Redis from 'redis';
+import { ChannelType } from '@prisma/client';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -89,6 +90,15 @@ export class ChatService {
     );
   }
 
+  updateOneChannel(client: Socket, channelId: number, type: ChannelType) {
+    if (
+      type === ChannelType.PRIVATE ||
+      type === ChannelType.DIRECT
+    ) {
+      return;
+    }
+    client.emit(eEvent.UpdateOneChannel, channelId);
+  }
   getAllMessages(client: Socket, userId) {}
 
   async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {

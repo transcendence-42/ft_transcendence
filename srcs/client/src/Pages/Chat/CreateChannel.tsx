@@ -23,9 +23,8 @@ export default function CreateChannel({ userId, socket, addChannel, ...props }: 
     const getChannel = async () => {
       const channel = await fetchUrl('http://127.0.0.1:4200/channel/', 'PUT', createChannelDto);
       if (channel['id']) {
-        addChannel(channel);
-        setChannelName('');
-        setChannelPassword('');
+        const payload = { id: channel.id, type: channel.type };
+        socket.emit(eEvent.UpdateOneChannel, payload);
       } else return alert(`Error while creating channel! ${channel.message}`);
     };
     getChannel();

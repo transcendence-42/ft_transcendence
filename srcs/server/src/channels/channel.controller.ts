@@ -28,6 +28,7 @@ import {
   UpdateUserOnChannelDto,
 } from './dto';
 import { Logger } from 'nestjs-pino';
+import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 
 @ApiTags('Channels')
 @Controller('channel')
@@ -111,9 +112,19 @@ export class ChannelController {
     return this.channelService.delete(id);
   }
 
+  @Get(':id/useronchannel/:userid')
+  @ApiOperation({ summary: 'Find userOnChannel' })
+  @ApiOkResponse({ description: 'user on channel', type: UserOnChannel })
+  findUserOnChannel(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('userid', ParseIntPipe) userId: number,
+  ) {
+    return this.channelService.findUserOnChannel(id, userId);
+  }
+
   @Put(':id/useronchannel')
   @ApiOperation({ summary: 'Creates a user on a channel' })
-  @ApiOkResponse({ description: 'Craeted Channel', type: Channel })
+  @ApiOkResponse({ description: 'Created Channel', type: Channel })
   createUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Body() createUserOnChannelDto: CreateUserOnChannelDto,

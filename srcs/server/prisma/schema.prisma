@@ -48,7 +48,8 @@ model User {
   credentials         Credentials?
   stats               Stats?
   ratingHistory       Rating[]
-  channels            Channel[]
+  ownedChannels       Channel[]
+  channels            UserOnChannel[]
   friendshipRequested Friendship[]      @relation("requester")
   friendshipAddressed Friendship[]      @relation("addressee")
   matches             PlayerOnMatch[]
@@ -69,24 +70,24 @@ model Achievement {
 }
 
 model Channel {
-  id          Int             @id @default(autoincrement())
-  name        String
-  type        ChannelType
-  password    String?
-  owner       User            @relation(fields: [ownerId], references: [id])
-  ownerId     Int
-  users       UserOnChannel[]
+  id       Int             @id @default(autoincrement())
+  name     String
+  type     ChannelType
+  password String?
+  owner    User            @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  users    UserOnChannel[]
 }
 
 model UserOnChannel {
-  channelId Int
-  userId    Int
-  role      UserRole
-  joinedAt      DateTime @db.Timestamp() @default(now())
-  mutedTill   DateTime @db.Timestamp() @default(now())
-  bannedTill  DateTime  @db.Timestamp() @default(now())
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channelId  Int
+  userId     Int
+  role       UserRole
+  joinedAt   DateTime @default(now()) @db.Timestamp()
+  mutedTill  DateTime @default(now()) @db.Timestamp()
+  bannedTill DateTime @default(now()) @db.Timestamp()
+  channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([channelId, userId])
 }
@@ -111,11 +112,11 @@ model Stats {
 }
 
 model Rating {
-  id       Int      @id @default(autoincrement())
-  date     DateTime @default(now())
-  rating   Int
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int 
+  id     Int      @id @default(autoincrement())
+  date   DateTime @default(now())
+  rating Int
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 }
 
 model PlayerOnMatch {
