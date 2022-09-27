@@ -5,11 +5,9 @@ import "../profile.css"
 
 export default function BlockFriend(props : any) {
 
-	// console.log("ADDFRIEND USER ID", props.id)
-	// console.log("ADDFRIEND VIEWER ID", props.originalId)
-
-	function doSomething() {
-		console.log("rien");
+	// Feature incoming
+	function blockSomeone() {
+		console.log("Incoming");
 	}
 
 	return (
@@ -19,9 +17,11 @@ export default function BlockFriend(props : any) {
 				width: "100%",
 				height: "auto",
 			}}
-			onClick={()=>(doSomething())}
+			onClick={()=>(blockSomeone())}
 			>
-				<div className="redText" style={{fontSize: "1vw"}}> Block Friend </div>
+				<div className="redText" style={{fontSize: "1vw"}}>
+					Block Friend
+				</div>
 			</button>
 		</>
  		);

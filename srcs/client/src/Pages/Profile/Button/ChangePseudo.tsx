@@ -9,7 +9,6 @@ export default function ChangePseudo(props : any) {
 
 	const [isShowing, setIsShowing] = useState(false);
 
-
 	function toggle() {
 		setIsShowing(!isShowing);
 	}
@@ -23,15 +22,15 @@ export default function ChangePseudo(props : any) {
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}> Change Username </div>
+				<div className="blueText" style={{fontSize: "1vw"}}>
+					Change Username
+				</div>
 			</button>
-				<ModalChangePseudo isShowing={isShowing} hide={toggle} id={props.id} up={props.up}/>
+				<ModalChangePseudo
+					isShowing={isShowing}
+					hide={toggle}
+					id={props.id}
+					up={props.up}/>
 		</>
  		);
 }
-
-
-// onClick={()=>(patchFetchPseudo({url: request, name: newPseudo}))}
-// let request = "http://127.0.0.1:4200/users/" + userID;
-// console.log(request);
-// const json = getFetch({url : request});

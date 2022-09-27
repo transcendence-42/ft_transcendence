@@ -1,6 +1,5 @@
 
 export async function getFetch(props : any){
-	console.log("URL ",props.url);
 	try{
 		const response = await
 		fetch(props.url, {
@@ -19,7 +18,7 @@ export async function getFetch(props : any){
 		})
 		return response;
 	}
-	catch(error) { // Mettre un potentiel message d'erreur ?
+	catch(error) {
 		console.error(error);
  };
 }

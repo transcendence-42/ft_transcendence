@@ -14,9 +14,9 @@ export async function patchFetchPseudo(props : any){
 		console.log(response);
 		if (response.status === 200)
 		{
-				// check response for Bad Request (Waiting for API update)
-			}
-			else { throw new Error("Error"); }
+				// check response for Bad Request (Feature Incoming)
+		}
+		else { throw new Error("Error"); }
 		})
 	}
 	catch(error) {

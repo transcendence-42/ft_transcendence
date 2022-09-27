@@ -10,6 +10,8 @@ import FriendshipAccepted from './Button/FriendshipAccepted'
 
 export default function FriendList(props : any) {
 
+	// OFFLINE TEST
+
 	let test_friends = [
 		{
 		  "id": 2,
@@ -68,16 +70,30 @@ export default function FriendList(props : any) {
 							{
 							<>
 								<td className="pinkText"> New  </td>
-								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
+								<td> <PhotoProfilDropdown
+										url={friends.profilePicture}
+										id={friends.id}
+										originalId={props.originalId}
+										width={"4vw"}
+										height={"4vw"}/>
+								</td>
 								<td> {friends.username} </td>
 								<td colSpan={2} >
 								<table>
 									<tbody>
 										<tr>
-											<td> <FriendshipAccepted id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+											<td> <FriendshipAccepted
+													id={friends.id}
+													originalId={props.originalId}
+													up ={props.up}/>
+											</td>
 										</tr>
 										<tr>
-											<td> <FriendshipRejected id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+											<td> <FriendshipRejected
+													id={friends.id}
+													originalId={props.originalId}
+													up={props.up}/>
+											</td>
 										</tr>
 									</tbody>
 								</table>
@@ -91,15 +107,26 @@ export default function FriendList(props : any) {
 						<tr key={index} style={{fontSize: "2vw"}}>
 							{
 							<>
-								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
+								<td> <PhotoProfilDropdown
+										url={friends.profilePicture}
+										id={friends.id}
+										originalId={props.originalId}
+										width={"4vw"}
+										height={"4vw"}/>
+								</td>
 								<td> {friends.username} </td>
-								<td> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
+								<td> <OnlineOffline
+										status={friends.currentStatus}
+										size={"2vw"}/>
+								</td>
 							</>
 							}
 						</tr>
 						))
 						:<tr>
-							<td className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</td>
+							<td className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}>
+								New Friends awaits you
+							</td>
 						</tr>
 						}
 					</tbody>

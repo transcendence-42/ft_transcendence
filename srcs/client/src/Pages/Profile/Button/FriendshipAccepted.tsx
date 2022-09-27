@@ -23,7 +23,9 @@ export default function FriendshipAccepted(props : any) {
 			<button className="btn"
 			onClick={()=>(onClickAccepted())}
 			>
-				<div className="greenText" style={{fontSize: "1.2vw"}}> Accept </div>
+				<div className="greenText" style={{fontSize: "1.2vw"}}>
+					Accept
+				</div>
 			</button>
 		</>
  		);

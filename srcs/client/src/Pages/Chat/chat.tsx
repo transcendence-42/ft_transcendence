@@ -3,7 +3,7 @@ import './chat.css';
 import "../../Components/Tools/Box.css"
 
 
-export default function Chat () {
+export default function Chat (props : any) {
 
     return (
       <>

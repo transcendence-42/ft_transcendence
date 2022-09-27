@@ -22,7 +22,9 @@ export default function FriendshipRejected(props : any) {
 			<button className="btn"
 			onClick={()=>(onClickAccepted())}
 			>
-				<div className="redText" style={{fontSize: "1.2vw"}}> Reject </div>
+				<div className="redText" style={{fontSize: "1.2vw"}}>
+					Reject
+				</div>
 			</button>
 		</>
  		);

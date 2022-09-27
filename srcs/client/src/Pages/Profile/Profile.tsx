@@ -44,18 +44,15 @@ export default function Profile () {
         console.log(request);
         const user_json = getFetch({url : request});
         user_json.then((responseObject)=> {
-            // console.log("User =>", responseObject);
             setUser(responseObject);
         })
         request = "http://127.0.0.1:4200/users/" + userID + "/friends";
         const friend_json = getFetchFriends({url : request});
         friend_json.then((responseObject)=> {
-            // console.log("Friend =>", responseObject);
             setFriendList(responseObject);})
         request = "http://127.0.0.1:4200/users/" + userID + "/matches";
             const matches_json = getFetchMatch({url : request});
             matches_json.then((responseObject)=> {
-                // console.log("Matches =>", responseObject);
                 setMatchesList(responseObject);})
         },[userID, update]);
 
@@ -73,7 +70,6 @@ export default function Profile () {
                         <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
                         <br/>
                         <OnlineOffline status={user.currentStatus} size={"1.5vw"}/>
-                        {/* faire un bouton permettant de passer offline */}
                     </div>
                     <div className="changeProfil">
                         { userID === originalId ?
@@ -108,46 +104,3 @@ export default function Profile () {
     }
     return(<></>);
 }
-
-// chaque variable avec [] possede une variable lenght qui sera egale a 0 s'il n'y a rien
-// ex : user.friendshipRequested.lenght  ? affiche ca : sinon affiche ca
-// SANS RIEN DEDANS
-// {
-//     "id": 1,
-//     "username": "fmonbeig",
-//     "email": "fmonbeig@student.42.fr",
-//     "createdAt": "2022-09-02T13:22:33.662Z",
-//     "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-//     "currentStatus": 1,
-//     "eloRating": 1000,
-//     "stats": null,
-//     "ratingHistory": [],
-//     "ownedChannels": [],
-//     "channels": [],
-//     "friendshipRequested": [],
-//     "friendshipAddressed": [],
-//     "matches": [],
-//     "achievements": []
-//   }
-
-    // USER
-//{id: 1, username: 'fmonbeig', email: 'fmonbeig@student.42.fr',
-//createdAt: '2022-09-01T09:00:06.542Z',
-//profilePicture: 'https://cdn.intra.42.fr/users/fmonbeig.jpg', …}
-
-
-    // const [test, setTest] : any = useState(
-    //     {
-    //         "id": 1,
-    //         "username": "fmonbeig",
-    //         "email": "fmonbeig@student.42.fr",
-    //         "createdAt": "2022-09-02T13:22:33.662Z",
-    //         "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-    //         "currentStatus": 1,
-    //         "eloRating": 1000,
-    //             "stats": {
-    //             "id": 0,Matcvarssed": [],
-    //         "matches": [],
-    //         "achievements": []
-    //       }
-    // )

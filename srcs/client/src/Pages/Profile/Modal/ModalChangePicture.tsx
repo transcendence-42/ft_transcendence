@@ -59,7 +59,3 @@ export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 		  )
 		: null);
 }
-
-
-// https://cdn.intra.42.fr/users/flmastor.jpg
-// https://cdn.intra.42.fr/users/fmonbeig.jpg

@@ -22,7 +22,6 @@ export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 		console.log(content);
 		console.log(url);
 		patchFetchPseudo({url: url, name: content});
-		// Add a check with the promise
 		hide();
 		up();
 	}

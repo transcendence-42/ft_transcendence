@@ -1,10 +1,5 @@
 
 export async function updateFriendship(props : any){
-
-	console.log("props.originalId", props.originalId)
-	console.log("props.addresseeId", props.addresseeId)
-	console.log("props.status", props.status)
-	console.log("props.URL", props.url)
 	try{
 		await
 		fetch(props.url, {

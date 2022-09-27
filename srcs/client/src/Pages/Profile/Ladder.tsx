@@ -17,12 +17,10 @@ export default function Ladder(props: any) {
         }}
       >
         <div className="blueText" style={{ fontSize: "1.2vw" }}>
-          {" "}
-          League{" "}
+          League
         </div>
         <div className="yellowText" style={{ fontSize: "1.3vw" }}>
-          {" "}
-          <League elo={elo} />{" "}
+          <League elo={elo} />
         </div>
       </div>
       <div className="yellowPinkBoxLadder"
@@ -30,8 +28,12 @@ export default function Ladder(props: any) {
 				width: "8vw",
 				height: "8vw",
 			}}>
-				<div className="blueText" style={{fontSize: "1.2vw"}}> WINS </div>
-				<div className="yellowText" style={{fontSize: "2vw"}}> {props.stats ? props.stats.wins : '0'} </div>
+				<div className="blueText" style={{fontSize: "1.2vw"}}>
+          WINS
+        </div>
+				<div className="yellowText" style={{fontSize: "2vw"}}>
+          {props.stats ? props.stats.wins : '0'}
+        </div>
 			</div>
 
 			<div className="yellowPinkBoxLadder"
@@ -39,8 +41,12 @@ export default function Ladder(props: any) {
 				width: "8vw",
 				height: "8vw",
 			}}>
-				<div className="blueText" style={{fontSize: "1.2vw"}}> LOSES </div>
-				<div className="yellowText" style={{fontSize: "2vw"}}> {props.stats ? props.stats.losses : '0'} </div>
+				<div className="blueText" style={{fontSize: "1.2vw"}}>
+          LOSES
+        </div>
+				<div className="yellowText" style={{fontSize: "2vw"}}>
+          {props.stats ? props.stats.losses : '0'}
+        </div>
 			</div>
     </div>
   );

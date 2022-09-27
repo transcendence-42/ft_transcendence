@@ -6,11 +6,7 @@ import {requestFriendship} from "../Fetch/requestFriendship"
 
 export default function AddFriend(props : any) {
 
-	// console.log("ADDFRIEND USER ID", props.id)
-	// console.log("ADDFRIEND VIEWER ID", props.originalId)
-
 	let url = "http://127.0.0.1:4200/users/" + props.originalId + "/friends";
-
 	return (
 		<>
 			<button className="yellowPinkBoxButtonProfil"
@@ -20,7 +16,9 @@ export default function AddFriend(props : any) {
 			}}
 			onClick={()=>(requestFriendship({url: url, addresseeId: props.id}))}
 			>
-				<div className="greenText" style={{fontSize: "1vw"}}> Add Friend </div>
+				<div className="greenText" style={{fontSize: "1vw"}}>
+					Add Friend
+				</div>
 			</button>
 		</>
  		);

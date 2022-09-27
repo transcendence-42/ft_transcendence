@@ -22,7 +22,9 @@ export default function ChangePicture(props : any) {
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}> Change Picture </div>
+				<div className="blueText" style={{fontSize: "1vw"}}>
+					Change Picture
+				</div>
 			</button>
 				<ModalChangePicture
 				isShowing={isShowing}

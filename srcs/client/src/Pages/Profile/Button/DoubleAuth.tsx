@@ -7,11 +7,13 @@ export default function DoubleAuth() {
 
 	return (
 		<div className="yellowPinkBoxButtonProfil"
-		style={{
-			width: "100%",
-			height: "auto",
-		}}>
-			<div className="blueText" style={{fontSize: "1vw"}}> Double Authentification Factor </div>
+			style={{
+				width: "100%",
+				height: "auto",
+			}}>
+			<div className="blueText" style={{fontSize: "1vw"}}>
+				Double Authentification Factor
+			</div>
 		</div>
  		);
 }

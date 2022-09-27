@@ -1,8 +1,5 @@
 
 export async function requestFriendship(props : any){
-
-	console.log("props.addresseeId", props.addresseeId)
-	console.log("props.URL", props.url)
 	try{
 		await
 		fetch(props.url, {

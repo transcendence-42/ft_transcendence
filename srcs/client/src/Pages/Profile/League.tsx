@@ -22,7 +22,6 @@ export default function League(props : any) {
 	{
 		return(
 			<div className="textBronze" style={{fontSize: props.size}}> BRONZE </div>
-
 		);
 	}
 	else

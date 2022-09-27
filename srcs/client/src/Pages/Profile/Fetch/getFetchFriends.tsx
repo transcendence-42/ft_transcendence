@@ -1,7 +1,5 @@
 
 export async function getFetchFriends(props : any){
-	// console.log("URL ",props.url);
-
 		const response = await
 		fetch(props.url, {
 	  method: "GET",
