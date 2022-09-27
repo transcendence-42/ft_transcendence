@@ -1,6 +1,6 @@
 
 export async function getFetch(props : any){
-	// console.log("URL ",props.url);
+	console.log("URL ",props.url);
 	try{
 		const response = await
 		fetch(props.url, {

@@ -25,8 +25,7 @@ export default function Ladder(props: any) {
           <League elo={elo} />{" "}
         </div>
       </div>
-
-      {/* <div className="yellowPinkBoxLadder"
+      <div className="yellowPinkBoxLadder"
 			style={{
 				width: "8vw",
 				height: "8vw",
@@ -42,7 +41,7 @@ export default function Ladder(props: any) {
 			}}>
 				<div className="blueText" style={{fontSize: "1.2vw"}}> LOSES </div>
 				<div className="yellowText" style={{fontSize: "2vw"}}> {props.stats ? props.stats.losses : '0'} </div>
-			</div> */}
+			</div>
     </div>
   );
 }

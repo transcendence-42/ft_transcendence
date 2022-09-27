@@ -25,9 +25,9 @@ function App() {
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
             < Route path="/leaderboard" element={<Leaderboard />} />
               < Route path="/profile" element={<Profile />} />
-            <Route  path='/'element={<AuthenticatedRoute pathFree/>}>
               < Route path="/home" element={<Home />} />
               < Route path="/about" element={<About />} />
               < Route path="/chat" element={<Chat />} />

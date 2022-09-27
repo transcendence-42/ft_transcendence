@@ -60,7 +60,7 @@ export default function FriendList(props : any) {
 		 height: "100%",
 		}}>
 			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
-				{<table className="table  scroll m-1 align-middle  ">
+				{<table className="table scroll m-1 align-middle  ">
 					<tbody>
 						{ test_requested &&
 						test_requested.map((friends: any, index: number) =>(
@@ -70,8 +70,18 @@ export default function FriendList(props : any) {
 								<td className="pinkText"> New  </td>
 								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
 								<td> {friends.username} </td>
-								<td> <FriendshipAccepted id={friends.id} originalId={props.originalId} up ={props.up}/></td>
-								<td> <FriendshipRejected id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+								<td colSpan={2} >
+								<table>
+									<tbody>
+										<tr>
+											<td> <FriendshipAccepted id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+										</tr>
+										<tr>
+											<td> <FriendshipRejected id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+										</tr>
+									</tbody>
+								</table>
+						</td>
 							</>
 							}
 						</tr>

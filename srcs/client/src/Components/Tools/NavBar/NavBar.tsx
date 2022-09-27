@@ -146,8 +146,7 @@ export default function NavBar ()
         }
      }, [cookies, fromAuth]);
 
-    // if (isLogged)
-    if (1)
+    if (isLogged)
     {
         return (
             <div className="navBar">
