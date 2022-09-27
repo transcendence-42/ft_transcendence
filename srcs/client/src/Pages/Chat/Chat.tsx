@@ -119,7 +119,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
     let updateAllChannels: UserOnChannel[] = [];
-    if (user.channels) {
+    if (user['channels']) {
       updateAllChannels = user.channels;
     }
     updateAllChannels?.push(userOnChannel);
@@ -181,8 +181,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   useEffect(() => {
     const initChatUser = async () => {
-      const response = await fetchUrl('http://127.0.0.1:4200/auth/success/', 'GET');
-      const { user } = response;
+      // const response = await fetchUrl('http://127.0.0.1:4200/auth/success/', 'GET');
+      const response = await fetchUrl('http://127.0.0.1:4200/users/2', 'GET');
+      // const { user } = response;
+      const user = response;
       console.log(`Here the user obj ${JSON.stringify(user, null, 4)}`);
       setUser(user);
       if (user && user.id) {
@@ -190,12 +192,12 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         if (!friends || friends.length !== 0) {
           setFriends(friends);
         }
-        socket.connect();
-        const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, 'GET');
-        if (channels) setAllChannels(channels);
       } else {
         console.error(`There's a problem. Couldn't find user id to fetch friends`);
       }
+      socket.connect();
+      const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, 'GET');
+      if (channels) setAllChannels(channels);
     };
     initChatUser();
     console.info(`Heres true user after init !! ${JSON.stringify(user, null, 4)}`);
@@ -238,16 +240,18 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
 
   return (
     <>
-      <PongAdvancedModal
-        title="Browse channels"
-        show={showBrowseChannel}
-        closeHandler={handleCloseBrowseChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
-        handleBtn2={handleCloseBrowseChannel}>
-        <BrowseChannels allChannels={allChannels} />
-      </PongAdvancedModal>
+      {allChannels && (
+        <PongAdvancedModal
+          title="Browse channels"
+          show={showBrowseChannel}
+          closeHandler={handleCloseBrowseChannel}
+          textBtn1="Cancel"
+          handleBtn1={handleCloseBrowseChannel}
+          textBtn2="Validate"
+          handleBtn2={handleCloseBrowseChannel}>
+          <BrowseChannels allChannels={allChannels} />
+        </PongAdvancedModal>
+      )}
       {console.log(`Heres hte user inside chatModal ${JSON.stringify(user, null, 4)}`)}
       {user && (
         <>
@@ -309,17 +313,21 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                 <div className="row row-color">
                   <>
                     {!isEmpty(user) &&
-                      user.channels?.map((UserOnChannel: UserOnChannel) => (
-                        <div className="channels" key={UserOnChannel.channelId}>
-                          <div className="col">
-                            <button
-                              className="rounded-4 btn-pink btn-join"
-                              onClick={(e) => openChannel(e, UserOnChannel.channel)}>
-                              {UserOnChannel.channel.name}
-                            </button>
+                      user.channels?.map((UserOnChannel: UserOnChannel) =>
+                        UserOnChannel.channel.type === eChannelType.DIRECT ? (
+                          ''
+                        ) : (
+                          <div className="channels" key={UserOnChannel.channelId}>
+                            <div className="col">
+                              <button
+                                className="rounded-4 btn-pink btn-join"
+                                onClick={(e) => openChannel(e, UserOnChannel.channel)}>
+                                {UserOnChannel.channel.name}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </>
                 </div>
               </>
@@ -347,7 +355,14 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                         <button
                           className="rounded-4 btn-pink btn-join"
                           onClick={(e) => openChannel(e, UserOnChannel.channel)}>
-                          {friends.find((friend: ChatUser) => (friend.id === (UserOnChannel.channel.users?.find((usr) => usr.userId !== user.id))?.userId)) ? 'yes' : 'no'}
+                          {friends?.find(
+                            (friend: ChatUser) =>
+                              friend.id ===
+                              UserOnChannel.channel.users?.find((usr) => usr.userId !== user.id)
+                                ?.userId
+                          )
+                            ? 'yes'
+                            : 'no'}
                         </button>
                       </div>
                     </div>
@@ -413,11 +428,16 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <p className="blue-titles center-position titles-position">MEMBERS</p>
               <>
                 {!isEmpty(currentChannel) &&
-                  currentChannel.users?.map((user: UserOnChannel) => (
+                  currentChannel.users &&
+                  currentChannel.users.map((user: UserOnChannel) => (
                     <div key={user.userId}>{allUsers && allUsers[user.userId]?.username}</div>
                   ))}
-                {console.log(`Are the objects empty ${!isEmpty(user.channels)}`)}
-                {console.log(`list of channels ${JSON.stringify(user.channels, null, 4)}`)}
+                {user &&
+                  user['channels'] &&
+                  console.log(`Are the objects empty ${!isEmpty(user['channels'])}`)}
+                {user &&
+                  user['channels'] &&
+                  console.log(`list of channels ${JSON.stringify(user['channels'], null, 4)}`)}
               </>
             </div>
           </div>

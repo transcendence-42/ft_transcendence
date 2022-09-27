@@ -6,6 +6,7 @@ import { eChannelType } from './constants';
 export default function BrowseChannels({ allChannels, ...props }: any) {
   const [channelSearch, setChannelSearch] = useState('');
   const [joinChannelPassword, setJoinChannelPassword] = useState('');
+    allChannels = allChannels.filter((channel: Channel) => channel.type !== eChannelType.DIRECT);
   const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
@@ -18,7 +19,7 @@ export default function BrowseChannels({ allChannels, ...props }: any) {
     }
   };
   let filtered: Channel[];
-  if (channelSearch) {
+  if (allChannels.length !== 0 && channelSearch) {
     filtered = allChannels.filter((channel: Channel) =>
       new RegExp(channelSearch, 'i').test(channel.name)
     );
@@ -32,20 +33,21 @@ export default function BrowseChannels({ allChannels, ...props }: any) {
         style={{ color: 'black' }}
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}></input>
-      {filtered.map((channel: Channel) => (
-        <div className="channels" key={channel.id}>
-          <div className="col">
-            <p>{channel.name}</p>
+      {filtered.length !== 0 &&
+        filtered.map((channel: Channel) => (
+          <div className="channels" key={channel.id}>
+            <div className="col">
+              <p>{channel.name}</p>
+            </div>
+            <div className="col">
+              <button
+                className="rounded-4 btn-pink btn-join"
+                onClick={(e) => handleJoinChannel(e, channel)}>
+                Join
+              </button>
+            </div>
           </div>
-          <div className="col">
-            <button
-              className="rounded-4 btn-pink btn-join"
-              onClick={(e) => handleJoinChannel(e, channel)}>
-              Join
-            </button>
-          </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 }
