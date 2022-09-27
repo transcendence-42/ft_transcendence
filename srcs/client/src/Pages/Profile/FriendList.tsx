@@ -70,8 +70,8 @@ export default function FriendList(props : any) {
 								<td className="pinkText"> New  </td>
 								<td> <PhotoProfilDropdown url={friends.profilePicture} id={friends.id} originalId={props.originalId} width={"4vw"} height={"4vw"}/></td>
 								<td> {friends.username} </td>
-								<td> <FriendshipAccepted id={friends.id} originalId={props.originalId}/></td>
-								<td> <FriendshipRejected id={friends.id} originalId={props.originalId}/></td>
+								<td> <FriendshipAccepted id={friends.id} originalId={props.originalId} up ={props.up}/></td>
+								<td> <FriendshipRejected id={friends.id} originalId={props.originalId} up ={props.up}/></td>
 							</>
 							}
 						</tr>

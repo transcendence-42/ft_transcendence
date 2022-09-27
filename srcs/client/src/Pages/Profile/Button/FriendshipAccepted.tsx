@@ -9,16 +9,19 @@ export default function FriendshipAccepted(props : any) {
 	// console.log("ADDFRIEND USER ID", props.id)
 	// console.log("ADDFRIEND VIEWER ID", props.originalId)
 
-	let url = "http://127.0.0.1:4200/friendship";
+	function onClickAccepted(){
+		updateFriendship({
+			url: "http://127.0.0.1:4200/friendship",
+			addresseeId: props.id,
+			originalId: props.originalId,
+			status:1});
+			props.up();
+	}
 
 	return (
 		<>
 			<button className="btn"
-			onClick={()=>(updateFriendship({
-				url: url,
-				addresseeId: props.id,
-				originalId: props.originalId,
-				status:1}))}
+			onClick={()=>(onClickAccepted())}
 			>
 				<div className="greenText" style={{fontSize: "1.2vw"}}> Accept </div>
 			</button>

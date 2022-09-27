@@ -100,7 +100,7 @@ export default function Profile () {
                     <MatchHistory matchesList={matchesList} id={userID}/>
                 </div>
                 <div className="friend">
-                    <FriendList friendList={friendList} id={userID} originalId={originalId}/>
+                    <FriendList friendList={friendList} id={userID} originalId={originalId} up={toggleUpdate}/>
                 </div>
             </div>
 
