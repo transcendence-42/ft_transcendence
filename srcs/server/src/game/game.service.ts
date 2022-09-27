@@ -58,7 +58,7 @@ const Params = Object.freeze({
   CANVASW: 900,
   CANVASH: 500,
   BALLSPEED: 6,
-  PLAYERSPEED: 15,
+  PLAYERSPEED: 10,
   BARWIDTH: 12,
   BARHEIGHT: 54,
   WALLSIZE: 15,
@@ -421,7 +421,6 @@ export class GameService {
           .sismember('users', players[i].userId)
           .exec()
       )[1][1];
-      console.log(isMatchMaking);
       if (isMatchMaking)
         await this.redis
           .multi()
@@ -462,7 +461,6 @@ export class GameService {
   async viewerLeaves(client: Socket, id: string) {
     // remove the viewer
     const userId: string = client.handshake.query.userId.toString();
-    console.log(userId);
     await this.redis
       .multi()
       .select(DB.GAMES)
@@ -604,6 +602,12 @@ export class GameService {
     // check if there is a game loop for this game already
     if (!this.gameLoops.find((gl) => gl.id === id)) {
       let game: Game = await this._getGame(id);
+      // force status to Started (in case the game is paused)
+      await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call('JSON.SET', id, `$.status`, Status.STARTED)
+        .exec();
       // reinit grid and physics to restore ball interval
       this._initGame(game, Side.RIGHT);
       // new game loop
