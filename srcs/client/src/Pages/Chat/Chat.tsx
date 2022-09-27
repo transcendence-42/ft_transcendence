@@ -238,21 +238,39 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                   <tbody>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                          </td>
                       </tr>
                   </tbody> 
                 </table>
@@ -278,21 +296,39 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                   <tbody>
                       <tr>
                           <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>User</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                       <tr>
                           <td>USer</td>
+                          <td>
+                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                          </td>
                       </tr>
                   </tbody> 
                 </table>
@@ -347,10 +383,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                     <tr>
                         <td>User</td>
                         <td>
-                          <button className='rounded-4 btn btn-chat btn-profile btn-pink'>Invite</button>
+                          <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
                         </td>
                         <td>
-                          <button className='rounded-4 btn btn-chat btn-profile btn-pink'>Block</button>
+                          <button className='rounded-4 btn btn-chat btn-pink'>Block</button>
                         </td>
                     </tr>
                 </tbody> 

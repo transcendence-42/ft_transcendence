@@ -110,7 +110,6 @@ html, body {
   height: 100%;
   overflow: hidden;
 	overflow: scroll;
-  
 }
 
 .scroll-bar-direct {
@@ -123,7 +122,6 @@ html, body {
   height: 5em;
   overflow: hidden;
 	overflow: scroll;
-
 }
 
 .center-position {
