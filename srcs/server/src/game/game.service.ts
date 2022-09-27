@@ -414,12 +414,20 @@ export class GameService {
     for (let i = 0; i < players.length; ++i) {
       if (await this._isPlayerInGame(players[i].userId))
         throw new UserAlreadyInGameException(players[i].userId);
-      const isMatchMaking = await this.redis.sismember(
-        'matchMaking',
-        players[i].userId,
-      );
+      const isMatchMaking = (
+        await this.redis
+          .multi()
+          .select(DB.MATCHMAKING)
+          .sismember('users', players[i].userId)
+          .exec()
+      )[1][1];
+      console.log(isMatchMaking);
       if (isMatchMaking)
-        await this.redis.srem('matchMaking', players[i].userId);
+        await this.redis
+          .multi()
+          .select(DB.MATCHMAKING)
+          .srem('users', players[i].userId)
+          .exec();
     }
     // create a new game
     const newGame: Game = new Game(v4());
