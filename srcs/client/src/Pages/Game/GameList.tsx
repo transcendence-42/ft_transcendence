@@ -48,7 +48,7 @@ const GameList = (props: any) => {
                   />
                 </td>
                 <td className="align-middle text-start">
-                  {(game.players[1] && game.players[1].name) || (
+                  {(!game.players[1] &&
                     <button
                       className="btn btn-pink text-pink"
                       onClick={() =>

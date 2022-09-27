@@ -7,6 +7,7 @@ import {
   GameNotFoundException,
   CannotPauseGameException,
   PlayerNotFoundException,
+  gameIsPausedException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
@@ -191,11 +192,9 @@ export class GameService {
     player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
     // Add player in player db with its game for further checks
-    pipeline.select(DB.PLAYERS);
-    pipeline.set(player.userId, game.id);
+    pipeline.select(DB.PLAYERS).set(player.userId, game.id);
     // Complete information on game db
-    pipeline.select(DB.GAMES);
-    pipeline.call(
+    pipeline.select(DB.GAMES).call(
       'JSON.ARRAPPEND',
       game.id,
       '$.players',
@@ -203,17 +202,15 @@ export class GameService {
         userId: player.userId,
         side: side,
         score: 0,
+        pauseCount: 1,
       }),
     );
   }
 
   /** Check if a player is already in a game */
   private async _isPlayerInGame(userId: string): Promise<boolean> {
-    const pipeline = this.redis.pipeline();
-    pipeline.select(DB.PLAYERS);
-    pipeline.get(userId);
-    const res = await pipeline.exec();
-    return res[1] && res[1][1] !== null;
+    const res = await this.redis.multi().select(DB.PLAYERS).get(userId).exec();
+    return res[1][1] !== null;
   }
 
   /** Get the side of a player in a game from his id */
@@ -225,15 +222,21 @@ export class GameService {
 
   /** Create the game list from the global server data */
   private async _createGameList(): Promise<Game[]> {
-    const pipeline = this.redis.pipeline();
-    pipeline.select(DB.GAMES);
-    pipeline.keys('*');
-    const keys: any = await pipeline.exec();
+    const keys: any = await this.redis
+      .multi()
+      .select(DB.GAMES)
+      .keys('*')
+      .exec();
     let games: any = [];
     let gameKeys: string[] = keys[1][1];
     gameKeys = gameKeys.filter((k: string) => k !== 'ping');
     if (gameKeys.length > 0) {
-      games = await this.redis.call('JSON.MGET', ...gameKeys, '$');
+      games = await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call('JSON.MGET', ...gameKeys, '$')
+        .exec();
+      games = games[1][1];
     }
     // filter non json keys
     games = games.filter((g: any) => g);
@@ -273,9 +276,7 @@ export class GameService {
       pipeline.del(viewers[i].userId);
     }
     // remove the game from the list in storage
-    pipeline.select(DB.GAMES);
-    pipeline.del(gameId);
-    await pipeline.exec();
+    await pipeline.select(DB.GAMES).del(gameId).exec();
   }
 
   /** Cancel game */
@@ -324,12 +325,87 @@ export class GameService {
 
   /** get Game */
   private async _getGame(id: string): Promise<any> {
-    const pipeline = this.redis.pipeline();
-    pipeline.select(DB.GAMES);
-    pipeline.call('JSON.GET', id, '$');
-    const game: any = await pipeline.exec();
+    const game: any = await this.redis
+      .multi()
+      .select(DB.GAMES)
+      .call('JSON.GET', id, '$')
+      .exec();
     if (game && game[1] && game[1][1]) return JSON.parse(game[1][1])[0];
     throw new GameNotFoundException(id);
+  }
+
+  /** Initialize game */
+  private _initGame(game: Game, side: number) {
+    if (game.status === Status.CREATED) {
+      this._initGameGrid(game);
+      this._initGamePhysics(game);
+    } else {
+      this._resetGamePhysics(game, side);
+    }
+    this._openPlayersScoreBoard(game);
+    this.server.to(game.id).emit('updateScores', this._buildScoreObject(game));
+  }
+
+  /** We have a winner */
+  private _weHaveALoser(game: Game): string {
+    const winner = game.players.find((p) => p.score === 9);
+    const loser = game.players.find((p) => p.score < 9);
+    if (winner && loser) return loser.userId;
+    return '';
+  }
+
+  /** Game loop */
+  private async _gameLoop(game: Game, interval: NodeJS.Timer) {
+    if (game.status === Status.STARTED) {
+      this._moveWorldForward(game);
+      // check scores and end the game if one player scores 9
+      const loserId = this._weHaveALoser(game);
+      if (loserId !== '') {
+        this._endGame(game.id, Motive.WIN, loserId);
+        clearInterval(interval);
+        return;
+      }
+      this._updateGridFromPhysics(game);
+      this.server.to(game.id).emit('updateGrid', game.gameGrid);
+      // write in redis
+      const isGame = (
+        await this.redis.multi().select(DB.GAMES).exists(game.id).exec()
+      )[1][1];
+      if (isGame) {
+        await this.redis
+          .multi()
+          .select(DB.GAMES)
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.gamePhysics.ball',
+            JSON.stringify(game.gamePhysics.ball),
+          )
+          .call('JSON.SET', game.id, '$.players', JSON.stringify(game.players))
+          .exec();
+      }
+    }
+  }
+
+  /** Start a game */
+  private async _startGame(id: string) {
+    // game initialization (grid + physics)
+    let game: Game = await this._getGame(id);
+    this._initGame(game, Side.RIGHT);
+    game.status = Status.STARTED;
+    // update game (init + status) in redis
+    await this.redis
+      .multi()
+      .select(DB.GAMES)
+      .call('JSON.SET', id, '$', JSON.stringify(game))
+      .call('JSON.SET', id, `$.status`, Status.STARTED)
+      .exec();
+    // game loop
+    const gameInterval = setInterval(async () => {
+      await this._gameLoop(game, gameInterval);
+      game = await this._getGame(game.id);
+    }, 30);
+    this.gameLoops.push({ id: id, interval: gameInterval });
   }
 
   /** Create a new game */
@@ -350,8 +426,9 @@ export class GameService {
     // create a game pipeline for redis
     const pipeline = this.redis.pipeline();
     // Add new game to pipeline
-    pipeline.select(DB.GAMES);
-    pipeline.call('JSON.SET', newGame.id, '$', JSON.stringify(newGame));
+    pipeline
+      .select(DB.GAMES)
+      .call('JSON.SET', newGame.id, '$', JSON.stringify(newGame));
     // add players to the game and give them the game id
     for (let i = 0; i < players.length; ++i) {
       const side: number = i ? Side.RIGHT : Side.LEFT;
@@ -377,9 +454,14 @@ export class GameService {
   async viewerLeaves(client: Socket, id: string) {
     // remove the viewer
     const userId: string = client.handshake.query.userId.toString();
-    await this.redis.call('JSON.DEL', id, `$.viewers['${userId}']`);
-    await this.redis.select(DB.VIEWERS);
-    await this.redis.del(userId);
+    console.log(userId);
+    await this.redis
+      .multi()
+      .select(DB.GAMES)
+      .call('JSON.DEL', id, `$.viewers[?(@.userId==${userId})]`)
+      .select(DB.VIEWERS)
+      .del(userId)
+      .exec();
     // quit room and join lobby
     client.leave(id);
     client.join(Params.LOBBY);
@@ -414,25 +496,30 @@ export class GameService {
       throw new CannotPauseGameException('you have used all your pauses');
     }
     // Pause the game and unpause it after a delay with a callback
-    game.status === Status.PAUSED;
     game.players.map((p) =>
       p.userId === userId ? { ...p, pauseCount: --p.pauseCount } : p,
     );
     const ballSpeed = game.gamePhysics.ball.speed;
     // update redis
-    await this.redis.call('JSON.SET', id, '$', JSON.stringify(game));
+    await this.redis
+      .multi()
+      .select(DB.GAMES)
+      .call('JSON.SET', id, '$.players', JSON.stringify(game.players))
+      .call('JSON.SET', id, '$.status', Status.PAUSED)
+      .exec();
     this.server.to(id).emit('pause', +Params.PAUSE_TIME);
     // UnPause after a delay
     setTimeout(async () => {
-      await this.redis.select(DB.GAMES);
-      if (await this.redis.exists(id)) {
-        await this.redis.call('JSON.SET', id, '$.status', Status.STARTED);
-        await this.redis.call(
-          'JSON.SET',
-          id,
-          '$.gamePhysics.ball.speed',
-          ballSpeed,
-        );
+      const isGame = (
+        await this.redis.multi().select(DB.GAMES).exists(id).exec()
+      )[1][1];
+      if (isGame) {
+        await this.redis
+          .multi()
+          .select(DB.GAMES)
+          .call('JSON.SET', id, '$.status', Status.STARTED)
+          .call('JSON.SET', id, '$.gamePhysics.ball.speed', ballSpeed)
+          .exec();
       }
     }, Params.PAUSE_TIME * 1000);
   }
@@ -445,9 +532,19 @@ export class GameService {
     const pipeline = this.redis.pipeline();
     // remove user from matchmaking
     const userId: string = client.handshake.query.userId.toString();
-    await this.redis.select(DB.MATCHMAKING);
-    if (await this.redis.sismember('users', userId))
-      await this.redis.srem('users', userId);
+    const isMatchMaking = (
+      await this.redis
+        .multi()
+        .select(DB.MATCHMAKING)
+        .sismember('users', userId)
+        .exec()
+    )[1][1];
+    if (isMatchMaking)
+      await this.redis
+        .multi()
+        .select(DB.MATCHMAKING)
+        .srem('users', userId)
+        .exec();
     // add new player to the game and emit new grid
     this._addPlayerToGame(
       new Player(client, userId),
@@ -470,17 +567,21 @@ export class GameService {
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // Add the user as a viewer
-    pipeline.select(DB.VIEWERS);
-    pipeline.set(userId, id);
+    pipeline.select(DB.VIEWERS).set(userId, id);
     // Complete information on game db
-    await this.redis.select(DB.GAMES);
-    if (await this.redis.exists(id)) pipeline.select(DB.GAMES);
-    pipeline.call(
-      'JSON.SET',
-      id,
-      `$.viewer[${userId}]`,
-      JSON.stringify({ userId: userId }),
-    );
+    const isGame = (
+      await this.redis.multi().select(DB.GAMES).exists(id).exec()
+    )[1][1];
+    if (isGame) {
+      pipeline
+        .select(DB.GAMES)
+        .call(
+          'JSON.ARRAPPEND',
+          id,
+          `$.viewers`,
+          JSON.stringify({ userId: userId }),
+        );
+    }
     client.join(id);
     client.leave(Params.LOBBY);
     // update redis
@@ -490,28 +591,61 @@ export class GameService {
     this.server.to(Params.LOBBY).emit('gameList', gameList);
   }
 
+  /** continue a game after a server reboot */
+  async continue(client: Socket, id: string) {
+    // check if there is a game loop for this game already
+    if (!this.gameLoops.find((gl) => gl.id === id)) {
+      let game: Game = await this._getGame(id);
+      // reinit grid and physics to restore ball interval
+      this._initGame(game, Side.RIGHT);
+      // new game loop
+      const gameInterval = setInterval(async () => {
+        await this._gameLoop(game, gameInterval);
+        game = await this._getGame(game.id);
+      }, 30);
+      this.gameLoops.push({ id: id, interval: gameInterval });
+    }
+  }
+
   /** *********************************************************************** */
   /** MATCHMAKING                                                             */
   /** *********************************************************************** */
 
   /** handle player joining or leaving matchmaking */
   async handleMatchMaking(client: Socket, value: boolean) {
+    // create a temp pipeline to group commands
+    const pipeline = this.redis.pipeline();
     // add or remove the player
     const userId: string = client.handshake.query.userId.toString();
-    await this.redis.select(DB.MATCHMAKING);
-    if (await this.redis.exists(userId)) {
-      if (value) await this.redis.sadd('users', userId);
-      if (!value) await this.redis.srem('users', userId);
+    pipeline.select(DB.MATCHMAKING);
+    if (value) pipeline.sadd('users', userId);
+    if (!value) {
+      pipeline.exists('users');
+      if ((await pipeline.exec())[1][1]) {
+        pipeline.srem('users', userId);
+      } else return;
     }
+    await pipeline.exec();
     // MaaaaatchMakiiiing
-    const len = (await this.redis.smembers('users')).length;
-    while (len > 1) {
+    let result: any = await this.redis
+      .multi()
+      .select(DB.MATCHMAKING)
+      .smembers('users')
+      .exec();
+    result = result[1][1];
+    for (let i = 0; i + 2 <= result.length; i += 2) {
       // Create a match with the two players
-      const p1 = await this.redis.spop('users');
-      const p2 = await this.redis.spop('users');
+      const users: any = await this.redis
+        .multi()
+        .select(DB.MATCHMAKING)
+        .spop('users')
+        .spop('users')
+        .exec();
+      const p1 = users[1][1];
+      const p2 = users[2][1];
       const playersToMatch = [];
-      playersToMatch.push({ userId: p1 });
-      playersToMatch.push({ userId: p2 });
+      playersToMatch.push({ userId: p1, socket: this._getSocket(p1) });
+      playersToMatch.push({ userId: p2, socket: this._getSocket(p2) });
       playersToMatch.forEach((p) => {
         this._getSocket(p.userId).emit('opponentFound');
       });
@@ -571,6 +705,7 @@ export class GameService {
     const game: Game = await this._getGame(id);
     client.emit('updateGrid', game.gameGrid);
     client.emit('updateScores', this._buildScoreObject(game));
+    if (game.status === Status.PAUSED) throw new gameIsPausedException();
   }
 
   /** *********************************************************************** */
@@ -897,101 +1032,10 @@ export class GameService {
     game.gamePhysics.ball = ball;
   }
 
-  /** Initialize game */
-  private _initGame(game: Game, side: number) {
-    if (game.status === Status.CREATED) {
-      this._initGameGrid(game);
-      this._initGamePhysics(game);
-    } else {
-      this._resetGamePhysics(game, side);
-    }
-    this._openPlayersScoreBoard(game);
-    this.server.to(game.id).emit('updateScores', this._buildScoreObject(game));
-  }
-
-  /** We have a winner */
-  private _weHaveALoser(game: Game): string {
-    const winner = game.players.find((p) => p.score === 9);
-    const loser = game.players.find((p) => p.score < 9);
-    if (winner && loser) return loser.userId;
-    return '';
-  }
-
-  /** Game loop */
-  private async _gameLoop(game: Game, interval: NodeJS.Timer) {
-    if (game.status === Status.STARTED) {
-      const pipeline = this.redis.pipeline();
-      this._moveWorldForward(game);
-      // check scores and end the game if one player scores 9
-      const loserId = this._weHaveALoser(game);
-      if (loserId !== '') {
-        this._endGame(game.id, Motive.WIN, loserId);
-        clearInterval(interval);
-        return;
-      }
-      this._updateGridFromPhysics(game);
-      this.server.to(game.id).emit('updateGrid', game.gameGrid);
-      // write in redis
-      await this.redis.select(DB.GAMES);
-      if (await this.redis.exists(game.id)) {
-        pipeline.select(DB.GAMES);
-        pipeline.call(
-          'JSON.SET',
-          game.id,
-          '$.gamePhysics.ball',
-          JSON.stringify(game.gamePhysics.ball),
-        );
-        pipeline.call(
-          'JSON.SET',
-          game.id,
-          '$.players',
-          JSON.stringify(game.players),
-        );
-      }
-      await pipeline.exec();
-    }
-  }
-
-  /** Start a game */
-  private async _startGame(id: string) {
-    // game initialization (grid + physics)
-    let game: Game = await this._getGame(id);
-    this._initGame(game, Side.RIGHT);
-    game.status = Status.STARTED;
-    // game pipeline
-    const pipeline = this.redis.pipeline();
-    // update game (init + status) in redis
-    pipeline.select(DB.GAMES);
-    pipeline.call('JSON.SET', id, '$', JSON.stringify(game));
-    pipeline.call('JSON.SET', id, `$.status`, Status.STARTED);
-    await pipeline.exec();
-    // game loop
-    const gameInterval = setInterval(async () => {
-      await this._gameLoop(game, gameInterval);
-      game = await this._getGame(game.id);
-    }, 30);
-    this.gameLoops.push({ id: id, interval: gameInterval });
-  }
-
-  /** continue a game after a server reboot */
-  async continue(client: Socket, id: string) {
-    let game: Game = await this._getGame(id);
-    // reinit grid and physics to restore ball interval
-    this._initGame(game, Side.RIGHT);
-    // new game loop
-    const gameInterval = setInterval(async () => {
-      await this._gameLoop(game, gameInterval);
-      game = await this._getGame(game.id);
-    }, 30);
-    this.gameLoops.push({ id: id, interval: gameInterval });
-  }
-
   /** update a game (moves) */
   async update(client: Socket, id: string, move: number) {
     // read from redis
     const game: Game = await this._getGame(id);
-    // get pipeline
-    const pipeline = this.redis.pipeline();
     // Update player position if game started
     if (game.status === Status.STARTED) {
       // Update move
@@ -999,14 +1043,16 @@ export class GameService {
       const side: number = this._getSideOfPlayer(game, userId);
       this._movePaddleFromInput(game, side, move);
       // write in redis
-      pipeline.select(DB.GAMES);
-      pipeline.call(
-        'JSON.SET',
-        id,
-        `$.gamePhysics.players[?(@.side==${side})]`,
-        JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
-      );
-      await pipeline.exec();
+      await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call(
+          'JSON.SET',
+          id,
+          `$.gamePhysics.players[?(@.side==${side})]`,
+          JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
+        )
+        .exec();
     }
   }
 }

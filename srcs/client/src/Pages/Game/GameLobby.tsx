@@ -98,7 +98,7 @@ const GameLobby = (props: any) => {
   const handleMatchMaking = useCallback(
     (value: eMatchMaking) => {
       setMatchMaking(value);
-      socket.emit('matchMaking', { value: true });
+      socket.emit('matchMaking', { value: value });
     },
     [socket],
   );
