@@ -164,27 +164,10 @@ const GameLobby = (props: any) => {
   };
 
   useEffect(() => {
-    init();
-  }, []);
-
-  useEffect(() => {
-    // Socket listeners
-    socket.on('gameList', handleGameList);
-    socket.on('reconnect', handleReconnect);
-    socket.on('gameId', handleGameId);
-    socket.on('exception', handleInfo);
     socket.on('opponentFound', handleOpponentFound);
-    socket.on('info', handleInfo);
-    // get all games
-    socket.emit('findAllGame');
-    return () => {
-      socket.off('gameList', handleGameList);
-      socket.off('reconnect', handleReconnect);
-      socket.off('gameId', handleGameId);
-      socket.off('exception', handleInfo);
+     return () => {
       socket.off('opponentFound', handleOpponentFound);
-      socket.off('info', handleInfo);
-    };
+    }
   }, [handleOpponentFound]);
 
   useEffect(() => {
@@ -193,6 +176,27 @@ const GameLobby = (props: any) => {
       socket.off('scoreUpdate', handleScoreUpdate);
     };
   }, [gameList]);
+
+  useEffect(() => {
+    init();
+    // Socket listeners
+    socket.on('gameList', handleGameList);
+    socket.on('reconnect', handleReconnect);
+    socket.on('gameId', handleGameId);
+    socket.on('exception', handleInfo);
+
+    socket.on('info', handleInfo);
+    // get all games
+    socket.emit('findAllGame');
+    return () => {
+      socket.off('gameList', handleGameList);
+      socket.off('reconnect', handleReconnect);
+      socket.off('gameId', handleGameId);
+      socket.off('exception', handleInfo);
+
+      socket.off('info', handleInfo);
+    };
+  }, []);
 
   // Render
   return (
