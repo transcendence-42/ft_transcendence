@@ -239,37 +239,37 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                       <tr>
                           <td>Channel</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Leave</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>leave</button>
                           </td>
                       </tr>
                   </tbody> 
@@ -297,37 +297,37 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                       <tr>
                           <td>User</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                       <tr>
                           <td>User</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                       <tr>
                           <td>User</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                       <tr>
                           <td>User</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                       <tr>
                           <td>User</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                       <tr>
                           <td>USer</td>
                           <td>
-                            <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
+                            <button className='rounded-4 btn btn-chat btn-pink'>game</button>
                           </td>
                       </tr>
                   </tbody> 
@@ -383,10 +383,25 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                     <tr>
                         <td>User</td>
                         <td>
-                          <button className='rounded-4 btn btn-chat btn-pink'>Invite</button>
-                        </td>
-                        <td>
-                          <button className='rounded-4 btn btn-chat btn-pink'>Block</button>
+                          <button
+                            className="rounded-4 dropdown-toggle color-dropdown channel-button "
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                          </button>
+                          <ul className="dropdown-menu channel-menu text-center">
+                            <li className="dropdown-item">
+                              Mute
+                            </li>
+                            <li className="dropdown-item">
+                              Ban
+                            </li>
+                            <li className="dropdown-item">
+                              Kick
+                            </li>
+                            <li className="dropdown-item">
+                              Block
+                            </li>
+                          </ul>
                         </td>
                     </tr>
                 </tbody> 
@@ -396,121 +411,5 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         </div>
       </div>
     </>
-    // <div className="chat">
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '20%',
-    //       height: '80vh'
-    //     }}>
-    //     <form style={{ margin: '15px ' }} onSubmit={handleCreateChannel}>
-    //       <div style={{ color: 'white' }}> Create a Channel</div>
-    //       <input
-    //         className="createChannel"
-    //         onChange={(e) => setCreateChannelName(e.target.value)}
-    //         value={createChannelName}
-    //       />
-    //       <select onChange={(e) => setCreateChannelType(e.target.value)}>
-    //         <option value="public">Public</option>
-    //         <option value="private">Private</option>
-    //         <option value="protected">Protected</option>
-    //       </select>
-    //       <div style={{ color: 'white' }}>Set a password for your channel</div>
-    //       <input
-    //         className="createChannelPassword"
-    //         onChange={(e) => setCreateChannelPassword(e.target.value)}
-    //         value={createChannelPassword}
-    //       />
-    //       <div style={{ color: 'white' }}>Add a friend to your channel</div>
-    //       <input
-    //         className="createChannelFriends"
-    //         onChange={(e) => setCreateChannelFriends(e.target.value)}
-    //         value={createChannelFriends}
-    //       />
-    //       <button className="createChanneButton" type="submit">
-    //         Create Channel
-    //       </button>
-    //     </form>
-    //     <br />
-    //     <div className="channels">
-    //       {allChannels.map((channel: Channel) => (
-    //         <form key={channel.id} onSubmit={(e) => handleJoinChannel(e, channel.id)}>
-    //           <button className="channelButton" type="submit">
-    //             {channel.name}
-    //           </button>
-    //           <input
-    //             className={`joinChannelPwdInput ${channel.id}`}
-    //             value={getValueOf(channel.id, joinChannelPassword)}
-    //             onChange={(e) => setJoinChannelPassword(e.target.value)}
-    //           />
-    //         </form>
-    //       ))}
-    //     </div>
-    //   </div>
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '60%',
-    //       height: '80vh',
-    //       color: 'white'
-    //     }}>
-    //     <div className="channel">
-    //       -------Channel: {currentChannel.name}-------
-    //       <br />
-    //       <br />
-    //     </div>
-    //     <div className="conversation">
-    //       <ul className="messages">
-    //         <>
-    //           {allMessages?.map((message: Message) => {
-    //             if (message.toChannelId === currentChannel.id)
-    //               return <li key={message.id}>{message.content}</li>;
-    //             return '';
-    //           })}
-    //         </>
-    //       </ul>
-    //     </div>
-    //     <div className="chatInput">
-    //       <input
-    //         className="chatInputField"
-    //         placeholder="send a message.."
-    //         onChange={handleMessageChange}
-    //         value={message}></input>
-    //       <button className="btn btn-light" onClick={handleSubmitMessage}>
-    //         Send!
-    //       </button>
-    //     </div>
-    //   </div>
-    //   <div
-    //     className="blueBoxChat"
-    //     style={{
-    //       width: '20%',
-    //       height: '80vh',
-    //       color: 'white'
-    //     }}>
-    //     <div style={{ margin: '15px' }} className="currentUser">
-    //       <div style={{ fontSize: '20px' }}>Current User:</div>
-    //       <div className="user">
-    //         <br />
-    //         Username: {user?.name}
-    //         <br />
-    //         id: {user?.id}
-    //       </div>
-    //     </div>
-    //     Connected Users:
-    //     <br />
-    //     <div style={{ margin: '15px' }} className="listOfUsers">
-    //       {allUsers &&
-    //         allUsers.map((user: ChatUser) => (
-    //           <div key={user.id} className="connectedUser">
-    //             <br />
-    //             Username: {user.name}
-    //             <br />
-    //             id: {user.id}
-    //           </div>
-    //         ))}
-    //     </div>
-    //   </div>
-    // </div>
   );
 }
