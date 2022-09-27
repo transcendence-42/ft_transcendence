@@ -1,42 +1,19 @@
 import './CreateChannel.css';
 import { useState } from 'react';
-import { CreateChannelDto } from './entities';
 import { eChannelType, eEvent } from './constants';
 import { fetchUrl } from './utils';
 
-export default function CreateChannel({ userId, socket, updateOwnChannels, ...props }: any) {
+export default function CreateChannel({ userId, socket, handleCreateChannel, ...props }: any) {
   const [channelName, setChannelName] = useState('');
   const [channelPassword, setChannelPassword] = useState('');
   const [channelType, setChannelType] = useState(eChannelType.PUBLIC);
 
-  const handleCreateChannel = (e: any) => {
-    e.preventDefault();
-    if (channelName === '') return alert("channel name can't be empty");
-    else if (channelType === eChannelType.PROTECTED && channelPassword === '')
-      return alert("Password can't be empty!");
-    const createChannelDto: CreateChannelDto = {
-      name: channelName,
-      type: channelType,
-      ownerId: userId,
-      password: channelPassword
-    };
-    const createChannel = async () => {
-      const channel = await fetchUrl('http://127.0.0.1:4200/channel/', 'PUT', createChannelDto);
-      if (channel['id']) {
-        const userOnChannel = await fetchUrl(
-          `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
-          'GET'
-        );
-        const payload = { id: channel.id, type: channel.type };
-        socket.emit(eEvent.UpdateOneChannel, payload);
-        updateOwnChannels(userOnChannel);
-      } else return alert(`Error while creating channel! ${channel.message}`);
-    };
-    createChannel();
-  };
   return (
     <>
-      <form id="createChannelForm" className="form-label" onSubmit={handleCreateChannel}>
+      <form
+        id="createChannelForm"
+        className="form-label"
+        onSubmit={(e) => handleCreateChannel(e, channelName, channelType, userId, channelPassword)}>
         <label className="form-label">Name</label>
         <input
           type="name"

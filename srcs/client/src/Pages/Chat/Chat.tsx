@@ -10,6 +10,7 @@ import FriendList from './FriendList';
 import { MessageDto, Channel, JoinChannelDto, ChatUser, Message, UserOnChannel } from './entities';
 import { eEvent, eChannelType, eUserRole } from './constants';
 import { fetchUrl } from './utils';
+import { CreateChannelDto } from './entities';
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -35,7 +36,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   // const [allChannels, setAllChannels] = useState([] as Channel[]);
   const [currentChannel, setCurrentChannel] = useState(defaultChannel);
   const [message, setMessage] = useState('');
-  const [friends, setFriends] = useState({});
+  const [friends, setFriends] = useState([]);
   const [userFetched, setUserFetched] = useState(false);
 
   const [joinChannelPassword, setJoinChannelPassword] = useState({});
@@ -55,6 +56,66 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
   const handleShowFriendList = () => setshowFriendList(true);
 
   const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
+
+  const createChannel = async (createChannelDto: CreateChannelDto) => {
+    const channel = await fetchUrl('http://127.0.0.1:4200/channel/', 'PUT', createChannelDto);
+    if (channel['id']) {
+      const userOnChannel = await fetchUrl(
+        `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
+        'GET'
+      );
+      const payload = { id: channel.id, type: channel.type };
+      socket.emit(eEvent.UpdateOneChannel, payload);
+      updateOwnChannels(userOnChannel);
+      return channel['id'];
+    } else return alert(`Error while creating channel! ${channel.message}`);
+  };
+
+  const handleCreateChannel = (
+    e: any,
+    name: string,
+    type: eChannelType,
+    ownerId: number,
+    password?: string
+  ) => {
+    e.preventDefault();
+    if (name === '') return alert("channel name can't be empty");
+    else if (type === eChannelType.PROTECTED && password === '')
+      return alert("Password can't be empty!");
+    const createChannelDto: CreateChannelDto = {
+      name,
+      type,
+      ownerId,
+      password
+    };
+    const channelId = createChannel(createChannelDto);
+    return channelId;
+  };
+  const handleAddToChannel = async (userId: number, channelId: number) => {
+    const createUserOnChannelDto = {
+      role: eUserRole.USER,
+      userId,
+      channelId
+    };
+    const newUser = await fetchUrl(
+      `http://127.0.0.1:4200/channel/${channelId}/useronchannel/`,
+      'PUT',
+      createUserOnChannelDto
+    );
+    if (newUser['userId']) {
+      // to be modified later to include a better way of handling error
+      socket.emit(eEvent.AddUser, userId);
+      const updatedChannels = allChannels.map((channel: Channel) => {
+        if (channel.id === channelId) {
+          channel.users?.push(newUser);
+        }
+        return channel;
+      });
+    } else {
+      //to be changed for a better way of handling error
+      return alert(`Error while adding user to channel ${JSON.stringify(newUser, null, 4)}`);
+    }
+  };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
     let updateAllChannels: UserOnChannel[] = [];
@@ -185,7 +246,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         handleBtn1={handleCloseBrowseChannel}
         textBtn2="Validate"
         handleBtn2={handleCloseBrowseChannel}>
-        <BrowseChannels allChannels={allChannels} handleJoinChannel={handleJoinChannel} />
+        <BrowseChannels allChannels={allChannels} />
       </PongAdvancedModal>
       {console.log(`Heres hte user inside chatModal ${JSON.stringify(user, null, 4)}`)}
       {user && (
@@ -198,7 +259,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             textBtn1="Cancel"
             handleBtn1={handleCloseCreateChannel}
             textBtn2="Create">
-            <CreateChannel socket={socket} userId={user.id} updateOwnChannels={updateOwnChannels} />
+            <CreateChannel
+              socket={socket}
+              userId={user.id}
+              handleCreateChannel={handleCreateChannel}
+            />
           </ChatModal>
           <PongAdvancedModal
             title="Select a friend"
@@ -208,7 +273,12 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             handleBtn1={handleCloseFriendList}
             textBtn2="Validate"
             handleBtn2={handleCloseFriendList}>
-            <FriendList />
+            <FriendList
+              userId={user.id}
+              friends={friends}
+              handleCreateChannel={handleCreateChannel}
+              handleAddToChannel={handleAddToChannel}
+            />
           </PongAdvancedModal>{' '}
         </>
       )}
@@ -268,6 +338,24 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
           <div className="row">
+            <>
+              {!isEmpty(user) &&
+                user.channels?.map((UserOnChannel: UserOnChannel) =>
+                  UserOnChannel.channel.type === eChannelType.DIRECT ? (
+                    <div className="channels" key={UserOnChannel.channelId}>
+                      <div className="col">
+                        <button
+                          className="rounded-4 btn-pink btn-join"
+                          onClick={(e) => openChannel(e, UserOnChannel.channel)}>
+                          {friends.find((friend: ChatUser) => (friend.id === (UserOnChannel.channel.users?.find((usr) => usr.userId !== user.id))?.userId)) ? 'yes' : 'no'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    ''
+                  )
+                )}
+            </>
             <div className="col overflow-auto scroll-bar"></div>
           </div>
         </div>
@@ -289,7 +377,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                     className={message.fromUserId === user.id ? 'myMessages' : 'otherMessages'}
                     key={message.id}>
                     <div className="messageFromUser">
-                      User: {(allUsers[message.fromUserId] || { name: 'Pong Bot' }).name}
+                      User: {(allUsers[message.fromUserId] || { username: 'Pong Bot' }).username}
                     </div>
                     <br />
                     <div className="messageDate">
@@ -326,7 +414,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               <>
                 {!isEmpty(currentChannel) &&
                   currentChannel.users?.map((user: UserOnChannel) => (
-                    <div key={user.userId}>{allUsers && allUsers[user.userId]?.name}</div>
+                    <div key={user.userId}>{allUsers && allUsers[user.userId]?.username}</div>
                   ))}
                 {console.log(`Are the objects empty ${!isEmpty(user.channels)}`)}
                 {console.log(`list of channels ${JSON.stringify(user.channels, null, 4)}`)}

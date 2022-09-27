@@ -1,4 +1,4 @@
-import { eChannelType, eUserRole} from './constants';
+import { eChannelType, eUserRole } from './constants';
 
 export interface Hashtable<T> {
   [key: string]: T;
@@ -26,10 +26,16 @@ export interface JoinChannelDto {
 export interface ChatUser {
   socketId: string;
   id: number;
-  name: string;
+  username: string;
   profilePicture: string;
   channels?: UserOnChannel[];
   directMessges?: Message[];
+}
+export interface Friendship {
+  requesterId: number;
+  addresseeId: number;
+  date: Date;
+  status: number;
 }
 
 export interface UserOnChannel {
@@ -48,9 +54,7 @@ export interface UpdateUserOnChannelDto {
   bannedTill?: Date;
 }
 
-export interface CreateUserOnChannelDto {
-
-}
+export interface CreateUserOnChannelDto {}
 
 export interface Channel {
   id: number;

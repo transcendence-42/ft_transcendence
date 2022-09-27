@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import './BrowseChannels.css';
 import { Channel } from './entities';
-import { Hashtable } from './entities';
+import { eChannelType } from './constants';
 
-export default function BrowseChannels({ allChannels, handleJoinChannel, ...props }: any) {
+export default function BrowseChannels({ allChannels, ...props }: any) {
   const [channelSearch, setChannelSearch] = useState('');
+  const [joinChannelPassword, setJoinChannelPassword] = useState('');
+  const handleJoinChannel = (e: any, channel: Channel) => {
+    e.preventDefault();
+    console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
+    if (!channel) {
+      console.log(`Channel doesnt exist`);
+      return;
+    }
+    if (channel['type'] === eChannelType.PROTECTED && joinChannelPassword === '') {
+      return alert('You must provide a Password!');
+    }
+  };
   let filtered: Channel[];
   if (channelSearch) {
     filtered = allChannels.filter((channel: Channel) =>
@@ -13,6 +25,7 @@ export default function BrowseChannels({ allChannels, handleJoinChannel, ...prop
   } else {
     filtered = allChannels;
   }
+
   return (
     <div className="row row-color">
       <input
@@ -27,7 +40,7 @@ export default function BrowseChannels({ allChannels, handleJoinChannel, ...prop
           <div className="col">
             <button
               className="rounded-4 btn-pink btn-join"
-              onClick={(e) => handleJoinChannel(e, channel.id)}>
+              onClick={(e) => handleJoinChannel(e, channel)}>
               Join
             </button>
           </div>
