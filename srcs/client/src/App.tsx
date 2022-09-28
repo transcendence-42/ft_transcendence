@@ -56,11 +56,11 @@ function App() {
               path="/lobby"
               element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
+            <Route path="/chat" element={<Chat socket={socket}/>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/home" element={<Home />} />
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
-              <Route path="/chat" element={<Chat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/mapchoice" element={<MapChoice />} />
               <Route path="/matchmaking" element={<Matchmaking />} />
