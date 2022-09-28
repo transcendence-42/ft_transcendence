@@ -30,7 +30,7 @@ import {
 import { Logger } from 'nestjs-pino';
 import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 
-@ApiTags('Channels')
+@ApiTags('Channel')
 @Controller('channel')
 export class ChannelController {
   constructor(

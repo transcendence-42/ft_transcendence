@@ -12,7 +12,7 @@ import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
 import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
-import { socket } from './socket';
+import { socket } from './GameSocket';
 import GameLobby from './Pages/Game/GameLobby';
 
 function App() {

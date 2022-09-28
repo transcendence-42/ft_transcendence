@@ -1,6 +1,6 @@
-import { Children } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import '../../Styles';
+import { Children } from "react";
+import Modal from "react-bootstrap/Modal";
+import "../../Styles";
 
 const ChatModal = (props: any) => {
   /**
@@ -17,18 +17,30 @@ const ChatModal = (props: any) => {
    */
 
   return (
-    <Modal show={props.show} onHide={props.closeHandler} size={props.size || ''}>
+    <Modal
+      show={props.show}
+      onHide={props.closeHandler}
+      size={props.size || ""}
+    >
       <Modal.Header closeButton>
         <Modal.Title className="text-blue">{props.title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>{props.children}</Modal.Body>
       <Modal.Footer className="modal-footer">
         {props.handleBtn1 && (
-          <button type="button" className="btn btn-blue text-blue" onClick={props.handleBtn1}>
+          <button
+            type="button"
+            className="btn btn-blue text-blue"
+            onClick={props.handleBtn1}
+          >
             {props.textBtn1}
           </button>
         )}
-        <button form="createChannelForm" type="submit" className="btn btn-pink text-pink">
+        <button
+          form="createChannelForm"
+          type="submit"
+          className="btn btn-pink text-pink"
+        >
           {props.textBtn2}
         </button>
       </Modal.Footer>

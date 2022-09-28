@@ -11,6 +11,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
 import { LoggerModule } from 'nestjs-pino';
 import { ChannelModule } from './channels/channel.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ChannelModule } from './channels/channel.module';
     GameModule,
     RedisModule,
     ChannelModule,
+    ChatModule,
     LoggerModule.forRoot({
       pinoHttp: {
         transport: {

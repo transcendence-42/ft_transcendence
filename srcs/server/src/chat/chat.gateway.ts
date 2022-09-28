@@ -80,15 +80,8 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.UpdateOneChannel)
-  updateOneChannel(
-    client: Socket,
-    channel: { id: number; type: ChannelType },
-  ) {
-    this.logger.debug(`gateway ${channel.id} and type ${channel.type}`)
-    return this.chatService.updateOneChannel(
-      client,
-      channel.id,
-      channel.type,
-    );
+  updateOneChannel(client: Socket, channel: { id: number; type: ChannelType }) {
+    this.logger.debug(`gateway ${channel.id} and type ${channel.type}`);
+    return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
 }
