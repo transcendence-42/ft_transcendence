@@ -12,7 +12,7 @@ import AuthenticatedRoute from "./Components/services/authenticatedRoute";
 import MapChoice from "./Pages/MapChoice/mapChoice";
 import Matchmaking from "./Pages/Matchmaking/matchmaking";
 import Context from "./Context/Context";
-import { GameSocket } from "./GameSocket";
+// import { GameSocket } from "./GameSocket";
 import { ChatSocket } from "./Socket";
 import GameLobby from "./Pages/Game/GameLobby";
 
@@ -46,7 +46,7 @@ function App() {
    ** Routes surround all route
    */
   return (
-    <Context.Provider value={contextValue}>
+    // <Context.Provider value={contextValue}>
       <BrowserRouter>
         <NavBar />
         <Routes>
@@ -54,10 +54,10 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/chat" element={<Chat socket={ChatSocket} />} />
           <Route path="/login" element={<Login />} />
-          <Route
+          {/* <Route
             path="/lobby"
             element={<GameLobby origin={{ name: "lobby", loc: "/lobby" }} />}
-          />
+          /> */}
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<AuthenticatedRoute res />}>
@@ -68,7 +68,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </Context.Provider>
+    // </Context.Provider>
   );
 }
 

@@ -9,4 +9,6 @@ export enum eEvent {
   UpdateOneUser = 'updateOneUser',
   JoinChannelResponse = 'joinChannelResponse',
   GetMessages = 'getMessages',
+  CreateChannel= 'createChannel',
+  InitConnection = 'initConnection',
 }

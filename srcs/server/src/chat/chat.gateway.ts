@@ -13,7 +13,6 @@ import { ChatUser, Channel } from './entities';
 import { eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { ChannelType } from '@prisma/client';
-import { channel } from 'diagnostics_channel';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -41,9 +40,10 @@ export class ChatGateway
     this.logger.log(`Module chat is up`);
   }
 
-  afterInit(server: any) {
+  async afterInit(server: any) {
     this.chatService.initBot();
     this.chatService.server = server;
+    this.chatService.initRedis();
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
@@ -72,11 +72,6 @@ export class ChatGateway
     return this.chatService.handleMessage(client, message);
   }
 
-  @SubscribeMessage(eEvent.GetMessages)
-  handleGetMessages(client: Socket, channelIds: string[]) {
-    this.chatService.handleGetAllMessages(client, channelIds);
-  }
-
   @SubscribeMessage(eEvent.JoinChannel)
   handleJoinChannel(client: Socket, channel: JoinChannelDto) {
     this.logger.debug(
@@ -91,9 +86,24 @@ export class ChatGateway
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
 
-  @SubscribeMessage('lol')
-  handleLol(client: Socket) {
-    console.log('getting message from lol');
-    this.logger.debug('PUTAIN');
+  @SubscribeMessage(eEvent.InitConnection)
+  initConnection(client: Socket, {channelIds, userId}) {
+    this.logger.debug(
+      `Initing connection for user ${userId} and socket.id ${client.id}`,
+    );
+    this.chatService.initConnection(client, channelIds, userId);
   }
+
+  @SubscribeMessage(eEvent.CreateChannel)
+  handleCreateChannel(client: Socket, channelId: number) {
+    // return this.chatService
+  }
+  //on login: create room with (user_userId) if doesnt exist
+  // json.set(rooms, '.rooms[roomId', )
+  //on create channel: create room with (room_channelId)
+
+  // on connect the user sends their channel information (all Ids)
+  // the server then adds the socket to the rooms.
+  // (for const channelId in channelIds)
+  // socket.join(channelId)
 }

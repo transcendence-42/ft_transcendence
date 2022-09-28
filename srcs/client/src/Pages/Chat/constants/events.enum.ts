@@ -17,4 +17,5 @@ export enum eEvent {
   JoinChannelResponse= 'joinChannelResponse',
   AddedToRoom= 'addedToRoom',
   GetMessages = 'getMessages',
+  InitConnection = 'initConnection',
 };

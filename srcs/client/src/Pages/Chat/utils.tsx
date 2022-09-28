@@ -13,7 +13,7 @@ export async function fetchUrl(path: string, method: string, body?: any): Promis
       return response.json();
     })
     .then((respObj) => {
-      console.log(`Object from fetch ${method} ${path}: ${JSON.stringify(respObj, null, 4)}`);
+      // console.log(`Object from fetch ${method} ${path}: ${JSON.stringify(respObj, null, 4)}`);
       return respObj;
     })
     .catch((e) =>

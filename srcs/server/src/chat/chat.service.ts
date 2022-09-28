@@ -9,6 +9,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { Hashtable } from './interfaces/hashtable.interface';
 import Redis from 'redis';
 import { ChannelType } from '@prisma/client';
+import { channel } from 'diagnostics_channel';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -28,18 +29,27 @@ export class ChatService {
 
   messageBotId: number;
 
+  async initRedis() {
+    await this.redis.select(REDIS_DB.MSG_DB);
+  }
+
   async handleMessage(client: Socket, message: MessageDto) {
     const date = Date.now();
     const msg: Message = {
-      id: message.fromUserId + date + Math.random() * 100,
+      id:
+        message.fromUserId.toString() +
+        date.toString() +
+        (Math.random() * 100).toString(),
       sentDate: date,
       content: message.content,
       fromUserId: message.fromUserId,
       toChannelOrUserId: message.toChannelOrUserId,
     };
-    await this.setObject<Message>(msg.id.toString(), msg, REDIS_DB.MSG_DB);
-    const allMessages = await this.getAllAsArray(REDIS_DB.MSG_DB);
-    this.server.emit(eEvent.UpdateMessages, allMessages);
+    const channelId = msg.toChannelOrUserId.toString();
+    await this.redis.lPush(
+      channelId,
+      JSON.stringify(msg));
+    this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
   }
 
   async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
@@ -97,7 +107,31 @@ export class ChatService {
     }
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
-  getAllMessages(client: Socket, userId) {}
+
+  async initConnection(client: Socket, channelIds: string[], userId: number) {
+    for (const channel in channelIds) {
+      client.join(channel);
+    }
+    const allMessages: Hashtable<Message[]> = await this._getAllMessages(
+      channelIds,
+    );
+    if (!allMessages) return;
+    client.emit(eEvent.UpdateMessages, allMessages);
+  }
+
+  private async _getAllMessages(channelIds: string[]) {
+    if (!channelIds || channelIds.length === 0) return;
+    let messages: Hashtable<Message[]> = {};
+    // const single = await this.redis.mGet(['1', '2']);
+    // console.log(single);
+    console.log('This is the list of messages I got from _getAllMessages');
+    for (const id in channelIds) {
+      const msg = await this.redis.lRange(channelIds[0], 0, -1);
+      messages[id] = JSON.parse(JSON.stringify(msg));
+      console.log(`This is channel Id `, id, messages[id]);
+    }
+    return messages;
+  }
 
   async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {
     await this.redis.select(dataBase);
@@ -141,8 +175,13 @@ export class ChatService {
   }
 
   async setObject<T>(key: string, value: T, dataBase: number) {
-    await this.redis.select(dataBase);
-    await this.redis.json.set(key, '.', JSON.parse(JSON.stringify(value)));
+    // await this.redis.json.set(key, '.', JSON.parse(JSON.stringify(value)));
+    this.logger.debug(`This is key to set object in redis ${key}`);
+    await this.redis.json.arrAppend(
+      key,
+      '.',
+      JSON.parse(JSON.stringify(value)),
+    );
   }
 
   async getMessage(key: string) {
@@ -198,7 +237,8 @@ export class ChatService {
     const date = Date.now();
     const message: Message = {
       content: `User ${user.name} has joined ${channelName}`,
-      id: user.id + date + Math.random() * 100,
+      id:
+        user.id.toString() + date.toString() + (Math.random() * 100).toString(),
       sentDate: date,
       toChannelOrUserId: channelId,
       fromUserId: this.messageBotId,

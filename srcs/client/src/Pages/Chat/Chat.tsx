@@ -47,6 +47,7 @@ export default function Chat(props: any) {
   const [currentChannel, setCurrentChannel] = useState(
     defaultChannel as Channel
   );
+  const [isUserFetched, setIsUserFetched] = useState(false);
   const [message, setMessage] = useState("");
   const [friends, setFriends] = useState([]);
   const [createDirectId, setCreateDirectid] = useState("");
@@ -124,6 +125,7 @@ export default function Chat(props: any) {
       password
     };
     const channelId = createChannel(createChannelDto);
+    socket.emit(eEvent.CreateChannel, channelId);
     return channelId;
   };
   const handleAddToChannel = async (userId: number, channelId: number) => {
@@ -191,7 +193,6 @@ export default function Chat(props: any) {
     };
     console.log("Emitting message", JSON.stringify(messageToSend, null, 4));
     socket.emit(eEvent.SendMessage, messageToSend);
-    socket.emit("lol");
     setMessage("");
   };
 
@@ -233,6 +234,7 @@ export default function Chat(props: any) {
       // const user = response;
       console.log(`Here the user obj ${JSON.stringify(user, null, 4)}`);
       setUser(user);
+      setIsUserFetched(true);
       if (user && user.id) {
         const friends = await fetchUrl(
           `http://127.0.0.1:4200/users/${user.id}/friends`,
@@ -246,9 +248,14 @@ export default function Chat(props: any) {
           `There's a problem. Couldn't find user id to fetch friends`
         );
       }
-      // socket.connect();
       const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, "GET");
       if (channels) setAllChannels(channels);
+      const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
+      const userHashTable: Hashtable<ChatUser> = {};
+      for (const user of users) {
+        userHashTable[user.id] = user;
+      }
+      socket.connect();
     };
     initChatUser();
     console.info(
@@ -258,17 +265,30 @@ export default function Chat(props: any) {
 
   useEffect(() => {
     socket.on("connect", () => {
-      const channelIds = [];
+      const channelIds: string[] = [];
+      const userTable: Hashtable<ChatUser> = {};
       if (user.channels) {
         for (const chan of user.channels) {
-          channelIds.push(chan.channelId);
+          console.log(`this is chan ${chan.channelId}`);
+          channelIds.push(chan.channelId.toString());
         }
-        socket.emit(eEvent.GetMessages, channelIds);
+        console.log(`this is channels ${channelIds}`);
+        socket.emit(eEvent.InitConnection, { channelIds, userId: user.id });
       }
       console.log("Connected to server successfully");
     });
 
+    console.log(
+      `This is user.channels ${JSON.stringify(
+        user.channels,
+        null,
+        4
+      )} and user ${JSON.stringify(user, null, 4)}`
+    );
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {
+      console.log(
+        `Updatign all messages with ${JSON.stringify(messages, null, 4)}`
+      );
       setAllMessages(messages);
     });
 
@@ -299,9 +319,9 @@ export default function Chat(props: any) {
       socket.off(eEvent.UpdateMessages);
       socket.off(eEvent.UpdateOneMessage);
       socket.off(eEvent.UpdateOneUser);
-      socket.off(eEvent.GetMessages);
+      socket.off(eEvent.InitConnection);
     };
-  }, []);
+  }, [isUserFetched]);
 
   //ENTER
   // const [input, setInput] = useState('');
@@ -454,46 +474,42 @@ export default function Chat(props: any) {
           </div>
           <div className="row h-75 pt-3">
             <div className="col h-100 overflow-auto scroll-bar-messages ">
-              <p className="message-position">
-                {" "}
+              <div className="message-position">
+                <>
+                {console.log(`All messages ${JSON.stringify(allMessages, null, 4)}`)}
                 {allMessages &&
-                  allMessages[currentChannel.id]?.map((message: Message) =>
-                    user && message.toChannelOrUserId === currentChannel.id ? (
-                      <div
-                        className={
-                          message.fromUserId === user.id
-                            ? "myMessages"
-                            : "otherMessages"
+                  allMessages[currentChannel.id]?.map((message: Message) => (
+                    <div
+                      className={
+                        message.fromUserId === user.id
+                          ? "myMessages"
+                          : "otherMessages"
+                      }
+                      key={message.id}>
+                      <div className="messageFromUser">
+                        User:{" "}
+                        {
+                          (
+                            allUsers[message.fromUserId] || {
+                              username: "Pong Bot"
+                            }
+                          ).username
                         }
-                        key={message.id}
-                      >
-                        <div className="messageFromUser">
-                          User:{" "}
-                          {
-                            (
-                              allUsers[message.fromUserId] || {
-                                username: "Pong Bot"
-                              }
-                            ).username
-                          }
-                        </div>
-                        <br />
-                        <div className="messageDate">
-                          {" "}
-                          . Date: {new Date(message.sentDate).toLocaleString()}
-                        </div>
-                        <br />
-                        <div className="messageContent">
-                          {" "}
-                          . Message: . {message.content}
-                        </div>
-                        <br />
                       </div>
-                    ) : (
-                      ""
-                    )
-                  )}
-              </p>
+                      <br />
+                      <div className="messageDate">
+                        {" "}
+                        . Date: {new Date(message.sentDate).toLocaleString()}
+                      </div>
+                      <br />
+                      <div className="messageContent">
+                        {" "}
+                        . Message: . {message.content}
+                      </div>
+                      <br />
+                    </div>
+                  ))}</>
+              </div>
             </div>
           </div>
           <div className="row pt-4">
