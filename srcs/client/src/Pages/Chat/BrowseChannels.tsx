@@ -2,50 +2,38 @@ import React, { useState } from "react";
 import "./BrowseChannels.css";
 import { Channel, UserOnChannel } from "./entities";
 import { eChannelType } from "./constants";
-import { fetchUrl } from "./utils";
 
 export default function BrowseChannels({
   allChannels,
-  setAllChannels,
   userChannels,
+  userId,
   ...props
 }: any) {
   const [channelSearch, setChannelSearch] = useState("");
   const [joinChannelPassword, setJoinChannelPassword] = useState("");
-  allChannels = allChannels.filter(
-    (channel: Channel) => channel.type !== eChannelType.DIRECT
-  );
-  const getRelevantChannels = async () => {
-    const channels = await fetchUrl("http://127.0.0.1:4200/channel/", "GET");
-    console.log(`all channels in brose == `);
-    if (channels && channels.length > 0) {
-      setAllChannels(channels);
-      // all the public and protected channels and all private channels where you are
-      // get all channels
-      // pass user.channels in props
-
-      return channels.filter((channel: Channel) => {
-        console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
-        if (channel.type === eChannelType.DIRECT) return;
-        if (channel.type === eChannelType.PRIVATE) {
-          // does the user belong to the protected channel ?
-          if (
-            !userChannels?.find(
-              (userChannel: UserOnChannel) =>
-                userChannel.channelId === channel.id
-            )
-          ) {
-            return;
-          }
-        }
-        return channel;
-      });
-    }
-  };
-
-  allChannels = getRelevantChannels();
   const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
+
+    const userAlreadyInChannel: UserOnChannel | null = userChannels.find(
+      (userOnChannel: UserOnChannel) => userOnChannel.channelId === channel.id
+    );
+    if (userAlreadyInChannel) {
+      const bannedDate = new Date(
+        userAlreadyInChannel.bannedTill
+      ).getMilliseconds();
+      if (bannedDate < Date.now()) {
+        return alert(`You are banned till ${bannedDate.toLocaleString()}!`);
+      }
+      const mutedDate = new Date(
+        userAlreadyInChannel.mutedTill
+      ).getMilliseconds();
+      if (mutedDate < Date.now()) {
+        alert(
+          `Welcome to the channel! Remember that you are muted till ${mutedDate.toLocaleString()}`
+        );
+      }
+    }
+
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
       console.log(`Channel doesnt exist`);
@@ -58,8 +46,32 @@ export default function BrowseChannels({
       return alert("You must provide a Password!");
     }
   };
+
+  const nonDirectChannels = allChannels?.filter(
+    (channel: Channel) => channel.type !== eChannelType.DIRECT
+  );
+  // all the public and protected channels and all private channels where you are
+  // get all channels
+  // pass user.channels in props
+
+  const availableChannels = nonDirectChannels?.filter((channel: Channel) => {
+    console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
+    if (channel.type === eChannelType.DIRECT) return;
+    if (channel.type === eChannelType.PRIVATE) {
+      // does the user belong to the protected channel ?
+      if (
+        !userChannels?.find(
+          (userChannel: UserOnChannel) => userChannel.channelId === channel.id
+        )
+      ) {
+        return;
+      }
+    }
+    return channel;
+  });
+
   let filtered: Channel[];
-  if (allChannels.length !== 0 && channelSearch) {
+  if (availableChannels.length !== 0 && channelSearch) {
     filtered = allChannels.filter((channel: Channel) =>
       new RegExp(channelSearch, "i").test(channel.name)
     );

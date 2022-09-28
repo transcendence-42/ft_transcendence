@@ -114,19 +114,19 @@ export class ChannelService {
   async createUserOnChannel(
     createUserOnChannelDto: CreateUserOnChannelDto,
   ): Promise<UserOnChannel> {
-    try {
-      const result = await this.prisma.userOnChannel.create({
-        data: {
-          ...createUserOnChannelDto,
-        },
-      });
-      return result;
-    } catch (e) {
-      this.logger.error(
-        `Prisma failed to create UserOnChannel ${e['message']}`,
-      );
-      throw new ChannelNotFoundException(createUserOnChannelDto.userId);
-    }
+      try {
+        const result = await this.prisma.userOnChannel.create({
+          data: {
+            ...createUserOnChannelDto,
+          },
+        });
+        return result;
+      } catch (e) {
+        this.logger.error(
+          `Prisma failed to create UserOnChannel ${e['message']}`,
+        );
+        throw new ChannelNotFoundException(createUserOnChannelDto.userId);
+      }
   }
 
   async findUserOnChannel(

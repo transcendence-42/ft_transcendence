@@ -81,6 +81,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       const payload = { id: channel.id, type: channel.type };
       socket.emit(eEvent.UpdateOneChannel, payload);
       updateOwnChannels(userOnChannel);
+      const getAllChannels = await fetchUrl(
+        "http://127.0.0.1:4200/channel",
+        "GET"
+      );
+      setAllChannels(getAllChannels);
       return channel["id"];
     } else return alert(`Error while creating channel! ${channel.message}`);
   };
@@ -311,8 +316,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       >
         <BrowseChannels
           allChannels={allChannels}
-          setAllChannels={setAllChannels}
           userChannel={user?.channels}
+          userId={user?.id}
         />
       </PongAdvancedModal>
       <ChatModal
@@ -379,7 +384,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                 <table>
                   <tbody>
                     {user?.channels?.map((usrOnChan: UserOnChannel) => (
-                      <tr>
+                      <tr key={usrOnChan.channelId}>
                         <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
                           {usrOnChan.channel.name}
                         </td>

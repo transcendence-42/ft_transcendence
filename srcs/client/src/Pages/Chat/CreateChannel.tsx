@@ -81,7 +81,7 @@ export default function CreateChannel({
             data-bs-target="#collapseProtected"
             aria-expanded="false"
             aria-controls="collapseProtected"
-            // onClick={setChannelType(eChannelType.PRIVATE)}
+            onClick={(e) => setChannelType(eChannelType.PROTECTED)}
           ></input>
           <label className="form-check-label" htmlFor="channelRadios3">
             Protected
