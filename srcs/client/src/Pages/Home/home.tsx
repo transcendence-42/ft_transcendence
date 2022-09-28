@@ -83,80 +83,58 @@ useEffect(() => {
 if (!(contextValue.isConnected))
 {
     return (
-    <>
-    
-        <div >
-          <h1 className="h1 pinkText">ENTER THE PONG CONTEST !</h1>
+    <>    
+    <div className="container "></div>
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
         </div>
-        <div className=" blueText">
-          <br />
-          <h4 >Confront other players online and become the best at Pong! </h4>
+        <div className=" row blueText pt-5">
+            <h4 >Confront other players online ! </h4>
         </div>
-        <div className=" container">
-          <div className="col-size field">
-            <div className="net"></div>
-            <div className="ping"></div>
-            <div className="pong"></div>
-            <div className="ball"></div>
+        <div className=" field1 row center-block pb-3 pt-3 ">
+          <div className="center-block mx-auto col-12  col-sm-10 col-md-8 col-lg-8 col-xl-7 col-xxl-5" >
+          <div className=" field2  ">
+            <div className="net text-center"></div>
+            <div className="ping text-center"></div>
+            <div className="pong text-center"></div>
+            <div className="ball text-center"></div>
            </div>
+          </div>
         </div>
-        <div className=" blueText   ">
-          <br />
+        <div className=" row blueText  ">
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
+
     </>
     );
   }
   else
   {
     return (
-      <>
-     
-     <div >
-          <h1 className="h1 pinkText">ENTER THE PONG CONTEST !</h1>
+      <>   
+          <div className="container">
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
         </div>
-        <div className=" container">
-          <div className="col-size field">
-            <div className="net"></div>
-            <div className="ping"></div>
-            <div className="pong"></div>
-            <div className="ball"></div>
-            <button type="button" className="btn blueContainer1 pull-right" >
-            <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> PLAY </Link> 
-            </button>
-            <button type="button" className="btn blueContainer2 pull-left">
-              <Link className="playFlickering" style={{ cursor: "pointer" }} to={"/mapchoice"}> WATCH  </Link> 
-            </button>
-          </div>
-          
-        </div>
-        <div className=" blueText">
-          <br />
+        <div className=" row blueText text-center pt-5">
           <h4 >Confront other players online and become the best at Pong! </h4>
         </div>
-       </>
-  );
+          <div className=" text-center col-10 col-sm-10 col-md-8 col-lg-8 col-xl-6 pb-5">
+              <div className="ping text-center"></div>
+              <div className="pong text-center"></div>
+              <div className="ball text-center"></div>
+          </div>  
+            <div className="container square-box d-flex justify-content-center align-items-center pt-5 pb-5">
+                <div className="">
+                  <Link to="/leaderboard"> <h2 className="animated-word"> Lobby</h2> </Link>
+                </div>
+            </div>
+            <div className=" row blueText pt-5 ">
+          <h5 className="text-center" >Join Players From 42 School</h5>
+        </div>
+          </div>
+      </>
+        );
+    }
+
 }
-}
-
-
-// return (
-//   <>
-//      <div className="title1" data-testid="tracker">
-//         <h2 className="pinkText " style={{fontSize: "4vw"}}> ENTER THE PONG CONTEST ! </h2>  
-//       </div>   
-//         <div className="homeElement1">
-//           <h2 className="blueText" style={{fontSize: "1.5vw"}}>  Confront other players
-//                                                               online and become the best at Pong! </h2>
-//         </div>
-//         <div className="containerForField">
-//           <div className="field">
-//             <div className="net"></div>
-//             <div className="ping"></div>
-//             <div className="pong"></div>
-//             <div className="ball"></div>
-
-//         </div>
-//       </div>
-//   </>
-//   );

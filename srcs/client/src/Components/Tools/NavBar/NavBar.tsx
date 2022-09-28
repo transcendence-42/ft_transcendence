@@ -4,17 +4,17 @@ import ProfilNavBar from "../Button/ProfilNavBar";
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
-import { useCookies } from 'react-cookie';
 import Context from "../../../Context/Context";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Nav, Navbar} from "react-bootstrap";
+
+
 
 export default function NavBar ()
 {
-
-   
     const [fromAuth, setFromAuth] = useState(false);
     const [userID, setUserID] = useState<number>(1);
-    const contextValue = useContext(Context);
-    
+    const contextValue = useContext(Context);   
     /*
     /*
     ** Fetching data and allow the user to connect using "useState" to true
@@ -100,57 +100,59 @@ export default function NavBar ()
     if (contextValue.isConnected)
     {
         return (
-            <div className="navBar">
-                <div className="menuInNavBar">
-                    <div className="buttonInNavBar">
-                        <Link  to="/"> <h2 className="blueText">PONG</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/home"> <h2 className="yellowText"  >Home</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/about"><h2 className="yellowText" >About</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/chat">  <h2 className="yellowText" >Chat</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/leaderboard">  <h2 className="yellowText" >Leaderboard</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <button onClick={deco} className="playFlickering">Logout</button>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link  to="/profile" state={{userID}}> <ProfilNavBar /> </Link>
-                    </div>
-                </div>
-          </div>
+            <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">
+            
+            <Link to="/" className="aNav" >
+                    <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
+                    </Link>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav className="navbar-nav ms-auto ">   
+                    <Link to="/leaderboard" className="aNav" >
+                        <span></span><span></span><span></span><span></span>
+                        <h2 className="yellowText mt-2 px-2 ">Leaderboard</h2>
+                    </Link>
+                    <Link to="/chat" className="aNav"> 
+                        <span></span><span></span><span></span><span></span>
+                        <h2 className="yellowText mt-2 px-2" > Chat </h2>
+                    </Link>
+                    <Link to="/profile" className="aNav">
+                        <span></span><span></span><span></span><span></span>
+                        <h2 className="yellowText mt-2 px-2"> Profile </h2>
+                    </Link>
+                    <Link to="/" onClick={deco} className="aNav">
+                        <span></span><span></span><span></span><span></span>
+                         <h2 className="yellowText mt-2 px-2"  style={{animation:"flicker 2.5s infinite alternate"}}>logout </h2>
+                    </Link>
+                </Nav>
+                </Navbar.Collapse>
+       
+    </Navbar>
         )
     }
     else
     {
         return (
-            <div className="navBar">
-                <div className="menuInNavBar">
-                    <div className="buttonInNavBar">
-                        <Link to="/"> <h2 className="blueText" data-testid="HomeLink"> PONG </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/">   <h2 className="yellowText" > Home </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/about">   <h2 className="yellowText" > About </h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/leaderboard"> <h2 className="yellowText" data-testid="LeaderboardLink">Leaderboard</h2> </Link>
-                    </div>
-                    <div className="buttonInNavBar">
-                        <Link to="/login" className="playFlickering">Login</Link>
-                 </div>
-            </div>
-        </div>
+        <Navbar className="navbar bg-dark pt-5 pb-4 px-5 " bg="transparent" variant="transparent"  expand="md" collapseOnSelect>
+                <Link to="/" className="aNav">
+                    <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
+                    <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
+                    </Link>
+            <Navbar.Toggle className="" />
+                <Navbar.Collapse className="">
+                <Nav className="navbar-nav ms-auto ">
+                    <Link to="/leaderboard" className="aNav"> 
+                        <span></span><span></span><span></span><span></span>
+                        <h2 className="yellowText mt-2 px-2" data-testid="LeaderboardLink">Leaderboard</h2> 
+                    </Link>
+                    <Link to="/login" className="aNav"> 
+                        <span></span><span></span><span></span><span></span>
+                        <h2 className="yellowText mt-2 px-2" > Login </h2>
+                    </Link>
+                </Nav>
+                </Navbar.Collapse>
+        </Navbar>
         )
     }
 }
-
-
