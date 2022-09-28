@@ -31,7 +31,7 @@ export default function Leaderboard () {
     return (
       
           <>
-            <div className="leaderboard" data-testid="tracker">
+            <div className="leaderboard mt-5" data-testid="tracker">
               <div>
               <div className='frame'>
                 <div>

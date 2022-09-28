@@ -7,9 +7,9 @@
   /* // ----- general -----// */
 
   
-  .field {
-    width: 80%;
-    height: 80%;
+  .field2 {
+    width: 100%;
+    height: 100%;
     position: relative;
     border-width: 6px;
     border-style: solid;

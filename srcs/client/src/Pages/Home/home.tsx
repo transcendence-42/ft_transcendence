@@ -85,6 +85,7 @@ useEffect(() => {
 if (!(contextValue.isConnected))
 {
     return (
+<<<<<<< HEAD
     <>
     <body>
       <div className="container">
@@ -97,11 +98,25 @@ if (!(contextValue.isConnected))
         <div className="row field1 text-center pt-5">
           <div className="col"></div>
           <div className=" field text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6">
+=======
+    <>    
+    <div className="container "></div>
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
+        </div>
+        <div className=" row blueText pt-5">
+            <h4 >Confront other players online ! </h4>
+        </div>
+        <div className=" field1 row center-block pb-3 pt-3 ">
+          <div className="center-block mx-auto col-12  col-sm-10 col-md-8 col-lg-8 col-xl-7 col-xxl-5" >
+          <div className=" field2  ">
+>>>>>>> bb92edde6be81a4709c04fa129fb498ff560318b
             <div className="net text-center"></div>
             <div className="ping text-center"></div>
             <div className="pong text-center"></div>
             <div className="ball text-center"></div>
            </div>
+<<<<<<< HEAD
            <div className="col"></div>
         </div>
         <div className=" row blueText pt-5 ">
@@ -109,12 +124,21 @@ if (!(contextValue.isConnected))
         </div>
         </div>
         </body>
+=======
+          </div>
+        </div>
+        <div className=" row blueText  ">
+          <h5 className="text-center" >Join Players From 42 School</h5>
+        </div>
+
+>>>>>>> bb92edde6be81a4709c04fa129fb498ff560318b
     </>
     );
   }
   else
   {
     return (
+<<<<<<< HEAD
       <>
       <body>
         <div className="container-fluid">
@@ -122,6 +146,17 @@ if (!(contextValue.isConnected))
             <h1 className=" pinkText text-center ">ENTER THE PONG CONTEST NOW!</h1>
           </div>
           <div className=" text-center col-10 col-sm-10 col-md-10 col-lg-8 col-xl-6 pb-5">
+=======
+      <>   
+          <div className="container">
+        <div className="row pt-5">
+          <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
+        </div>
+        <div className=" row blueText text-center pt-5">
+          <h4 >Confront other players online and become the best at Pong! </h4>
+        </div>
+          <div className=" text-center col-10 col-sm-10 col-md-8 col-lg-8 col-xl-6 pb-5">
+>>>>>>> bb92edde6be81a4709c04fa129fb498ff560318b
               <div className="ping text-center"></div>
               <div className="pong text-center"></div>
               <div className="ball text-center"></div>
@@ -135,7 +170,10 @@ if (!(contextValue.isConnected))
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
           </div>
+<<<<<<< HEAD
         </body>
+=======
+>>>>>>> bb92edde6be81a4709c04fa129fb498ff560318b
       </>
         );
     }
