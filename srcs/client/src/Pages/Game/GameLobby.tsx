@@ -30,18 +30,18 @@ const GameLobby = () => {
   /** ENUMS                                                                   */
   /** *********************************************************************** */
   
+  enum eAction {
+    NOTHING = 0,
+    JOIN,
+    SPECTATE,
+  }
+  
   enum eEvents {
     GO_LOBBY = 0,
     VIEW_GAME,
     CREATE_GAME,
     JOIN_GAME,
     RECO_GAME,
-  }
-
-  enum eState {
-    NOTHING = 0,
-    JOIN,
-    SPECTATE,
   }
 
   enum eMatchMaking {
@@ -206,10 +206,10 @@ const GameLobby = () => {
 
   const init = () => {
     // Check state action
-    if (action === eState.JOIN && gameId !== null) {
+    if (action === eAction.JOIN && gameId !== null) {
       setGame({ id: gameId, action: eEvents.JOIN_GAME });
     }
-    else if (action === eState.SPECTATE && gameId !== null) {
+    else if (action === eAction.SPECTATE && gameId !== null) {
       setGame({ id: gameId, action: eEvents.VIEW_GAME });
     }
     else {

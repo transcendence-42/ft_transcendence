@@ -49,9 +49,10 @@ const enum Status {
   PAUSED,
 }
 
-const enum ePlayerStatus {
+enum ePlayerStatus {
   OFFLINE = 0,
   ONLINE,
+  WAITING,
   PLAYING,
   SPECTATING,
 }
@@ -312,7 +313,7 @@ export class GameService {
     );
     // Update players info
     await this._savePlayerInfos(player.userId, {
-      status: ePlayerStatus.PLAYING,
+      status: ePlayerStatus.WAITING,
       game: game.id,
     });
     this._sendPlayersInfo();
@@ -519,8 +520,16 @@ export class GameService {
 
   /** Start a game */
   private async _startGame(id: string) {
-    // game initialization (grid + physics)
     let game: Game = await this._getGame(id);
+    // Update players info
+    for (let i = 0; i < 2; ++i) {
+      await this._savePlayerInfos(game.players[i].userId, {
+        status: ePlayerStatus.PLAYING,
+        game: id,
+      });
+    }
+    this._sendPlayersInfo();
+    // game initialization (grid + physics)
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
     // update game (init + status) in redis
@@ -1215,18 +1224,14 @@ export class GameService {
   /** *********************************************************************** */
 
   /** returns player info to requester */
-  async handlePlayerInfo(client: Socket, id: string) {
-    let player = {};
-    // if the player is playing in game
-    const playedGame: any = (
-      await this.redis.multi().select(DB.PLAYERS).get(id).exec()
+  async handlePlayersInfos(client: Socket) {
+    const data: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
+        .exec()
     )[1][1];
-    if (playedGame) player = { id: id, game: playedGame, is: 0 };
-    // if the player is spectating a game
-    const viewedGame: any = (
-      await this.redis.multi().select(DB.VIEWERS).get(id).exec()
-    )[1][1];
-    if (viewedGame) player = { id: id, game: viewedGame, is: 1 };
-    client.emit('playerInfo', player);
+    if (data) client.emit(eKeys.PLAYERSINFOS, JSON.parse(data)[0]);
   }
 }

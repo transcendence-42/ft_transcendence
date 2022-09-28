@@ -14,7 +14,6 @@ import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
 import { Player } from './entities';
-import { GetPlayerInfoDto } from './dto/get-playerInfo.dto';
 
 @UseFilters(new WsExceptionsFilter())
 @WebSocketGateway()
@@ -137,11 +136,8 @@ export class GameGateway
   }
 
   /** Get player info */
-  @SubscribeMessage('getPlayerInfo')
-  async handlePlayerInfo(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() getPlayerInfoDto: GetPlayerInfoDto,
-  ) {
-    await this.gameService.handlePlayerInfo(client, getPlayerInfoDto.id);
+  @SubscribeMessage('getPlayersInfos')
+  async handlePlayersInfos(@ConnectedSocket() client: Socket) {
+    await this.gameService.handlePlayersInfos(client);
   }
 }

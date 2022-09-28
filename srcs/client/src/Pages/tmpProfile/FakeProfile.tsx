@@ -17,8 +17,15 @@ const FakeProfile: FC = (props: any) => {
   enum ePlayerStatus {
     OFFLINE = 0,
     ONLINE,
+    WAITING,
     PLAYING,
     SPECTATING,
+  }
+
+  enum eAction {
+    NOTHING = 0,
+    JOIN,
+    SPECTATE,
   }
 
   /** *********************************************************************** */
@@ -36,7 +43,6 @@ const FakeProfile: FC = (props: any) => {
     const player = data.players
       ? data.players.find((p: any) => p.id === id.toString())
       : {};
-    console.log(player);
     setPlayer(player);
   }, []);
 
@@ -53,7 +59,7 @@ const FakeProfile: FC = (props: any) => {
   };
 
   const init = async () => {
-    socket.emit('getPlayerInfo', { id: id });
+    socket.emit('getPlayersInfos');
   };
 
   useEffect(() => {
@@ -74,10 +80,31 @@ const FakeProfile: FC = (props: any) => {
       <h1 className="text-pink">Fake profile page</h1>
       {player && player.status !== undefined ? (
         <h4 className="text-blue">
-          {player.status === 0 && `player is offline` }
-          {player.status === 1 && `player is online` }
-          {player.status === 3 && `player is spectating a game` }
-          {player.status === 2 &&     
+          {player.status === ePlayerStatus.OFFLINE && `player is offline`}
+          {player.status === ePlayerStatus.ONLINE && `player is online`}
+          {player.status === ePlayerStatus.SPECTATING &&
+            `player is spectating a game`}
+          {player.status === ePlayerStatus.WAITING && (
+            <>
+              player is waiting for an opponent
+              <Link
+                to="/lobby"
+                state={{
+                  origin: {
+                    name: 'profile',
+                    loc: '/prof',
+                    state: location.state,
+                  },
+                  gameId: player.game,
+                  action: eAction.JOIN,
+                }}
+                className="btn btn-pink text-pink"
+              >
+                Join
+              </Link>
+            </>
+          )}
+          {player.status === ePlayerStatus.PLAYING && (
             <>
               player is playing a game
               <Link
@@ -89,17 +116,17 @@ const FakeProfile: FC = (props: any) => {
                     state: location.state,
                   },
                   gameId: player.game,
-                  action: ePlayerStatus.PLAYING,
+                  action: eAction.SPECTATE,
                 }}
                 className="btn btn-pink text-pink"
               >
-                Join
+                Spectate
               </Link>
             </>
-          }
+          )}
         </h4>
       ) : (
-        <h4 className="text-blue">player is not in game</h4>
+        <h4 className="text-blue">waiting for status update</h4>
       )}
     </div>
   );
