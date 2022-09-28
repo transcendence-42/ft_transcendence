@@ -272,7 +272,7 @@ export class GameService {
       pipeline.del(players[i].userId);
     }
     // remove viewers
-    const viewers: Client[] = game.players;
+    const viewers: Client[] = game.viewers;
     pipeline.select(DB.VIEWERS);
     for (let i = 0; i < viewers.length; ++i) {
       pipeline.del(viewers[i].userId);
@@ -1081,8 +1081,7 @@ export class GameService {
     const playedGame: any = (
       await this.redis.multi().select(DB.PLAYERS).get(id).exec()
     )[1][1];
-    console.log(await this.redis.multi().select(DB.PLAYERS).get(id).exec());
-    if (playedGame) player = { id: id, game: playedGame, is: 1 };
+    if (playedGame) player = { id: id, game: playedGame, is: 0 };
     // if the player is spectating a game
     const viewedGame: any = (
       await this.redis.multi().select(DB.VIEWERS).get(id).exec()

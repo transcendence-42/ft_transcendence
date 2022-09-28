@@ -10,6 +10,13 @@ const FakeProfile: FC = (props: any) => {
   const location: any = useLocation();
   const { id } = location.state;
 
+  // Enums
+  enum eAction {
+    NOTHING = 0,
+    PLAYING,
+    VIEWING,
+  }
+
   // States
   const [player, setPlayer] = useState({} as any);
   const [user, setUser] = useState({} as any);
@@ -28,7 +35,8 @@ const FakeProfile: FC = (props: any) => {
   };
 
   // Socket handlers
-  const handleUserInfo = useCallback((data: any) => {
+  const handlePlayerInfo = useCallback((data: any) => {
+    console.log(data);
     setPlayer(data);
   }, []);
 
@@ -37,9 +45,9 @@ const FakeProfile: FC = (props: any) => {
     //getUserInfos();
     init();
     console.log(id);
-    socket.on('playerInfo', handleUserInfo);
+    socket.on('playerInfo', handlePlayerInfo);
     return () => {
-      socket.off('playerInfo', handleUserInfo);
+      socket.off('playerInfo', handlePlayerInfo);
     };
   }, []);
 
@@ -47,19 +55,23 @@ const FakeProfile: FC = (props: any) => {
   return (
     <div>
       <h1 className="text-pink">Fake profile page</h1>
-      {player ? (
+      {player && player.is !== undefined ? (
         <h4 className="text-blue">
-          {player.is === 0 ? (
-            `player is spectating game : ${player.game}`
+          {player.is === 1 ? (
+            `player is spectating a game`
           ) : (
             <>
-              player is playing game
+              player is playing a game 
               <Link
                 to="/lobby"
                 state={{
-                  origin: { name: 'profile', loc: '/prof' },
+                  origin: {
+                    name: 'profile',
+                    loc: '/prof',
+                    state: location.state,
+                  },
                   gameId: player.game,
-                  action: 0,
+                  action: eAction.PLAYING,
                 }}
                 className="btn btn-pink text-pink"
               >

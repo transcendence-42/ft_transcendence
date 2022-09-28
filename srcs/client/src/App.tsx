@@ -54,10 +54,7 @@ function App() {
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/lobby"
-              element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
-            />
+            <Route path="/lobby" element={<GameLobby/>} />
             <Route path="/prof" element={<FakeProfile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/home" element={<Home />} />

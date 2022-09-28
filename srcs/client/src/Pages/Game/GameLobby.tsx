@@ -17,15 +17,19 @@ import GoBack from './modals/GoBack';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-const GameLobby = (props: any) => {
+const GameLobby = () => {
   /** 
-   * @props origin.name:  Name of the previous page
+   * @state origin.name:  Name of the previous page
    *        origin.loc:   Location of the previous page to go back
+   *        origin.state: State of the origin to restore it when go back
    *        gameId?:      Id of the game on which apply the action. Can be ''.
    *        action?:      0: Do nothing | 1: Join | 2: Spectacte
    */
 
-  // Enums
+  /** *********************************************************************** */
+  /** ENUMS                                                                   */
+  /** *********************************************************************** */
+  
   enum eEvents {
     GO_LOBBY = 0,
     VIEW_GAME,
@@ -34,18 +38,42 @@ const GameLobby = (props: any) => {
     RECO_GAME,
   }
 
+  enum eState {
+    NOTHING = 0,
+    JOIN,
+    SPECTATE,
+  }
+
   enum eMatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
     IN_GAME,
   }
 
-  // const location: any = useLocation();
-  // const { origin, gameId, action } = location.state;
-
+  /** *********************************************************************** */
+  /** GLOBAL                                                                  */
+  /** *********************************************************************** */
+ 
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
 
+  /** *********************************************************************** */
+  /** STATES                                                                  */
+  /** *********************************************************************** */
+  
+  // Get a state from location provider
+  const location: any = useLocation();
+  let origin: { loc: string, name: string, state: any };
+  let gameId: string; 
+  let action: number;
+  if (location.state) {
+    ({ origin, gameId, action } = location.state);
+  } else {
+    origin = { loc: '/lobby', name: 'lobby', state: null };
+    gameId = '';
+    action = 0;
+  }
+  
   // States
   const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
   const [message, setMessage] = useState({} as any);
@@ -53,6 +81,10 @@ const GameLobby = (props: any) => {
   const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
 
+  /** *********************************************************************** */
+  /** MODAL                                                                   */
+  /** *********************************************************************** */
+  
   // Modal states
   const [showGoBack, setShowGoBack] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
@@ -66,6 +98,10 @@ const GameLobby = (props: any) => {
   const handleCloseMapSelect = () => setShowMapSelect(false);
   const handleShowMapSelect = () => setShowMapSelect(true);
 
+  /** *********************************************************************** */
+  /** SOCKET EVENTS HANDLERS                                                  */
+  /** *********************************************************************** */
+  
   // Socket events handlers
   const handleGameList = useCallback((gameList: any) => {
     setGameList(gameList);
@@ -128,7 +164,10 @@ const GameLobby = (props: any) => {
     }, 4000);
   }, []);
 
-  // component event handlers
+  /** *********************************************************************** */
+  /** COMPONENT EVENT HANDLERS                                                */
+  /** *********************************************************************** */
+  
   const handleNewGame = () => {
     setMatchMaking(eMatchMaking.IN_GAME);
     socket.emit('createGame');
@@ -146,21 +185,37 @@ const GameLobby = (props: any) => {
     // Viewer : remove the viewer and change its room in the server
     if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
-      if (props.origin.name !== 'lobby')
-        navigate(props.origin.loc);
+      if (origin.name !== 'lobby')
+        navigate(origin.loc, { state: origin.state });
       else backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
     }
     // Player : cancel if 1 player / abandon if match started
     if (game.action !== eEvents.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
-      
-      backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
+      setTimeout(() => {
+        if (origin.name !== 'lobby')
+          navigate(origin.loc, { state: origin.state });
+        backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
+      }, 2000);
     }
   };
 
+  /** *********************************************************************** */
+  /** INITIALIZATION                                                          */
+  /** *********************************************************************** */
+
   const init = () => {
-    setGame({ action: eEvents.GO_LOBBY, id: 'lobby' });
-    socket.emit('findAllGame');
+    // Check state action
+    if (action === eState.JOIN && gameId !== null) {
+      setGame({ id: gameId, action: eEvents.JOIN_GAME });
+    }
+    else if (action === eState.SPECTATE && gameId !== null) {
+      setGame({ id: gameId, action: eEvents.VIEW_GAME });
+    }
+    else {
+      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
+      socket.emit('findAllGame');
+    }
   };
 
   useEffect(() => {
@@ -184,7 +239,6 @@ const GameLobby = (props: any) => {
     socket.on('reconnect', handleReconnect);
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
-
     socket.on('info', handleInfo);
     // get all games
     socket.emit('findAllGame');
@@ -198,17 +252,20 @@ const GameLobby = (props: any) => {
     };
   }, []);
 
-  // Render
+  /** *********************************************************************** */
+  /** RENDER                                                                  */
+  /** *********************************************************************** */
+
   return (
     <>
       {/* Modals */}
       <PongModal
-        title={`Go back to ${props.origin.name}`}
+        title={`Go back to ${origin.name}`}
         closeHandler={handleCloseGoBack}
         show={showGoBack}
         textBtn1="Cancel"
         handleBtn1={handleCloseGoBack}
-        textBtn2={`Go back to ${props.origin.name}`}
+        textBtn2={`Go back to ${origin.name}`}
         handleBtn2={handleBackTo}
       >
         <GoBack />
@@ -257,7 +314,7 @@ const GameLobby = (props: any) => {
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleBackTo}
             >
-              Go back to {props.origin.name}
+              Go back to {origin.name}
             </button>
           )}
           {game && game.action > eEvents.VIEW_GAME && (
@@ -265,7 +322,7 @@ const GameLobby = (props: any) => {
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleShowGoBack}
             >
-              Go back to {props.origin.name} 
+              Go back to {origin.name} 
             </button>
           )}
           {matchMaking === eMatchMaking.NOT_IN_QUEUE ? (
