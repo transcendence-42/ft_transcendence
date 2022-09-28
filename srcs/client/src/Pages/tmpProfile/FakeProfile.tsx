@@ -81,7 +81,26 @@ const FakeProfile: FC = (props: any) => {
       {player && player.status !== undefined ? (
         <h4 className="text-blue">
           {player.status === ePlayerStatus.OFFLINE && `player is offline`}
-          {player.status === ePlayerStatus.ONLINE && `player is online`}
+          {player.status === ePlayerStatus.ONLINE && 
+          <>
+            player is online
+            <Link
+              to="/lobby"
+              state={{
+                origin: {
+                  name: 'profile',
+                  loc: '/prof',
+                  state: location.state,
+                },
+                gameId: player.game,
+                action: eAction.JOIN,
+              }}
+              className="btn btn-pink text-pink"
+            >
+              Challenge
+            </Link>
+          </>
+          }
           {player.status === ePlayerStatus.SPECTATING &&
             `player is spectating a game`}
           {player.status === ePlayerStatus.WAITING && (

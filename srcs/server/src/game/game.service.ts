@@ -55,10 +55,23 @@ enum ePlayerStatus {
   WAITING,
   PLAYING,
   SPECTATING,
+  CHALLENGE,
 }
 
 const enum eKeys {
   PLAYERSINFOS = 'playersInfos',
+}
+
+enum eChallengeWho {
+  CHALLENGER = 0,
+  CHALLENGEE,
+}
+
+enum eChallengeStatus {
+  OPEN = 0,
+  ACCEPTED,
+  REFUSED,
+  CANCEL,
 }
 
 const enum Motive {
@@ -81,6 +94,7 @@ const Params = Object.freeze({
   BALL_ACCELERATION_TIME: 10,
   BALL_MAX_SPEED: 12,
   PAUSE_TIME: 30,
+  CHALLENGE_TIMER: 15,
 });
 
 const enum DB {
@@ -185,6 +199,47 @@ export class GameService {
           JSON.stringify(data),
         )
         .exec();
+    }
+  }
+
+  /** Check player info */
+  private async _checkPlayerInfo(
+    id: string,
+    key: string,
+    value: any,
+  ): Promise<boolean> {
+    const isKey = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
+        .exec()
+    )[1][1];
+    if (!isKey) {
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call(
+          'JSON.SET',
+          eKeys.PLAYERSINFOS,
+          '$',
+          JSON.stringify({ players: [] }),
+        )
+        .exec();
+    }
+    // If record exists, update, else, append
+    const isPlayer: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, `$.players[?(@.id=="${id}")]`)
+        .exec()
+    )[1][1];
+    if (JSON.parse(isPlayer).length > 0) {
+      if (JSON.parse(isPlayer)[key] === value) return true;
+      else return false;
+    } else {
+      return false;
     }
   }
 
@@ -1220,7 +1275,7 @@ export class GameService {
   }
 
   /** *********************************************************************** */
-  /** PLAYER INFO                                                             */
+  /** PLAYERS INFO                                                            */
   /** *********************************************************************** */
 
   /** returns player info to requester */
@@ -1233,5 +1288,81 @@ export class GameService {
         .exec()
     )[1][1];
     if (data) client.emit(eKeys.PLAYERSINFOS, JSON.parse(data)[0]);
+  }
+
+  /** *********************************************************************** */
+  /** CHALLENGE                                                               */
+  /** *********************************************************************** */
+
+  async handleCreateChallenge(client: Socket, id: string) {
+    // get both players
+    const userId: string = client.handshake.query.userId.toString();
+    const challenger = this.clients.find((c) => c.userId === userId);
+    if (!challenger) throw new PlayerNotFoundException(userId);
+    const challengee = this.clients.find((c) => c.userId === id);
+    if (!challengee) throw new PlayerNotFoundException(userId);
+    // update their status and broadcast it
+    await this._savePlayerInfos(challenger.userId, {
+      status: ePlayerStatus.CHALLENGE,
+    });
+    await this._savePlayerInfos(challengee.userId, {
+      status: ePlayerStatus.CHALLENGE,
+    });
+    this._sendPlayersInfo();
+    // switch back to online if status is still challenge after challenge timer
+    setTimeout(async () => {
+      if (
+        await this._checkPlayerInfo(
+          challenger.userId,
+          'status',
+          ePlayerStatus.CHALLENGE,
+        )
+      )
+        await this._savePlayerInfos(challenger.userId, {
+          status: ePlayerStatus.ONLINE,
+        });
+      if (
+        await this._checkPlayerInfo(
+          challengee.userId,
+          'status',
+          ePlayerStatus.CHALLENGE,
+        )
+      )
+        await this._savePlayerInfos(challengee.userId, {
+          status: ePlayerStatus.ONLINE,
+        });
+    }, Params.CHALLENGE_TIMER);
+    // send back information to both through socket to inform them
+    const gameChallenge = {
+      challenger: {
+        name: challenger.name,
+        userId: challenger.userId,
+        pic: challenger.pic,
+      },
+      challengee: {
+        name: challengee.name,
+        userId: challengee.userId,
+        pic: challengee.pic,
+      },
+      timer: Params.CHALLENGE_TIMER,
+      status: eChallengeStatus.OPEN,
+    };
+    challenger.socket.emit('gameChallenge', {
+      who: eChallengeWho.CHALLENGER,
+      gameChallenge,
+    });
+    challengee.socket.emit('gameChallenge', {
+      who: eChallengeWho.CHALLENGEE,
+      gameChallenge,
+    });
+  }
+
+  async handleUpdateChallenge(client: Socket, id: string, status: number) {
+    // get opponent
+    const userId: string = client.handshake.query.userId.toString();
+    const opponent = this.clients.find((c) => c.userId === id);
+    if (!opponent) throw new PlayerNotFoundException(userId);
+    // send back information to opponent to warn him of the action
+    opponent.socket.emit('gameChallenge', { status: status });
   }
 }

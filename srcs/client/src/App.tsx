@@ -15,6 +15,7 @@ import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import FakeProfile from './Pages/tmpProfile/FakeProfile';
+import RootModals from './Pages/RootModals/RootModals';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -50,6 +51,7 @@ function App() {
       <BrowserRouter>
         <div className="main">
           <NavBar />
+          <RootModals />
           <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home />} />

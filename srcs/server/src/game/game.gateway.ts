@@ -14,6 +14,8 @@ import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
 import { Player } from './entities';
+import { CreateChallengeDto } from './dto/create-challenge.dto';
+import { UpdateChallengeDto } from './dto/update-challenge.dto';
 
 @UseFilters(new WsExceptionsFilter())
 @WebSocketGateway()
@@ -139,5 +141,27 @@ export class GameGateway
   @SubscribeMessage('getPlayersInfos')
   async handlePlayersInfos(@ConnectedSocket() client: Socket) {
     await this.gameService.handlePlayersInfos(client);
+  }
+
+  /** Create new challenge */
+  @SubscribeMessage('challengePlayer')
+  async handleCreateChallenge(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() createChallengeDto: CreateChallengeDto,
+  ) {
+    await this.gameService.handleCreateChallenge(client, createChallengeDto.id);
+  }
+
+  /** Update challenge */
+  @SubscribeMessage('updateChallenge')
+  async handleUpdateChallenge(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateChallengeDto: UpdateChallengeDto,
+  ) {
+    await this.gameService.handleUpdateChallenge(
+      client,
+      updateChallengeDto.id,
+      updateChallengeDto.status,
+    );
   }
 }
