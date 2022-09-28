@@ -14,10 +14,11 @@ const FakeProfile: FC = (props: any) => {
   /** ENUMS                                                                   */
   /** *********************************************************************** */
 
-  enum eAction {
-    NOTHING = 0,
+  enum ePlayerStatus {
+    OFFLINE = 0,
+    ONLINE,
     PLAYING,
-    VIEWING,
+    SPECTATING,
   }
 
   /** *********************************************************************** */
@@ -30,12 +31,15 @@ const FakeProfile: FC = (props: any) => {
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
-  
-  const handlePlayersInfo = useCallback((data: any[]) => {
-    const player = data ? data.find((p) => p.id === id) : {};
-    setPlayer(data);
+
+  const handlePlayersInfo = useCallback((data: any) => {
+    const player = data.players
+      ? data.players.find((p: any) => p.id === id.toString())
+      : {};
+    console.log(player);
+    setPlayer(player);
   }, []);
-  
+
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
@@ -51,11 +55,10 @@ const FakeProfile: FC = (props: any) => {
   const init = async () => {
     socket.emit('getPlayerInfo', { id: id });
   };
-  
+
   useEffect(() => {
     //getUserInfos();
     init();
-    console.log(id);
     socket.on('playersInfos', handlePlayersInfo);
     return () => {
       socket.off('playersInfos', handlePlayersInfo);
@@ -69,13 +72,14 @@ const FakeProfile: FC = (props: any) => {
   return (
     <div>
       <h1 className="text-pink">Fake profile page</h1>
-      {player && player.is !== undefined ? (
+      {player && player.status !== undefined ? (
         <h4 className="text-blue">
-          {player.is === 1 ? (
-            `player is spectating a game`
-          ) : (
+          {player.status === 0 && `player is offline` }
+          {player.status === 1 && `player is online` }
+          {player.status === 3 && `player is spectating a game` }
+          {player.status === 2 &&     
             <>
-              player is playing a game 
+              player is playing a game
               <Link
                 to="/lobby"
                 state={{
@@ -85,14 +89,14 @@ const FakeProfile: FC = (props: any) => {
                     state: location.state,
                   },
                   gameId: player.game,
-                  action: eAction.PLAYING,
+                  action: ePlayerStatus.PLAYING,
                 }}
                 className="btn btn-pink text-pink"
               >
                 Join
               </Link>
             </>
-          )}
+          }
         </h4>
       ) : (
         <h4 className="text-blue">player is not in game</h4>

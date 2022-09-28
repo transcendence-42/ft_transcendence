@@ -128,7 +128,8 @@ export class GameService {
         .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
         .exec()
     )[1][1];
-    if (data && this.server) this.server.emit(eKeys.PLAYERSINFOS, data);
+    if (data && this.server)
+      this.server.emit(eKeys.PLAYERSINFOS, JSON.parse(data)[0]);
   }
 
   /** Save or update player infos */
