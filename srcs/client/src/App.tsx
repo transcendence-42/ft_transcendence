@@ -25,6 +25,10 @@ function App() {
     setUserID(id);
   }
 
+   /*
+   ** Update the UserID when the page is refresh
+   */
+
   if (!userID)
   {
     if (isConnected)

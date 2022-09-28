@@ -6,7 +6,7 @@ import "./ModalChangeContent.css"
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
 
-export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
+export default function ModalChangePicture({ isShowing, hide, id, up, title } : any) {
 
 	const [content, setcontent] = useState('');
 	const [url, setUrl] = useState('');
@@ -19,7 +19,14 @@ export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 	function patchAndClose(e : any)
 	{
 		e.preventDefault();
-		patchFetchPicture({url: url, picture: content});
+		const test = patchFetchPicture({url: url, picture: content});
+		console.log("TEST",test);
+		test.then((responseObject)=> {
+			if (responseObject.status === 400)
+			{
+				console.log("test");
+			}
+			})
 		hide();
 		up();
 	}
@@ -32,7 +39,7 @@ export default function ModalChangePicture({ isShowing, hide, id, up } : any) {
 				<div className="modal-wrapper">
 				  <div className="modal2">
 					<div className="modal-header">
-					<div className="yellowText" style={{fontSize: "1.22em"}}> Put an URL for your New Picture </div>
+					<div className="yellowText" style={{fontSize: "1.22em"}}> {title}</div>
 					  <button
 						type="button"
 						className="modal-close-button"
