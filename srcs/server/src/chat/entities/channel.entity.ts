@@ -3,7 +3,7 @@ import { Message, ChannelUser } from './';
 import { Hashtable } from '../interfaces/hashtable.interface';
 
 export class Channel {
-  id: string;
+  id: number;
   name: string;
   type: eChannelType;
   users: Hashtable<ChannelUser>;

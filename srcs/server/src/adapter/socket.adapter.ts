@@ -11,13 +11,19 @@ export class SocketIoAdapter extends IoAdapter {
   ) {
     super(app);
     this.nbOfConnections = 0;
-    this.servers = ['GAME_WS_PORT', 'CHAT_WS_PORT'];
+    this.servers = ['CHAT_WS_PORT', 'GAME_WS_PORT'];
   }
 
   createIOServer(port: number) {
     port = this.configService.get<number>(this.servers[this.nbOfConnections]);
+    console.log('Adapter logged', this.servers[this.nbOfConnections]);
     this.nbOfConnections++;
-    const server = super.createIOServer(port, { cors: true });
+    const server = super.createIOServer(port, {
+      cors: {
+        origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+        credentials: true,
+      },
+    });
     return server;
   }
 }

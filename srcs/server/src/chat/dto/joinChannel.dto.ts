@@ -4,7 +4,7 @@ import { eChannelType } from '../constants';
 export class JoinChannelDto {
   @IsNotEmpty()
   @IsString()
-  id: string;
+  id: number;
 
   @IsNotEmpty()
   @IsString()
@@ -16,7 +16,7 @@ export class JoinChannelDto {
 
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  userId: number;
 
   @IsOptional()
   @IsString()

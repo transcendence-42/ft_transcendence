@@ -1,7 +1,7 @@
 import { eChannelUserRole } from '../constants';
 
 export class ChannelUser {
-  id: string;
+  id: number;
   role: eChannelUserRole;
   joinedChannelAt: number;
   isMuted: boolean;

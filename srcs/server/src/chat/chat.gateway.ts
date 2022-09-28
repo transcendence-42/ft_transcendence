@@ -53,8 +53,8 @@ export class ChatGateway
     this.logger.debug(
       `User with id ${userId} and socket id ${client.id} is trying to reconnect`,
     );
-    const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
-    client.emit(eEvent.UpdateMessages, allMessages);
+    // const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
+    // client.emit(eEvent.UpdateMessages, allMessages);
   }
 
   handleDisconnect(client: Socket) {
@@ -63,12 +63,18 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.SendMessage)
   handleMessage(client: Socket, message: MessageDto) {
-    this.logger.debug(
+    this.logger.log(
       `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
         client.id
       }`,
     );
+    console.log('messages recieved');
     return this.chatService.handleMessage(client, message);
+  }
+
+  @SubscribeMessage(eEvent.GetMessages)
+  handleGetMessages(client: Socket, channelIds: string[]) {
+    this.chatService.handleGetAllMessages(client, channelIds);
   }
 
   @SubscribeMessage(eEvent.JoinChannel)
@@ -83,5 +89,11 @@ export class ChatGateway
   updateOneChannel(client: Socket, channel: { id: number; type: ChannelType }) {
     this.logger.debug(`gateway ${channel.id} and type ${channel.type}`);
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
+  }
+
+  @SubscribeMessage('lol')
+  handleLol(client: Socket) {
+    console.log('getting message from lol');
+    this.logger.debug('PUTAIN');
   }
 }

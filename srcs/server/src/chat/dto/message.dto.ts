@@ -7,9 +7,9 @@ export class MessageDto {
 
   @IsString()
   @IsNotEmpty()
-  fromUserId: string;
+  fromUserId: number;
 
   @IsString()
   @IsNotEmpty()
-  toChannelOrUserId: string;
+  toChannelOrUserId: number;
 }

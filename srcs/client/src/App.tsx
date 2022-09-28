@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import Home from './Pages/Home/home';
-import Profile from './Pages/Profile/Profile';
-import Notfound from './Pages/NotFound/notFound';
-import Login from './Pages/Login/Login';
-import About from './Pages/About/about';
-import Leaderboard from './Pages/Leaderboard/leaderboard';
-import Chat from './Pages/Chat/Chat';
-import NavBar from './Components/Tools/NavBar/NavBar';
-import AuthenticatedRoute from './Components/services/authenticatedRoute';
-import MapChoice from './Pages/MapChoice/mapChoice';
-import Matchmaking from './Pages/Matchmaking/matchmaking';
-import Context from './Context/Context';
-import { socket } from './GameSocket';
-import GameLobby from './Pages/Game/GameLobby';
+import React, { useEffect, useState } from "react";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Home from "./Pages/Home/home";
+import Profile from "./Pages/Profile/Profile";
+import Notfound from "./Pages/NotFound/notFound";
+import Login from "./Pages/Login/Login";
+import About from "./Pages/About/about";
+import Leaderboard from "./Pages/Leaderboard/leaderboard";
+import Chat from "./Pages/Chat/Chat";
+import NavBar from "./Components/Tools/NavBar/NavBar";
+import AuthenticatedRoute from "./Components/services/authenticatedRoute";
+import MapChoice from "./Pages/MapChoice/mapChoice";
+import Matchmaking from "./Pages/Matchmaking/matchmaking";
+import Context from "./Context/Context";
+import { GameSocket } from "./GameSocket";
+import { ChatSocket } from "./Socket";
+import GameLobby from "./Pages/Game/GameLobby";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -27,14 +28,14 @@ function App() {
     isConnected: isConnected,
     isFromAuth: isFromAuth,
     updateIsConnected: setIsConnected,
-    updateIsFromAuth: setIsFromAuth,
+    updateIsFromAuth: setIsFromAuth
   };
 
   /*
    ** Check if the user is still connected, it is working here from root for all routes
    */
   useEffect(() => {
-    var data = localStorage.getItem('pathIsFree');
+    var data = localStorage.getItem("pathIsFree");
     if (data) {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
@@ -51,11 +52,11 @@ function App() {
         <Routes>
           <Route path="*" element={<Notfound />} />
           <Route index element={<Home />} />
-          <Route path="/chat" element={<Chat socket={socket}/>} />
+          <Route path="/chat" element={<Chat socket={ChatSocket} />} />
           <Route path="/login" element={<Login />} />
           <Route
             path="/lobby"
-            element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
+            element={<GameLobby origin={{ name: "lobby", loc: "/lobby" }} />}
           />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/home" element={<Home />} />
