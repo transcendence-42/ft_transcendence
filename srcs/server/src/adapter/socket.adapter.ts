@@ -3,19 +3,20 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ConfigService } from '@nestjs/config';
 
 export class SocketIoAdapter extends IoAdapter {
-  nbOfServers: number;
-  serverPorts = ['GAME_WS_PORT', 'CHAT_WS_PORT'];
+  nbOfConnections: number;
+  servers: string[];
   constructor(
     private app: INestApplicationContext,
     private configService: ConfigService,
   ) {
     super(app);
-    this.nbOfServers = 0;
+    this.nbOfConnections = 0;
+    this.servers = ['GAME_WS_PORT', 'CHAT_WS_PORT'];
   }
 
   createIOServer(port: number) {
-    port = this.configService.get<number>(this.serverPorts[this.nbOfServers]);
-    this.nbOfServers += 1;
+    port = this.configService.get<number>(this.servers[this.nbOfConnections]);
+    this.nbOfConnections++;
     const server = super.createIOServer(port, { cors: true });
     return server;
   }
