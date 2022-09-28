@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./Login.css"
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Login ()  {
 /*
@@ -24,18 +25,18 @@ function Login ()  {
   },[]);
 
   return (
-    <div data-testid="tracker" className="body">
-      <div className="title">
-        <h2 className="pinkText " style={{fontSize: "4vw"}}> Choose your login method  </h2>
+    <div data-testid="tracker" className="container-fluid">
+      <div className="row m-5 pt-5">
+        <h2 className="pinkText text-center" style={{fontSize: "3vw"}}> Please click bellow to Login : </h2>
       </div>  
-      <div className="container1">
-        <div className="screen1">
-            <button className="playFlickering"style={{cursor:"pointer"}} onClick={fortyTwoLogin}>42 Login</button>
-          </div>    
-        <div className="screen2"> 
-            <button className="playFlickering"style={{cursor:"pointer"}}>Email Login</button>
-            </div>    
+        <div className="row pt-5 ">
+        <div className="col text-center">
+            <button className="login col align-self-center "onClick={fortyTwoLogin}>42 Login</button>
         </div>    
+        </div>  
+        {/* <div className="screen2 col"> 
+            <button className="playFlickering"style={{cursor:"pointer"}}>Email Login</button>
+            </div>     */}
     </div>
   );
 };

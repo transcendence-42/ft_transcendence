@@ -5,8 +5,6 @@ import League from "./League";
 import "./profile.css";
 
 export default function Ladder(props: any) {
-  let elo = 1500;
-
   return (
     <div className="boxLadder">
       <div
@@ -20,7 +18,7 @@ export default function Ladder(props: any) {
           League
         </div>
         <div className="yellowText" style={{ fontSize: "1.3vw" }}>
-          <League elo={elo} />
+          <League elo={props.elo} />
         </div>
       </div>
       <div className="yellowPinkBoxLadder"

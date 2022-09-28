@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
@@ -66,7 +65,6 @@ function App() {
   return (
     <Context.Provider value={contextValue}>
       <BrowserRouter>
-        <div className="main">
           <NavBar userID={userID}/>
           <Routes>
             <Route path="*" element={<Notfound />} />
@@ -86,7 +84,6 @@ function App() {
               <Route path="/matchmaking" element={<Matchmaking />} />
             </Route>
           </Routes>
-        </div>
       </BrowserRouter>
     </Context.Provider>
   );
