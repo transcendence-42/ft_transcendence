@@ -1,6 +1,6 @@
 
 import {ChannelType} from '@prisma/client'
-import {User} from './user.entity'
+import {User} from '../../user/entities/user.entity'
 import {UserOnChannel} from './userOnChannel.entity'
 
 

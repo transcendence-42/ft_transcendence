@@ -198,10 +198,10 @@ const createDirect = async (e: any, friendId: number, userId: number) => {
 
   useEffect(() => {
     const initChatUser = async () => {
-      // const response = await fetchUrl('http://127.0.0.1:4200/auth/success/', 'GET');
-      const response = await fetchUrl('http://127.0.0.1:4200/users/2', 'GET');
-      // const { user } = response;
-      const user = response;
+      const response = await fetchUrl('http://127.0.0.1:4200/auth/success/', 'GET');
+      // const response = await fetchUrl('http://127.0.0.1:4200/users/2', 'GET');
+      const { user } = response;
+      // const user = response;
       console.log(`Here the user obj ${JSON.stringify(user, null, 4)}`);
       setUser(user);
       if (user && user.id) {
@@ -416,8 +416,6 @@ const createDirect = async (e: any, friendId: number, userId: number) => {
               <button type="button" onClick={handleSendMessage}>
                 Send
               </button>
-                {/* onChange={event => setInput(event.target.value)} */}
-                {/* onKeyDown={handleKeyDown} */}
             </div>
           </div>
         </div>

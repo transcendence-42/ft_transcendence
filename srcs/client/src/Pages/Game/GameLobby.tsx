@@ -1,7 +1,7 @@
 // React
 import { useCallback, useContext, useEffect, useState } from 'react';
 // Socket
-import { SocketContext } from '../../socket';
+import { SocketContext } from '../../GameSocket';
 // Game
 import Game from './Game';
 import GameList from './GameList';
