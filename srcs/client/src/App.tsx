@@ -59,13 +59,10 @@ function App() {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
   });
-
   /*
    ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
    ** Routes surround all route
    */
-
-  console.log("USERID", userID);
   return (
     <Context.Provider value={contextValue}>
       <BrowserRouter>
@@ -84,7 +81,7 @@ function App() {
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
               <Route path="/chat" element={<Chat userID={userID}/>} />
-              <Route path="/profile" element={<Profile userID={userID} originalId={userID}/>} />
+              <Route path="/profile" element={<Profile/>} />
               <Route path="/mapchoice" element={<MapChoice />} />
               <Route path="/matchmaking" element={<Matchmaking />} />
             </Route>

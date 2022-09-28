@@ -20,13 +20,10 @@ export default function ModalChangePicture({ isShowing, hide, id, up, title } : 
 	{
 		e.preventDefault();
 		const test = patchFetchPicture({url: url, picture: content});
-		console.log("TEST",test);
 		test.then((responseObject)=> {
 			if (responseObject.status === 400)
-			{
-				console.log("test");
-			}
-			})
+			{ alert("Bad URL for the picture"); }
+		})
 		hide();
 		up();
 	}

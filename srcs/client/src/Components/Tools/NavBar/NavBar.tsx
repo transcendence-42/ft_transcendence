@@ -69,8 +69,7 @@ export default function NavBar (props : any)
                         <button onClick={deco} className="playFlickering">Logout</button>
                     </div>
                     <div className="buttonInNavBar">
-                        <Link to="/profile">  <div className="btn textBlue" >
-                        {/* <Link state={{userID:props.userID, originalId: props.userID}} to="/profile">  <div className="btn textBlue" > */}
+                        <Link state={{userID:props.userID, originalId: props.userID}} to="/profile">  <div className="btn textBlue" >
                             <PhotoProfil url={"https://cdn.intra.42.fr/users/fmonbeig.jpg"}  width={"5vw"} height={"5vw"}/>
                         </div> </Link>
                     </div>

@@ -13,6 +13,7 @@ function PhotoProfilDropdown(props : any) {
         <img src={props.url} alt="IMG"></img>
       </button>
       <ul className="dropdown-menu dropdown-menu-dark boxBlue" aria-labelledby="dropdownMenuButton1">
+        {/* <Link to="/profile">  <div className="btn textBlue" >View Profile</div> </Link> */}
         <Link state={{userID:props.id, originalId: props.originalId}} to="/profile">  <div className="btn textBlue" >View Profile</div> </Link>
 
     <button className="btn textBlue disabled">Spectate</button>

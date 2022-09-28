@@ -16,11 +16,12 @@ import FriendList from './FriendList'
 import {getFetch} from './Fetch/getFetch'
 import {getFetchMatch} from './Fetch/getFetchMatch'
 import {getFetchFriends} from './Fetch/getFetchFriends'
+import { useLocation } from "react-router-dom";
 
+export default function Profile () {
 
-export default function Profile (props : any) {
-
-    const {userID, originalId} : any  = props;
+    const location = useLocation();
+    let {userID, originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
@@ -41,7 +42,6 @@ export default function Profile (props : any) {
         if (userID)
         {
             let request = "http://127.0.0.1:4200/users/" + userID;
-            console.log(request);
             const user_json = getFetch({url : request});
             user_json.then((responseObject)=> {
                 setUser(responseObject);
