@@ -4,10 +4,6 @@ import '../Box.css';
 import { Link } from "react-router-dom";
 
 function PhotoProfilDropdown(props : any) {
-
-	console.log("ADDFRIEND USER ID", props.id)
-	console.log("ADDFRIEND VIEWER ID", props.originalId)
-
   return (
     <div className="dropdown dropend" >
       <button className="profilBoxDropdown" data-bs-toggle="dropdown" aria-expanded="false" style={{

@@ -5,8 +5,6 @@ import "../profile.css"
 import {updateFriendship} from "../Fetch/updateFriendship"
 
 export default function FriendshipRejected(props : any) {
-	// console.log("ADDFRIEND USER ID", props.id)
-	// console.log("ADDFRIEND VIEWER ID", props.originalId)
 
 	function onClickAccepted(){
 		updateFriendship({

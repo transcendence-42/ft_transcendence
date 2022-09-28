@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
-export default function Home ({updateID, userID }) {
+export default function Home ({updateID, userID } : any) {
 /*
 ** Init of the context again to use it and refresh it from App.tsx
 */
@@ -53,13 +53,10 @@ const getUser = async () => {
       {
         console.log("LA", userID);
         if(!userID)
-        {updateID(responseObject.user.id);
-
-        }
+        {updateID(responseObject.user.id);}
           console.log(responseObject);
-          console.log(responseObject.user.id);
-          console.log("Success parsing 42auth");
 
+          console.log("Success parsing 42auth");
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           return;

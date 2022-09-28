@@ -12,7 +12,6 @@ export default function ChangePicture(props : any) {
 	function toggle() {
 		setIsShowing(!isShowing);
 	}
-
 	return (
 		<>
 			<button className="yellowPinkBoxButtonProfil"

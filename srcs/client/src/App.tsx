@@ -3,6 +3,7 @@ import './App.css';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
+import {getFetchSuccess} from './Pages/Profile/Fetch/getFetchSuccess'
 import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
@@ -24,6 +25,15 @@ function App() {
     setUserID(id);
   }
 
+  if (!userID)
+  {
+    if (isConnected)
+    {
+      const success_json = getFetchSuccess();
+      success_json.then((responseObject)=> {
+        update(responseObject.user.id);})
+    }
+  }
 
   /*
    ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
@@ -50,15 +60,15 @@ function App() {
    ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
    ** Routes surround all route
    */
+
+  console.log("USERID", userID);
   return (
     <Context.Provider value={contextValue}>
       <BrowserRouter>
         <div className="main">
           <NavBar userID={userID}/>
-          {/* <NavBar /> */}
           <Routes>
             <Route path="*" element={<Notfound />} />
-            {/* <Route index element={<Home />} /> */}
             <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/login" element={<Login />} />
             <Route
@@ -70,7 +80,7 @@ function App() {
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
               <Route path="/chat" element={<Chat userID={userID}/>} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<Profile userID={userID} originalId={userID}/>} />
               <Route path="/mapchoice" element={<MapChoice />} />
               <Route path="/matchmaking" element={<Matchmaking />} />
             </Route>

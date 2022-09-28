@@ -16,13 +16,14 @@ import FriendList from './FriendList'
 import {getFetch} from './Fetch/getFetch'
 import {getFetchMatch} from './Fetch/getFetchMatch'
 import {getFetchFriends} from './Fetch/getFetchFriends'
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 
-export default function Profile () {
+export default function Profile (props : any) {
 
-    let location = useLocation();
-    const {userID} : any  = location.state;
-    const {originalId} : any  = location.state;
+    // let location = useLocation();
+    // const {userID} : any  = location.state;
+    const {userID, originalId} : any  = props;
+    // const {originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
@@ -40,23 +41,25 @@ export default function Profile () {
 	}
 
     useEffect(() => {
-        let request = "http://127.0.0.1:4200/users/" + userID;
-        console.log(request);
-        const user_json = getFetch({url : request});
-        user_json.then((responseObject)=> {
-            setUser(responseObject);
-        })
-        request = "http://127.0.0.1:4200/users/" + userID + "/friends";
-        const friend_json = getFetchFriends({url : request});
-        friend_json.then((responseObject)=> {
-            setFriendList(responseObject);})
-        request = "http://127.0.0.1:4200/users/" + userID + "/matches";
-            const matches_json = getFetchMatch({url : request});
-            matches_json.then((responseObject)=> {
-                setMatchesList(responseObject);})
+        if (userID)
+        {
+            let request = "http://127.0.0.1:4200/users/" + userID;
+            console.log(request);
+            const user_json = getFetch({url : request});
+            user_json.then((responseObject)=> {
+                setUser(responseObject);
+            })
+            request = "http://127.0.0.1:4200/users/" + userID + "/friends";
+            const friend_json = getFetchFriends({url : request});
+            friend_json.then((responseObject)=> {
+                setFriendList(responseObject);})
+            request = "http://127.0.0.1:4200/users/" + userID + "/matches";
+                const matches_json = getFetchMatch({url : request});
+                matches_json.then((responseObject)=> {
+                    setMatchesList(responseObject);})
+        }
         },[userID, update]);
 
-    console.log(user);
     if(user)
     {
         return (
