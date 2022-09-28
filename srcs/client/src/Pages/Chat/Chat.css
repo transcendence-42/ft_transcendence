@@ -1,11 +1,14 @@
-/* html, body {
-  height:100%;
-} */
+#root {
 
+	width: 100%;
+  border: 3px solid #80ffff;
+  }
+
+body
+{
+  width: 100%;
+}
 .main-row {
-  min-width: 500px;
-  min-height: 300px;
-
   font-family: 'Montserrat', sans-serif;
   color: #80ffff;
 }

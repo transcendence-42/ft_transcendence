@@ -350,8 +350,12 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           setCreateDirectId={setCreateDirectid}
         />
       </PongAdvancedModal>
-      <div className="row mx-5 main-row">
-        <div className="col-2 rounded-4 blue-box-chat">
+      <div className="row  main-row ">
+      {/* first div to center chat */}
+        <div className="col-1"></div> 
+
+        {/* Div Channel */}
+        <div className=" rounded-4 blue-box-chat " style={{width:"10em"}}>
           <div className="channels-div h-50">
             <div className="row mt-2">
               <div className="col overflow-auto">
@@ -432,7 +436,9 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
         </div>
-        <div className="col-8 rounded-4 blue-box-chat">
+
+         {/* Div Middle */}
+        <div className="  col-3 col-sm-4 col-md-5 col-lg-8 col-xl-6 rounded-4 blue-box-chat">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles channel-name-margin">
@@ -501,7 +507,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
         </div>
-        <div className="col-2 rounded-4 blue-box-chat">
+         {/* Div Members */}
+        <div className="col-2 rounded-4 blue-box-chat " style={{width:"10em"}}>
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles center-position titles-position">
@@ -557,6 +564,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
             </div>
           </div>
         </div>
+          {/* Div full right */}
+          <div className="col-1"></div> 
       </div>
     </>
   );
