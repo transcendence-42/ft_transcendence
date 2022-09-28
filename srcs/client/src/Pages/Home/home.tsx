@@ -83,40 +83,35 @@ useEffect(() => {
 if (!(contextValue.isConnected))
 {
     return (
-    <>
-    <body>
-      
-  
-      <div className="container">
+    <>    
+    <div className="container "></div>
         <div className="row pt-5">
           <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
         </div>
-          <div className=" row blueText text-center pt-5">
+        <div className=" row blueText pt-5">
             <h4 >Confront other players online ! </h4>
-          </div>
-        <div className="row field1 pt-5    ">
-          <div className="col col-xl col-sm col-md col-lg col-xl"></div>
-          <div className="  col  field  col-8 col-sm-8 col-md-6 col-lg col-xl ">
+        </div>
+        <div className=" field1 row center-block pb-3 pt-3 ">
+          <div className="center-block mx-auto col-12  col-sm-10 col-md-8 col-lg-8 col-xl-7 col-xxl-5" >
+          <div className=" field2  ">
             <div className="net text-center"></div>
             <div className="ping text-center"></div>
             <div className="pong text-center"></div>
             <div className="ball text-center"></div>
            </div>
-           <div className="col col-xl col-sm col-md col-lg col-xl "></div>
+          </div>
         </div>
         <div className=" row blueText  ">
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
-      </div>
-      </body>
+
     </>
     );
   }
   else
   {
     return (
-      <> 
-       <body>
+      <>   
           <div className="container">
         <div className="row pt-5">
           <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
@@ -138,7 +133,6 @@ if (!(contextValue.isConnected))
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
           </div>
-        </body>
       </>
         );
     }

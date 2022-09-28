@@ -5,6 +5,10 @@
 				4px 0px 10px rgba(30, 166, 166, 0.95),
 				0px 0px 10px rgba(255, 255, 255, 0.521);
 } */
+
+a {
+	text-decoration: none; 
+  }
 .navbar-toggler-icon {
 	border: 5px solid #80FFFF;
 	margin-top:4px;
@@ -18,37 +22,32 @@
 	/* background-image: url(data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%284, 247, 249, 0.55%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e); */
 }
 
-.nav-link {
-	margin-left:8px;
-	margin-right:8px;
-  }
-
-  a {
+  .aNav {
 	text-decoration: none; 
-
-	/* text decoration  */
 	position:relative;
 	padding: 10px 0px;
 	color: #FFE710;
 	text-transform: uppercase;
-	letter-spacing: 2px;
+	letter-spacing: 1px;
 	font-size: 24px;
 	overflow: hidden;
 	transition: 0.2s;
-
+	margin-left:10px;
+	margin-right:10px;
+	
   }
 
-   a:hover{
+  .aNav:hover{
 	transition-delay: 1s;
 
   } 
  
-  a span{
+  .aNav span{
 	position: absolute;
 	display: block;
   }
 
-  a span:nth-child(1)
+  .aNav span:nth-child(1)
   {
 	top: 0;
 	left: -100%;
@@ -56,13 +55,13 @@
 	height: 2px;
 	background:linear-gradient(90deg, transparent,  #FFE710);
   }
-  a:hover span:nth-child(1)
+  .aNav:hover span:nth-child(1)
   {
 	left: 100%;
 	transition: 1s;
   }
 
-  a span:nth-child(3)
+  .aNav span:nth-child(3)
   {
 	bottom: 0;
 	right: -100%;
@@ -70,13 +69,13 @@
 	height: 2px;
 	background:linear-gradient(270deg, transparent,  #FFE710);
   }
-  a:hover span:nth-child(3)
+  .aNav:hover span:nth-child(3)
   {
 	right: 100%;
 	transition: 1s;
 	transition-delay: 0.5s;
   }
-  a span:nth-child(2)
+  .aNav span:nth-child(2)
   {
 	top: -100%;
 	right: 0;
@@ -84,14 +83,14 @@
 	height: 100%;
 	background:linear-gradient(180deg, transparent,  #FFE710);
   }
-  a:hover span:nth-child(2)
+  .aNav:hover span:nth-child(2)
   {
 	top: 100%;
 	transition: 1s;
 	transition-delay: 0.25s;
   }
 
-  a span:nth-child(4)
+  .aNav span:nth-child(4)
   {
 	bottom: -100%;
 	left: 0;
@@ -99,21 +98,21 @@
 	height: 100%;
 	background:linear-gradient(360deg, transparent,  #FFE710);
   }
-  a:hover span:nth-child(4)
+  .aNav:hover span:nth-child(4)
   {
 	bottom: 100%;
 	transition: 1s;
 	transition-delay: 0.75s;
   }
 
-
+/*Left Pong button */
  
-  a .span1{
+  .aNav .span1{
 	position: absolute;
 	display: block;
   }
 
-  a .span1:nth-child(1)
+  .aNav .span1:nth-child(1)
   {
 	top: 0;
 	left: -100%;
@@ -121,13 +120,13 @@
 	height: 2px;
 	background:linear-gradient(90deg, transparent,   #80FFFF);
   }
-  a:hover .span1:nth-child(1)
+  .aNav:hover .span1:nth-child(1)
   {
 	left: 100%;
 	transition: 1s;
   }
 
-  a .span1:nth-child(3)
+  .aNav .span1:nth-child(3)
   {
 	bottom: 0;
 	right: -100%;
@@ -135,13 +134,13 @@
 	height: 2px;
 	background:linear-gradient(270deg, transparent,  #80FFFF);
   }
-  a:hover .span1:nth-child(3)
+  .aNav:hover .span1:nth-child(3)
   {
 	right: 100%;
 	transition: 1s;
 	transition-delay: 0.5s;
   }
-  a .span1:nth-child(2)
+  .aNav .span1:nth-child(2)
   {
 	top: -100%;
 	right: 0;
@@ -149,14 +148,14 @@
 	height: 100%;
 	background:linear-gradient(180deg, transparent,  #80FFFF);
   }
-  a:hover .span1:nth-child(2)
+  .aNav:hover .span1:nth-child(2)
   {
 	top: 100%;
 	transition: 1s;
 	transition-delay: 0.25s;
   }
 
-  a .span1:nth-child(4)
+  .aNav .span1:nth-child(4)
   {
 	bottom: -100%;
 	left: 0;
@@ -164,7 +163,7 @@
 	height: 100%;
 	background:linear-gradient(360deg, transparent,  #80FFFF);
   }
-  a:hover .span1:nth-child(4)
+  .aNav:hover .span1:nth-child(4)
   {
 	bottom: 100%;
 	transition: 1s;
