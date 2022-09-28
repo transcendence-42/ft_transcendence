@@ -15,7 +15,10 @@ import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
 
-// Enums
+/** ************************************************************************* */
+/** ENUMS                                                                     */
+/** ************************************************************************* */
+
 const enum Move {
   UP = 0,
   DOWN,
@@ -46,6 +49,17 @@ const enum Status {
   PAUSED,
 }
 
+const enum ePlayerStatus {
+  OFFLINE = 0,
+  ONLINE,
+  PLAYING,
+  SPECTATING,
+}
+
+const enum eKeys {
+  PLAYERSINFOS = 'playersInfos',
+}
+
 const enum Motive {
   WIN = 0,
   LOSE,
@@ -73,9 +87,13 @@ const enum DB {
   PLAYERS,
   VIEWERS,
   MATCHMAKING,
+  PLAYERSINFOS,
 }
 
-// Types
+/** ************************************************************************* */
+/** TYPES                                                                     */
+/** ************************************************************************* */
+
 type BallIntervall = { game: string; interval?: NodeJS.Timer };
 type GameLoop = { id: string; interval: NodeJS.Timer };
 
@@ -98,20 +116,104 @@ export class GameService {
   gameLoops: GameLoop[];
 
   /** *********************************************************************** */
+  /** USER INFOS                                                              */
+  /** *********************************************************************** */
+
+  /** Send updated players info to all clients */
+  private async _sendPlayersInfo() {
+    const data: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
+        .exec()
+    )[1][1];
+    if (data && this.server) this.server.emit(eKeys.PLAYERSINFOS, data);
+  }
+
+  /** Save or update player infos */
+  private async _savePlayerInfos(id: string, data: any) {
+    const isKey = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
+        .exec()
+    )[1][1];
+    if (!isKey) {
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call(
+          'JSON.SET',
+          eKeys.PLAYERSINFOS,
+          '$',
+          JSON.stringify({ players: [] }),
+        )
+        .exec();
+    }
+    // If record exists, update, else, append
+    const isPlayer: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, `$.players[?(@.id=="${id}")]`)
+        .exec()
+    )[1][1];
+    if (JSON.parse(isPlayer).length > 0) {
+      const player = JSON.parse(isPlayer)[0];
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call(
+          'JSON.SET',
+          eKeys.PLAYERSINFOS,
+          `$.players[?(@.id=="${id}")]`,
+          JSON.stringify({ ...player, ...data }),
+        )
+        .exec();
+    } else {
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call(
+          'JSON.ARRAPPEND',
+          eKeys.PLAYERSINFOS,
+          `$..players`,
+          JSON.stringify(data),
+        )
+        .exec();
+    }
+  }
+
+  /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
 
   /** add client to list */
-  private _addOrUpdateClient(client: Socket) {
+  private async _addOrUpdateClient(client: Socket) {
     const userId = client.handshake.query.userId.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
     else this.clients.push({ socket: client, userId: userId });
+    // Save or update client as a player for players info
+    await this._savePlayerInfos(userId, {
+      id: userId,
+      status: ePlayerStatus.ONLINE,
+    });
+    this._sendPlayersInfo();
   }
 
   /** remove client from list */
-  private _removeClient(client: Socket) {
+  private async _removeClient(client: Socket) {
+    const userId = client.handshake.query.userId.toString();
     this.clients = this.clients.filter((c) => c.socket.id !== client.id);
+    // Save or update client as a player for players info
+    await this._savePlayerInfos(userId, {
+      id: userId,
+      status: ePlayerStatus.OFFLINE,
+    });
+    this._sendPlayersInfo();
   }
 
   /** get socket from id */
@@ -128,10 +230,10 @@ export class GameService {
     const userName: string = client.handshake.query.name.toString();
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // add client to the server list
-    this._addOrUpdateClient(client);
+    await this._addOrUpdateClient(client);
     // if the user id is in a game, reconnect the client to the game
     await this.redis.select(DB.PLAYERS);
-    const gameId: any = await this.redis.get(userId);
+    const gameId: any = await this.redis.hget('players', userId);
     if (gameId) {
       client.join(gameId);
       client.emit('reconnect', gameId);
@@ -151,7 +253,7 @@ export class GameService {
     const userName: string = client.handshake.query.name.toString();
     console.log(`user : ${userName} disconnected`);
     // Remove client from server
-    this._removeClient(client);
+    await this._removeClient(client);
     // Broadcast that user left the lobby
     this.server.to(Params.LOBBY).emit('info', {
       message: `${userName} left the lobby`,
@@ -182,7 +284,7 @@ export class GameService {
   /** *********************************************************************** */
 
   /** Add player to a game and set his side */
-  private _addPlayerToGame(
+  private async _addPlayerToGame(
     player: Player,
     side: number,
     game: Game,
@@ -207,6 +309,12 @@ export class GameService {
         name: player.name,
       }),
     );
+    // Update players info
+    await this._savePlayerInfos(player.userId, {
+      status: ePlayerStatus.PLAYING,
+      game: game.id,
+    });
+    this._sendPlayersInfo();
   }
 
   /** Check if a player is already in a game */
@@ -270,13 +378,25 @@ export class GameService {
     pipeline.select(DB.PLAYERS);
     for (let i = 0; i < players.length; ++i) {
       pipeline.del(players[i].userId);
+      // Update players info
+      await this._savePlayerInfos(players[i].userId, {
+        status: ePlayerStatus.ONLINE,
+        game: '',
+      });
     }
     // remove viewers
     const viewers: Client[] = game.viewers;
     pipeline.select(DB.VIEWERS);
     for (let i = 0; i < viewers.length; ++i) {
       pipeline.del(viewers[i].userId);
+      // Update players info
+      await this._savePlayerInfos(viewers[i].userId, {
+        status: ePlayerStatus.ONLINE,
+        game: '',
+      });
     }
+    // send players info
+    this._sendPlayersInfo();
     // remove the game from the list in storage
     await pipeline.select(DB.GAMES).del(gameId).exec();
   }
@@ -285,6 +405,13 @@ export class GameService {
   private async _cancelGame(gameId: string) {
     this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
+    // update and send player info
+    const userId = (await this._getGame(gameId)).players[0].userId;
+    await this._savePlayerInfos(userId, {
+      status: ePlayerStatus.ONLINE,
+      game: '',
+    });
+    this._sendPlayersInfo();
     await this._removeGame(gameId);
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
@@ -441,7 +568,7 @@ export class GameService {
     // add players to the game and give them the game id
     for (let i = 0; i < players.length; ++i) {
       const side: number = i ? Side.RIGHT : Side.LEFT;
-      this._addPlayerToGame(players[i], side, newGame, pipeline);
+      await this._addPlayerToGame(players[i], side, newGame, pipeline);
       this._getSocket(players[i].userId).emit('gameId', { id: newGame.id });
     }
     // update game on redis
@@ -466,7 +593,7 @@ export class GameService {
     await this.redis
       .multi()
       .select(DB.GAMES)
-      .call('JSON.DEL', id, `$.viewers[?(@.userId==${userId})]`)
+      .call('JSON.DEL', id, `$.viewers[?(@.userId=="${userId}")]`)
       .select(DB.VIEWERS)
       .del(userId)
       .exec();
@@ -476,6 +603,12 @@ export class GameService {
     // resend game list to lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
+    // update and send player info
+    await this._savePlayerInfos(userId, {
+      status: ePlayerStatus.ONLINE,
+      game: '',
+    });
+    this._sendPlayersInfo();
   }
 
   /** one player abandons the game */
@@ -597,6 +730,12 @@ export class GameService {
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
+    // update and send player info
+    await this._savePlayerInfos(userId, {
+      status: ePlayerStatus.SPECTATING,
+      game: id,
+    });
+    this._sendPlayersInfo();
   }
 
   /** continue a game after a server reboot */

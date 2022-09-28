@@ -173,11 +173,15 @@ const GameLobby = () => {
     socket.emit('createGame');
   };
 
-  const backTo = (room: any) => {
-    socket.emit('findAllGame');
-    setMessage({});
-    setMatchMaking(eMatchMaking.NOT_IN_QUEUE);
-    setGame(room);
+  const backToOrigin = () => {
+    if (origin.name === 'lobby') {
+      socket.emit('findAllGame');
+      setMessage({});
+      setMatchMaking(eMatchMaking.NOT_IN_QUEUE);
+      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
+    } else {
+      navigate(origin.loc, { state: origin.state });
+    }
   };
 
   const handleBackTo = () => {
@@ -185,17 +189,13 @@ const GameLobby = () => {
     // Viewer : remove the viewer and change its room in the server
     if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
-      if (origin.name !== 'lobby')
-        navigate(origin.loc, { state: origin.state });
-      else backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
+      backToOrigin();
     }
     // Player : cancel if 1 player / abandon if match started
     if (game.action !== eEvents.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
       setTimeout(() => {
-        if (origin.name !== 'lobby')
-          navigate(origin.loc, { state: origin.state });
-        backTo({ id: 'lobby', action: eEvents.GO_LOBBY });
+        backToOrigin();
       }, 2000);
     }
   };
@@ -373,7 +373,8 @@ const GameLobby = () => {
               id={game.id}
               action={game.action}
               event={eEvents}
-              backTo={backTo}
+              origin={origin.name}
+              backToOrigin={backToOrigin}
               setMatchMaking={setMatchMaking}
               matchMakingVal={eMatchMaking}
               className="translate-middle"

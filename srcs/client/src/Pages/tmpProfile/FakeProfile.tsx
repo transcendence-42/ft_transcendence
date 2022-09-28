@@ -10,18 +10,36 @@ const FakeProfile: FC = (props: any) => {
   const location: any = useLocation();
   const { id } = location.state;
 
-  // Enums
+  /** *********************************************************************** */
+  /** ENUMS                                                                   */
+  /** *********************************************************************** */
+
   enum eAction {
     NOTHING = 0,
     PLAYING,
     VIEWING,
   }
 
-  // States
+  /** *********************************************************************** */
+  /** STATES                                                                  */
+  /** *********************************************************************** */
+
   const [player, setPlayer] = useState({} as any);
   const [user, setUser] = useState({} as any);
 
-  // Init
+  /** *********************************************************************** */
+  /** SOCKET EVENTS HANDLERS                                                  */
+  /** *********************************************************************** */
+  
+  const handlePlayersInfo = useCallback((data: any[]) => {
+    const player = data ? data.find((p) => p.id === id) : {};
+    setPlayer(data);
+  }, []);
+  
+  /** *********************************************************************** */
+  /** INITIALIZATION                                                          */
+  /** *********************************************************************** */
+
   const getUserInfos = async () => {
     const request = `http://127.0.0.1:4200/users/${id}`;
     const user_json = await getFetch({ url: request });
@@ -33,25 +51,21 @@ const FakeProfile: FC = (props: any) => {
   const init = async () => {
     socket.emit('getPlayerInfo', { id: id });
   };
-
-  // Socket handlers
-  const handlePlayerInfo = useCallback((data: any) => {
-    console.log(data);
-    setPlayer(data);
-  }, []);
-
-  // On component mount / unmount
+  
   useEffect(() => {
     //getUserInfos();
     init();
     console.log(id);
-    socket.on('playerInfo', handlePlayerInfo);
+    socket.on('playersInfos', handlePlayersInfo);
     return () => {
-      socket.off('playerInfo', handlePlayerInfo);
+      socket.off('playersInfos', handlePlayersInfo);
     };
   }, []);
 
-  // Render
+  /** *********************************************************************** */
+  /** RENDER                                                                  */
+  /** *********************************************************************** */
+
   return (
     <div>
       <h1 className="text-pink">Fake profile page</h1>
