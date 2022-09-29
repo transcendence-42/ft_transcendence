@@ -236,7 +236,7 @@ export class GameService {
         .exec()
     )[1][1];
     if (JSON.parse(isPlayer).length > 0) {
-      if (JSON.parse(isPlayer)[key] === value) return true;
+      if (JSON.parse(isPlayer)[0][key] === value) return true;
       else return false;
     } else {
       return false;
@@ -252,7 +252,7 @@ export class GameService {
     const userId = client.handshake.query.userId.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
-    else this.clients.push({ socket: client, userId: userId });
+    else this.clients.push(new Client(client, userId));
     // Save or update client as a player for players info
     await this._savePlayerInfos(userId, {
       id: userId,
@@ -869,7 +869,7 @@ export class GameService {
       });
       setTimeout(() => {
         this.create(playersToMatch);
-      }, 2001);
+      }, 2000);
     }
   }
 
@@ -1311,27 +1311,20 @@ export class GameService {
     this._sendPlayersInfo();
     // switch back to online if status is still challenge after challenge timer
     setTimeout(async () => {
-      if (
-        await this._checkPlayerInfo(
-          challenger.userId,
-          'status',
-          ePlayerStatus.CHALLENGE,
-        )
-      )
-        await this._savePlayerInfos(challenger.userId, {
-          status: ePlayerStatus.ONLINE,
-        });
-      if (
-        await this._checkPlayerInfo(
-          challengee.userId,
-          'status',
-          ePlayerStatus.CHALLENGE,
-        )
-      )
-        await this._savePlayerInfos(challengee.userId, {
-          status: ePlayerStatus.ONLINE,
-        });
-    }, Params.CHALLENGE_TIMER);
+      for (const player of [challenger, challengee])
+        if (
+          await this._checkPlayerInfo(
+            player.userId,
+            'status',
+            ePlayerStatus.CHALLENGE,
+          )
+        ) {
+          await this._savePlayerInfos(player.userId, {
+            status: ePlayerStatus.ONLINE,
+          });
+          this._sendPlayersInfo();
+        }
+    }, Params.CHALLENGE_TIMER * 1000);
     // send back information to both through socket to inform them
     const gameChallenge = {
       challenger: {
@@ -1349,20 +1342,56 @@ export class GameService {
     };
     challenger.socket.emit('gameChallenge', {
       who: eChallengeWho.CHALLENGER,
-      gameChallenge,
+      ...gameChallenge,
     });
     challengee.socket.emit('gameChallenge', {
       who: eChallengeWho.CHALLENGEE,
-      gameChallenge,
+      ...gameChallenge,
     });
   }
 
   async handleUpdateChallenge(client: Socket, id: string, status: number) {
-    // get opponent
+    // get the user and the opponent
     const userId: string = client.handshake.query.userId.toString();
     const opponent = this.clients.find((c) => c.userId === id);
+    let resultingStatus: ePlayerStatus = ePlayerStatus.ONLINE;
     if (!opponent) throw new PlayerNotFoundException(userId);
-    // send back information to opponent to warn him of the action
-    opponent.socket.emit('gameChallenge', { status: status });
+    // canceled
+    if (status === eChallengeStatus.CANCEL) {
+      opponent.socket.emit('gameChallengeReply', {
+        status: eChallengeStatus.CANCEL,
+      });
+    }
+    // refused
+    if (status === eChallengeStatus.REFUSED) {
+      opponent.socket.emit('gameChallengeReply', {
+        status: eChallengeStatus.REFUSED,
+      });
+    }
+    // accepted
+    if (status === eChallengeStatus.ACCEPTED) {
+      resultingStatus = ePlayerStatus.WAITING;
+      opponent.socket.emit('gameChallengeReply', {
+        status: eChallengeStatus.ACCEPTED,
+      });
+      // create a match and launch it
+      const playersToMatch = [];
+      playersToMatch.push({
+        userId: opponent.userId,
+        socket: this._getSocket(opponent.userId),
+      });
+      playersToMatch.push({ userId: userId, socket: client });
+      setTimeout(() => {
+        this.create(playersToMatch);
+      }, 2000);
+    }
+    // update players status and broadcast it
+    await this._savePlayerInfos(opponent.userId, {
+      status: resultingStatus,
+    });
+    await this._savePlayerInfos(userId, {
+      status: resultingStatus,
+    });
+    this._sendPlayersInfo();
   }
 }

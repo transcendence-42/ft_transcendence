@@ -16,6 +16,7 @@ import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import FakeProfile from './Pages/tmpProfile/FakeProfile';
 import RootModals from './Pages/RootModals/RootModals';
+import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -48,28 +49,30 @@ function App() {
    */
   return (
     <Context.Provider value={contextValue}>
-      <BrowserRouter>
-        <div className="main">
-          <NavBar />
-          <RootModals />
-          <Routes>
-            <Route path="*" element={<Notfound />} />
-            <Route index element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/lobby" element={<GameLobby/>} />
-            <Route path="/prof" element={<FakeProfile />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/" element={<AuthenticatedRoute res />}>
-              <Route path="/about" element={<About />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/mapchoice" element={<MapChoice />} />
-              <Route path="/matchmaking" element={<Matchmaking />} />
-            </Route>
-          </Routes>
-        </div>
-      </BrowserRouter>
+      <RootModalsProvider>
+        <BrowserRouter>
+          <div className="main">
+            <NavBar />
+            <RootModals />
+              <Routes>
+                <Route path="*" element={<Notfound />} />
+                <Route index element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/lobby" element={<GameLobby/>} />
+                <Route path="/prof" element={<FakeProfile />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/" element={<AuthenticatedRoute res />}>
+                  <Route path="/about" element={<About />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/mapchoice" element={<MapChoice />} />
+                  <Route path="/matchmaking" element={<Matchmaking />} />
+                </Route>
+              </Routes>
+          </div>
+        </BrowserRouter>
+      </RootModalsProvider>
     </Context.Provider>
   );
 }

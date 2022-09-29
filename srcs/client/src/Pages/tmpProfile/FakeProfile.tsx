@@ -4,6 +4,7 @@ import { SocketContext } from '../../socket';
 import { useLocation } from 'react-router-dom';
 import '../../Styles';
 import { Link } from 'react-router-dom';
+import { RootModalsContext } from '../RootModals/RootModalsProvider';
 
 const FakeProfile: FC = (props: any) => {
   const socket = useContext(SocketContext);
@@ -20,6 +21,7 @@ const FakeProfile: FC = (props: any) => {
     WAITING,
     PLAYING,
     SPECTATING,
+    CHALLENGE,
   }
 
   enum eAction {
@@ -35,6 +37,8 @@ const FakeProfile: FC = (props: any) => {
   const [player, setPlayer] = useState({} as any);
   const [user, setUser] = useState({} as any);
 
+  const [showModal, setShowModal] = useContext(RootModalsContext);
+
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
@@ -45,6 +49,14 @@ const FakeProfile: FC = (props: any) => {
       : {};
     setPlayer(player);
   }, []);
+
+  /** *********************************************************************** */
+  /** COMPONENT EVENTS HANDLERS                                               */
+  /** *********************************************************************** */
+
+  const handleChallengePlayer = () => {
+    socket.emit('challengePlayer', { id: id });
+  };
 
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
@@ -63,7 +75,6 @@ const FakeProfile: FC = (props: any) => {
   };
 
   useEffect(() => {
-    //getUserInfos();
     init();
     socket.on('playersInfos', handlePlayersInfo);
     return () => {
@@ -81,26 +92,19 @@ const FakeProfile: FC = (props: any) => {
       {player && player.status !== undefined ? (
         <h4 className="text-blue">
           {player.status === ePlayerStatus.OFFLINE && `player is offline`}
-          {player.status === ePlayerStatus.ONLINE && 
-          <>
-            player is online
-            <Link
-              to="/lobby"
-              state={{
-                origin: {
-                  name: 'profile',
-                  loc: '/prof',
-                  state: location.state,
-                },
-                gameId: player.game,
-                action: eAction.JOIN,
-              }}
-              className="btn btn-pink text-pink"
-            >
-              Challenge
-            </Link>
-          </>
-          }
+          {player.status === ePlayerStatus.CHALLENGE &&
+            `player is challenging or being challenged`}
+          {player.status === ePlayerStatus.ONLINE && (
+            <>
+              player is online
+              <button
+                onClick={handleChallengePlayer}
+                className="btn btn-pink text-pink"
+              >
+                Challenge
+              </button>
+            </>
+          )}
           {player.status === ePlayerStatus.SPECTATING &&
             `player is spectating a game`}
           {player.status === ePlayerStatus.WAITING && (
