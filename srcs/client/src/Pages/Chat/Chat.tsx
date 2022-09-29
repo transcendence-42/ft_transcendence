@@ -406,10 +406,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
           <div className="messages-div h-50">
             <div className="row">
-              <div className="col overflow-auto">
+              <div className="col-9 overflow-auto">
                 <p className="yellow-titles">MESSAGES</p>
               </div>
-              <div className="col">
+              <div className="col-1">
                 <button
                   className="message-button float-end rounded-4 n"
                   onClick={handleShowFriendList}
@@ -489,14 +489,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </p>
             </div>
           </div>
-          <div className="row pt-4">
-            <div className="col text-center">
-              <input
+          <div className="row "  style={{height:"15%"}}>
+            <div className="col-12 text-center align-self-end">
+              <input className="rounded-3 input-field-chat w-75 " 
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
                 type="text"
                 maxLength={128}
-                className="rounded-3 input-field-chat"
                 placeholder="Send a message..."
               ></input>
               <button type="button" onClick={handleSendMessage}>
