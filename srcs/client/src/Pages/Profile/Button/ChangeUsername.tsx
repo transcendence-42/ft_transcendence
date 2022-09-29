@@ -2,10 +2,10 @@ import React from 'react'
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
 import "../profile.css"
-import ModalChangePseudo from "../Modal/ModalChangePseudo"
+import ModalUsername from "../Modal/ModalUsername"
 import { useState } from "react";
 
-export default function ChangePseudo(props : any) {
+export default function ChangeUsername(props : any) {
 
 	const [isShowing, setIsShowing] = useState(false);
 
@@ -15,22 +15,28 @@ export default function ChangePseudo(props : any) {
 
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-yellow m-1"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}>
+				<div className="yellowText" style={{fontSize: "1.2vw"}}>
 					Change Username
 				</div>
 			</button>
-				<ModalChangePseudo
-					isShowing={isShowing}
-					hide={toggle}
+				<ModalUsername
+					show={isShowing}
+					closeHandler={toggle}
+					textBtn1="Cancel"
+					handleBtn1={toggle}
+					textBtn2="Submit"
+					handleBtn2={toggle}
+					title="Put your NEW Username"
 					id={props.id}
-					up={props.up}/>
+					up={props.up}
+				/>
 		</>
  		);
 }

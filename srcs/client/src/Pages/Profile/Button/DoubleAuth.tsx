@@ -12,25 +12,29 @@ export default function DoubleAuth(props : any) {
 	function toggle() {
 		setIsShowing(!isShowing);
 	}
+
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-yellow m-1"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}>
+				<div className="yellowText" style={{fontSize: "1.2vw"}}>
 					Double Authentication
 				</div>
 			</button>
 				<ModalDoubleAuth
-				isShowing={isShowing}
-				hide={toggle}
+				show={isShowing}
+				closeHandler={toggle}
 				id={props.id}
-				up={props.up}
-				title="Put an URL of your New Picture"
+				textBtn1="Cancel"
+        		handleBtn1={toggle}
+				textBtn2="Submit"
+        		handleBtn2={toggle}
+				title="Double Authentication"
 			 />
 		</>
  		);

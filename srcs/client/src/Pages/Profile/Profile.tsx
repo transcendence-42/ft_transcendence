@@ -7,7 +7,7 @@ import AddFriend from './Button/AddFriend'
 import BlockFriend from './Button/BlockFriend'
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
 import OnlineOffline from './OnlineOffline'
-import ChangePseudo from './Button/ChangePseudo'
+import ChangeUsername from './Button/ChangeUsername'
 import ChangePicture from './Button/ChangePicture'
 import DoubleAuth from './Button/DoubleAuth'
 import Ladder from './Ladder'
@@ -74,9 +74,9 @@ export default function Profile () {
                     <div className="changeProfil">
                         { userID === originalId ?
                         <>
-                            <ChangePseudo id={userID} up={toggleUpdate}/>
+                            <ChangeUsername id={userID} up={toggleUpdate}/>
                             <ChangePicture id={userID} up={toggleUpdate}/>
-                            <DoubleAuth/>
+                            <DoubleAuth id={userID}/>
                         </>
                         :
                         <>
