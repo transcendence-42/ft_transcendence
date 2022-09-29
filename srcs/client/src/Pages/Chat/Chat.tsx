@@ -355,13 +355,13 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
       {/* first div to center chat */}
       <div className="row h-100">
         {/* Div Channel */}
-        <div className=" rounded-4 blue-box-chat col float-right chat-sidebar-left ms-3 " >
-          <div className="channels-div h-50">
+        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 " >
+          <div className="h-50">
             <div className="row mt-2">
-              <div className="col my-sidebar overflow-auto ">
-                <p className="yellow-titles titles-position">CHANNELS</p>
+              <div className="col-9 my-sidebar overflow-auto ">
+                <p className="yellow-titles ">CHANNELS</p>
               </div>
-              <div className="col">
+              <div className="col-1">
                 <button
                   className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
                   data-bs-toggle="dropdown"
@@ -407,11 +407,11 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           <div className="messages-div h-50">
             <div className="row">
               <div className="col overflow-auto">
-                <p className="yellow-titles titles-position">MESSAGES</p>
+                <p className="yellow-titles">MESSAGES</p>
               </div>
               <div className="col">
                 <button
-                  className="message-button float-end rounded-4 titles-position"
+                  className="message-button float-end rounded-4 n"
                   onClick={handleShowFriendList}
                 >
                   +
@@ -508,10 +508,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
         </div>
          {/* Div Members */}
-        <div className="  rounded-4 blue-box-chat col  chat-sidebar-right me-3  ">
+        <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  ">
           <div className="row mt-2">
             <div className="col">
-              <p className="blue-titles center-position titles-position">
+              <p className="blue-titles center-position">
                 MEMBERS
               </p>
               <>
