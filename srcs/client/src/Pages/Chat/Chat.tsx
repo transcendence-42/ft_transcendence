@@ -425,7 +425,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                     <tr>
                       <td>User</td>
                       <td>
-                        <button className="rounded-4 btn btn-chat btn-pink">
+                        <button className="rounded-4 btn-sm btn-chat">
                           game
                         </button>
                       </td>
@@ -441,7 +441,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         <div className="  col col-sm col-md col-lg col-xl col-xxl  rounded-4 blue-box-chat  ">
           <div className="row mt-2">
             <div className="col">
-              <p className="blue-titles channel-name-margin">
+              <p className="blue-titles channel-name-margin" style={{fontSize:"12px"}}>
                 currentChannel: {currentChannel.name}
               </p>
             </div>
@@ -510,7 +510,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  ">
           <div className="row mt-2">
             <div className="col">
-              <p className="blue-titles center-position">
+              <p className="blue-titles center-position"  style={{fontSize:"12px"}} >
                 MEMBERS
               </p>
               <>
