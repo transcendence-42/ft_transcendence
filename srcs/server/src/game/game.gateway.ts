@@ -164,4 +164,10 @@ export class GameGateway
       updateChallengeDto.status,
     );
   }
+
+  /** Switch a user to offline until the next action */
+  @SubscribeMessage('goOffline')
+  async handleGoOffline(@ConnectedSocket() client: Socket) {
+    await this.gameService.handleGoOffline(client);
+  }
 }

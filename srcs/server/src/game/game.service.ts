@@ -248,6 +248,14 @@ export class GameService {
     }
   }
 
+  /** Go offline */
+  async handleGoOffline(client: Socket) {
+    const userId = client.handshake.query.userId.toString();
+    // Save or update client as a player for players info
+    await this._savePlayerInfos(userId, { status: ePlayerStatus.OFFLINE });
+    this._sendPlayersInfo();
+  }
+
   /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
