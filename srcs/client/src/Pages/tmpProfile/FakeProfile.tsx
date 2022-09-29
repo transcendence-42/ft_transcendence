@@ -1,13 +1,11 @@
 import { FC, useCallback, useContext, useEffect, useState } from 'react';
-import getFetch from '../../Components/Tools/getFetch';
 import { SocketContext } from '../../socket';
 import { useLocation } from 'react-router-dom';
 import '../../Styles';
 import { Link } from 'react-router-dom';
-import { RootModalsContext } from '../RootModals/RootModalsProvider';
 
 const FakeProfile: FC = (props: any) => {
-  const socket = useContext(SocketContext);
+  const [socket, userId] = useContext(SocketContext);
   const location: any = useLocation();
   const { id } = location.state;
 
@@ -35,19 +33,21 @@ const FakeProfile: FC = (props: any) => {
   /** *********************************************************************** */
 
   const [player, setPlayer] = useState({} as any);
-  const [user, setUser] = useState({} as any);
-
-  const [showModal, setShowModal] = useContext(RootModalsContext);
+  const [userStatus, setUserStatus] = useState(0);
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
 
   const handlePlayersInfo = useCallback((data: any) => {
+    // current player status
     const player = data.players
       ? data.players.find((p: any) => p.id === id.toString())
       : {};
     setPlayer(player);
+    // if current player is looking its own profile
+    if (player.id === userId)
+      setUserStatus(player.status)
   }, []);
 
   /** *********************************************************************** */
@@ -58,17 +58,13 @@ const FakeProfile: FC = (props: any) => {
     socket.emit('challengePlayer', { id: id });
   };
 
+  const handleSwitchStatus = () => {
+    socket.emit('switchStatus');
+  };
+
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
-
-  const getUserInfos = async () => {
-    const request = `http://127.0.0.1:4200/users/${id}`;
-    const user_json = await getFetch({ url: request });
-    user_json.then((responseObject: any) => {
-      setUser(responseObject);
-    });
-  };
 
   const init = async () => {
     socket.emit('getPlayersInfos');
@@ -151,6 +147,13 @@ const FakeProfile: FC = (props: any) => {
       ) : (
         <h4 className="text-blue">waiting for status update</h4>
       )}
+      {
+        id !== userId
+        ? userStatus === ePlayerStatus.ONLINE
+          ? <button className='btn btn-pink text-pink' onClick={handleSwitchStatus}>Go offline</button>
+          : <button className='btn btn-pink text-pink' onClick={handleSwitchStatus}>Go back online</button>
+        :<></>
+      }
     </div>
   );
 };

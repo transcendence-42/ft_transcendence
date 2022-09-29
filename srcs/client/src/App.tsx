@@ -14,6 +14,7 @@ import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import FakeProfile from './Pages/tmpProfile/FakeProfile';
 import RootModals from './Pages/RootModals/RootModals';
+import GameSocketProvider from './socket';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -63,24 +64,26 @@ function App() {
    */
   return (
     <Context.Provider value={contextValue}>
-      <BrowserRouter>
-        <NavBar userID={userID} />
-        <RootModals />
-        <Routes>
-          <Route path="*" element={<Notfound />} />
-          <Route index element={<Home updateID={update} userID={userID} />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/prof" element={<FakeProfile />} />
-          <Route path="/lobby" element={<GameLobby />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route index element={<Home updateID={update} userID={userID} />} />
-          <Route path="/" element={<AuthenticatedRoute res />}>
-            <Route path="/about" element={<About />} />
-            <Route path="/chat" element={<Chat userID={userID} />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <GameSocketProvider>
+        <BrowserRouter>
+          <NavBar userID={userID} />
+          <RootModals />
+          <Routes>
+            <Route path="*" element={<Notfound />} />
+            <Route index element={<Home updateID={update} userID={userID} />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/prof" element={<FakeProfile />} />
+            <Route path="/lobby" element={<GameLobby />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route index element={<Home updateID={update} userId={userID} />} />
+            <Route path="/" element={<AuthenticatedRoute res />}>
+              <Route path="/about" element={<About />} />
+              <Route path="/chat" element={<Chat userID={userID} />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </GameSocketProvider>
     </Context.Provider>
   );
 }

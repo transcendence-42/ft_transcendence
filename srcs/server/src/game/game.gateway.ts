@@ -166,8 +166,8 @@ export class GameGateway
   }
 
   /** Switch a user to offline until the next action */
-  @SubscribeMessage('goOffline')
-  async handleGoOffline(@ConnectedSocket() client: Socket) {
-    await this.gameService.handleGoOffline(client);
+  @SubscribeMessage('switchStatus')
+  async handleSwitchStatus(@ConnectedSocket() client: Socket) {
+    await this.gameService.handleSwitchStatus(client);
   }
 }

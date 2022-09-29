@@ -11,7 +11,7 @@ import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
 
 const RootModals = () => {
-  const socket = useContext(SocketContext);
+  const [socket, userId] = useContext(SocketContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -120,7 +120,7 @@ const RootModals = () => {
   const handleCancel = () => {
     handleCloseGameChallenge();
     socket.emit('updateChallenge', {
-      id: gameChallengeData.opponent.userId,
+      id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.CANCEL,
     });
   };
@@ -128,14 +128,14 @@ const RootModals = () => {
   const handleRefuse = () => {
     handleCloseGameChallenge();
     socket.emit('updateChallenge', {
-      id: gameChallengeData.opponent.userId,
+      id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.REFUSED,
     });
   };
 
   const handleAccept = () => {
     socket.emit('updateChallenge', {
-      id: gameChallengeData.opponent.userId,
+      id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.ACCEPTED,
     });
     setGameChallengeData({

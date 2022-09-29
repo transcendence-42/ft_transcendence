@@ -24,6 +24,8 @@ const GameLobby = () => {
    *        origin.state: State of the origin to restore it when go back
    *        gameId?:      Id of the game on which apply the action. Can be ''.
    *        action?:      0: Do nothing | 1: Join | 2: Spectacte
+   * 
+   * @props userId:       id of the current user
    */
 
   /** *********************************************************************** */
@@ -47,6 +49,7 @@ const GameLobby = () => {
   enum eMatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
+    IN_GAME,
   }
 
   /** *********************************************************************** */
@@ -54,8 +57,8 @@ const GameLobby = () => {
   /** *********************************************************************** */
  
   const navigate = useNavigate();
-  const socket = useContext(SocketContext);
-  //const user = useContext(contextValue);
+  const [socket, userId] = useContext(SocketContext);
+  console.log(userId);
 
   /** *********************************************************************** */
   /** STATES                                                                  */
@@ -158,10 +161,12 @@ const GameLobby = () => {
     }, 4000);
   }, []);
 
-  const handlePlayersInfo = useCallback((data: any) => {
+  const handlePlayersInfos = useCallback((data: any) => {
+    console.log(data.players);
     const player = data.players
-      ? data.players.find((p: any) => p.id === '42')
+      ? data.players.find((p: any) => p.id === userId.toString())
       : {};
+    console.log(player);
     if (player) setMatchMaking(player.matchmaking);
   }, []);
 
@@ -240,7 +245,7 @@ const GameLobby = () => {
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
     socket.on('info', handleInfo);
-    socket.on('playersInfos', handlePlayersInfo);
+    socket.on('playersInfos', handlePlayersInfos);
     // get all games
     socket.emit('findAllGame');
     return () => {
@@ -249,7 +254,7 @@ const GameLobby = () => {
       socket.off('gameId', handleGameId);
       socket.off('exception', handleInfo);
       socket.off('info', handleInfo);
-      socket.off('playersInfos', handlePlayersInfo);
+      socket.off('playersInfos', handlePlayersInfos);
     };
   }, []);
 

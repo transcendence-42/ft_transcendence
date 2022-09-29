@@ -61,6 +61,7 @@ enum ePlayerStatus {
 enum ePlayerMatchMakingStatus {
   NOT_IN_QUEUE = 0,
   IN_QUEUE,
+  IN_GAME,
 }
 
 const enum eKeys {
@@ -249,10 +250,24 @@ export class GameService {
   }
 
   /** Go offline */
-  async handleGoOffline(client: Socket) {
+  async handleSwitchStatus(client: Socket) {
     const userId = client.handshake.query.userId.toString();
     // Save or update client as a player for players info
-    await this._savePlayerInfos(userId, { status: ePlayerStatus.OFFLINE });
+    let status: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call(
+          'JSON.GET',
+          eKeys.PLAYERSINFOS,
+          `$.players[?(@.id=="${userId}")].status`,
+        )
+        .exec()
+    )[1][1];
+    status = JSON.parse(status)[0];
+    if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
+    if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
+    await this._savePlayerInfos(userId, { status: status });
     this._sendPlayersInfo();
   }
 
@@ -289,8 +304,12 @@ export class GameService {
 
   /** get socket from id */
   private _getSocket(id: string): Socket {
+    console.log(id);
     const client = this.clients.find((c) => c.userId === id);
-    if (client) return client.socket;
+    if (client) {
+      console.log(client.socket);
+      return client.socket;
+    }
     return null;
   }
 
@@ -504,7 +523,7 @@ export class GameService {
     const game: Game = await this._getGame(gameId);
     const createMatchDto: CreateMatchDto = {
       players: game.players.map((p: any) => ({
-        playerId: p.userId,
+        playerId: +p.userId,
         side: p.side,
         score: p.score,
         status: p.userId === loserId ? (motive === Motive.ABANDON ? 2 : 1) : 0,
@@ -885,8 +904,8 @@ export class GameService {
       const p1 = users[1][1];
       const p2 = users[2][1];
       const playersToMatch = [];
-      await this._savePlayerInfos(p1, { matchmaking: 0 });
-      await this._savePlayerInfos(p2, { matchmaking: 0 });
+      await this._savePlayerInfos(p1, { matchmaking: 2 });
+      await this._savePlayerInfos(p2, { matchmaking: 2 });
       playersToMatch.push({ userId: p1, socket: this._getSocket(p1) });
       playersToMatch.push({ userId: p2, socket: this._getSocket(p2) });
       playersToMatch.forEach((p) => {
