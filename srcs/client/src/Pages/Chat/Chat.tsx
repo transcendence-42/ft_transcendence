@@ -21,6 +21,8 @@ import {
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
 import { CreateChannelDto } from "./entities";
+import createChannelOnDb from "./functions/createChannelOnDb";
+import handleCreateChannelForm from "./functions/createChannelForm";
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -77,7 +79,9 @@ export default function Chat(props: any) {
       e,
       channelName,
       eChannelType.DIRECT,
-      userId
+      userId,
+      socket,
+      updateOwnChannels
     );
     if (channelId) {
       handleAddToChannel(friendId, channelId);
@@ -90,26 +94,6 @@ export default function Chat(props: any) {
     return user;
   };
 
-  const createChannelOnDb = async (createChannelDto: CreateChannelDto) => {
-    const channel = await fetchUrl(
-      "http://127.0.0.1:4200/channel/",
-      "PUT",
-      createChannelDto
-    );
-    if (channel["id"]) {
-      const userOnChannel = await fetchUrl(
-        `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
-        "GET"
-      );
-      const payload = { id: channel.id, type: channel.type };
-      // tells other clients to fetch the new channel has been created
-      socket.emit(eEvent.UpdateOneChannel, payload);
-      // update the current clients UserOnChannels
-      // returns the created channel id to be used by handleCreateChannelForm
-      return userOnChannel;
-    } else return alert(`Error while creating channel! ${channel.message}`);
-  };
-
   const createNonDirectChannel = (
     e: any,
     name: string,
@@ -117,41 +101,18 @@ export default function Chat(props: any) {
     ownerId: number,
     password?: string
   ) => {
-    const channelId = handleCreateChannelForm(e, name, type, ownerId, password);
-    if (channelId) {
-      handleCloseCreateChannel();
-    }
-  };
-
-  const handleCreateChannelForm = (
-    e: any,
-    name: string,
-    type: eChannelType,
-    ownerId: number,
-    password?: string
-  ) => {
-    console.log("creating a channel");
-    e.preventDefault();
-    if (name === "") return alert("channel name can't be empty");
-    else if (type === eChannelType.PROTECTED && password === "")
-      return alert("Password can't be empty!");
-    const createChannelDto: CreateChannelDto = {
+    const channelId = handleCreateChannelForm(
+      e,
       name,
       type,
       ownerId,
-      password
-    };
-    const userOnChannel = createChannelOnDb(createChannelDto)
-      .then((userOnChannel: UserOnChannel) => {
-        if (!userOnChannel) {
-          throw new Error("Failed to create user on database");
-        }
-        updateOwnChannels(userOnChannel);
-        socket.emit(eEvent.CreateChannel, userOnChannel.channelId);
-        return userOnChannel.channelId;
-      })
-      .catch((err) => console.log(`${JSON.stringify(err, null, 4)}`));
-    return userOnChannel;
+      socket,
+      updateOwnChannels,
+      password,
+    );
+    if (channelId) {
+      handleCloseCreateChannel();
+    }
   };
 
   const handleAddToChannel = async (userId: number, channelId: number) => {
@@ -210,10 +171,6 @@ export default function Chat(props: any) {
 
   const handleSendMessage = (e: any) => {
     if (message === "") return;
-    // console.log(`Heres current user ${JSON.stringify(user, null, 4)}`);
-    // console.log(
-    // `Heres current channel ${JSON.stringify(currentChannel.name, null, 4)}`
-    // );
     const messageToSend: MessageDto = {
       content: message,
       toChannelOrUserId: currentChannel.id,
