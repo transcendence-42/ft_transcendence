@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
-export default function Home () {
+export default function Home ({updateID, userID } : any) {
 /*
 ** Init of the context again to use it and refresh it from App.tsx
 */
@@ -17,7 +17,7 @@ const contextValue = useContext(Context);
 const [fromAuth, setFromAuth] = useState(false);
 
 /*
-** First function to Auth the user from our app -> 42Auth -> back -> front 
+** First function to Auth the user from our app -> 42Auth -> back -> front
 */
 const getUser = async () => {
   await  fetch("http://127.0.0.1:4200/auth/success", {
@@ -51,9 +51,10 @@ const getUser = async () => {
   .then((responseObject) => {
       if (responseObject.message)
       {
-          console.log(responseObject);
+        if(!userID)
+        {updateID(responseObject.user.id);};
+
           console.log("Success parsing 42auth");
-        
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           return;
@@ -64,7 +65,7 @@ const getUser = async () => {
 };
 
 /*
-** Here we set quickly the fromAuth local storage and delete it as safeguard to be sure we are from login page 
+** Here we set quickly the fromAuth local storage and delete it as safeguard to be sure we are from login page
 */
 useEffect(() => {
   const data = localStorage.getItem("fromAuth");
@@ -77,13 +78,13 @@ useEffect(() => {
 },[]);
 
 /*
-** If we are connected we have the options of playing and watch, otherwise we do not have it 
-** The contextValue.isConnected is the context init in App.tsx  
+** If we are connected we have the options of playing and watch, otherwise we do not have it
+** The contextValue.isConnected is the context init in App.tsx
 */
 if (!(contextValue.isConnected))
 {
     return (
-    <>    
+    <>
     <div className="container "></div>
         <div className="row pt-5">
           <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
@@ -111,7 +112,7 @@ if (!(contextValue.isConnected))
   else
   {
     return (
-      <>   
+      <>
           <div className="container">
         <div className="row pt-5">
           <h1 className="h1 pinkText text-center ">ENTER THE PONG CONTEST !</h1>
@@ -123,7 +124,7 @@ if (!(contextValue.isConnected))
               <div className="ping text-center"></div>
               <div className="pong text-center"></div>
               <div className="ball text-center"></div>
-          </div>  
+          </div>
             <div className="container square-box d-flex justify-content-center align-items-center pt-5 pb-5">
                 <div className="">
                   <Link to="/leaderboard"> <h2 className="animated-word"> Lobby</h2> </Link>

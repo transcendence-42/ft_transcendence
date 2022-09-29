@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
+import {getFetchSuccess} from './Pages/Profile/Fetch/getFetchSuccess'
 import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
@@ -17,6 +18,25 @@ import GameLobby from './Pages/Game/GameLobby';
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [isFromAuth, setIsFromAuth] = useState(false);
+  const [userID, setUserID] : any = useState();
+
+  function update(id : number) {
+    setUserID(id);
+  }
+
+   /*
+   ** Update the UserID when the page is refresh
+   */
+
+  if (!userID)
+  {
+    if (isConnected)
+    {
+      const success_json = getFetchSuccess();
+      success_json.then((responseObject)=> {
+        update(responseObject.user.id);})
+    }
+  }
 
   /*
    ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
@@ -38,7 +58,6 @@ function App() {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
   });
-
   /*
    ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
    ** Routes surround all route
@@ -46,21 +65,21 @@ function App() {
   return (
     <Context.Provider value={contextValue}>
       <BrowserRouter>
-          <NavBar />
+          <NavBar userID={userID}/>
           <Routes>
             <Route path="*" element={<Notfound />} />
-            <Route index element={<Home />} />
+            <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/login" element={<Login />} />
             <Route
               path="/lobby"
               element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
             <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/home" element={<Home />} />
+            <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/chat" element={<Chat userID={userID}/>} />
+              <Route path="/profile" element={<Profile/>} />
               <Route path="/mapchoice" element={<MapChoice />} />
               <Route path="/matchmaking" element={<Matchmaking />} />
             </Route>
