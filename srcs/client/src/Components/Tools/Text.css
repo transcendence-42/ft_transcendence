@@ -3,11 +3,64 @@
 :root {
 	--weight: 400;
 	--height: 20px;
+  --padd: 0.15em;
 }
+
 .playFlickering {
   all: unset;
   cursor: pointer;
 }
+
+/* BOOTSTRAP */
+
+
+.textBlue{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #80FFFF;
+  text-shadow:	0px 0px 7.49518px #6ABDFF,
+  				0px 0px 14.9904px #3D9FEE,
+				0px 0px 25.6977px #187BCA;
+}
+
+.textIron{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #a19d94;
+  text-shadow:	0px 0px 7.49518px  #a19d94;
+}
+
+.textBronze{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #CD7F32;
+  text-shadow:	0px 0px 7.49518px #CD7F32;
+}
+
+.textSilver{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #C0C0C0;
+  text-shadow:	0px 0px 7.49518px #C0C0C0,
+  				0px 0px 14.9904px #C0C0C0,
+				0px 0px 15.6977px #C0C0C0;
+}
+
+.textGold{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #daa520;
+  text-shadow:	0px 0px 7.49518px #daa520,
+  				0px 0px 14.9904px #daa520,
+				0px 0px 10.6977px #daa520;
+}
+/* BOOTSTRAP */
+
 
 
 
@@ -16,12 +69,29 @@
   font-weight: var(--weight);
   line-height: var(--height);
   /* identical to box height */
-
-  text-align: center;
+  display: flex;
+	justify-content: center;
+	align-items: center;
   color: #80FFFF;
   text-shadow:	0px 0px 7.49518px #6ABDFF,
   				0px 0px 14.9904px #3D9FEE,
 				0px 0px 25.6977px #187BCA;
+  padding: var(--padd);
+}
+
+.blueTextMatch{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+  display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+  color: #80FFFF;
+  text-shadow:	0px 0px 7.49518px #6ABDFF,
+  				0px 0px 14.9904px #3D9FEE,
+				0px 0px 25.6977px #187BCA;
+  padding: 1vh;
 }
 
 .yellowText{
@@ -31,12 +101,31 @@
   font-weight: var(--weight);
   line-height: var(--height);
   /* identical to box height */
-
-  text-align: center;
+  display: flex;
+	justify-content: center;
+	align-items: center;
   color: #FFE710;
   text-shadow:	0px 0px 7.49518px #FF6ADE,
   				0px 0px 14.9904px #EA3DEE,
 				0px 0px 25.6977px #CA18A3;
+  padding: var(--padd);
+}
+
+.yellowTextProfil{
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+  display: flex;
+	justify-content: center;
+	align-items: center;
+  color: #FFE710;
+  text-shadow:	0px 0px 7.49518px #FF6ADE,
+  				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
+  padding: var(--padd);
 }
 
 .greenText{
@@ -50,6 +139,7 @@
   color: #6dfc72;
   text-shadow:	0px 0px 7.49518px #30fc93,
 				0px 0px 25.6977px #30fc93;
+  padding: var(--padd);
 }
 
 .redText{
@@ -63,6 +153,7 @@
   color: #f84b4b;
   text-shadow:	0px 0px 7.49518px #f65d52,
 				0px 0px 25.6977px #d52828;
+  padding: var(--padd);
 }
 
 .pinkText{
@@ -77,6 +168,7 @@
   text-shadow:	0px 0px 7.49518px #FF6ADE,
   				0px 0px 14.9904px #EA3DEE,
 				0px 0px 25.6977px #CA18A3;
+  padding: var(--padd);
 }
 
 .playFlickering {

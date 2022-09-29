@@ -27,27 +27,20 @@
     object-fit: cover;
 }
 
-.picture img {
-    flex-shrink: 0;
-    min-width: 100%;
-    min-height: 100%;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    width: 70%;
-}
+
 
 .status{
-    width: 20%;
+    width: auto;
     height: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     flex-direction: column;
-    margin: 1vw;
+    /* max-width: 15vw; */
+    /* overflow: hidden; */
 }
 
-.infoProfil{
+.changeProfil{
     width: auto;
     height: auto;
     display: flex;
@@ -88,7 +81,7 @@
 }
 
 .friend{
-    width: 30%;
+    width: 42%;
     height: 100%;
     display: flex;
     justify-content: space-between;

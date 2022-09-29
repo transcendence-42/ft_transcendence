@@ -1,4 +1,4 @@
-/* 
+/*
 .text
 {
 	box-sizing: border-box;
@@ -57,7 +57,7 @@
 	font-weight: var(--weight);
 	line-height: var(--height);
 	/* identical to box height */
-  
+
 	text-align: center;
 	color: #FFE710;
 	text-shadow:	0px 0px 7.49518px #FF6ADE,
@@ -91,7 +91,7 @@
 	font-weight: var(--weight);
 	line-height: var(--height);
 	/* identical to box height */
-  
+
 	text-align: center;
 	line-height: 300%;
 	/* pour ecartement entre chaque nom */

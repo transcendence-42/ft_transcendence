@@ -31,13 +31,13 @@ export default function Leaderboard () {
     return (
       
           <>
-            <div className="leaderboard" data-testid="tracker">
+            <div className="leaderboard mt-5" data-testid="tracker">
               <div>
               <div className='frame'>
                 <div>
                   <h1 className="pinkText " style={{fontSize: "4vw"}}>LEADERBOARD</h1>
                 </div>
-                <div className='container'>
+                <div className='container1'>
                 <div className='blueText' style={{fontSize: "2vw"}}>
                   <h2 className="column" >RANK</h2>
                 </div>
@@ -48,7 +48,7 @@ export default function Leaderboard () {
                   <h2 className="column">Elo Ratings</h2>
                 </div>
                 </div> 
-                <div className='container'>
+                <div className='container1'>
                   <table>
                   <tbody>
                     { 

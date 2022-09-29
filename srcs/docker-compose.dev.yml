@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  
+
   client:
     image: client:${TAG}
     build:
@@ -46,7 +46,7 @@ services:
       timeout: 30s
       retries: 15
       start_period: 30s
-    
+
   database:
     image: postgres:alpine
     container_name: database
@@ -84,12 +84,12 @@ services:
         condition: service_healthy
       server:
         condition: service_healthy
-  
+
   redis:
     image: redislabs/rejson:latest
     container_name: redis
     restart: always
-    ports: ['${REDIS_PORT}:6379']      
+    ports: ['${REDIS_PORT}:6379']
     networks: ['transcendence']
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]

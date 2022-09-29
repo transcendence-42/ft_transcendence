@@ -1,0 +1,7 @@
+// 1- Dire au user de telecharger google authentifactor
+// 2- Fetch auth/2fa/generate
+// 3- Recuperer un Stream
+// 4- Dans la modal QR code a scanner
+// 5- Input a 6 chiffre a rentrer le  auth/2fa/activate
+// 6- Prochaine connexion on doit nous demander la double auth si pas de cookie
+// 7- Utiliser 2fa/authenticate
