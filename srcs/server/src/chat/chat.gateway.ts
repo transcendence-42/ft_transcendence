@@ -87,16 +87,26 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.InitConnection)
-  initConnection(client: Socket, {channelIds, userId}) {
+  initConnection(
+    client: Socket,
+    { channelIds, userId }: { channelIds: string[]; userId: number },
+  ) {
     this.logger.debug(
       `Initing connection for user ${userId} and socket.id ${client.id}`,
+    );
+    this.logger.debug(
+      `Sending channelIds: ${JSON.stringify(
+        channelIds,
+        null,
+        4,
+      )} and user id ${userId}`,
     );
     this.chatService.initConnection(client, channelIds, userId);
   }
 
   @SubscribeMessage(eEvent.CreateChannel)
   handleCreateChannel(client: Socket, channelId: number) {
-    // return this.chatService
+    return this.chatService.addToRoom(client, channelId);
   }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )

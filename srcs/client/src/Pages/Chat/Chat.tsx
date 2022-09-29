@@ -13,10 +13,10 @@ import {
   MessageDto,
   Channel,
   JoinChannelDto,
-  ChatUser,
   Message,
   UserOnChannel,
-  Hashtable
+  Hashtable,
+  User
 } from "./entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
@@ -40,9 +40,10 @@ export default function Chat(props: any) {
   const defaultChannel: Channel = currChanInLocalStorage
     ? JSON.parse(currChanInLocalStorage)
     : lobbyChannel;
-  const [user, setUser] = useState({} as ChatUser);
+  console.log(`Current channel init is ${currChanInLocalStorage}`);
+  const [user, setUser] = useState({} as User);
   const [allMessages, setAllMessages] = useState({} as Hashtable<Message[]>);
-  const [allUsers, setAllUsers] = useState([] as ChatUser[]);
+  const [allUsers, setAllUsers] = useState({} as Hashtable<User>);
   const [allChannels, setAllChannels] = useState([] as Channel[]);
   const [currentChannel, setCurrentChannel] = useState(
     defaultChannel as Channel
@@ -70,31 +71,9 @@ export default function Chat(props: any) {
 
   const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
 
-  const createChannel = async (createChannelDto: CreateChannelDto) => {
-    const channel = await fetchUrl(
-      "http://127.0.0.1:4200/channel/",
-      "PUT",
-      createChannelDto
-    );
-    if (channel["id"]) {
-      const userOnChannel = await fetchUrl(
-        `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
-        "GET"
-      );
-      const payload = { id: channel.id, type: channel.type };
-      socket.emit(eEvent.UpdateOneChannel, payload);
-      updateOwnChannels(userOnChannel);
-      const getAllChannels = await fetchUrl(
-        "http://127.0.0.1:4200/channel",
-        "GET"
-      );
-      setAllChannels(getAllChannels);
-      return channel["id"];
-    } else return alert(`Error while creating channel! ${channel.message}`);
-  };
   const createDirect = async (e: any, friendId: number, userId: number) => {
     const channelName = friendId.toString() + "_" + userId.toString();
-    const channelId = await handleCreateChannel(
+    const channelId = await handleCreateChannelForm(
       e,
       channelName,
       eChannelType.DIRECT,
@@ -106,7 +85,45 @@ export default function Chat(props: any) {
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
 
-  const handleCreateChannel = (
+  const getUser = async (userId: number) => {
+    const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`, "GET");
+    return user;
+  };
+
+  const createChannelOnDb = async (createChannelDto: CreateChannelDto) => {
+    const channel = await fetchUrl(
+      "http://127.0.0.1:4200/channel/",
+      "PUT",
+      createChannelDto
+    );
+    if (channel["id"]) {
+      const userOnChannel = await fetchUrl(
+        `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
+        "GET"
+      );
+      const payload = { id: channel.id, type: channel.type };
+      // tells other clients to fetch the new channel has been created
+      socket.emit(eEvent.UpdateOneChannel, payload);
+      // update the current clients UserOnChannels
+      // returns the created channel id to be used by handleCreateChannelForm
+      return userOnChannel;
+    } else return alert(`Error while creating channel! ${channel.message}`);
+  };
+
+  const createNonDirectChannel = (
+    e: any,
+    name: string,
+    type: eChannelType,
+    ownerId: number,
+    password?: string
+  ) => {
+    const channelId = handleCreateChannelForm(e, name, type, ownerId, password);
+    if (channelId) {
+      handleCloseCreateChannel();
+    }
+  };
+
+  const handleCreateChannelForm = (
     e: any,
     name: string,
     type: eChannelType,
@@ -124,10 +141,19 @@ export default function Chat(props: any) {
       ownerId,
       password
     };
-    const channelId = createChannel(createChannelDto);
-    socket.emit(eEvent.CreateChannel, channelId);
-    return channelId;
+    const userOnChannel = createChannelOnDb(createChannelDto)
+      .then((userOnChannel: UserOnChannel) => {
+        if (!userOnChannel) {
+          throw new Error("Failed to create user on database");
+        }
+        updateOwnChannels(userOnChannel);
+        socket.emit(eEvent.CreateChannel, userOnChannel.channelId);
+        return userOnChannel.channelId;
+      })
+      .catch((err) => console.log(`${JSON.stringify(err, null, 4)}`));
+    return userOnChannel;
   };
+
   const handleAddToChannel = async (userId: number, channelId: number) => {
     const createUserOnChannelDto = {
       role: eUserRole.USER,
@@ -158,7 +184,9 @@ export default function Chat(props: any) {
 
   const switchChannel = (channelId: number) => {
     const channel = allChannels.find((chan: Channel) => chan.id === channelId);
+    console.log(`This is current channel id ${channel?.id}`);
     setCurrentChannel(channel!);
+    localStorage.setItem("currentChannel", JSON.stringify(channel));
   };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
@@ -167,7 +195,7 @@ export default function Chat(props: any) {
       updateAllChannels = user.channels;
     }
     updateAllChannels?.push(userOnChannel);
-    setUser((prevUser: ChatUser) => ({
+    setUser((prevUser: User) => ({
       ...prevUser,
       channels: updateAllChannels
     }));
@@ -224,85 +252,112 @@ export default function Chat(props: any) {
   };
 
   useEffect(() => {
+    console.group("Use Effect #1: initChatUser");
     const initChatUser = async () => {
+      console.log("fetching auth/success");
       const response = await fetchUrl(
         "http://127.0.0.1:4200/auth/success/",
         "GET"
       );
-      // const response = await fetchUrl('http://127.0.0.1:4200/users/2', 'GET');
+      console.log(`Fetched /auth/sucess`);
       const { user } = response;
-      // const user = response;
-      console.log(`Here the user obj ${JSON.stringify(user, null, 4)}`);
+      console.log("Setting user");
       setUser(user);
+      console.log("setting user is fetched");
       setIsUserFetched(true);
       if (user && user.id) {
+        console.log("fetching friends");
         const friends = await fetchUrl(
           `http://127.0.0.1:4200/users/${user.id}/friends`,
           "GET"
         );
-        if (!friends || friends.length !== 0) {
+        if (friends && friends.length !== 0) {
+          console.log("setting friends");
           setFriends(friends);
+        } else {
+          console.log("no friends to set");
         }
       } else {
         console.error(
           `There's a problem. Couldn't find user id to fetch friends`
         );
       }
+      console.log("Fetching channels");
       const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, "GET");
-      if (channels) setAllChannels(channels);
-      const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
-      const userHashTable: Hashtable<ChatUser> = {};
-      for (const user of users) {
-        userHashTable[user.id] = user;
+      console.log("Fetched channels");
+
+      if (channels) {
+        console.log("setting all channels");
+        setAllChannels(channels);
+        console.log("set all channels");
       }
-      socket.connect();
+      // const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
+      console.log("Fetching all users");
+      fetchUrl(`http://127.0.0.1:4200/users/`, "GET").then((users) => {
+        const userHashTable: Hashtable<User> = {};
+        console.log("Fetched  all users");
+        for (const user of users) {
+          userHashTable[user.id] = user;
+        }
+        console.log(
+          `finished fetching uers and user hash ${JSON.stringify(
+            userHashTable,
+            null,
+            4
+          )}`
+        );
+        console.log("Setting all users");
+        setAllUsers(userHashTable);
+        console.log("Connecting to server");
+        socket.connect();
+      });
+      console.groupEnd();
     };
     initChatUser();
-    console.info(
-      `Heres true user after init !! ${JSON.stringify(user, null, 4)}`
+    console.log(
+      `user after async initChatUser() ${JSON.stringify(user, null, 4)}`
     );
   }, []);
 
   useEffect(() => {
+    if (!isUserFetched) return;
+    console.group("Use Effect #2 Events");
     socket.on("connect", () => {
       const channelIds: string[] = [];
-      const userTable: Hashtable<ChatUser> = {};
+      console.log(`This is user Id ${user.id}`);
       if (user.channels) {
         for (const chan of user.channels) {
-          console.log(`this is chan ${chan.channelId}`);
+          console.log(
+            `this is channel id from user channels ${chan.channelId}`
+          );
           channelIds.push(chan.channelId.toString());
         }
-        console.log(`this is channels ${channelIds}`);
+        console.log(`This is channel Ids Im pushing ${channelIds}`);
         socket.emit(eEvent.InitConnection, { channelIds, userId: user.id });
       }
       console.log("Connected to server successfully");
     });
 
-    console.log(
-      `This is user.channels ${JSON.stringify(
-        user.channels,
-        null,
-        4
-      )} and user ${JSON.stringify(user, null, 4)}`
-    );
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {
-      console.log(
-        `Updatign all messages with ${JSON.stringify(messages, null, 4)}`
-      );
+      console.log(`Updatign all messages with ${JSON.stringify(messages)}`);
       setAllMessages(messages);
     });
 
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
-      console.log(`Updating one message ${JSON.stringify(message, null, 4)}`);
+      console.log(`Updating one message ${JSON.stringify(message)}`);
       const newAllMessages = allMessages;
-      newAllMessages[`${message.toChannelOrUserId}`].push(message);
+      newAllMessages[message.toChannelOrUserId].push(message);
       setAllMessages(newAllMessages);
     });
 
-    socket.on(eEvent.UpdateOneUser, (user: ChatUser) => {
-      const newAllUsers: ChatUser[] = allUsers;
-      allUsers[user.id] = user;
-      setAllUsers(newAllUsers);
+    socket.on(eEvent.UpdateOneUser, (userId: number) => {
+      const newAllUsers: Hashtable<User> = allUsers;
+      const updateUser = async () => {
+        const user = await getUser(userId);
+        newAllUsers[userId] = user;
+        setAllUsers(newAllUsers);
+      };
+      updateUser();
     });
 
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
@@ -314,6 +369,7 @@ export default function Chat(props: any) {
       getNewChannel();
     });
 
+    console.groupEnd();
     return () => {
       socket.off("connect");
       socket.off(eEvent.UpdateMessages);
@@ -359,12 +415,12 @@ export default function Chat(props: any) {
         textBtn1="Cancel"
         handleBtn1={handleCloseCreateChannel}
         textBtn2="Create"
-        handleBtn2={handleCreateChannel}
+        handleBtn2={createNonDirectChannel}
       >
         <CreateChannel
           userId={user.id}
           friends={friends}
-          handleCreateChannel={handleCreateChannel}
+          createNonDirectChannel={createNonDirectChannel}
         />
       </ChatModal>
       <PongAdvancedModal
@@ -476,39 +532,37 @@ export default function Chat(props: any) {
             <div className="col h-100 overflow-auto scroll-bar-messages ">
               <div className="message-position">
                 <>
-                {console.log(`All messages ${JSON.stringify(allMessages, null, 4)}`)}
-                {allMessages &&
-                  allMessages[currentChannel.id]?.map((message: Message) => (
-                    <div
-                      className={
-                        message.fromUserId === user.id
-                          ? "myMessages"
-                          : "otherMessages"
-                      }
-                      key={message.id}>
-                      <div className="messageFromUser">
-                        User:{" "}
-                        {
-                          (
-                            allUsers[message.fromUserId] || {
-                              username: "Pong Bot"
-                            }
-                          ).username
+                  {console.log(
+                    `AllsMessges of current channelid ${JSON.stringify(
+                      allMessages[currentChannel.id]
+                    )}`
+                  )}
+                  {allMessages &&
+                    allMessages[currentChannel.id]?.map((message: Message) => (
+                      <div
+                        className={
+                          message.fromUserId === user.id
+                            ? "myMessages"
+                            : "otherMessages"
                         }
+                        key={message.id}
+                      >
+                        <div className="messageFromUser">
+                          User:
+                          {allUsers[message.fromUserId].username || "Pong Bot"}
+                        </div>
+                        <br />
+                        <div className="messageDate">
+                          Date: {new Date(message.sentDate).toLocaleString()}
+                        </div>
+                        <br />
+                        <div className="messageContent">
+                          Message: {message.content}
+                        </div>
+                        <br />
                       </div>
-                      <br />
-                      <div className="messageDate">
-                        {" "}
-                        . Date: {new Date(message.sentDate).toLocaleString()}
-                      </div>
-                      <br />
-                      <div className="messageContent">
-                        {" "}
-                        . Message: . {message.content}
-                      </div>
-                      <br />
-                    </div>
-                  ))}</>
+                    ))}
+                </>
               </div>
             </div>
           </div>
@@ -538,17 +592,11 @@ export default function Chat(props: any) {
               </p>
               <>
                 {!isEmpty(currentChannel) &&
-                  currentChannel.users &&
-                  currentChannel.users.map((user: UserOnChannel) => (
+                  currentChannel.users?.map((user: UserOnChannel) => (
                     <div key={user.userId}>
                       {allUsers && allUsers[user.userId]?.username}
                     </div>
                   ))}
-                {user &&
-                  user["channels"] &&
-                  console.log(
-                    `Are the objects empty ${!isEmpty(user["channels"])}`
-                  )}
               </>
             </div>
           </div>

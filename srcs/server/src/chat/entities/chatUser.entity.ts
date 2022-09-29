@@ -8,3 +8,4 @@ export class ChatUser {
   channelsId?: string[];
   directMessges?: Message[];
 }
+

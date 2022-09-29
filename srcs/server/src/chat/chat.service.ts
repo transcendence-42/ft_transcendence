@@ -46,9 +46,8 @@ export class ChatService {
       toChannelOrUserId: message.toChannelOrUserId,
     };
     const channelId = msg.toChannelOrUserId.toString();
-    await this.redis.lPush(
-      channelId,
-      JSON.stringify(msg));
+    console.log('emiting message to channel id', channelId);
+    await this.redis.lPush(channelId, JSON.stringify(msg));
     this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
   }
 
@@ -105,11 +104,12 @@ export class ChatService {
     if (type === ChannelType.PRIVATE || type === ChannelType.DIRECT) {
       return;
     }
-    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
+    this.server.emit(eEvent.UpdateOneChannel, channelId);
   }
 
   async initConnection(client: Socket, channelIds: string[], userId: number) {
-    for (const channel in channelIds) {
+    for (const channel of channelIds) {
+      console.log(`Client join channel ${channel}`);
       client.join(channel);
     }
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
@@ -124,13 +124,26 @@ export class ChatService {
     let messages: Hashtable<Message[]> = {};
     // const single = await this.redis.mGet(['1', '2']);
     // console.log(single);
-    console.log('This is the list of messages I got from _getAllMessages');
-    for (const id in channelIds) {
-      const msg = await this.redis.lRange(channelIds[0], 0, -1);
-      messages[id] = JSON.parse(JSON.stringify(msg));
-      console.log(`This is channel Id `, id, messages[id]);
+    // console.log('This is the list of messages I got from _getAllMessages');
+    for (const id of channelIds) {
+      const msg = await this.redis.lRange(id, 0, -1);
+      let parsedMessage = [];
+      for (const message in msg) {
+        parsedMessage.push(JSON.parse(msg[message]));
+      }
+      messages[id] = parsedMessage;
+      console.log(
+        `This is channel Id `,
+        id,
+        JSON.stringify(messages[id], null, 4),
+      );
     }
     return messages;
+  }
+
+  async addToRoom(client: Socket, channelId: number) {
+    console.log('adding client to room', channelId);
+    client.join(channelId.toString());
   }
 
   async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {

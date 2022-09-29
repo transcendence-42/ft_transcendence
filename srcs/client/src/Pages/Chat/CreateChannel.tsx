@@ -1,12 +1,11 @@
 import "./CreateChannel.css";
 import { useState } from "react";
-import { eChannelType, eEvent } from "./constants";
-import { fetchUrl } from "./utils";
+import { eChannelType } from "./constants";
 
 export default function CreateChannel({
   userId,
   socket,
-  handleCreateChannel,
+  createNonDirectChannel,
   ...props
 }: any) {
   const [channelName, setChannelName] = useState("");
@@ -19,7 +18,7 @@ export default function CreateChannel({
         id="createChannelForm"
         className="form-label"
         onSubmit={(e) =>
-          handleCreateChannel(
+          createNonDirectChannel(
             e,
             channelName,
             channelType,
@@ -39,6 +38,7 @@ export default function CreateChannel({
         <div className="form-check">
           <input
             className="form-check-input radio-custom"
+            defaultChecked
             type="radio"
             name="channelRadios"
             id="channelRadio1"
@@ -79,7 +79,6 @@ export default function CreateChannel({
             value="option3"
             data-bs-toggle="collapse"
             data-bs-target="#collapseProtected"
-            aria-expanded="false"
             aria-controls="collapseProtected"
             onClick={(e) => setChannelType(eChannelType.PROTECTED)}
           ></input>
@@ -99,42 +98,3 @@ export default function CreateChannel({
     </div>
   );
 }
-// <form
-//   id="createChannelForm"
-//   className="form-label"
-//   onSubmit={(e) =>
-//     handleCreateChannel(
-//       e,
-//       channelName,
-//       channelType,
-//       userId,
-//       channelPassword
-//     )
-//   }
-// >
-//   <label className="form-label">Name</label>
-//   <input
-//     type="name"
-//     className="form-control form-control-margin"
-//     placeholder="# channel-name"
-//     onChange={(e) => setChannelName(e.target.value)}
-//     value={channelName}
-//   ></input>
-//   <ul className="list-group">
-//     <select
-//       onChange={(e) => setChannelType(e.target.value as eChannelType)}
-//     >
-//       <option value={eChannelType.PUBLIC}>Public</option>
-//       <option value={eChannelType.PRIVATE}>Private</option>
-//       <option value={eChannelType.PROTECTED}>Protected</option>
-//     </select>
-//     <input
-//       onChange={(e) => setChannelPassword(e.target.value)}
-//       value={channelPassword}
-//       type="name"
-//       className="form-control form-control-margin"
-//       placeholder="Password"
-//     ></input>
-//   </ul>
-// </form>
-// );
