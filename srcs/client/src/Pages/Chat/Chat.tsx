@@ -564,8 +564,6 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
           </div>
         </div>
-          {/* Div full right */}
-          {/* <div className="col-1"></div>  */}
       </div>
     </>
   );
