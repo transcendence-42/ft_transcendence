@@ -357,8 +357,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         {/* Div Channel */}
         <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 " >
           <div className="h-50">
-            <div className="row mt-2">
-              <div className="col-9 my-sidebar overflow-auto ">
+            <div className="row mt-2 ">
+              <div className="col-9 my-sidebar overflow-auto mt-1">
                 <p className="yellow-titles ">CHANNELS</p>
               </div>
               <div className="col-1">
@@ -406,12 +406,12 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
           <div className="messages-div h-50">
             <div className="row">
-              <div className="col-9 overflow-auto">
+              <div className="col-9 overflow-auto pt-1">
                 <p className="yellow-titles">MESSAGES</p>
               </div>
               <div className="col-1">
                 <button
-                  className="message-button float-end rounded-4 n"
+                  className="message-button float-end rounded-4 "
                   onClick={handleShowFriendList}
                 >
                   +
@@ -425,7 +425,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
                     <tr>
                       <td>User</td>
                       <td>
-                        <button className="rounded-4 btn-sm btn-chat">
+                        <button className="rounded-4 btn-sm btn-chat px-2 py-1">
                           game
                         </button>
                       </td>

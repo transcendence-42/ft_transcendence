@@ -1,152 +1,101 @@
 import React from "react";
 import {useState, useEffect} from 'react'
-import TREE from './tree.jpg'
 import "./profile.css"
 import "../../Components/Tools/Text.css"
+import "../../Components/Tools/Box.css"
+import AddFriend from './Button/AddFriend'
+import BlockFriend from './Button/BlockFriend'
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil'
-import {getFetch} from './getFetch'
+import OnlineOffline from './OnlineOffline'
+import ChangePseudo from './Button/ChangePseudo'
+import ChangePicture from './Button/ChangePicture'
+import DoubleAuth from './Button/DoubleAuth'
+import Ladder from './Ladder'
+import MatchHistory from './MatchHistory'
+import FriendList from './FriendList'
+import {getFetch} from './Fetch/getFetch'
+import {getFetchMatch} from './Fetch/getFetchMatch'
+import {getFetchFriends} from './Fetch/getFetchFriends'
 import { useLocation } from "react-router-dom";
 
-/* Pour exporter l'id on include UseParams and we call it with the variable.id */
 export default function Profile () {
 
-    let location = useLocation();
-    // console.log(location);
-    const {userID} : any  = location.state; //Destructuring
+    const location = useLocation();
+    let {userID, originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
+    const [friendList, setFriendList] : any = useState([]);
+    const [matchesList, setMatchesList] : any = useState([]);
+    const [update, setUpdate] = useState(2);
 
-    const [test, setTest] : any = useState(
+    function toggleUpdate() {
+        setTimeout(() => {
+            if (update === 2)
+		        setUpdate(1);
+            if (update === 1)
+		        setUpdate(0);
+            if (update === 0)
+		        setUpdate(1);
+        }, 100);
+	}
+
+    useEffect(() => {
+        if (userID)
         {
-            "id": 1,
-            "username": "fmonbeig",
-            "email": "fmonbeig@student.42.fr",
-            "createdAt": "2022-09-02T13:22:33.662Z",
-            "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-            "currentStatus": 1,
-            "eloRating": 1000,
-                "stats": {
-                "id": 0,
-                "wins": 100,
-                "losses": 2,
-                "user": "string",
-                "userId": 0
-                },
-            "ratingHistory": [],
-            "ownedChannels": [],
-            "channels": [],
-            "friendshipRequested": [],
-            "friendshipAddressed": [],
-            "matches": [],
-            "achievements": []
-          }
-    )
+            let request = "http://127.0.0.1:4200/users/" + userID;
+            const user_json = getFetch({url : request});
+            user_json.then((responseObject)=> {
+                setUser(responseObject);
+            })
+            request = "http://127.0.0.1:4200/users/" + userID + "/friends";
+            const friend_json = getFetchFriends({url : request});
+            friend_json.then((responseObject)=> {
+                setFriendList(responseObject);})
+            request = "http://127.0.0.1:4200/users/" + userID + "/matches";
+                const matches_json = getFetchMatch({url : request});
+                matches_json.then((responseObject)=> {
+                    setMatchesList(responseObject);})
+        }
+        },[userID, update]);
 
-    // useEffect(() => {
-    //     console.log(userID);
-    //     let request = "http://127.0.0.1:4200/users/" + userID;
-    //     console.log(request);
-    //     const json = getFetch({url : request});
-    //     json.then((responseObject)=> {
-    //         setUser(responseObject);
-    // })
-    // },[userID]);
-
-    console.log(test);
-    //Pré remplir les variables pour stats
-    if(test)
+    if(user)
     {
         return (
             <>
             <div className="profilAndLadder" data-testid="tracker">
                 <div className="profil">
                     <div className="picture">
-                        <PhotoProfil/>
+                        <PhotoProfil url={user.profilePicture} width={"10vw"} height={"10vw"}/>
                     </div>
                     <div className="status">
-                        <h1 className="yellowText" style={{fontSize: "2vw", fontWeight: "bold"}}> {test.username}</h1>
+                        <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
                         <br/>
-                        <h1 className="greenText" style={{fontSize: "1.5vw"}}> {test.currentStatus ? 'ONLINE' : 'OFFLINE'} </h1>
+                        <OnlineOffline status={user.currentStatus} size={"1.5vw"}/>
                     </div>
-                    <div className="infoProfil">
-                            {/* We need to create button / Component with click */}
-                            <div className="yellowPinkBoxButtonProfil"
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your pseudo </h1>
-                                </div>
-                                <div className="yellowPinkBoxButtonProfil"
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Change your picture  </h1>
-                                </div>
-                                <div className="yellowPinkBoxButtonProfil"
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                }}>
-                                    <h1 className="blueText" style={{fontSize: "1vw"}}> Double Authentification Factor </h1>
-                                </div>
+                    <div className="changeProfil">
+                        { userID === originalId ?
+                        <>
+                            <ChangePseudo id={userID} up={toggleUpdate}/>
+                            <ChangePicture id={userID} up={toggleUpdate}/>
+                            <DoubleAuth/>
+                        </>
+                        :
+                        <>
+                            <AddFriend id={userID} originalId={originalId}/>
+                            <BlockFriend id={userID} originalId={originalId}/>
+                        </>
+                        }
                     </div>
                     </div>
                     <div className="ladder">
-                        <div className="blueBoxLadder">
-                            <div className="yellowPinkBoxLadder"
-                                style={{
-                                    width: "8vw",
-                                    height: "8vw",
-                                }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> RANK </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> 0 </h1>
-                            </div>
-                            <div className="yellowPinkBoxLadder"
-                                style={{
-                                width: "8vw",
-                                height: "8vw",
-                                }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> WINS </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.wins : '0'} </h1>
-                            </div>
-                            <div className="yellowPinkBoxLadder"
-                                style={{
-                                width: "8vw",
-                                height: "8vw",
-                                }}>
-                                <h1 className="blueText" style={{fontSize: "1.2vw"}}> LOSES </h1>
-                                <h1 className="yellowText" style={{fontSize: "2vw"}}> {test.stats ? test.stats.losses : '0'} </h1>
-                            </div>
-                        </div>
+                            <Ladder stats={user.stats} elo={user.eloRating}/>
                 </div>
             </div>
             <div className='matchFriend'>
                 <div className="match">
-                    <div className="blueBoxMatch"
-                        style={{
-                         width: "100%",
-                         height: "100%",
-                        }}>
-                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Match History </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> LEO VS RAY  </h1>
-                    </div>
+                    <MatchHistory matchesList={matchesList} id={userID}/>
                 </div>
                 <div className="friend">
-                <div className="blueBoxMatch"
-                        style={{
-                         width: "100%",
-                         height: "100%",
-                        }}>
-                        <h1 className="yellowText" style={{fontSize: "4vh"}}> Friend </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                        <h1 className="blueText" style={{fontSize: "2vh"}}> SEB  </h1>
-                    </div>
+                    <FriendList friendList={friendList} id={userID} originalId={originalId} up={toggleUpdate}/>
                 </div>
             </div>
 
@@ -155,256 +104,3 @@ export default function Profile () {
     }
     return(<></>);
 }
-
-// chaque variable avec [] possede une variable lenght qui sera egale a 0 s'il n'y a rien
-// ex : user.friendshipRequested.lenght  ? affiche ca : sinon affiche ca
-// SANS RIEN DEDANS
-// {
-//     "id": 1,
-//     "username": "fmonbeig",
-//     "email": "fmonbeig@student.42.fr",
-//     "createdAt": "2022-09-02T13:22:33.662Z",
-//     "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-//     "currentStatus": 1,
-//     "eloRating": 1000,
-//     "stats": null,
-//     "ratingHistory": [],
-//     "ownedChannels": [],
-//     "channels": [],
-//     "friendshipRequested": [],
-//     "friendshipAddressed": [],
-//     "matches": [],
-//     "achievements": []
-//   }
-
-    // USER
-//{id: 1, username: 'fmonbeig', email: 'fmonbeig@student.42.fr',
-//createdAt: '2022-09-01T09:00:06.542Z',
-//profilePicture: 'https://cdn.intra.42.fr/users/fmonbeig.jpg', …}
-
-// {
-//     "id": 0,
-//     "username": "string",
-//     "email": "string",
-//     "createdAt": "2022-09-01T15:36:48.003Z",
-//     "profilePicture": "string",
-//     "currentStatus": 0,
-//     "currentLadder": 0,
-//     "hasActivated2fa": true,
-//     "credentials": {{
-//     "id": 0,
-//     "username": "string",
-//     "email": "string",
-//     "createdAt": "2022-09-01T15:36:48.003Z",
-//     "profilePicture": "string",
-//     "currentStatus": 0,
-//     "currentLadder": 0,
-//     "hasActivated2fa": true,
-//     "credentials": {
-//       "id": 0,
-//       "email": "string",
-//       "username": "string",
-//       "password": "string",
-//       "user": "string",
-//       "userId": 0,
-//       "twoFactorActivated": true,
-//       "twoFactorSecret": "string"
-//     },
-//     "stats": {
-//       "id": 0,
-//       "wins": 0,
-//       "losses": 0,
-//       "user": "string",
-//       "userId": 0
-//     },
-//     "rankingHistory": [
-//       {
-//         "id": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "position": 0,
-//         "user": "string",
-//         "userId": 0
-//       }
-//     ],
-//     "ownedChannels": [
-//       {
-//         "id": 0,
-//         "name": "string",
-//         "channelMode": 0,
-//         "password": "string",
-//         "owner": "string",
-//         "ownerId": 0,
-//         "users": [
-//           {
-//             "channel": "string",
-//             "channelId": 0,
-//             "user": "string",
-//             "userId": 0,
-//             "mode": 0
-//           }
-//         ]
-//       }
-//     ],
-//     "channels": [
-//       {
-//         "channel": "string",
-//         "channelId": 0,
-//         "user": "string",
-//         "userId": 0,
-//         "mode": 0
-//       }
-//     ],
-//     "friendshipRequested": [
-//       {
-//         "requester": "string",
-//         "requesterId": 0,
-//         "addressee": "string",
-//         "addresseeId": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "status": 0
-//       }
-//     ],
-//     "friendshipAddressed": [
-//       {
-//         "requester": "string",
-//         "requesterId": 0,
-//         "addressee": "string",
-//         "addresseeId": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "status": 0
-//       }
-//     ],
-//     "matches": [
-//       {
-//         "match": {
-//           "id": 0,
-//           "date": "2022-09-01T15:36:48.003Z",
-//           "status": 0,
-//           "players": [
-//             "string"
-//           ]
-//         },
-//         "matchId": 0,
-//         "player": "string",
-//         "playerId": 0,
-//         "playerNum": 0,
-//         "playerScore": 0
-//       }
-//     ],
-//     "achievements": [
-//       {
-//         "achievement": {
-//           "id": 0,
-//           "name": "2022-09-01T15:36:48.004Z",
-//           "usersStats": [
-//             "string"
-//           ]
-//         },
-//         "achievementId": 0,
-//         "user": "string",
-//         "userId": 0,
-//         "date": "2022-09-01T15:36:48.004Z"
-//       }
-//     ]
-//   }",
-//       "userId": 0,
-//       "twoFactorActivated": true,
-//       "twoFactorSecret": "string"
-//     },
-//     "stats": {
-//       "id": 0,
-//       "wins": 0,
-//       "losses": 0,
-//       "user": "string",
-//       "userId": 0
-//     },
-//     "rankingHistory": [
-//       {
-//         "id": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "position": 0,
-//         "user": "string",
-//         "userId": 0
-//       }
-//     ],
-//     "ownedChannels": [
-//       {
-//         "id": 0,
-//         "name": "string",
-//         "channelMode": 0,
-//         "password": "string",
-//         "owner": "string",
-//         "ownerId": 0,
-//         "users": [
-//           {
-//             "channel": "string",
-//             "channelId": 0,
-//             "user": "string",
-//             "userId": 0,
-//             "mode": 0
-//           }
-//         ]
-//       }
-//     ],
-//     "channels": [
-//       {
-//         "channel": "string",
-//         "channelId": 0,
-//         "user": "string",
-//         "userId": 0,
-//         "mode": 0
-//       }
-//     ],
-//     "friendshipRequested": [
-//       {
-//         "requester": "string",
-//         "requesterId": 0,
-//         "addressee": "string",
-//         "addresseeId": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "status": 0
-//       }
-//     ],
-//     "friendshipAddressed": [
-//       {
-//         "requester": "string",
-//         "requesterId": 0,
-//         "addressee": "string",
-//         "addresseeId": 0,
-//         "date": "2022-09-01T15:36:48.003Z",
-//         "status": 0
-//       }
-//     ],
-//     "matches": [
-//       {
-//         "match": {
-//           "id": 0,
-//           "date": "2022-09-01T15:36:48.003Z",
-//           "status": 0,
-//           "players": [
-//             "string"
-//           ]
-//         },
-//         "matchId": 0,
-//         "player": "string",
-//         "playerId": 0,
-//         "playerNum": 0,
-//         "playerScore": 0
-//       }
-//     ],
-//     "achievements": [
-//       {
-//         "achievement": {
-//           "id": 0,
-//           "name": "2022-09-01T15:36:48.004Z",
-//           "usersStats": [
-//             "string"
-//           ]
-//         },
-//         "achievementId": 0,
-//         "user": "string",
-//         "userId": 0,
-//         "date": "2022-09-01T15:36:48.004Z"
-//       }
-//     ]
-//   }

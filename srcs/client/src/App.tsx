@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
+import {getFetchSuccess} from './Pages/Profile/Fetch/getFetchSuccess'
 import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
-import Chat from './Pages/Chat/Chat';
+
 import NavBar from './Components/Tools/NavBar/NavBar';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import MapChoice from './Pages/MapChoice/mapChoice';
@@ -14,10 +15,31 @@ import Matchmaking from './Pages/Matchmaking/matchmaking';
 import Context from './Context/Context';
 import { socket } from './GameSocket';
 import GameLobby from './Pages/Game/GameLobby';
+import Chat from './Pages/Chat/Chat';
+
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [isFromAuth, setIsFromAuth] = useState(false);
+  const [userID, setUserID] : any = useState();
+
+  function update(id : number) {
+    setUserID(id);
+  }
+
+   /*
+   ** Update the UserID when the page is refresh
+   */
+
+  if (!userID)
+  {
+    if (isConnected)
+    {
+      const success_json = getFetchSuccess();
+      success_json.then((responseObject)=> {
+        update(responseObject.user.id);})
+    }
+  }
 
   /*
    ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
@@ -39,7 +61,6 @@ function App() {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
   });
-
   /*
    ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
    ** Routes surround all route
@@ -47,21 +68,21 @@ function App() {
   return (
     <Context.Provider value={contextValue}>
       <BrowserRouter>
-          <NavBar />
+          <NavBar userID={userID}/>
           <Routes>
             <Route path="*" element={<Notfound />} />
-            <Route index element={<Home />} />
+            <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/login" element={<Login />} />
             <Route
               path="/lobby"
               element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
-            <Route path="/chat" element={<Chat socket={socket}/>} />
             <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/home" element={<Home />} />
+            <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/chat" element={<Chat socket={socket}/>} />
+              <Route path="/profile" element={<Profile/>} />
               <Route path="/mapchoice" element={<MapChoice />} />
               <Route path="/matchmaking" element={<Matchmaking />} />
             </Route>

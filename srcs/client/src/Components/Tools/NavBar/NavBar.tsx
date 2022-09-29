@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./NavBar.css"
-import ProfilNavBar from "../Button/ProfilNavBar";
+import PhotoProfil from '../Button/PhotoProfil'
 import "../Text.css"
 import '../Box.css';
 import { Link } from "react-router-dom";
@@ -10,58 +10,9 @@ import { Nav, Navbar} from "react-bootstrap";
 
 
 
-export default function NavBar ()
+export default function NavBar (props : any)
 {
-    const [fromAuth, setFromAuth] = useState(false);
-    const [userID, setUserID] = useState<number>(1);
-    const contextValue = useContext(Context);   
-    /*
-    /*
-    ** Fetching data and allow the user to connect using "useState" to true
-    */
-    const getUser = async () => {
-        await  fetch("http://127.0.0.1:4200/auth/success", {
-            method: "GET",
-            credentials: "include",
-            headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Credentials": "true",
-            }
-        })
-        .then((response) => {
-            if(!response.ok)
-            {
-                console.log("!response");
-                throw new Error('Fail parsing 42auth you probably denied auth42');
-            }
-            if (response.status === 200)
-            {
-                console.log("response 200");
-                return response.json();
-            }
-            else if (response.status === 403)
-            {
-                console.log("response 403");
-                return Promise.reject();
-
-            }
-            throw console.log("Fail parsing 42auth");
-        })
-        .then((responseObject) => {
-            if (responseObject.message)
-            {
-                console.log(responseObject);
-                console.log("Success parsing 42auth");
-              
-                localStorage.setItem("pathIsFree", JSON.stringify(true));
-                contextValue.updateIsConnected(true);
-                return;
-            }
-            throw new Error('Something went wrong');
-        })
-        .catch((err) => console.log(err));
-    };
+    const contextValue = useContext(Context);
 
     /*
     ** Fetching data for logout
@@ -95,29 +46,29 @@ export default function NavBar ()
     /*
     ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
     */
-    
+
 
     if (contextValue.isConnected)
     {
         return (
             <Navbar className="navbar bg-dark pt-5 px-5 " bg="transparent" variant="transparent"  expand="lg" collapseOnSelect data-testid="LeaderboardLink">
-            
+
             <Link to="/" className="aNav" >
                     <span className="span1"></span><span className="span1"></span><span className="span1"></span><span className="span1"></span>
                     <h2 className="blueText px-2 mt-2 " data-testid="HomeLink"> PONG</h2>
                     </Link>
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
-                <Nav className="navbar-nav ms-auto ">   
+                <Nav className="navbar-nav ms-auto ">
                     <Link to="/leaderboard" className="aNav" >
                         <span></span><span></span><span></span><span></span>
                         <h2 className="yellowText mt-2 px-2 ">Leaderboard</h2>
                     </Link>
-                    <Link to="/chat" className="aNav"> 
+                    <Link to="/chat" className="aNav">
                         <span></span><span></span><span></span><span></span>
                         <h2 className="yellowText mt-2 px-2" > Chat </h2>
                     </Link>
-                    <Link to="/profile" className="aNav">
+                    <Link to="/profile" state={{userID:props.userID, originalId: props.userID}} className="aNav">
                         <span></span><span></span><span></span><span></span>
                         <h2 className="yellowText mt-2 px-2"> Profile </h2>
                     </Link>
@@ -127,7 +78,7 @@ export default function NavBar ()
                     </Link>
                 </Nav>
                 </Navbar.Collapse>
-       
+
     </Navbar>
         )
     }
@@ -142,11 +93,11 @@ export default function NavBar ()
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
                 <Nav className="navbar-nav ms-auto ">
-                    <Link to="/leaderboard" className="aNav"> 
+                    <Link to="/leaderboard" className="aNav">
                         <span></span><span></span><span></span><span></span>
-                        <h2 className="yellowText mt-2 px-2" data-testid="LeaderboardLink">Leaderboard</h2> 
+                        <h2 className="yellowText mt-2 px-2" data-testid="LeaderboardLink">Leaderboard</h2>
                     </Link>
-                    <Link to="/login" className="aNav"> 
+                    <Link to="/login" className="aNav">
                         <span></span><span></span><span></span><span></span>
                         <h2 className="yellowText mt-2 px-2" > Login </h2>
                     </Link>
