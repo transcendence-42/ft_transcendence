@@ -489,8 +489,8 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </p>
             </div>
           </div>
-          <div className="row "  style={{height:"15%"}}>
-            <div className="col-12 text-center align-self-end">
+          <div className="row"  style={{height:"15%"}}>
+            <div className="col-12 text-center align-self-center ">
               <input className="rounded-3 input-field-chat w-75 " 
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}

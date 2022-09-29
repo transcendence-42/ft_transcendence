@@ -19,13 +19,13 @@ body
   color: #80ffff;
 }
 .chat-sidebar-left {
-  -ms-flex: 0 0 140px;
-  flex: 0 0 140px;
+  -ms-flex: 0 0 125px;
+  flex: 0 0 125px;
 }
 .chat-sidebar-right {
 
-  -ms-flex: 0 0 140px;
-  flex: 0 0 140px;
+  -ms-flex: 0 0 125px;
+  flex: 0 0 125px;
   margin-left: auto
 }
 
@@ -45,7 +45,7 @@ body
 
 .yellow-titles  {
   font-family: 'Montserrat', sans-serif;
-  font-size: 13px;
+  font-size: 11px;
   overflow: hidden;
   font-weight: 500;
   color: #ffe710;
