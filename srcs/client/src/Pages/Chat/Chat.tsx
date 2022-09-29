@@ -350,15 +350,15 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           setCreateDirectId={setCreateDirectid}
         />
       </PongAdvancedModal>
-      <div className="row  main-row ">
+      
+      <div className="container-fluid h-75 ">
       {/* first div to center chat */}
-        <div className="col-1"></div> 
-
+      <div className="row h-100">
         {/* Div Channel */}
-        <div className=" rounded-4 blue-box-chat " style={{width:"10em"}}>
+        <div className=" rounded-4 blue-box-chat col float-right chat-sidebar-left ms-3 " >
           <div className="channels-div h-50">
             <div className="row mt-2">
-              <div className="col overflow-auto">
+              <div className="col my-sidebar overflow-auto ">
                 <p className="yellow-titles titles-position">CHANNELS</p>
               </div>
               <div className="col">
@@ -438,7 +438,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
         </div>
 
          {/* Div Middle */}
-        <div className="  col-3 col-sm-4 col-md-5 col-lg-8 col-xl-6 rounded-4 blue-box-chat">
+        <div className="  col col-sm col-md col-lg col-xl col-xxl  rounded-4 blue-box-chat  ">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles channel-name-margin">
@@ -508,7 +508,7 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
           </div>
         </div>
          {/* Div Members */}
-        <div className="col-2 rounded-4 blue-box-chat " style={{width:"10em"}}>
+        <div className="  rounded-4 blue-box-chat col  chat-sidebar-right me-3  ">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles center-position titles-position">
@@ -563,9 +563,10 @@ export default function Chat({ socket, ...props }: { socket: Socket }) {
               </table>
             </div>
           </div>
+          </div>
         </div>
           {/* Div full right */}
-          <div className="col-1"></div> 
+          {/* <div className="col-1"></div>  */}
       </div>
     </>
   );
