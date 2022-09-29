@@ -1,6 +1,6 @@
 // React
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 // Components
 import PongModal from '../../Components/Modal/PongModal';
 // Socket
@@ -8,10 +8,12 @@ import { SocketContext } from '../../socket';
 // Styles
 import '../../Styles';
 import GameChallenge from './modals/GameChallenge';
+import MatchMaking from './modals/MatchMaking';
 
 const RootModals = () => {
   const socket = useContext(SocketContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   /** *********************************************************************** */
   /** ENUMS                                                                   */
@@ -35,6 +37,7 @@ const RootModals = () => {
 
   // Modal states (from useState or useContext)
   const [showGameChallenge, setShowGameChallenge] = useState(false);
+  const [showMatchMaking, setShowMatchMaking] = useState(false);
 
   // Modal param states
   const [gameChallengeData, setGameChallengeData] = useState({} as any);
@@ -42,6 +45,8 @@ const RootModals = () => {
   // Modal event handlers
   const handleCloseGameChallenge = () => setShowGameChallenge(false);
   const handleShowGameChallenge = () => setShowGameChallenge(true);
+  const handleCloseMatchMaking = () => setShowMatchMaking(false);
+  const handleShowMatchMaking = () => setShowMatchMaking(true);
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -100,9 +105,18 @@ const RootModals = () => {
     }, 2000);
   }, []);
 
+  const handleOpponentFound = useCallback(() => {
+    handleShowMatchMaking();
+    navigate('/lobby');
+    setTimeout(() => {
+      handleCloseMatchMaking();
+    }, 2000);
+  }, []);
+
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
+
   const handleCancel = () => {
     handleCloseGameChallenge();
     socket.emit('updateChallenge', {
@@ -141,7 +155,13 @@ const RootModals = () => {
   /** *********************************************************************** */
 
   useEffect(() => {
-    // Socket listeners
+  socket.on('opponentFound', handleOpponentFound);
+    return () => {
+      socket.off('opponentFound', handleOpponentFound);
+    }
+  }, [handleOpponentFound]);
+
+  useEffect(() => {
     socket.on('gameChallenge', handleGameChallenge);
     socket.on('gameChallengeReply', handleGameChallengeReply);
     return () => {
@@ -156,6 +176,7 @@ const RootModals = () => {
 
   return (
     <>
+      {/* Challenge */}
       <PongModal
         title={gameChallengeData.title}
         closeHandler={handleCloseGameChallenge}
@@ -168,6 +189,15 @@ const RootModals = () => {
         backdrop="static"
       >
         <GameChallenge message={gameChallengeData.message} />
+      </PongModal>
+
+      {/* Matchmaking */}
+       <PongModal
+        title="Matchmaking"
+        closeHandler={handleCloseMatchMaking}
+        show={showMatchMaking}
+      >
+        <MatchMaking />
       </PongModal>
     </>
   );

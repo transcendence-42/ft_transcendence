@@ -58,6 +58,11 @@ enum ePlayerStatus {
   CHALLENGE,
 }
 
+enum ePlayerMatchMakingStatus {
+  NOT_IN_QUEUE = 0,
+  IN_QUEUE,
+}
+
 const enum eKeys {
   PLAYERSINFOS = 'playersInfos',
 }
@@ -257,6 +262,7 @@ export class GameService {
     await this._savePlayerInfos(userId, {
       id: userId,
       status: ePlayerStatus.ONLINE,
+      matchmaking: 0,
     });
     this._sendPlayersInfo();
   }
@@ -615,12 +621,15 @@ export class GameService {
           .sismember('users', players[i].userId)
           .exec()
       )[1][1];
-      if (isMatchMaking)
+      if (isMatchMaking) {
         await this.redis
           .multi()
           .select(DB.MATCHMAKING)
           .srem('users', players[i].userId)
           .exec();
+        await this._savePlayerInfos(players[i].userId, { matchmaking: 0 });
+        this._sendPlayersInfo();
+      }
     }
     // create a new game
     const newGame: Game = new Game(v4());
@@ -836,13 +845,19 @@ export class GameService {
     // add or remove the player
     const userId: string = client.handshake.query.userId.toString();
     pipeline.select(DB.MATCHMAKING);
-    if (value) pipeline.sadd('users', userId);
+    if (value) {
+      pipeline.sadd('users', userId);
+      // update players info
+      await this._savePlayerInfos(userId, { matchmaking: 1 });
+    }
     if (!value) {
       pipeline.exists('users');
       if ((await pipeline.exec())[1][1]) {
         pipeline.srem('users', userId);
       } else return;
+      await this._savePlayerInfos(userId, { matchmaking: 0 });
     }
+    this._sendPlayersInfo();
     await pipeline.exec();
     // MaaaaatchMakiiiing
     let result: any = await this.redis
@@ -862,6 +877,8 @@ export class GameService {
       const p1 = users[1][1];
       const p2 = users[2][1];
       const playersToMatch = [];
+      await this._savePlayerInfos(p1, { matchmaking: 0 });
+      await this._savePlayerInfos(p2, { matchmaking: 0 });
       playersToMatch.push({ userId: p1, socket: this._getSocket(p1) });
       playersToMatch.push({ userId: p2, socket: this._getSocket(p2) });
       playersToMatch.forEach((p) => {
@@ -871,6 +888,7 @@ export class GameService {
         this.create(playersToMatch);
       }, 2000);
     }
+    this._sendPlayersInfo();
   }
 
   /** *********************************************************************** */

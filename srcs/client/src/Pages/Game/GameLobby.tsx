@@ -47,7 +47,6 @@ const GameLobby = () => {
   enum eMatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
-    IN_GAME,
   }
 
   /** *********************************************************************** */
@@ -56,6 +55,7 @@ const GameLobby = () => {
  
   const navigate = useNavigate();
   const socket = useContext(SocketContext);
+  //const user = useContext(contextValue);
 
   /** *********************************************************************** */
   /** STATES                                                                  */
@@ -137,25 +137,19 @@ const GameLobby = () => {
     [eEvents.RECO_GAME],
   );
 
-  const handleMatchMaking = useCallback(
-    (value: eMatchMaking) => {
-      setMatchMaking(value);
-      socket.emit('matchMaking', { value: value });
-    },
-    [socket],
-  );
+  const handleMatchMaking = useCallback((value: eMatchMaking) => {
+    socket.emit('matchMaking', { value: value });
+  }, [socket]);
 
   const handleOpponentFound = useCallback(() => {
-    console.log('action : ' + game.action + 'id: ' + game.id);
     if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
     }
     handleShowMatchMaking();
     setTimeout(() => {
       handleCloseMatchMaking();
-      setMatchMaking(eMatchMaking.IN_GAME);
     }, 2000);
-  }, [eMatchMaking.IN_GAME, eEvents.VIEW_GAME, game, socket]);
+  }, [eEvents.VIEW_GAME, game, socket]);
 
   const handleInfo = useCallback((info: any) => {
     setMessage({ message: info.message });
@@ -164,12 +158,18 @@ const GameLobby = () => {
     }, 4000);
   }, []);
 
+  const handlePlayersInfo = useCallback((data: any) => {
+    const player = data.players
+      ? data.players.find((p: any) => p.id === '42')
+      : {};
+    if (player) setMatchMaking(player.matchmaking);
+  }, []);
+
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
   
   const handleNewGame = () => {
-    setMatchMaking(eMatchMaking.IN_GAME);
     socket.emit('createGame');
   };
 
@@ -240,6 +240,7 @@ const GameLobby = () => {
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
     socket.on('info', handleInfo);
+    socket.on('playersInfos', handlePlayersInfo);
     // get all games
     socket.emit('findAllGame');
     return () => {
@@ -247,8 +248,8 @@ const GameLobby = () => {
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);
       socket.off('exception', handleInfo);
-
       socket.off('info', handleInfo);
+      socket.off('playersInfos', handlePlayersInfo);
     };
   }, []);
 
