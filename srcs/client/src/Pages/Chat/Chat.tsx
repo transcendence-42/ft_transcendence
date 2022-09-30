@@ -390,7 +390,7 @@ export default function Chat(props: any) {
         handleBtn2={createDirect}
       >
         <FriendList
-          userId={user.id}
+          userId={user?.id}
           friends={friends}
           setCreateDirectId={setCreateDirectid}
         />
