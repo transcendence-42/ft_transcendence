@@ -11,6 +11,7 @@ import {
   BadCredentialsException,
   CredentialsTakenException,
 } from './exceptions';
+import {UserNotFoundException} from 'src/user/exceptions'
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
@@ -227,6 +228,17 @@ export class AuthService {
     if (!isCodeValid) throw new UnauthorizedException('Bad 2FA Code!');
     user.isTwoFactorAuthenticated = true;
     return { message: 'Logged in with Two factor successfully!' };
+  }
+
+  async isTwoFaActivated(id: number): Promise<boolean> {
+    const userDb = await this.userService.findOne(id);
+    if (!userDb) throw new UserNotFoundException(id);
+    const credentials = await this.userService.getUserCredentialsByEmail(
+      userDb.email
+      );
+    if (credentials.twoFactorActivated)
+      return true;
+    return false;
   }
   /********************************** Helpers ********************************/
 

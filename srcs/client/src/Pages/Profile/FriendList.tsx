@@ -61,7 +61,7 @@ export default function FriendList(props : any) {
 		 width: "100%",
 		 height: "100%",
 		}}>
-			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
+			<div className="pinkText" style={{fontSize: "3vw"}}> Friends </div>
 				{<table className="table scroll m-1 align-middle  ">
 					<tbody>
 						{ test_requested &&

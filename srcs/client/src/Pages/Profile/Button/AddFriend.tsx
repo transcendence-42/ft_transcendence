@@ -23,9 +23,3 @@ export default function AddFriend(props : any) {
 		</>
  		);
 }
-
-
-// onClick={()=>(patchFetchPseudo({url: request, name: newPseudo}))}
-// let request = "http://127.0.0.1:4200/users/" + userID;
-// console.log(request);
-// const json = getFetch({url : request});

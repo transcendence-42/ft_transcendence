@@ -169,7 +169,7 @@ export default function MatchHistory(props : any) {
 				width: "100%",
 				height: "100%",
 			}}>
-			<div className="yellowText" style={{fontSize: "3vw"}}> Matches History </div>
+			<div className="pinkText" style={{fontSize: "3vw"}}> Matches History </div>
 			<table className="table  scroll m-1 align-middle  ">
 				<tbody>
 					{test.map((matches: any, index: number) =>(

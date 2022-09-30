@@ -30,6 +30,8 @@ export default function DoubleAuth(props : any) {
 				show={isShowing}
 				closeHandler={toggle}
 				id={props.id}
+				up={props.up}
+				authUp={props.authUp}
 				textBtn1="Cancel"
         		handleBtn1={toggle}
 				textBtn2="Submit"

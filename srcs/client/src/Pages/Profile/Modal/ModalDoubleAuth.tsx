@@ -29,15 +29,15 @@ const ModalDoubleAuth = (props: any) => {
   function submitKey(e : any)
   {
     e.preventDefault();
-		console.log(content);
 		const status = postDoubleAuthActivate({keyGen: content});
     status.then((response) =>{
       return (response.json())
     }).then((response) =>{
-      console.log(response.message);
       if(response.message === "2FA activated!")
       {
         setStatus(1);
+        props.up();
+        props.authUp(true);
         setTimeout(() => {
           props.closeHandler();
         }, 500);

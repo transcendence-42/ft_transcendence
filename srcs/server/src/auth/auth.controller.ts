@@ -12,6 +12,8 @@ import {
   UnauthorizedException,
   UseFilters,
   UseGuards,
+  Param,
+  ParseIntPipe
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
@@ -201,7 +203,18 @@ export class AuthController {
     console.log('in validate auth')
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
-
+  @ApiOperation({
+    summary: 'Checks if the user has enabled 2fa',
+  })
+  @ApiOkResponse({
+    description: 'true',
+    type: AuthResponse,
+  })
+  @UseGuards(TwoFactorDto)
+  @Get('2fa/state/:id')
+  isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {
+    return this.authService.isTwoFaActivated(id);
+     }
   /**************************** Helpers for Dev *******************************/
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
 

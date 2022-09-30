@@ -34,7 +34,6 @@ const ModalUsername =
      e.preventDefault();
      const status = patchFetchUsername({url: url, name: content});
      status.then((response) =>{
-      	console.log(response);
       	return (response.json())
       }).then((response) =>{
         if (response.message)

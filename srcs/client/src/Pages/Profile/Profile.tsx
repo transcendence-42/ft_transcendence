@@ -23,6 +23,7 @@ export default function Profile () {
     const location = useLocation();
     let {userID, originalId} : any  = location.state;
     const [user, setUser] : any = useState(null);
+    const [doubleFactor, setDoubleFactor] : any = useState(false);
     const [friendList, setFriendList] : any = useState([]);
     const [matchesList, setMatchesList] : any = useState([]);
     const [update, setUpdate] = useState(2);
@@ -54,6 +55,14 @@ export default function Profile () {
                 const matches_json = getFetchMatch({url : request});
                 matches_json.then((responseObject)=> {
                     setMatchesList(responseObject);})
+            request = "http://127.0.0.1:4200/auth/2fa/state/" + userID;
+                const double_json = getFetch({url : request});
+                double_json.then((responseObject)=> {
+                if(responseObject)
+                {
+                    setDoubleFactor(true);
+                }
+        ;})
         }
         },[userID, update]);
 
@@ -67,7 +76,7 @@ export default function Profile () {
                         <PhotoProfil url={user.profilePicture} width={"10vw"} height={"10vw"}/>
                     </div>
                     <div className="status">
-                        <div className="yellowTextProfil" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
+                        <div className="pinkText" style={{fontSize: "2vw", fontWeight: "bold"}}> {user.username}</div>
                         <br/>
                         <OnlineOffline status={user.currentStatus} size={"1.5vw"}/>
                     </div>
@@ -76,7 +85,11 @@ export default function Profile () {
                         <>
                             <ChangeUsername id={userID} up={toggleUpdate}/>
                             <ChangePicture id={userID} up={toggleUpdate}/>
-                            <DoubleAuth id={userID}/>
+                            { doubleFactor ?
+                                <></> // Mettre Double auth activated
+                                :
+                                <DoubleAuth id={userID} up={toggleUpdate} authUp={setDoubleFactor}/>
+                            }
                         </>
                         :
                         <>
