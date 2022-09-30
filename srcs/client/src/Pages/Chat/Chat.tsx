@@ -433,8 +433,8 @@ export default function Chat(props: any) {
                 </ul>
               </div>
             </div>
-            <div className="row h-75">
-              <div className="col overflow-auto scroll-bar-channels ">
+            <div className="row">
+              <div className="col-12 overflow-auto scroll-bar-channels  ">
                 <table>
                   <tbody>
                     {user?.channels?.map((usrOnChan: UserOnChannel) => (
@@ -508,14 +508,14 @@ export default function Chat(props: any) {
                 currentChannel: {currentChannel.name}
               </p>
             </div>
-            <div className="col">
-            <button className="rounded-4 btn btn-chat btn-pink">
+        
+            <div className="col flex-end text-pink text-end " style={{fontSize:"12px"}}>
                             leave
-                          </button>
             </div>
+         
           </div>
           <div className="row h-75 pt-3">
-            <div className="col h-100 overflow-auto scroll-bar-messages ">
+            <div className="col h-100  scroll-bar-messages ">
               <div className="message-position pb-3 mb-4">
                 <>
                   {console.log(
@@ -536,13 +536,13 @@ export default function Chat(props: any) {
                         <div className="messageDate text-center text-white">
                           {new Date(message.sentDate).toLocaleString()}
                         </div>
-                        <div className="row">
-                          <div className="messageFromUser col-3">
+                        <div className="row" >
+                          <div className="messageFromUser  col-3" >
                           {allUsers[message.fromUserId].username || "Pong Bot"}:
                         </div>
-                        <div className="col-1"></div>
-                        <div className="messageContent col text-white pb-5">
-                          {message.content}
+                        <div className="col-1" ></div>
+                        <div style={{wordWrap:"break-word"}} className="messageContent col text-white pb-5">
+                          {message.content} 
                         </div>
                       </div>
                       </div>
@@ -557,7 +557,7 @@ export default function Chat(props: any) {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
                 type="text"
-                maxLength={1}
+                maxLength={50}
                 placeholder="Send a message..."
               ></input>
               <button type="button" onClick={handleSendMessage}>
