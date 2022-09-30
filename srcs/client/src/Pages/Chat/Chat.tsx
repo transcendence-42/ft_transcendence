@@ -52,7 +52,7 @@ export default function Chat(props: any) {
   const [currentChannel, setCurrentChannel] = useState(
     defaultChannel as Channel
   );
-  const [isUserFetched, setIsUserFetched] = useState(false);
+  const [isUserFetched, setIsUserFetched] = useState<boolean>(false);
   const [message, setMessage] = useState("");
   const [friends, setFriends] = useState([]);
   const [createDirectId, setCreateDirectid] = useState("");
@@ -261,7 +261,7 @@ export default function Chat(props: any) {
         setAllUsers(userHashTable);
         console.log("Trying to connect to server");
       }
-      socket.connect();
+      socket.emit(eEvent.SetId);
       console.groupEnd();
     })();
     console.log(
@@ -274,6 +274,10 @@ export default function Chat(props: any) {
     console.group("Use Effect #2 Events");
     console.log("Second useEffect");
     socket.on("connect", () => {
+      console.log("Connected to server successfully");
+    });
+
+    socket.on(eEvent.SetId, () => {
       const channelIds: string[] = [];
       console.log(`This is user Id ${user.id}`);
       if (user.channels) {
@@ -286,7 +290,6 @@ export default function Chat(props: any) {
         console.log(`This is channel Ids Im pushing ${channelIds}`);
         socket.emit(eEvent.InitConnection, { channelIds, userId: user.id });
       }
-      console.log("Connected to server successfully");
     });
 
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {
@@ -297,8 +300,12 @@ export default function Chat(props: any) {
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
       console.log(`Updating one message ${JSON.stringify(message)}`);
       const newAllMessages = allMessages;
+      if (!newAllMessages[message.toChannelOrUserId]) {
+        newAllMessages[message.toChannelOrUserId] = [];
+      }
+      console.log(newAllMessages[message.toChannelOrUserId]);
       newAllMessages[message.toChannelOrUserId].push(message);
-      setAllMessages(newAllMessages);
+      setAllMessages((prevAllMessages) => ({ ...newAllMessages }));
     });
 
     socket.on(eEvent.UpdateOneUser, (userId: number) => {
@@ -327,6 +334,7 @@ export default function Chat(props: any) {
       socket.off(eEvent.UpdateOneMessage);
       socket.off(eEvent.UpdateOneUser);
       socket.off(eEvent.InitConnection);
+      socket.off(eEvent.SetId);
     };
   }, [isUserFetched]);
 
@@ -527,7 +535,7 @@ export default function Chat(props: any) {
                 className="rounded-3 input-field-chat"
                 placeholder="Send a message..."
               ></input>
-              <button type="submit" onClick={handleSendMessage}>
+              <button type="button" onClick={handleSendMessage}>
                 Send
               </button>
             </div>
