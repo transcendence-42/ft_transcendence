@@ -77,7 +77,7 @@ export default function Chat(props: any) {
 
   const createDirect = async (e: any, friendId: number, userId: number) => {
     const channelName = friendId.toString() + "_" + userId.toString();
-    const channelId = await handleCreateChannelForm(
+    const newChannel = await handleCreateChannelForm(
       e,
       channelName,
       eChannelType.DIRECT,
@@ -85,8 +85,8 @@ export default function Chat(props: any) {
       socket,
       updateOwnChannels
     );
-    if (channelId) {
-      handleAddToChannel(friendId, channelId);
+    if (newChannel) {
+      handleAddToChannel(friendId, newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
@@ -103,18 +103,22 @@ export default function Chat(props: any) {
     ownerId: number,
     password?: string
   ) => {
-    const channelId = handleCreateChannelForm(
-      e,
-      name,
-      type,
-      ownerId,
-      socket,
-      updateOwnChannels,
-      password
-    );
-    if (channelId) {
-      handleCloseCreateChannel();
-    }
+    (async () => {
+      const channel = await handleCreateChannelForm(
+        e,
+        name,
+        type,
+        ownerId,
+        socket,
+        updateOwnChannels,
+        password
+      );
+      console.log(`heres channel created`, channel);
+      if (channel) {
+        handleCloseCreateChannel();
+        switchChannel(channel.id);
+      }
+    })();
   };
 
   const handleAddToChannel = async (userId: number, channelId: number) => {
@@ -148,8 +152,16 @@ export default function Chat(props: any) {
   const switchChannel = (channelId: number) => {
     const channel = allChannels.find((chan: Channel) => chan.id === channelId);
     console.log(`This is current channel id ${channel?.id}`);
-    setCurrentChannel(channel!);
-    sessionStorage.setItem("currentChannel", JSON.stringify(channel));
+    if (channel) {
+      setCurrentChannel(channel);
+      sessionStorage.setItem("currentChannel", JSON.stringify(channel));
+    }
+  };
+
+  const updateAllChannels = (newChannel: Channel) => {
+    const newAllChannels = allChannels;
+    newAllChannels.push(newChannel);
+    setAllChannels(newAllChannels);
   };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
@@ -157,7 +169,7 @@ export default function Chat(props: any) {
     if (user["channels"]) {
       updateAllChannels = user.channels;
     }
-    updateAllChannels?.push(userOnChannel);
+    updateAllChannels.push(userOnChannel);
     setUser((prevUser: User) => ({
       ...prevUser,
       channels: updateAllChannels
@@ -261,7 +273,8 @@ export default function Chat(props: any) {
         setAllUsers(userHashTable);
         console.log("Trying to connect to server");
       }
-      socket.emit(eEvent.SetId);
+      // socket.emit(eEvent.SetId);
+      socket.connect();
       console.groupEnd();
     })();
     console.log(
@@ -274,10 +287,6 @@ export default function Chat(props: any) {
     console.group("Use Effect #2 Events");
     console.log("Second useEffect");
     socket.on("connect", () => {
-      console.log("Connected to server successfully");
-    });
-
-    socket.on(eEvent.SetId, () => {
       const channelIds: string[] = [];
       console.log(`This is user Id ${user.id}`);
       if (user.channels) {
@@ -290,6 +299,7 @@ export default function Chat(props: any) {
         console.log(`This is channel Ids Im pushing ${channelIds}`);
         socket.emit(eEvent.InitConnection, { channelIds, userId: user.id });
       }
+      console.log("Connected to server successfully");
     });
 
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {
@@ -319,12 +329,11 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
-      const getNewChannel = async () => {
+      (async () => {
         const url = "http://127.0.0.1:4200/channel/" + channelId;
         const channel = await fetchUrl(url);
         addChannel(channel);
-      };
-      getNewChannel();
+      })();
     });
 
     console.groupEnd();

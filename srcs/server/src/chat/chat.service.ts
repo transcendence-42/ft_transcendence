@@ -142,6 +142,11 @@ export class ChatService {
     return messages;
   }
 
+  async createChannel(client: Socket, channelId) {
+    this.addToRoom(client, channelId);
+    client.emit(eEvent.UpdateOneChannel, channelId);
+  }
+
   async addToRoom(client: Socket, channelId: number) {
     console.log('adding client to room', channelId);
     client.join(channelId.toString());
@@ -223,7 +228,7 @@ export class ChatService {
   parseIdCookie(cookies) {
     if (cookies) {
       const cookiesObj = Cookie.parse(cookies);
-      if (cookiesObj['id']) return cookiesObj['id'];
+      if (cookiesObj['auth_session']) return cookiesObj['auth_session'];
     }
     return null;
   }

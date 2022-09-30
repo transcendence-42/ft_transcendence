@@ -86,11 +86,6 @@ export class ChatGateway
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
 
-  @SubscribeMessage(eEvent.SetId)
-  handleSetId(client: Socket) {
-    client.emit(eEvent.SetId);
-  }
-
   @SubscribeMessage(eEvent.InitConnection)
   initConnection(
     client: Socket,
@@ -105,7 +100,7 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.CreateChannel)
   handleCreateChannel(client: Socket, channelId: number) {
-    return this.chatService.addToRoom(client, channelId);
+    return this.chatService.createChannel(client, channelId);
   }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )
