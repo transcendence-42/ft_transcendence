@@ -4,11 +4,9 @@ COPY ./conf/dev-mock-data.sql ./
 
 COPY ./scripts/docker-entrypoint.dev.sh ./
 
-ENV POSTGRES_USER=transcendence
-ENV POSTGRES_PASSWORD=5euApbMoLVtNgEcKs44e
-ENV POSTGRES_DB=transcendence_db
-
 RUN apk update && apk upgrade && apk add --update --no-cache postgresql
+
+ARG POSTGRES_USER=${POSTGRES_USER}
 
 RUN adduser -D ${POSTGRES_USER}
 
@@ -18,7 +16,5 @@ RUN mkdir /run/postgresql \
 EXPOSE 5432
 
 USER postgres
-
-# ENTRYPOINT ["./docker-entrypoint.dev.sh"]
 
 CMD ["sh"]

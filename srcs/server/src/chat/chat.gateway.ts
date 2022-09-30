@@ -13,7 +13,6 @@ import { ChatUser, Channel } from './entities';
 import { eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { ChannelType } from '@prisma/client';
-import { channel } from 'diagnostics_channel';
 
 enum REDIS_DB {
   USERS_DB = 1,
@@ -41,9 +40,10 @@ export class ChatGateway
     this.logger.log(`Module chat is up`);
   }
 
-  afterInit(server: any) {
+  async afterInit(server: any) {
     this.chatService.initBot();
     this.chatService.server = server;
+    this.chatService.initRedis();
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
@@ -53,8 +53,8 @@ export class ChatGateway
     this.logger.debug(
       `User with id ${userId} and socket id ${client.id} is trying to reconnect`,
     );
-    const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
-    client.emit(eEvent.UpdateMessages, allMessages);
+    // const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
+    // client.emit(eEvent.UpdateMessages, allMessages);
   }
 
   handleDisconnect(client: Socket) {
@@ -63,11 +63,12 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.SendMessage)
   handleMessage(client: Socket, message: MessageDto) {
-    this.logger.debug(
+    this.logger.log(
       `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
         client.id
       }`,
     );
+    console.log('messages recieved');
     return this.chatService.handleMessage(client, message);
   }
 
@@ -84,4 +85,40 @@ export class ChatGateway
     this.logger.debug(`gateway ${channel.id} and type ${channel.type}`);
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
+
+  @SubscribeMessage(eEvent.SetId)
+  handleSetId(client: Socket) {
+    client.emit(eEvent.SetId);
+  }
+
+  @SubscribeMessage(eEvent.InitConnection)
+  initConnection(
+    client: Socket,
+    { channelIds, userId }: { channelIds: string[]; userId: number },
+  ) {
+    this.logger.debug(
+      `Initing connection for user ${userId} and socket.id ${client.id}`,
+    );
+    this.logger.debug(
+      `Sending channelIds: ${JSON.stringify(
+        channelIds,
+        null,
+        4,
+      )} and user id ${userId}`,
+    );
+    this.chatService.initConnection(client, channelIds, userId);
+  }
+
+  @SubscribeMessage(eEvent.CreateChannel)
+  handleCreateChannel(client: Socket, channelId: number) {
+    return this.chatService.addToRoom(client, channelId);
+  }
+  //on login: create room with (user_userId) if doesnt exist
+  // json.set(rooms, '.rooms[roomId', )
+  //on create channel: create room with (room_channelId)
+
+  // on connect the user sends their channel information (all Ids)
+  // the server then adds the socket to the rooms.
+  // (for const channelId in channelIds)
+  // socket.join(channelId)
 }

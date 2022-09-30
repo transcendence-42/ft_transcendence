@@ -1,11 +1,15 @@
-export async function fetchUrl(path: string, method: string, body?: any): Promise<any> {
+export async function fetchUrl(
+  path: string,
+  method: string = "GET",
+  body?: any
+): Promise<any> {
   const response = await fetch(path, {
     method,
-    credentials: 'include',
+    credentials: "include",
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Credentials': 'true'
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Credentials": "true"
     },
     body: JSON.stringify(body)
   })
@@ -13,11 +17,12 @@ export async function fetchUrl(path: string, method: string, body?: any): Promis
       return response.json();
     })
     .then((respObj) => {
-      console.log(`Object from fetch ${method} ${path}: ${JSON.stringify(respObj, null, 4)}`);
       return respObj;
     })
     .catch((e) =>
-      console.log(`Error while fetching ${path}. Error: ${JSON.stringify(e, null, 4)}`)
+      console.log(
+        `Error while fetching ${path}. Error: ${JSON.stringify(e, null, 4)}`
+      )
     );
   return response;
 }

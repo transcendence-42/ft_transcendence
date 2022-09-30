@@ -28,7 +28,7 @@ export class GameGateway
     //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
     console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT} ...`);
-    console.log = function () {};
+    // console.log = function () {};
   }
 
   /** Handle new clients connection to the game */

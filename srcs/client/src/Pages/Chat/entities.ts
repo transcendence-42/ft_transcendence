@@ -1,4 +1,4 @@
-import { eChannelType, eUserRole } from './constants';
+import { eChannelType, eUserRole } from "./constants";
 
 export interface Hashtable<T> {
   [key: string]: T;
@@ -77,4 +77,76 @@ export interface CreateChannelDto {
   type: eChannelType;
   ownerId: number;
   password?: string;
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  createdAt: Date;
+  profilePicture: string | null;
+  currentStatus: number;
+  eloRating: number;
+  credentials?: Credentials | null;
+  stats?: Stats | null;
+  ratingHistory?: Rating[];
+  channels?: UserOnChannel[];
+  friendshipRequested?: Friendship[];
+  friendshipAddressed?: Friendship[];
+  matches?: PlayerOnMatch[];
+  achievements?: UserAchievement[];
+}
+export interface PlayerOnMatch {
+  match?: Match;
+  matchId: number;
+  player?: User;
+  playerId: number;
+  side: number;
+  score: number;
+  status?: number;
+}
+
+export interface Match {
+  id: number;
+  date: Date;
+  players?: PlayerOnMatch[];
+}
+
+export interface UserAchievement {
+  achievement?: Achievement;
+  achievementId: number;
+  user?: User;
+  userId: number;
+  date: Date;
+}
+export interface Achievement {
+  id: number;
+  name: Date;
+  usersStats?: UserAchievement[];
+}
+export interface Rating {
+  id: number;
+  date: Date;
+  rating: number;
+  user?: User;
+  userId: number;
+}
+
+export interface Credentials {
+  id: number;
+  email: string;
+  username: string;
+  password: string | null;
+  user?: User;
+  userId: number;
+  twoFactorActivated: boolean;
+  twoFactorSecret: string | null;
+}
+
+export interface Stats {
+  id: number;
+  wins: number;
+  losses: number;
+  user?: User;
+  userId: number;
 }
