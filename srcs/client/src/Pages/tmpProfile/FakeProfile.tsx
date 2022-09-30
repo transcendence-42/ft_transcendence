@@ -1,5 +1,5 @@
 import { FC, useCallback, useContext, useEffect, useState } from 'react';
-import { SocketContext } from '../../socket';
+import { SocketContext } from '../Game/socket/socket';
 import { useLocation } from 'react-router-dom';
 import '../../Styles';
 import { Link } from 'react-router-dom';

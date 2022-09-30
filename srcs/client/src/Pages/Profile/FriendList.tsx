@@ -115,7 +115,7 @@ export default function FriendList(props : any) {
 										height={"4vw"}/>
 								</td>
 								<td> {friends.username} </td>
-								<td> <OnlineOffline
+								<td> <OnlineOffline                           // Change here
 										status={friends.currentStatus}
 										size={"2vw"}/>
 								</td>

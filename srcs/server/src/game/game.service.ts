@@ -8,6 +8,7 @@ import {
   CannotPauseGameException,
   PlayerNotFoundException,
   gameIsPausedException,
+  gameRegistrationException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
@@ -402,6 +403,7 @@ export class GameService {
     // Update players info
     await this._savePlayerInfos(player.userId, {
       status: ePlayerStatus.WAITING,
+      matchmaking: ePlayerMatchMakingStatus.IN_GAME,
       game: game.id,
     });
     this._sendPlayersInfo();
@@ -538,7 +540,7 @@ export class GameService {
     try {
       return await this.matchService.create(createMatchDto);
     } catch (e) {
-      console.debug(e);
+      throw new gameRegistrationException();
     }
   }
 

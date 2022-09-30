@@ -14,7 +14,6 @@ import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import FakeProfile from './Pages/tmpProfile/FakeProfile';
 import RootModals from './Pages/RootModals/RootModals';
-import GameSocketProvider from './socket';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -39,7 +38,8 @@ function App() {
   }
 
   /*
-   ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
+   ** Context is init here to spread it on all routes. Is connected to be sure 
+   ** that the user is connected
    ** isFromAuth is to be sure that the user has been through the 42 Auth
    */
   const contextValue = {
@@ -50,7 +50,8 @@ function App() {
   };
 
   /*
-   ** Check if the user is still connected, it is working here from root for all routes
+   ** Check if the user is still connected, it is working here from root for 
+   ** all routes
    */
   useEffect(() => {
     var data = localStorage.getItem('pathIsFree');
@@ -59,12 +60,12 @@ function App() {
     } else contextValue.updateIsConnected(false);
   });
   /*
-   ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
+   ** Context.Provider surround all routes and spread the contextValue, 
+   ** BrowserRouter allows us to use routes.
    ** Routes surround all route
    */
   return (
     <Context.Provider value={contextValue}>
-      <GameSocketProvider>
         <BrowserRouter>
           <NavBar userID={userID} />
           <RootModals />
@@ -72,18 +73,17 @@ function App() {
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home updateID={update} userID={userID} />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/prof" element={<FakeProfile />} />
-            <Route path="/lobby" element={<GameLobby />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route index element={<Home updateID={update} userId={userID} />} />
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
+              <Route path="/prof" element={<FakeProfile />} />
+              <Route path="/lobby" element={<GameLobby />} />
               <Route path="/chat" element={<Chat userID={userID} />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
           </Routes>
         </BrowserRouter>
-      </GameSocketProvider>
     </Context.Provider>
   );
 }

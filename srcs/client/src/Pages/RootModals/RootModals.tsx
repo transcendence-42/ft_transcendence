@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 // Components
 import PongModal from '../../Components/Modal/PongModal';
 // Socket
-import { SocketContext } from '../../socket';
+import { SocketContext } from '../Game/socket/socket';
 // Styles
 import '../../Styles';
 import GameChallenge from './modals/GameChallenge';

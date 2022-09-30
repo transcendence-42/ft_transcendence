@@ -1,7 +1,7 @@
 // React
 import { useCallback, useContext, useEffect, useState } from 'react';
 // Socket
-import { SocketContext } from '../../socket';
+import { SocketContext } from './socket/socket';
 // Game
 import Game from './Game';
 import GameList from './GameList';
@@ -162,11 +162,9 @@ const GameLobby = () => {
   }, []);
 
   const handlePlayersInfos = useCallback((data: any) => {
-    console.log(data.players);
     const player = data.players
       ? data.players.find((p: any) => p.id === userId.toString())
       : {};
-    console.log(player);
     if (player) setMatchMaking(player.matchmaking);
   }, []);
 
