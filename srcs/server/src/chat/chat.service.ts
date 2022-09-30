@@ -49,6 +49,7 @@ export class ChatService {
     console.log('emiting message to channel id', channelId);
     await this.redis.lPush(channelId, JSON.stringify(msg));
     this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
+    // client.emit(eEvent.UpdateOneMessage, msg);
   }
 
   async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
@@ -132,11 +133,11 @@ export class ChatService {
         parsedMessage.push(JSON.parse(msg[message]));
       }
       messages[id] = parsedMessage;
-      console.log(
-        `This is channel Id `,
-        id,
-        JSON.stringify(messages[id], null, 4),
-      );
+      // console.log(
+      //   `This is channel Id `,
+      //   id,
+      //   JSON.stringify(messages[id], null, 4),
+      // );
     }
     return messages;
   }

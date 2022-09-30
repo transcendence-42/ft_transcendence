@@ -99,13 +99,7 @@ export class ChatGateway
     this.logger.debug(
       `Initing connection for user ${userId} and socket.id ${client.id}`,
     );
-    this.logger.debug(
-      `Sending channelIds: ${JSON.stringify(
-        channelIds,
-        null,
-        4,
-      )} and user id ${userId}`,
-    );
+    this.logger.debug(`Sending channelIds and user id ${userId}`);
     this.chatService.initConnection(client, channelIds, userId);
   }
 
