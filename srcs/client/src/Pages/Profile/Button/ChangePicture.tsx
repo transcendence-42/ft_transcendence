@@ -14,14 +14,14 @@ export default function ChangePicture(props : any) {
 	}
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-blue text-blue mt-1"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "1vw"}}>
 					Change Picture
 				</div>
 			</button>

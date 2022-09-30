@@ -1,5 +1,7 @@
 // React
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 // Socket
 import { SocketContext } from './socket/socket';
 // Game
@@ -7,25 +9,25 @@ import Game from './Game';
 import GameList from './GameList';
 import PongModal from '../../Components/Modal/PongModal';
 import { mapNeon } from './conf/maps';
+// Modals
+import Matchmaking from './modals/MatchMaking';
+import MapSelect from './modals/MapSelect';
+import GoBack from './modals/GoBack';
 // Styles
 import './Game.css';
 import '../../Styles';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
-import Matchmaking from './modals/MatchMaking';
-import MapSelect from './modals/MapSelect';
-import GoBack from './modals/GoBack';
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
 
-const GameLobby = () => {
+const GameLobby: FC = () => {
   /** 
-   * @state origin.name:  Name of the previous page
-   *        origin.loc:   Location of the previous page to go back
-   *        origin.state: State of the origin to restore it when go back
-   *        gameId?:      Id of the game on which apply the action. Can be ''.
-   *        action?:      0: Do nothing | 1: Join | 2: Spectacte
+   * @locationState origin.name:  Name of the previous page
+   *                origin.loc:   Location of the previous page to go back
+   *                origin.state: State of the origin to restore it when go back
+   *                gameId?:      Id of the game on which apply the action. Can
+   *                              be '' if not needed.
+   *                action?:      0: Do nothing | 1: Join | 2: Spectacte
    * 
-   * @props userId:       id of the current user
+   * @props         userId:       id of the current user
    */
 
   /** *********************************************************************** */
@@ -58,7 +60,6 @@ const GameLobby = () => {
  
   const navigate = useNavigate();
   const [socket, userId] = useContext(SocketContext);
-  console.log(userId);
 
   /** *********************************************************************** */
   /** STATES                                                                  */

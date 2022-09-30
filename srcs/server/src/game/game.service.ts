@@ -15,6 +15,7 @@ import { CreateMatchDto } from 'src/match/dto/create-match.dto';
 import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
+import { UserService } from 'src/user/user.service';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -105,7 +106,7 @@ const Params = Object.freeze({
 });
 
 const enum DB {
-  GAMES = 0,
+  GAMES = 10,
   PLAYERS,
   VIEWERS,
   MATCHMAKING,
@@ -124,6 +125,7 @@ export class GameService {
   // Constructor
   constructor(
     private readonly matchService: MatchService,
+    private readonly userService: UserService,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
     this.clients = [];
@@ -305,10 +307,8 @@ export class GameService {
 
   /** get socket from id */
   private _getSocket(id: string): Socket {
-    console.log(id);
     const client = this.clients.find((c) => c.userId === id);
     if (client) {
-      console.log(client.socket);
       return client.socket;
     }
     return null;
@@ -318,8 +318,20 @@ export class GameService {
   async clientConnection(client: Socket) {
     // get query information
     const userId: string = client.handshake.query.userId.toString();
+    const userPic: string = client.handshake.query.pic.toString();
     const userName: string = client.handshake.query.name.toString();
     console.log(`user number : ${userId} (${client.id}) connected !`);
+    // Create user in database *************** TO DELETE AFTER TESTS
+    try {
+      await this.userService.findOne(+userId);
+    } catch (e) {
+      await this.userService.create({
+        id: +userId,
+        username: userName,
+        email: `${userName}@student.42.fr`,
+        profilePicture: userPic,
+      });
+    }
     // add client to the server list
     await this._addOrUpdateClient(client);
     // if the user id is in a game, reconnect the client to the game
@@ -474,7 +486,14 @@ export class GameService {
       await this._savePlayerInfos(players[i].userId, {
         status: ePlayerStatus.ONLINE,
         game: '',
+        updated: 1,
       });
+      // remove the updated info after 2 seconds to avoid too much updates
+      setTimeout(async () => {
+        await this._savePlayerInfos(players[i].userId, {
+          updated: 0,
+        });
+      }, 2000);
     }
     // remove viewers
     const viewers: Client[] = game.viewers;

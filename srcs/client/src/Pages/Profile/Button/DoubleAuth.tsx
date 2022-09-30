@@ -4,8 +4,7 @@ import "../../../Components/Tools/Box.css"
 import ModalDoubleAuth from "../Modal/ModalDoubleAuth"
 import { useState } from "react";
 
-
-export default function DoubleAuth(props : any) {
+const DoubleAuth = (props : any) => {
 
 	const [isShowing, setIsShowing] = useState(false);
 
@@ -14,14 +13,14 @@ export default function DoubleAuth(props : any) {
 	}
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-blue text-blue mt-1"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "1vw"}}>
 					Double Authentication
 				</div>
 			</button>
@@ -36,4 +35,4 @@ export default function DoubleAuth(props : any) {
  		);
 }
 
-
+export default DoubleAuth;

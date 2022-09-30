@@ -5,7 +5,7 @@ import "../profile.css"
 import ModalChangePseudo from "../Modal/ModalChangePseudo"
 import { useState } from "react";
 
-export default function ChangePseudo(props : any) {
+const ChangePseudo = (props : any) => {
 
 	const [isShowing, setIsShowing] = useState(false);
 
@@ -15,14 +15,14 @@ export default function ChangePseudo(props : any) {
 
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-blue text-blue"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div className="blueText" style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "1vw"}}>
 					Change Username
 				</div>
 			</button>
@@ -34,3 +34,5 @@ export default function ChangePseudo(props : any) {
 		</>
  		);
 }
+
+export default ChangePseudo;

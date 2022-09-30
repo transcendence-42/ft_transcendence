@@ -80,7 +80,7 @@ function App() {
               <Route path="/prof" element={<FakeProfile />} />
               <Route path="/lobby" element={<GameLobby />} />
               <Route path="/chat" element={<Chat userID={userID} />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:id" element={<Profile />} />
             </Route>
           </Routes>
         </BrowserRouter>

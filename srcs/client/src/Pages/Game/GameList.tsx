@@ -19,8 +19,8 @@ const GameList = (props: any) => {
                   <>
                     <td className="align-middle text-end">
                       <Link
-                        to="/prof"
-                        state={{ id: game.players[0].userId }}
+                        to={`/profile/${game.players[0].userId}`}
+                        state={{ userId: game.players[0].userId }}
                         className="text-pink"
                       >
                         {game.players[0].name}
@@ -29,7 +29,7 @@ const GameList = (props: any) => {
                     <td className="align-middle">
                       <img
                         src={game.players[0].pic || defaultPic}
-                        width={50}
+                        width={40}
                         height={40}
                         className="rounded-circle"
                         alt="p1"
@@ -47,7 +47,7 @@ const GameList = (props: any) => {
                 <td className="align-middle">
                   <img
                     src={(game.players[1] && game.players[1].pic) || defaultPic}
-                    width={50}
+                    width={40}
                     height={40}
                     className="rounded-circle"
                     alt="p2"
@@ -68,8 +68,8 @@ const GameList = (props: any) => {
                     </button>
                   ) : (
                     <Link
-                      to="/prof"
-                      state={{ id: game.players[1].userId }}
+                      to={`/profile/${game.players[1].userId}`}
+                      state={{ userId: game.players[1].userId }}
                       className="text-pink"
                     >
                       {game.players[1].name}

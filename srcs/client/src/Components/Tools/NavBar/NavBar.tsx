@@ -6,9 +6,11 @@ import { Link } from 'react-router-dom';
 import Context from '../../../Context/Context';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Nav, Navbar } from 'react-bootstrap';
+import { SocketContext } from '../../../Pages/Game/socket/socket';
 
 export default function NavBar(props: any) {
   const contextValue = useContext(Context);
+  const [socket, originalId] = useContext(SocketContext);
 
   /*
    ** Fetching data for logout
@@ -80,8 +82,8 @@ export default function NavBar(props: any) {
               <h2 className="yellowText mt-2 px-2"> Chat </h2>
             </Link>
             <Link
-              to="/profile"
-              state={{ userID: props.userID, originalId: props.userID }}
+              to={`/profile/${originalId}`}
+              state={{ userId: originalId, originalId: originalId }}
               className="aNav"
             >
               <span></span>

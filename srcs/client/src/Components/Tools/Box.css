@@ -109,14 +109,11 @@
 	padding: 2px;
 }
 
-.profilBox
-{
+.profilBox {
 	box-sizing: border-box;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
-	border: 3px solid #DCCA2A;
 	box-shadow: 0px 0px 7.49518px #FF6ADE,
 				0px 0px 14.9904px #EA3DEE,
 				0px 0px 25.6977px #CA18A3;
@@ -128,7 +125,6 @@
     flex-shrink: 0;
     min-width: 100%;
     min-height: 100%;
-    border-radius: 50%;
     display: flex;
     justify-content: center;
     width: 70%;
@@ -139,11 +135,11 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
+/* 
 	border: 3px solid #DCCA2A;
 	box-shadow: 0px 0px 7.49518px #FF6ADE,
 				0px 0px 14.9904px #EA3DEE,
-				0px 0px 25.6977px #CA18A3;
+				0px 0px 25.6977px #CA18A3; */
 	border-radius: 50%;
 	margin: 2px;
 }
@@ -162,7 +158,7 @@
 .profilBoxDropdown:hover,
 .profilBoxDropdown:focus
 {
-	box-shadow: 0px 0px 20px #DCCA2A;
+	/* box-shadow: 0px 0px 20px #FF6ADE; */
 	transform: translateY(-0.10em);
 }
 

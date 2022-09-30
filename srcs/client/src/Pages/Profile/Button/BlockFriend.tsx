@@ -12,14 +12,14 @@ export default function BlockFriend(props : any) {
 
 	return (
 		<>
-			<button className="yellowPinkBoxButtonProfil"
+			<button className="btn btn-pink text-pink mt-1"
 			style={{
 				width: "100%",
 				height: "auto",
 			}}
 			onClick={()=>(blockSomeone())}
 			>
-				<div className="redText" style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "1vw"}}>
 					Block Friend
 				</div>
 			</button>
