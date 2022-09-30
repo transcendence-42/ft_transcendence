@@ -10,21 +10,22 @@ import FriendshipAccepted from './Button/FriendshipAccepted';
 const FriendList = (props: any) => {
   return (
     <div
-      className="blueBoxFriend"
       style={{
         width: '100%',
         height: '100%',
       }}
     >
-      <div className="yellowText" style={{ fontSize: '3vw' }}>
-        Friends
-      </div>
+      <h3 className="text-pink text-start">Friends</h3>
       {
-        <table className="table scroll m-1 align-middle  ">
+        <table className="table table-borderless scroll m-1 align-middle">
           <tbody>
             {props.friendRequestList &&
               props.friendRequestList.map((friendship: any, index: number) => (
-                <tr key={index} style={{ fontSize: '2vw' }}>
+                <tr
+                  className="border-blue w-100"
+                  key={index}
+                  style={{ fontSize: '2vw' }}
+                >
                   {
                     <>
                       <td className="pinkText"> New </td>
@@ -37,8 +38,10 @@ const FriendList = (props: any) => {
                           height={'4vw'}
                         />
                       </td>
-                      <td> {friendship.requester.username} </td>
-                      <td colSpan={2}>
+                      <td className="text-pink">
+                        {friendship.requester.username}
+                      </td>
+                      <td>
                         <table>
                           <tbody>
                             <tr>
@@ -68,7 +71,11 @@ const FriendList = (props: any) => {
               ))}
             {props.friendList ? (
               props.friendList.map((friend: any, index: number) => (
-                <tr key={index} style={{ fontSize: '2vw' }}>
+                <tr
+                  className="border-blue w-100"
+                  key={index}
+                  style={{ fontSize: '2vw' }}
+                >
                   {
                     <>
                       <td>
@@ -80,7 +87,7 @@ const FriendList = (props: any) => {
                           height={'4vw'}
                         />
                       </td>
-                      <td> {friend.username} </td>
+                      <td className="text-pink">{friend.username}</td>
                       <td>
                         <OnlineOffline // Change here
                           status={friend.currentStatus}
@@ -92,7 +99,7 @@ const FriendList = (props: any) => {
                 </tr>
               ))
             ) : (
-              <tr>
+              <tr className='border-blue'>
                 <td
                   className="blueTextMatch"
                   style={{ fontSize: '2vw', marginTop: '3vh' }}
@@ -106,6 +113,6 @@ const FriendList = (props: any) => {
       }
     </div>
   );
-}
+};
 
 export default FriendList;

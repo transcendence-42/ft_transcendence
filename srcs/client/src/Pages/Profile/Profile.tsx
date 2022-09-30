@@ -145,28 +145,29 @@ const Profile = () => {
 
   if (user) {
     return (
-      <>
-        <div className="profilAndLadder" data-testid="tracker">
-          <div className="profil">
-            <div className="picture">
+      <div className='row'>
+        <div className='col-md-2'></div>
+        <div className='col-xs-12 col-md-8'>
+
+          {/* Profil picture + action buttons + stats */}
+          <div className="row mt-5" data-testid="tracker">
+            <div className="col-xs-12 col-md-2">
               <PhotoProfil
                 url={user.profilePicture}
-                width={'10vw'}
-                height={'10vw'}
+                width={'100px'}
+                height={'100px'}
               />
             </div>
-            <div className="status">
+            <div className="col-xs-2 col-md-2">
               <div
-                className="text-pink"
-                style={{ fontSize: '2vw', fontWeight: 'bold' }}
+                className="text-pink text-center"
+                style={{ fontSize: '1.3em', fontWeight: 'bold' }}
               >
-                {' '}
                 {user.username}
               </div>
-              <br />
-              <OnlineOffline status={player.status} size={'1.5vw'} />
+              <OnlineOffline status={+player.status} size={'1.2em'} />
             </div>
-            <div className="changeProfil">
+            <div className="col-xs-2 col-md-2">
               {userId === +originalId ? (
                 <>
                   <ChangePseudo id={userId} up={toggleUpdate} />
@@ -180,29 +181,32 @@ const Profile = () => {
                 </>
               )}
             </div>
+            <div className="col-xs-6 col-md-6">
+              <Ladder stats={user.stats} elo={user.eloRating} />
+            </div>
           </div>
-          <div className="ladder">
-            <Ladder stats={user.stats} elo={user.eloRating} />
+
+          {/* Match history + friends */}
+          <div className="row">
+            <div className="col-xs-12 col-md-6">
+              <MatchHistory
+                matchesList={matchesList}
+                id={+userId}
+              />
+            </div>
+            <div className="col-xs-12 col-md-6">
+              <FriendList
+                friendList={friendList}
+                friendRequestList={friendRequestList}
+                id={userId}
+                originalId={+originalId}
+                up={toggleUpdate}
+              />
+            </div>
           </div>
         </div>
-        <div className="matchFriend">
-          <div className="match">
-            <MatchHistory
-              matchesList={matchesList}
-              id={+userId}
-            />
-          </div>
-          <div className="friend">
-            <FriendList
-              friendList={friendList}
-              friendRequestList={friendRequestList}
-              id={userId}
-              originalId={+originalId}
-              up={toggleUpdate}
-            />
-          </div>
-        </div>
-      </>
+        <div className='col-md-2'></div>
+      </div>
     );
   }
   return <></>;

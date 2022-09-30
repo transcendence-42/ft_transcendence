@@ -14,13 +14,8 @@ const MatchHistory = (props: any) => {
           height: '100%',
         }}
       >
-        <div className="yellowText" style={{ fontSize: '3vw' }}>
-          Matches History
-        </div>
-        <div
-          className="blueTextMatch"
-          style={{ fontSize: '2vw', marginTop: '3vh' }}
-        >
+        <h3 className="text-pink text-start">Matches History</h3>
+        <div className="text-blue mt-2" style={{ fontSize: '1.2em' }}>
           Play a Game first
         </div>
       </div>
@@ -28,75 +23,68 @@ const MatchHistory = (props: any) => {
   } else {
     return (
       <div
-        className="blueBoxMatch"
         style={{
           width: '100%',
           height: '100%',
         }}
       >
-        <div className="yellowText" style={{ fontSize: '3vw' }}>
-          Matches History
-        </div>
-        <table className="table scroll m-1 align-middle  ">
+        <h3 className="text-pink text-start">Matches History</h3>
+        <table className="table table-borderless scroll m-1 align-middle match-history">
           <tbody>
             {props.matchesList.map(
               (matches: any, index: number) =>
                 index < 10 && (
-                  <tr key={index} style={{ fontSize: '2vw' }}>
+                  <tr
+                    className="border-blue w-100"
+                    key={index}
+                    style={{ fontSize: '1.2em' }}
+                  >
                     <td>
                       <PhotoProfilDropdown
                         url={matches.players[0].player.profilePicture}
                         id={matches.players[0].playerId}
                         originalId={props.originalId}
-                        width={'4vw'}
-                        height={'4vw'}
+                        width={'50px'}
+                        height={'50px'}
                       />
                     </td>
-                    <td colSpan={2}>
-                      <table>
-                        <tbody>
-                          <tr>
-                            <td className="text-blue text-center">
-                              {matches.players[0].player.username}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="text-blue text-center">
-                              {matches.players[0].score}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <td
+                      className={`${
+                        matches.players[0].playerId === props.id
+                          ? 'text-blue'
+                          : 'text-pink'
+                      } text-center`}
+                    >
+                      {matches.players[0].player.username}
                     </td>
-                    <td className="pinkText"> VS </td>
-                    <td colSpan={2}>
-                      <table>
-                        <tbody>
-                          <tr>
-                            <td className="text-blue text-center">
-                              {matches.players[1].player.username}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="text-blue text-center">
-                              {matches.players[1].score}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <td className="text-blue text-center">
+                      {matches.players[0].score}
+                    </td>
+                    <td className="text-blue"> - </td>
+                    <td className="text-blue text-center">
+                      {matches.players[1].score}
+                    </td>
+                    <td
+                      className={`${
+                        matches.players[1].playerId === props.id
+                          ? 'text-blue'
+                          : 'text-pink'
+                      } text-center`}
+                    >
+                      {matches.players[1].player.username}
                     </td>
                     <td>
                       <PhotoProfilDropdown
                         url={matches.players[1].player.profilePicture}
                         id={matches.players[1].playerId}
                         originalId={props.originalId}
-                        width={'4vw'}
-                        height={'4vw'}
+                        width={'50px'}
+                        height={'50px'}
                       />
                     </td>
                     <td>
                       <WinLose
-                        size={'2vw'}
+                        size={'0.8em'}
                         id={props.id}
                         players={matches.players}
                       />
