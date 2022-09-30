@@ -14,6 +14,7 @@ import MapChoice from "./Pages/MapChoice/mapChoice";
 import Matchmaking from "./Pages/Matchmaking/matchmaking";
 import Context from "./Context/Context";
 import GameLobby from "./Pages/Game/GameLobby";
+import { ChatSocket } from "./Socket";
 
 function App() {
   // const [isConnected, setIsConnected] = useState(false);
@@ -79,7 +80,10 @@ function App() {
         <Route index element={<Home updateID={update} userID={userID} />} />
         <Route path="/" element={<AuthenticatedRoute res />}>
           <Route path="/about" element={<About />} />
-          <Route path="/chat" element={<Chat userID={userID} />} />
+          <Route
+            path="/chat"
+            element={<Chat userId={userID} socket={ChatSocket} />}
+          />
           <Route path="/profile" element={<Profile />} />
           <Route path="/mapchoice" element={<MapChoice />} />
           <Route path="/matchmaking" element={<Matchmaking />} />

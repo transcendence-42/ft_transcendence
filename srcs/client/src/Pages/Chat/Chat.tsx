@@ -38,6 +38,7 @@ const lobbyChannel: Channel = {
 
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
+  const myUserId: number = props.userId;
   const currChanInLocalStorage =
     window.sessionStorage.getItem("currentChannel");
   const defaultChannel: Channel = currChanInLocalStorage
@@ -211,6 +212,7 @@ export default function Chat(props: any) {
   };
 
   useEffect(() => {
+    console.group("Use Effect #1: initChatUser");
     (async () => {
       console.log("fetching auth/success");
       const response = await fetchUrl("http://127.0.0.1:4200/auth/success/");
@@ -247,32 +249,28 @@ export default function Chat(props: any) {
       }
       // const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
       console.log("Fetching all users");
-      await fetchUrl(`http://127.0.0.1:4200/users/`).then((users) => {
+      const users = await fetchUrl(`http://127.0.0.1:4200/users/`);
+      if (users) {
         const userHashTable: Hashtable<User> = {};
         console.log("Fetched  all users");
         for (const user of users) {
           userHashTable[user.id] = user;
         }
-        console.log(
-          `finished fetching uers and user hash ${JSON.stringify(
-            userHashTable
-          )}`
-        );
+        console.log(`finished fetching uers and user hash`);
         console.log("Setting all users");
         setAllUsers(userHashTable);
         console.log("Trying to connect to server");
-      });
+      }
       socket.connect();
       console.groupEnd();
     })();
-    console.group("Use Effect #1: initChatUser");
     console.log(
       `user after async initChatUser() ${JSON.stringify(user, null, 4)}`
     );
   }, []);
 
   useEffect(() => {
-    // if (!isUserFetched) return;
+    if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
     console.log("Second useEffect");
     socket.on("connect", () => {
