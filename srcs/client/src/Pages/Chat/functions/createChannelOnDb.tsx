@@ -17,10 +17,6 @@ const createChannelOnDb = async (
       `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
       "GET"
     );
-    const payload = { id: channel.id, type: channel.type };
-    // tells other clients to fetch the new channel has been created
-    socket.emit(eEvent.UpdateOneChannel, payload);
-    // update the current clients UserOnChannels
     // returns the created channel id to be used by handleCreateChannelForm
     return [channel, userOnChannel];
   }

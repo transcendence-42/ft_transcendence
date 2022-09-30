@@ -20,8 +20,6 @@ import {
 } from "./entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
-import { CreateChannelDto } from "./entities";
-import createChannelOnDb from "./functions/createChannelOnDb";
 import handleCreateChannelForm from "./functions/createChannelForm";
 
 const isEmpty = (obj: any) => {
@@ -91,11 +89,6 @@ export default function Chat(props: any) {
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
 
-  const getUser = async (userId: number) => {
-    const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`);
-    return user;
-  };
-
   const createNonDirectChannel = (
     e: any,
     name: string,
@@ -115,8 +108,12 @@ export default function Chat(props: any) {
       );
       console.log(`heres channel created`, channel);
       if (channel) {
-        handleCloseCreateChannel();
+
+        sessionStorage.setItem("currentChannel", JSON.stringify(channel));
+        setCurrentChannel(channel);
+        setAllChannels((prevAllChannels) => [...prevAllChannels, channel])
         switchChannel(channel.id);
+        handleCloseCreateChannel();
       }
     })();
   };
@@ -158,12 +155,6 @@ export default function Chat(props: any) {
     }
   };
 
-  const updateAllChannels = (newChannel: Channel) => {
-    const newAllChannels = allChannels;
-    newAllChannels.push(newChannel);
-    setAllChannels(newAllChannels);
-  };
-
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
     let updateAllChannels: UserOnChannel[] = [];
     if (user["channels"]) {
@@ -195,7 +186,7 @@ export default function Chat(props: any) {
     socket.emit(eEvent.SendMessage, messageToSend);
     setMessage("");
   };
-
+  // to do: handleJoinChannel
   const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
@@ -273,7 +264,6 @@ export default function Chat(props: any) {
         setAllUsers(userHashTable);
         console.log("Trying to connect to server");
       }
-      // socket.emit(eEvent.SetId);
       socket.connect();
       console.groupEnd();
     })();
@@ -319,16 +309,16 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.UpdateOneUser, (userId: number) => {
-      const newAllUsers: Hashtable<User> = allUsers;
-      const updateUser = async () => {
-        const user = await getUser(userId);
+      (async () => {
+        const newAllUsers: Hashtable<User> = allUsers;
+        const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`);
         newAllUsers[userId] = user;
         setAllUsers(newAllUsers);
-      };
-      updateUser();
+      })();
     });
 
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
+      console.log("recieved event udpateOneChannel");
       (async () => {
         const url = "http://127.0.0.1:4200/channel/" + channelId;
         const channel = await fetchUrl(url);
@@ -346,18 +336,6 @@ export default function Chat(props: any) {
       socket.off(eEvent.SetId);
     };
   }, [isUserFetched]);
-
-  //ENTER
-  // const [input, setInput] = useState('');
-
-  // const handleKeyDown = event => {
-  //   console.log('User pressed: ', event.key);
-
-  //   if (event.key === 'Enter') {
-  //     // logic here
-  //     console.log('Enter key pressed ✅');
-  //   }
-  // };
 
   return (
     <>

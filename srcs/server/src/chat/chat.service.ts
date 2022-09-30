@@ -105,7 +105,8 @@ export class ChatService {
     if (type === ChannelType.PRIVATE || type === ChannelType.DIRECT) {
       return;
     }
-    this.server.emit(eEvent.UpdateOneChannel, channelId);
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId)
+    // this.server.emit(eEvent.UpdateOneChannel, channelId);
   }
 
   async initConnection(client: Socket, channelIds: string[], userId: number) {
@@ -144,7 +145,7 @@ export class ChatService {
 
   async createChannel(client: Socket, channelId) {
     this.addToRoom(client, channelId);
-    client.emit(eEvent.UpdateOneChannel, channelId);
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
   async addToRoom(client: Socket, channelId: number) {
