@@ -127,7 +127,7 @@ if (!(contextValue.isConnected))
           </div>
             <div className="container square-box d-flex justify-content-center align-items-center pt-5 pb-5">
                 <div className="">
-                  <Link to="/lobby"> <h2 className="animated-word"> Lobby</h2> </Link>
+                  <Link to="/leaderboard"> <h2 className="animated-word"> Lobby</h2> </Link>
                 </div>
             </div>
             <div className=" row blueText pt-5 ">
