@@ -86,6 +86,11 @@ export class ChatGateway
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
 
+  @SubscribeMessage(eEvent.SetId)
+  handleSetId(client: Socket) {
+    client.emit(eEvent.SetId);
+  }
+
   @SubscribeMessage(eEvent.InitConnection)
   initConnection(
     client: Socket,

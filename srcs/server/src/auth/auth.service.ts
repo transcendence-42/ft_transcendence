@@ -32,16 +32,11 @@ export class AuthService {
   /******************************* 42 Oauth2 Flow ******************************/
 
   handleFtRedirect(user: RequestUser, res: Response) {
-    if (
-      user.isTwoFactorActivated === true &&
-      user.isTwoFactorAuthenticated === false
-    ) {
-      this.logger.debug(`redirecting to 2fa`);
-      res.redirect('http://127.0.0.1:3042/2fa');
-    } else {
-      this.logger.debug(`redirecting to home`);
-      return res.redirect(this.HOME_PAGE);
-    }
+    // this.logger.debug(`redirecting to 2fa`);
+    // return res.send({message: {"require 2FA authentication"})
+    // res.redirect('http://127.0.0.1:3042/2fa');
+    this.logger.debug(`redirecting to home`);
+    return res.redirect(this.HOME_PAGE);
   }
 
   /* this function validates the user by doing two things:
@@ -159,6 +154,12 @@ export class AuthService {
   async handleSuccessLogin(
     requestUser: RequestUser,
   ): Promise<{ message: string; user: User }> {
+    if (
+      requestUser.isTwoFactorActivated === true &&
+      requestUser.isTwoFactorAuthenticated === false
+    ) {
+      return { message: 'User require 2fa', user: undefined };
+    }
     const message: string = requestUser.authentication;
     delete requestUser.authentication;
     const user: User = await this.userService.findOne(requestUser.id);
@@ -205,7 +206,7 @@ export class AuthService {
     user: RequestUser,
     twoFactorCode: string,
   ): Promise<{ message: string }> {
-    const isCodeValid = this.verifyTwoFactorCode(twoFactorCode, user);
+    const isCodeValid = await this.verifyTwoFactorCode(twoFactorCode, user);
     if (isCodeValid) {
       await this.userService.setTwoFactorAuthentification(user.id, true);
       return { message: '2FA activated!' };

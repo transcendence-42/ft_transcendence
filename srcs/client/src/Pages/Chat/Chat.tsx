@@ -38,7 +38,8 @@ const lobbyChannel: Channel = {
 
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
-  const currChanInLocalStorage = window.localStorage.getItem("currentChannel");
+  const currChanInLocalStorage =
+    window.sessionStorage.getItem("currentChannel");
   const defaultChannel: Channel = currChanInLocalStorage
     ? JSON.parse(currChanInLocalStorage)
     : lobbyChannel;
@@ -90,7 +91,7 @@ export default function Chat(props: any) {
   };
 
   const getUser = async (userId: number) => {
-    const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`, "GET");
+    const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`);
     return user;
   };
 
@@ -108,7 +109,7 @@ export default function Chat(props: any) {
       ownerId,
       socket,
       updateOwnChannels,
-      password,
+      password
     );
     if (channelId) {
       handleCloseCreateChannel();
@@ -147,7 +148,7 @@ export default function Chat(props: any) {
     const channel = allChannels.find((chan: Channel) => chan.id === channelId);
     console.log(`This is current channel id ${channel?.id}`);
     setCurrentChannel(channel!);
-    localStorage.setItem("currentChannel", JSON.stringify(channel));
+    sessionStorage.setItem("currentChannel", JSON.stringify(channel));
   };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
@@ -170,6 +171,7 @@ export default function Chat(props: any) {
   };
 
   const handleSendMessage = (e: any) => {
+    e.preventDefault();
     if (message === "") return;
     const messageToSend: MessageDto = {
       content: message,
@@ -209,13 +211,9 @@ export default function Chat(props: any) {
   };
 
   useEffect(() => {
-    console.group("Use Effect #1: initChatUser");
-    const initChatUser = async () => {
+    (async () => {
       console.log("fetching auth/success");
-      const response = await fetchUrl(
-        "http://127.0.0.1:4200/auth/success/",
-        "GET"
-      );
+      const response = await fetchUrl("http://127.0.0.1:4200/auth/success/");
       console.log(`Fetched /auth/sucess`);
       const { user } = response;
       console.log("Setting user");
@@ -225,8 +223,7 @@ export default function Chat(props: any) {
       if (user && user.id) {
         console.log("fetching friends");
         const friends = await fetchUrl(
-          `http://127.0.0.1:4200/users/${user.id}/friends`,
-          "GET"
+          `http://127.0.0.1:4200/users/${user.id}/friends`
         );
         if (friends && friends.length !== 0) {
           console.log("setting friends");
@@ -240,7 +237,7 @@ export default function Chat(props: any) {
         );
       }
       console.log("Fetching channels");
-      const channels = await fetchUrl(`http://127.0.0.1:4200/channel`, "GET");
+      const channels = await fetchUrl(`http://127.0.0.1:4200/channel`);
       console.log("Fetched channels");
 
       if (channels) {
@@ -250,7 +247,7 @@ export default function Chat(props: any) {
       }
       // const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
       console.log("Fetching all users");
-      fetchUrl(`http://127.0.0.1:4200/users/`, "GET").then((users) => {
+      await fetchUrl(`http://127.0.0.1:4200/users/`).then((users) => {
         const userHashTable: Hashtable<User> = {};
         console.log("Fetched  all users");
         for (const user of users) {
@@ -258,27 +255,26 @@ export default function Chat(props: any) {
         }
         console.log(
           `finished fetching uers and user hash ${JSON.stringify(
-            userHashTable,
-            null,
-            4
+            userHashTable
           )}`
         );
         console.log("Setting all users");
         setAllUsers(userHashTable);
-        console.log("Connecting to server");
-        socket.connect();
+        console.log("Trying to connect to server");
       });
+      socket.connect();
       console.groupEnd();
-    };
-    initChatUser();
+    })();
+    console.group("Use Effect #1: initChatUser");
     console.log(
       `user after async initChatUser() ${JSON.stringify(user, null, 4)}`
     );
   }, []);
 
   useEffect(() => {
-    if (!isUserFetched) return;
+    // if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
+    console.log("Second useEffect");
     socket.on("connect", () => {
       const channelIds: string[] = [];
       console.log(`This is user Id ${user.id}`);
@@ -320,7 +316,7 @@ export default function Chat(props: any) {
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
       const getNewChannel = async () => {
         const url = "http://127.0.0.1:4200/channel/" + channelId;
-        const channel = await fetchUrl(url, "GET");
+        const channel = await fetchUrl(url);
         addChannel(channel);
       };
       getNewChannel();
@@ -533,11 +529,9 @@ export default function Chat(props: any) {
                 className="rounded-3 input-field-chat"
                 placeholder="Send a message..."
               ></input>
-              <button type="button" onClick={handleSendMessage}>
+              <button type="submit" onClick={handleSendMessage}>
                 Send
               </button>
-              {/* onChange={event => setInput(event.target.value)} */}
-              {/* onKeyDown={handleKeyDown} */}
             </div>
           </div>
         </div>

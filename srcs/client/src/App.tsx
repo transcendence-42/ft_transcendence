@@ -17,29 +17,29 @@ import { ChatSocket } from "./Socket";
 import GameLobby from "./Pages/Game/GameLobby";
 
 function App() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isFromAuth, setIsFromAuth] = useState(false);
+  // const [isConnected, setIsConnected] = useState(false);
+  // const [isFromAuth, setIsFromAuth] = useState(false);
 
-  /*
-   ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
-   ** isFromAuth is to be sure that the user has been through the 42 Auth
-   */
-  const contextValue = {
-    isConnected: isConnected,
-    isFromAuth: isFromAuth,
-    updateIsConnected: setIsConnected,
-    updateIsFromAuth: setIsFromAuth
-  };
+  // /*
+  //  ** Context is init here to spread it on all routes. Is connected to be sure that the user is connected
+  //  ** isFromAuth is to be sure that the user has been through the 42 Auth
+  //  */
+  // const contextValue = {
+  //   isConnected: isConnected,
+  //   isFromAuth: isFromAuth,
+  //   updateIsConnected: setIsConnected,
+  //   updateIsFromAuth: setIsFromAuth
+  // };
 
-  /*
-   ** Check if the user is still connected, it is working here from root for all routes
-   */
-  useEffect(() => {
-    var data = localStorage.getItem("pathIsFree");
-    if (data) {
-      contextValue.updateIsConnected(true);
-    } else contextValue.updateIsConnected(false);
-  });
+  // /*
+  //  ** Check if the user is still connected, it is working here from root for all routes
+  //  */
+  // useEffect(() => {
+  //   var data = localStorage.getItem("pathIsFree");
+  //   if (data) {
+  //     contextValue.updateIsConnected(true);
+  //   } else contextValue.updateIsConnected(false);
+  // }, []);
 
   /*
    ** Context.Provider surround all routes and spread the contextValue, BrowserRouter allows us to use routes.
@@ -47,27 +47,30 @@ function App() {
    */
   return (
     // <Context.Provider value={contextValue}>
-      <BrowserRouter>
-        <NavBar />
-        <Routes>
-          <Route path="*" element={<Notfound />} />
-          <Route index element={<Home />} />
-          <Route path="/chat" element={<Chat socket={ChatSocket} />} />
-          <Route path="/login" element={<Login />} />
-          {/* <Route
+    <BrowserRouter>
+      <NavBar />
+      <Routes>
+        <>
+        {console.log(`I;m rendering`)}
+        <Route path="*" element={<Notfound />} />
+        <Route index element={<Home />} />
+        <Route path="/chat" element={<Chat socket={ChatSocket} />} />
+        <Route path="/login" element={<Login />} />
+        {/* <Route
             path="/lobby"
             element={<GameLobby origin={{ name: "lobby", loc: "/lobby" }} />}
           /> */}
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/" element={<AuthenticatedRoute res />}>
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/mapchoice" element={<MapChoice />} />
-            <Route path="/matchmaking" element={<Matchmaking />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<AuthenticatedRoute res />}>
+          <Route path="/about" element={<About />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/mapchoice" element={<MapChoice />} />
+          <Route path="/matchmaking" element={<Matchmaking />} />
+        </Route>
+</>
+      </Routes>
+    </BrowserRouter>
     // </Context.Provider>
   );
 }
