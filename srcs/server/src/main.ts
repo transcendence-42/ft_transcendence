@@ -11,7 +11,9 @@ import helmet from 'helmet';
 import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
-  console.debug = function () {}; // used to silence console.debugs
+  console.debug = function () {
+    return '';
+  }; // used to silence console.debugs
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 

@@ -1,11 +1,9 @@
 
-export async function getFetch(props){
-	try{
+export async function getFetchMatch(props : any){
 		const response = await
 		fetch(props.url, {
 	  method: "GET",
 	  credentials: "include",
-	//   redirect: "follow",
 	  headers: {
 		Accept: "application/json",
 		"Content-Type": "application/json",
@@ -13,13 +11,10 @@ export async function getFetch(props){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
-				throw new Error("Error");
+				return;
 			}
 			return (response.json());
 		})
 		return response;
-	}
-	catch(error) { // Mettre un potentiel message d'erreur ?
-		console.error(error);
  };
-}
+
