@@ -405,7 +405,7 @@ export default function Chat(props: any) {
       {/* first div to center chat */}
       <div className="row h-100">
         {/* Div Channel */}
-        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 " >
+        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 overflow-hidden " >
           <div className="h-50">
             <div className="row mt-2 ">
               <div className="col-9 my-sidebar overflow-auto mt-1">
@@ -441,11 +441,6 @@ export default function Chat(props: any) {
                       <tr key={usrOnChan.channelId}>
                         <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
                           {usrOnChan.channel.name}
-                        </td>
-                        <td>
-                          <button className="rounded-4 btn btn-chat btn-pink">
-                            leave
-                          </button>
                         </td>
                       </tr>
                     ))}
@@ -488,17 +483,22 @@ export default function Chat(props: any) {
         </div>
 
          {/* Div Middle */}
-        <div className="  col col-sm col-md col-lg col-xl col-xxl  rounded-4 blue-box-chat  ">
+        <div className="  col col-sm col-md col-lg col-xl col-xxl  rounded-4 blue-box-chat  overflow-hidden">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles channel-name-margin" style={{fontSize:"12px"}}>
                 currentChannel: {currentChannel.name}
               </p>
             </div>
+            <div className="col">
+            <button className="rounded-4 btn btn-chat btn-pink">
+                            leave
+                          </button>
+            </div>
           </div>
           <div className="row h-75 pt-3">
             <div className="col h-100 overflow-auto scroll-bar-messages ">
-              <div className="message-position">
+              <div className="message-position pb-3 mb-4">
                 <>
                   {console.log(
                     `AllsMessges of current channelid ${JSON.stringify(
@@ -515,19 +515,18 @@ export default function Chat(props: any) {
                         }
                         key={message.id}
                       >
-                        <div className="messageFromUser">
-                          User:
-                          {allUsers[message.fromUserId].username || "Pong Bot"}
+                        <div className="messageDate text-center text-white">
+                          {new Date(message.sentDate).toLocaleString()}
                         </div>
-                        <br />
-                        <div className="messageDate">
-                          Date: {new Date(message.sentDate).toLocaleString()}
+                        <div className="row">
+                          <div className="messageFromUser col-3">
+                          {allUsers[message.fromUserId].username || "Pong Bot"}:
                         </div>
-                        <br />
-                        <div className="messageContent">
-                          Message: {message.content}
+                        <div className="col-1"></div>
+                        <div className="messageContent col text-white pb-5">
+                          {message.content}
                         </div>
-                        <br />
+                      </div>
                       </div>
                     ))}
                 </>
@@ -540,7 +539,7 @@ export default function Chat(props: any) {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
                 type="text"
-                maxLength={128}
+                maxLength={50}
                 placeholder="Send a message..."
               ></input>
               <button type="button" onClick={handleSendMessage}>
