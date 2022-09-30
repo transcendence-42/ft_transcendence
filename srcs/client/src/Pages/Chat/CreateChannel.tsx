@@ -34,6 +34,8 @@ export default function CreateChannel({
           placeholder="# channel-name"
           onChange={(e) => setChannelName(e.target.value)}
           value={channelName}
+          maxLength={11}
+         
         ></input>
         <div className="form-check">
           <input

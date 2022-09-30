@@ -470,9 +470,27 @@ export default function Chat(props: any) {
                     <tr>
                       <td>User</td>
                       <td>
-                        <button className="rounded-4 btn-sm btn-chat px-2 py-1">
-                          game
-                        </button>
+                      <div className="col-1">
+                <button
+                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ></button>
+                <ul className="dropdown-menu channel-menu">
+                  <li
+                    className="dropdown-item"
+                    onClick={handleShowBrowseChannel}
+                  >
+                    Open chat
+                  </li>
+                  <li
+                    className="dropdown-item"
+                    onClick={handleShowCreateChannel}
+                  >
+                    Play a game
+                  </li>
+                </ul>
+              </div>
                       </td>
                     </tr>
                   </tbody>
@@ -539,7 +557,7 @@ export default function Chat(props: any) {
                 onChange={(e) => setMessage(e.target.value)}
                 value={message}
                 type="text"
-                maxLength={50}
+                maxLength={1}
                 placeholder="Send a message..."
               ></input>
               <button type="button" onClick={handleSendMessage}>
