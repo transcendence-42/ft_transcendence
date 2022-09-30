@@ -400,10 +400,10 @@ export default function Chat(props: any) {
           setCreateDirectId={setCreateDirectid}
         />
       </PongAdvancedModal>
-      
+
       <div className="container-fluid h-75 ">
       {/* first div to center chat */}
-      <div className="row h-100">
+      <div className="row main ">
         {/* Div Channel */}
         <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 overflow-hidden " >
           <div className="h-50">
@@ -413,10 +413,10 @@ export default function Chat(props: any) {
               </div>
               <div className="col-1">
                 <button
-                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
+                  className="float-end rounded-4  color-dropdown channel-button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
-                ></button>
+                >+</button>
                 <ul className="dropdown-menu channel-menu">
                   <li
                     className="dropdown-item"
@@ -501,7 +501,7 @@ export default function Chat(props: any) {
         </div>
 
          {/* Div Middle */}
-        <div className="  col col-sm col-md col-lg col-xl col-xxl  rounded-4 blue-box-chat  overflow-hidden">
+        <div className="  col col-sm col-md col-lg col-xl col-xxl h-100 rounded-4 blue-box-chat  overflow-hidden">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles channel-name-margin" style={{fontSize:"12px"}}>
@@ -514,9 +514,10 @@ export default function Chat(props: any) {
             </div>
          
           </div>
-          <div className="row h-75 pt-3">
-            <div className="col h-100  scroll-bar-messages ">
-              <div className="message-position pb-3 mb-4">
+
+          <div className="row h-75 ">
+            <div className="col scroll-bar-messages h-100 px-4 " >
+              <div className=" " >
                 <>
                   {console.log(
                     `AllsMessges of current channelid ${JSON.stringify(
@@ -551,6 +552,7 @@ export default function Chat(props: any) {
               </div>
             </div>
           </div>
+
           <div className="row"  style={{height:"15%"}}>
             <div className="col-12 text-center align-self-center ">
               <input className="rounded-3 input-field-chat w-75 " 

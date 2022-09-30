@@ -29,6 +29,10 @@ body
   margin-left: auto
 }
 
+.main
+{
+  height: 100%;
+}
 
 .blue-box-chat{
   border: 3px solid #80ffff;
@@ -142,7 +146,7 @@ body
 }
 
 .scroll-bar-messages {
-  height: 5em;
+  height: 50px;
   overflow: hidden;
 	overflow: scroll;
 }
@@ -171,9 +175,7 @@ body
   color: #80ffff !important;
 }
 
-.message-position {
-  margin-left: 1em;
-}
+
 
 ::-webkit-scrollbar {
   margin-left: 1em;
