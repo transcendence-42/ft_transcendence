@@ -6,6 +6,7 @@ import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/VirtualPong/virtualPong.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ModalAuthentification from "./Modal/ModalAuthentification"
 
 
 
@@ -15,6 +16,22 @@ export default function Home ({updateID, userID } : any) {
 */
 const contextValue = useContext(Context);
 const [fromAuth, setFromAuth] = useState(false);
+const [isShowing, setIsShowing] = useState(false);
+const [update, setUpdate] = useState(2);
+
+function toggleUpdate() {
+    setTimeout(() => {
+        if (update === 2)
+        setUpdate(1);
+        if (update === 1)
+        setUpdate(0);
+        if (update === 0)
+        setUpdate(1);
+    }, 100);}
+
+function toggle() {
+  setIsShowing(!isShowing);
+}
 
 /*
 ** First function to Auth the user from our app -> 42Auth -> back -> front
@@ -51,10 +68,19 @@ const getUser = async () => {
   .then((responseObject) => {
       if (responseObject.message)
       {
+        if (responseObject.message === "require 2fa")
+        {
+          toggle();
+          return;
+        }
         if(!userID)
-        {updateID(responseObject.user.id);};
+        {
+          updateID(responseObject.user.id);
+        };
 
           console.log("Success parsing 42auth");
+          console.log(responseObject);
+
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           return;
@@ -75,13 +101,13 @@ useEffect(() => {
       setFromAuth(false) ;
       window.localStorage.removeItem('fromAuth');
   }
-},[]);
+},[update]);
 
 /*
 ** If we are connected we have the options of playing and watch, otherwise we do not have it
 ** The contextValue.isConnected is the context init in App.tsx
 */
-if (!(contextValue.isConnected))
+if (!(contextValue.isConnected) )
 {
     return (
     <>
@@ -105,7 +131,16 @@ if (!(contextValue.isConnected))
         <div className=" row blueText  ">
           <h5 className="text-center" >Join Players From 42 School</h5>
         </div>
-
+        <ModalAuthentification
+					show={isShowing}
+					closeHandler={toggle}
+					textBtn1="Cancel"
+					handleBtn1={toggle}
+					textBtn2="Submit"
+					handleBtn2={toggle}
+					title="Double Authentication"
+          up = {toggleUpdate}
+				/>
     </>
     );
   }

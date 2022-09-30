@@ -1,14 +1,14 @@
 import Modal from 'react-bootstrap/Modal';
+import Context from "../../../Context/Context";
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
-import "./ModalChangeContent.css"
-import {patchFetchPicture} from "../Fetch/patchFetchPicture"
-import FailAndSuccessPicture from './FailAndSuccessPicture'
-import React, {useEffect, useState} from "react";
+import {postFetchAuthentification} from "../Fetch/postFetchAuthentification"
+import FailAndSuccessAuthenticate from './FailAndSuccessAuthenticate'
+import React, {useEffect, useState, useContext} from "react";
 
-const ModalPicture =
+const ModalAuthentification =
 ({ title, closeHandler, show, textBtn1,
-  handleBtn1, textBtn2, handleBtn2, up, id } : any)=> {
+  handleBtn1, textBtn2, handleBtn2, up } : any)=> {
 
   /**
    * @props title:        Title of the modal
@@ -20,31 +20,32 @@ const ModalPicture =
    *        handleBtn2:   Function associated with the second button
    */
 
+   const contextValue = useContext(Context);
    const [content, setcontent] = useState('');
-   const [url, setUrl] = useState('');
    const [status, setStatus] = useState(2);
 
    function handleChange(event : any) {
      setcontent(event.target.value);
-     setUrl("http://127.0.0.1:4200/users/" + id);
    };
 
    function patchAndClose(e : any)
    {
      e.preventDefault();
-     const status = patchFetchPicture({url: url, picture: content});
+     const status = postFetchAuthentification({keyGen: content});
      status.then((responseObject)=> {
-       if (responseObject.status === 400)
+       if (responseObject.status !== 200)
        {
         setStatus(0);
         return;
        }
        setStatus(1);
-       up();
+       localStorage.setItem("pathIsFree", JSON.stringify(true));
+       contextValue.updateIsConnected(true);
        setTimeout(() => {
-         closeHandler();
-       }, 500);
-      })
+       up();
+       closeHandler();
+      }, 500);
+     })
    }
 
    useEffect(() => {
@@ -57,8 +58,11 @@ const ModalPicture =
         <Modal.Title className="text-blue">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-pink text-center ">
+        Enter your Google Authenticator code
+        <br/>
         <form onSubmit={patchAndClose}>
 						<input
+              maxLength={6}
 							type="text"
 							value={content}
 							onChange={handleChange}
@@ -66,7 +70,7 @@ const ModalPicture =
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-      {<FailAndSuccessPicture status={status}/>}
+      {<FailAndSuccessAuthenticate status={status}/>}
         {handleBtn1 &&
           <button
             type="button"
@@ -85,4 +89,4 @@ const ModalPicture =
   )
 }
 
-export default ModalPicture;
+export default ModalAuthentification;

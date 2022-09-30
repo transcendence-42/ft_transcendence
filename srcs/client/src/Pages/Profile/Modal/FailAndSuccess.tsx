@@ -12,7 +12,7 @@ export default function FailAndSuccess(props : any) {
 		<>
 			{ props.status === 1 ?
 				<div className="greenText" style={{fontSize: props.size}}> SUCCESS </div> :
-				<div className="redText" style={{fontSize: props.size}}> FAIL </div>
+				<div className="redText" style={{fontSize: props.size}}> WRONG NUMBER!  </div>
 			 }
 		</>
  		);

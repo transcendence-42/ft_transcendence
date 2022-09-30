@@ -198,6 +198,7 @@ export class AuthController {
     type: AuthResponse,
   })
   validateTwoAuthAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
+    console.log('in validate auth')
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
 

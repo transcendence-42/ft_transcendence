@@ -98,7 +98,6 @@ export default function Profile () {
                     <FriendList friendList={friendList} id={userID} originalId={originalId} up={toggleUpdate}/>
                 </div>
             </div>
-
             </>
         );
     }

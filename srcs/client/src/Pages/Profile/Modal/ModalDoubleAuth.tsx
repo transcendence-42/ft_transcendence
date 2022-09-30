@@ -38,6 +38,9 @@ const ModalDoubleAuth = (props: any) => {
       if(response.message === "2FA activated!")
       {
         setStatus(1);
+        setTimeout(() => {
+          props.closeHandler();
+        }, 500);
         return;
       }
       setStatus(0);
