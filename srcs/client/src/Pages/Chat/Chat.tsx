@@ -392,10 +392,10 @@ export default function Chat(props: any) {
       {/* first div to center chat */}
       <div className="row main ">
         {/* Div Channel */}
-        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 overflow-hidden " >
-          <div className="h-50">
-            <div className="row mt-2 ">
-              <div className="col-9 my-sidebar overflow-auto mt-1">
+        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 overflow-hidden h-100" >
+          <div className="h-50 overflow-hidden  ">
+            <div className="row mt-2  ">
+              <div className="col-9 my-sidebar  mt-1">
                 <p className="yellow-titles ">CHANNELS</p>
               </div>
               <div className="col-1">
@@ -420,8 +420,9 @@ export default function Chat(props: any) {
                 </ul>
               </div>
             </div>
-            <div className="row">
-              <div className="col-12 overflow-auto scroll-bar-channels  ">
+               {/* Div which list the channels */}
+            <div className="row h-100">
+              <div className="col-12 h-100 scroll-bar-messages ">
                 <table>
                   <tbody>
                     {user?.channels?.map((usrOnChan: UserOnChannel) => (
@@ -436,6 +437,7 @@ export default function Chat(props: any) {
               </div>
             </div>
           </div>
+          {/* Div with the title messages with modals */}
           <div className="messages-div h-50">
             <div className="row">
               <div className="col-9 overflow-auto pt-1">
@@ -450,6 +452,7 @@ export default function Chat(props: any) {
                 </button>
               </div>
             </div>
+             {/* Div with list of users with modals to send messages */}
             <div className="row h-75">
               <div className="col  overflow-auto scroll-bar-direct">
                 <table>
@@ -501,7 +504,7 @@ export default function Chat(props: any) {
             </div>
          
           </div>
-
+          {/* Div with all list of messages */}
           <div className="row h-75 ">
             <div className="col scroll-bar-messages h-100 px-4 " >
               <div className=" " >
@@ -556,7 +559,7 @@ export default function Chat(props: any) {
           </div>
         </div>
          {/* Div Members */}
-        <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  ">
+        <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  h-100">
           <div className="row mt-2">
             <div className="col">
               <p className="blue-titles center-position"  style={{fontSize:"12px"}} >

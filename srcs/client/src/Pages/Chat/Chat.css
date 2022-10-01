@@ -146,7 +146,7 @@ body
 }
 
 .scroll-bar-messages {
-  height: 50px;
+  height: 100px;
   overflow: hidden;
 	overflow: scroll;
 }
