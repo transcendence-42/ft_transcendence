@@ -9,6 +9,7 @@ export class TwoFactorGuard implements CanActivate {
     console.log(
       `This is user in TwoFactorGuard${JSON.stringify(request.user, null, 4)}`,
     );
+
     if (result) console.debug('TwoFactorGuard accepted user!');
     else console.debug('Guard TwoFactorGuard Rejected user!');
     return result;

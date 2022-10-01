@@ -4,18 +4,12 @@ import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { v4 as uuidv4 } from 'uuid';
 import * as Cookie from 'cookie';
 import { Channel, ChannelUser, ChatUser, Message } from './entities';
-import { eChannelType, eChannelUserRole, eEvent } from './constants';
+import { eRedisDb, eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Inject, Logger } from '@nestjs/common';
 import { Hashtable } from './interfaces/hashtable.interface';
 import Redis from 'redis';
 import { ChannelType } from '@prisma/client';
 import { channel } from 'diagnostics_channel';
-
-enum REDIS_DB {
-  USERS_DB = 1,
-  CHANNELS_DB,
-  MSG_DB,
-}
 
 export class ChatService {
   constructor(
@@ -30,7 +24,7 @@ export class ChatService {
   messageBotId: number;
 
   async initRedis() {
-    await this.redis.select(REDIS_DB.MSG_DB);
+    await this.redis.select(eRedisDb.Messages);
   }
 
   async handleMessage(client: Socket, message: MessageDto) {
@@ -55,7 +49,7 @@ export class ChatService {
   async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
     const channel: Channel = await this.getObject(
       joinChannelDto.id.toString(),
-      REDIS_DB.CHANNELS_DB,
+      eRedisDb.Channels,
     );
     this.logger.debug(
       `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
@@ -86,7 +80,7 @@ export class ChatService {
       // channel.users.push(channelUser);
       channel.users[joinChannelDto.userId] = channelUser;
 
-      this.setObject(channel.id.toString(), channel, REDIS_DB.CHANNELS_DB);
+      this.setObject(channel.id.toString(), channel, eRedisDb.Channels);
     }
     client.emit(eEvent.JoinChannelResponse, {
       msg: 'changed channel',
@@ -105,12 +99,12 @@ export class ChatService {
     if (type === ChannelType.PRIVATE || type === ChannelType.DIRECT) {
       return;
     }
-    this.server.emit(eEvent.UpdateOneChannel, channelId);
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
-  async initConnection(client: Socket, channelIds: string[], userId: number) {
+  async initConnection(client: Socket, channelIds: string[]) {
     for (const channel of channelIds) {
-      console.log(`Client join channel ${channel}`);
+      this.logger.debug(`Client join channel ${channel}`);
       client.join(channel);
     }
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
@@ -123,9 +117,6 @@ export class ChatService {
   private async _getAllMessages(channelIds: string[]) {
     if (!channelIds || channelIds.length === 0) return;
     let messages: Hashtable<Message[]> = {};
-    // const single = await this.redis.mGet(['1', '2']);
-    // console.log(single);
-    // console.log('This is the list of messages I got from _getAllMessages');
     for (const id of channelIds) {
       const msg = await this.redis.lRange(id, 0, -1);
       let parsedMessage = [];
@@ -133,13 +124,13 @@ export class ChatService {
         parsedMessage.push(JSON.parse(msg[message]));
       }
       messages[id] = parsedMessage;
-      // console.log(
-      //   `This is channel Id `,
-      //   id,
-      //   JSON.stringify(messages[id], null, 4),
-      // );
     }
     return messages;
+  }
+
+  async createChannel(client: Socket, channelId) {
+    this.addToRoom(client, channelId);
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
   async addToRoom(client: Socket, channelId: number) {
@@ -147,7 +138,7 @@ export class ChatService {
     client.join(channelId.toString());
   }
 
-  async getAllAsHashtable<T>(dataBase: REDIS_DB): Promise<Hashtable<T>> {
+  async getAllAsHashtable<T>(dataBase: eRedisDb): Promise<Hashtable<T>> {
     await this.redis.select(dataBase);
     const allKeys = await this.redis.keys('*');
     const allKeyValues: Hashtable<T> = {};
@@ -174,7 +165,7 @@ export class ChatService {
   // const allMessages = await this.redis.json.get('messages', {path: '.messages[?@.]'})
   // }
 
-  async getAllAsArray<T>(dataBase: REDIS_DB): Promise<T[]> {
+  async getAllAsArray<T>(dataBase: eRedisDb): Promise<T[]> {
     await this.redis.select(dataBase);
     const allKeys = await this.redis.keys('*');
     const allValues: T[] = [];
@@ -205,13 +196,10 @@ export class ChatService {
     return message;
   }
 
-  async getObject<T>(key: string, dataBase: REDIS_DB): Promise<T> {
-    // await this.redis.select(dataBase);
-    // const type = await this.redis.type(key);
-    const jsonObj: T = (await this.redis.json.get(key, {
-      path: '.',
-    })) as any;
-    return jsonObj;
+  async getObject<T>(key: string, dataBase: eRedisDb): Promise<T> {
+    const stringObj = await this.redis.get(key);
+    const obj = JSON.parse(stringObj);
+    return obj;
   }
 
   // trying to emit private channels only to the people who are inside it
@@ -223,7 +211,7 @@ export class ChatService {
   parseIdCookie(cookies) {
     if (cookies) {
       const cookiesObj = Cookie.parse(cookies);
-      if (cookiesObj['id']) return cookiesObj['id'];
+      if (cookiesObj['auth_session']) return cookiesObj['auth_session'];
     }
     return null;
   }
@@ -246,7 +234,7 @@ export class ChatService {
   ) {
     const user: ChatUser = await this.getObject(
       userId.toString(),
-      REDIS_DB.USERS_DB,
+      eRedisDb.Users,
     );
     const date = Date.now();
     const message: Message = {
@@ -258,6 +246,6 @@ export class ChatService {
       fromUserId: this.messageBotId,
     };
     this.server.to(channelId.toString()).emit(eEvent.UpdateOneMessage, message);
-    this.setObject(message.id.toString(), message, REDIS_DB.MSG_DB);
+    this.setObject(message.id.toString(), message, eRedisDb.Messages);
   }
 }

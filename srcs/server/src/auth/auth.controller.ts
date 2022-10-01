@@ -5,6 +5,8 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Param,
+  ParseIntPipe,
   Post,
   Request,
   Response,
@@ -201,9 +203,15 @@ export class AuthController {
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
 
+  @UseGuards(TwoFactorDto)
+  @Get('2fa/state')
+  isTwoFaActivated(@Request() req) {
+    if (req.user && req.user.isTwoFactorActivated) return { message: 'on' };
+    return { message: 'off' };
+  }
+
   /**************************** Helpers for Dev *******************************/
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
-
   @UseGuards(LoggedInGuard)
   @Get('status')
   @ApiExcludeEndpoint()

@@ -10,15 +10,10 @@ import { Socket } from 'socket.io';
 import { OnModuleInit, Logger } from '@nestjs/common';
 import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
 import { ChatUser, Channel } from './entities';
-import { eEvent } from './constants';
+import { eRedisDb, eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { ChannelType } from '@prisma/client';
-
-enum REDIS_DB {
-  USERS_DB = 1,
-  CHANNELS_DB,
-  MSG_DB,
-}
+import { RequestUser } from 'src/common/entities';
 
 @WebSocketGateway({
   cors: {
@@ -47,18 +42,32 @@ export class ChatGateway
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    const userId: string = this.chatService.parseIdCookie(
-      client.handshake.headers.cookie,
-    );
+    const user = client.handshake.auth.id;
+    client.join(user.id);
     this.logger.debug(
-      `User with id ${userId} and socket id ${client.id} is trying to reconnect`,
+      `User id:${user} with socket id:${client.id} is trying to connect`,
     );
-    // const allMessages = await this.chatService.getAllAsArray(REDIS_DB.MSG_DB);
-    // client.emit(eEvent.UpdateMessages, allMessages);
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.debug(`client ${client.id} disconnected`);
+  async handleDisconnect(client: Socket) {
+    const sessionCookie = this.chatService.parseIdCookie(
+      client.handshake.headers.cookie,
+    );
+    if (sessionCookie) {
+      const user = await this.chatService.getObject<RequestUser>(
+        sessionCookie,
+        eRedisDb.Sessions,
+      );
+      this.logger.debug(`client ${client.id} disconnected`);
+    }
+  }
+
+  @SubscribeMessage(eEvent.InitConnection)
+  initConnection(client: Socket, channelIds: string[]) {
+    this.logger.debug(
+      `Initing connection for user ${client.handshake.auth.id} and socket.id ${client.id}`,
+    );
+    this.chatService.initConnection(client, channelIds);
   }
 
   @SubscribeMessage(eEvent.SendMessage)
@@ -86,26 +95,9 @@ export class ChatGateway
     return this.chatService.updateOneChannel(client, channel.id, channel.type);
   }
 
-  @SubscribeMessage(eEvent.SetId)
-  handleSetId(client: Socket) {
-    client.emit(eEvent.SetId);
-  }
-
-  @SubscribeMessage(eEvent.InitConnection)
-  initConnection(
-    client: Socket,
-    { channelIds, userId }: { channelIds: string[]; userId: number },
-  ) {
-    this.logger.debug(
-      `Initing connection for user ${userId} and socket.id ${client.id}`,
-    );
-    this.logger.debug(`Sending channelIds and user id ${userId}`);
-    this.chatService.initConnection(client, channelIds, userId);
-  }
-
   @SubscribeMessage(eEvent.CreateChannel)
   handleCreateChannel(client: Socket, channelId: number) {
-    return this.chatService.addToRoom(client, channelId);
+    return this.chatService.createChannel(client, channelId);
   }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )
