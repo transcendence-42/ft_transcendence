@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./BrowseChannels.css";
-import { Channel, UserOnChannel } from "./entities";
+import { Channel, UserOnChannel } from "./entities/user.entity";
 import { eChannelType } from "./constants";
 
 export default function BrowseChannels({
@@ -13,26 +13,6 @@ export default function BrowseChannels({
   const [joinChannelPassword, setJoinChannelPassword] = useState("");
   const handleJoinChannel = (e: any, channel: Channel) => {
     e.preventDefault();
-
-    const userAlreadyInChannel: UserOnChannel | null = userChannels.find(
-      (userOnChannel: UserOnChannel) => userOnChannel.channelId === channel.id
-    );
-    if (userAlreadyInChannel) {
-      const bannedDate = new Date(
-        userAlreadyInChannel.bannedTill
-      ).getMilliseconds();
-      if (bannedDate < Date.now()) {
-        return alert(`You are banned till ${bannedDate.toLocaleString()}!`);
-      }
-      const mutedDate = new Date(
-        userAlreadyInChannel.mutedTill
-      ).getMilliseconds();
-      if (mutedDate < Date.now()) {
-        alert(
-          `Welcome to the channel! Remember that you are muted till ${mutedDate.toLocaleString()}`
-        );
-      }
-    }
 
     console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
     if (!channel) {
@@ -47,25 +27,32 @@ export default function BrowseChannels({
     }
   };
 
-  const nonDirectChannels = allChannels?.filter(
-    (channel: Channel) => channel.type !== eChannelType.DIRECT
-  );
   // all the public and protected channels and all private channels where you are
   // get all channels
   // pass user.channels in props
 
-  const availableChannels = nonDirectChannels?.filter((channel: Channel) => {
-    console.log(`Channel ${JSON.stringify(channel, null, 4)}`);
-    if (channel.type === eChannelType.DIRECT) return;
-    if (channel.type === eChannelType.PRIVATE) {
-      // does the user belong to the protected channel ?
-      if (
-        !userChannels?.find(
-          (userChannel: UserOnChannel) => userChannel.channelId === channel.id
-        )
-      ) {
-        return;
-      }
+  const availableChannels = allChannels?.filter((channel: Channel) => {
+    if (
+      channel.type === eChannelType.DIRECT ||
+      channel.type === eChannelType.PRIVATE
+    )
+      return;
+    // don't show channels where the user is banned
+    // if (channel.bannedUsersId.find((id) => id === userId)) {
+    // return;
+    // }
+    // does the user belong to the private channel ?
+    const userInChan: UserOnChannel = userChannels?.find(
+      (usrChan: UserOnChannel) => usrChan.channelId === channel.id
+    );
+    // if user is not in channel then show the channel
+    // if the user is in channel:
+    // user is banned ? don't show
+    // user has left channel but not banned ? show
+    if (userInChan) {
+      const now = Date.now();
+      // const bannedDate = new Date(userInChan.bannedTill).getMilliseconds();
+      // if (bannedDate < now) return;
     }
     return channel;
   });
@@ -81,13 +68,13 @@ export default function BrowseChannels({
 
   return (
     <div className="row row-color">
+      <input
+        style={{ color: "black" }}
+        value={channelSearch}
+        onChange={(e) => setChannelSearch(e.target.value)}
+      ></input>
       {filtered.length > 0 ? (
         <>
-          <input
-            style={{ color: "black" }}
-            value={channelSearch}
-            onChange={(e) => setChannelSearch(e.target.value)}
-          ></input>
           {filtered.length !== 0 &&
             filtered.map((channel: Channel) => (
               <div className="channels" key={channel.id}>

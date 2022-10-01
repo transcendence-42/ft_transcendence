@@ -1,11 +1,9 @@
-import { Channel, CreateChannelDto, UserOnChannel } from "../entities";
+import { CreateChannelDto } from "../entities/create-channel.dto";
+import { Channel, UserOnChannel  } from "../entities/user.entity";
 import { fetchUrl } from "../utils";
-import { eEvent } from "../constants";
-import { Socket } from "socket.io-client";
 
 const createChannelOnDb = async (
   createChannelDto: CreateChannelDto,
-  socket: Socket
 ): Promise<[Channel, UserOnChannel] | void> => {
   const channel = await fetchUrl(
     "http://127.0.0.1:4200/channel/",

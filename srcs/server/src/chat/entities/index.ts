@@ -1,4 +1,2 @@
-export * from './channel.entity';
-export * from './chatUser.entity';
+export * from '../../channels/entities/channel.entity';
 export * from './message.entity';
-export * from './channelUser.entity';

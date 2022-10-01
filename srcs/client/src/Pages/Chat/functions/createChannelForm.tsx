@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import { eChannelType, eEvent } from "../constants";
-import { Channel, CreateChannelDto, UserOnChannel } from "../entities";
+import { CreateChannelDto } from "../entities/create-channel.dto";
+import { Channel, UserOnChannel  } from "../entities/user.entity";
 import createChannelOnDb from "./createChannelOnDb";
 
 const handleCreateChannelForm = (
@@ -26,7 +27,6 @@ const handleCreateChannelForm = (
     };
     const resp: [Channel, UserOnChannel] | void = await createChannelOnDb(
       createChannelDto,
-      socket
     );
     if (!resp) {
       throw new Error("Failed to create user on database");

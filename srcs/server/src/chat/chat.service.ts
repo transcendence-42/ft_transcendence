@@ -1,15 +1,14 @@
-import { Socket, Server } from 'socket.io';
-import { WebSocketServer } from '@nestjs/websockets';
-import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
-import { v4 as uuidv4 } from 'uuid';
-import * as Cookie from 'cookie';
-import { Channel, ChannelUser, ChatUser, Message } from './entities';
-import { eRedisDb, eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Inject, Logger } from '@nestjs/common';
-import { Hashtable } from './interfaces/hashtable.interface';
+import { WebSocketServer } from '@nestjs/websockets';
+import { Socket, Server } from 'socket.io';
+import { ChannelType, UserRole } from '@prisma/client';
 import Redis from 'redis';
-import { ChannelType } from '@prisma/client';
-import { channel } from 'diagnostics_channel';
+import * as Cookie from 'cookie';
+import { Channel, Message } from './entities';
+import { eRedisDb, eChannelType, eChannelUserRole, eEvent } from './constants';
+import { Hashtable } from './interfaces/hashtable.interface';
+import { MessageDto, JoinChannelDto } from './dto';
+import { UserOnChannel } from 'src/user/entities/userOnChannel.entity';
 
 export class ChatService {
   constructor(
@@ -69,13 +68,15 @@ export class ChatService {
       //   )
       !channel.users[joinChannelDto.userId]
     ) {
-      const joinedChannelAt = Date.now();
-      const channelUser: ChannelUser = {
-        id: joinChannelDto.userId,
-        role: eChannelUserRole.User, //to be included in the joinChannelDto
-        joinedChannelAt,
-        isMuted: false,
+      const joinedAt = new Date();
+      const channelUser: UserOnChannel = {
+        channelId: joinChannelDto.id,
+        userId: joinChannelDto.userId,
+        role: UserRole.USER, //to be included in the joinChannelDto
+        joinedAt: joinedAt,
         isBanned: false,
+        isMuted: false,
+        hasLeftChannel: false,
       };
       // channel.users.push(channelUser);
       channel.users[joinChannelDto.userId] = channelUser;
@@ -229,18 +230,15 @@ export class ChatService {
 
   private async _joinedChannelBot(
     userId: number,
+    // username: string,
     channelId: number,
     channelName: string,
   ) {
-    const user: ChatUser = await this.getObject(
-      userId.toString(),
-      eRedisDb.Users,
-    );
     const date = Date.now();
     const message: Message = {
-      content: `User ${user.name} has joined ${channelName}`,
+      content: `User has joined ${channelName}`,
       id:
-        user.id.toString() + date.toString() + (Math.random() * 100).toString(),
+        userId.toString() + date.toString() + (Math.random() * 100).toString(),
       sentDate: date,
       toChannelOrUserId: channelId,
       fromUserId: this.messageBotId,

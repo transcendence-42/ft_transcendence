@@ -1,3 +1,5 @@
+import { OnModuleInit, Logger } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -5,14 +7,10 @@ import {
   OnGatewayDisconnect,
   OnGatewayInit,
 } from '@nestjs/websockets';
-import { ChatService } from './chat.service';
-import { Socket } from 'socket.io';
-import { OnModuleInit, Logger } from '@nestjs/common';
-import { MessageDto, CreateChannelDto, JoinChannelDto } from './dto';
-import { ChatUser, Channel } from './entities';
-import { eRedisDb, eEvent } from './constants';
-import { Hashtable } from './interfaces/hashtable.interface';
 import { ChannelType } from '@prisma/client';
+import { ChatService } from './chat.service';
+import { MessageDto, JoinChannelDto } from './dto';
+import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
 
 @WebSocketGateway(4444, {
@@ -86,7 +84,7 @@ export class ChatGateway
     this.logger.debug(
       `This is channel joining ${JSON.stringify(channel, null, 4)}`,
     );
-    return this.chatService.handleJoinChannel(client, channel);
+    // return this.chatService.handleJoinChannel(client, channel);
   }
 
   @SubscribeMessage(eEvent.UpdateOneChannel)

@@ -68,9 +68,10 @@ model UserOnChannel {
   channelId  Int
   userId     Int
   role       UserRole
+  hasLeftChannel Boolean @default(false)
+  isMuted     Boolean @default(false)
+  isBanned    Boolean @default(false)
   joinedAt   DateTime @default(now()) @db.Timestamp()
-  mutedTill  DateTime @default(now()) @db.Timestamp()
-  bannedTill DateTime @default(now()) @db.Timestamp()
   channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

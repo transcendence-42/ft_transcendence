@@ -9,15 +9,10 @@ import PongAdvancedModal from "../../Components/Modal/PongAdvancedModal";
 import BrowseChannels from "./BrowseChannels";
 import CreateChannel from "./CreateChannel";
 import FriendList from "./FriendList";
-import {
-  MessageDto,
-  Channel,
-  JoinChannelDto,
-  Message,
-  UserOnChannel,
-  Hashtable,
-  User
-} from "./entities";
+import { MessageDto } from "./dtos/message.dto";
+import { Channel, UserOnChannel, User } from "./entities/user.entity";
+import { Message } from "./entities/message.entity";
+import { JoinChannelDto, Hashtable } from "./entities/entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
@@ -32,6 +27,7 @@ const lobbyChannel: Channel = {
   type: eChannelType.PUBLIC,
   id: 24098932842,
   users: []
+  // bannedUsersId: []
 };
 
 export default function Chat(props: any) {
@@ -299,13 +295,15 @@ export default function Chat(props: any) {
 
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
       console.log(`Updating one message ${JSON.stringify(message)}`);
-      const newAllMessages = allMessages;
-      if (!newAllMessages[message.toChannelOrUserId]) {
-        newAllMessages[message.toChannelOrUserId] = [];
-      }
-      console.log(newAllMessages[message.toChannelOrUserId]);
-      newAllMessages[message.toChannelOrUserId].push(message);
-      setAllMessages((prevAllMessages) => ({ ...newAllMessages }));
+      setAllMessages((prevAllMessages) => {
+        const newAllMessages = prevAllMessages;
+        if (!newAllMessages[message.toChannelOrUserId]) {
+          newAllMessages[message.toChannelOrUserId] = [];
+        }
+        console.log(newAllMessages[message.toChannelOrUserId]);
+        newAllMessages[message.toChannelOrUserId].push(message);
+        return { ...newAllMessages };
+      });
     });
 
     socket.on(eEvent.UpdateOneUser, (userId: number) => {

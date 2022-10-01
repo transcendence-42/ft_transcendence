@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ChannelType, UserOnChannel, UserRole } from '@prisma/client';
 import { Logger } from 'nestjs-pino';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
-import { Channel } from 'src/generated/nestjs-dto/channel.entity';
 import {
   CreateUserOnChannelDto,
   UpdateChannelDto,
   CreateChannelDto,
   UpdateUserOnChannelDto,
 } from './dto';
+import { Channel } from './entities';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ChannelAlreadyExistsException,
@@ -27,7 +27,7 @@ export class ChannelService {
   ) {}
 
   async findOne(id: number): Promise<Channel> {
-    const channel: Channel = await this.prisma.channel.findUnique({
+    const channel = await this.prisma.channel.findUnique({
       where: {
         id,
       },
@@ -114,19 +114,19 @@ export class ChannelService {
   async createUserOnChannel(
     createUserOnChannelDto: CreateUserOnChannelDto,
   ): Promise<UserOnChannel> {
-      try {
-        const result = await this.prisma.userOnChannel.create({
-          data: {
-            ...createUserOnChannelDto,
-          },
-        });
-        return result;
-      } catch (e) {
-        this.logger.error(
-          `Prisma failed to create UserOnChannel ${e['message']}`,
-        );
-        throw new ChannelNotFoundException(createUserOnChannelDto.userId);
-      }
+    try {
+      const result = await this.prisma.userOnChannel.create({
+        data: {
+          ...createUserOnChannelDto,
+        },
+      });
+      return result;
+    } catch (e) {
+      this.logger.error(
+        `Prisma failed to create UserOnChannel ${e['message']}`,
+      );
+      throw new ChannelNotFoundException(createUserOnChannelDto.userId);
+    }
   }
 
   async findUserOnChannel(
