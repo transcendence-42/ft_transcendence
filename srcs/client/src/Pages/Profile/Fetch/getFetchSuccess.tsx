@@ -1,5 +1,10 @@
 
 export async function getFetchSuccess(){
+
+   /**
+   * Check if the session cookie is valid and
+   * give back information with some user informations
+   */
 	const response = await
 	fetch("http://127.0.0.1:4200/auth/success", {
   method: "GET",

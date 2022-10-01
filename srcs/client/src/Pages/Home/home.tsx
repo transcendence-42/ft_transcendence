@@ -6,6 +6,7 @@ import '../../Components/Tools/Box.css';
 import '../../Components/Tools/Text.css';
 import '../../Components/Tools/VirtualPong/virtualPong.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ModalAuthentification from './Modal/ModalAuthentification';
 
 export default function Home({ updateID, userID }: any) {
   /*
@@ -13,6 +14,20 @@ export default function Home({ updateID, userID }: any) {
    */
   const contextValue = useContext(Context);
   const [fromAuth, setFromAuth] = useState(false);
+  const [isShowing, setIsShowing] = useState(false);
+  const [update, setUpdate] = useState(2);
+
+  function toggleUpdate() {
+    setTimeout(() => {
+      if (update === 2) setUpdate(1);
+      if (update === 1) setUpdate(0);
+      if (update === 0) setUpdate(1);
+    }, 100);
+  }
+
+  function toggle() {
+    setIsShowing(!isShowing);
+  }
 
   /*
    ** First function to Auth the user from our app -> 42Auth -> back -> front
@@ -43,11 +58,15 @@ export default function Home({ updateID, userID }: any) {
       })
       .then((responseObject) => {
         if (responseObject.message) {
+          if (responseObject.message === 'require 2fa') {
+            toggle();
+            return;
+          }
           if (!userID) {
             updateID(responseObject.user.id);
           }
-
           console.log('Success parsing 42auth');
+          console.log(responseObject);
           localStorage.setItem('pathIsFree', JSON.stringify(true));
           contextValue.updateIsConnected(true);
           return;
@@ -68,7 +87,7 @@ export default function Home({ updateID, userID }: any) {
       setFromAuth(false);
       window.localStorage.removeItem('fromAuth');
     }
-  }, []);
+  }, [update]);
 
   /*
    ** If we are connected we have the options of playing and watch, otherwise
@@ -98,6 +117,16 @@ export default function Home({ updateID, userID }: any) {
         <div className=" row blueText  ">
           <h5 className="text-center">Join Players From 42 School</h5>
         </div>
+        <ModalAuthentification
+          show={isShowing}
+          closeHandler={toggle}
+          textBtn1="Cancel"
+          handleBtn1={toggle}
+          textBtn2="Submit"
+          handleBtn2={toggle}
+          title="Double Authentication"
+          up={toggleUpdate}
+        />
       </>
     );
   } else {
@@ -120,8 +149,7 @@ export default function Home({ updateID, userID }: any) {
           <div className="container square-box d-flex justify-content-center align-items-center pt-5 pb-5">
             <div className="">
               <Link to="/lobby">
-                {' '}
-                <h2 className="animated-word"> Lobby</h2>{' '}
+                <h2 className="animated-word"> Lobby</h2>
               </Link>
             </div>
           </div>

@@ -1,7 +1,7 @@
 // React
 import React, { useCallback, useContext } from 'react';
 import { useState, useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 // Style
 import './profile.css';
 import '../../Components/Tools/Text.css';
@@ -12,12 +12,12 @@ import AddFriend from './Button/AddFriend';
 import BlockFriend from './Button/BlockFriend';
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil';
 import OnlineOffline from './OnlineOffline';
-import ChangePseudo from './Button/ChangePseudo';
 import ChangePicture from './Button/ChangePicture';
 import DoubleAuth from './Button/DoubleAuth';
 import Ladder from './Ladder';
 import MatchHistory from './MatchHistory';
 import FriendList from './FriendList';
+import ChangeUsername from './Button/ChangeUsername';
 // Utils
 import { getFetch } from './Fetch/getFetch';
 import { getFetchMatch } from './Fetch/getFetchMatch';
@@ -34,7 +34,6 @@ const Profile = () => {
   /** GLOBAL                                                                  */
   /** *********************************************************************** */
 
-  const location = useLocation();
   const [socket, originalId] = useContext(SocketContext);
   let { id } = useParams();
   let userId: number;
@@ -42,29 +41,11 @@ const Profile = () => {
   else userId = +originalId;
 
   /** *********************************************************************** */
-  /** ENUMS                                                                   */
-  /** *********************************************************************** */
-
-  enum ePlayerStatus {
-    OFFLINE = 0,
-    ONLINE,
-    WAITING,
-    PLAYING,
-    SPECTATING,
-    CHALLENGE,
-  }
-
-  enum eAction {
-    NOTHING = 0,
-    JOIN,
-    SPECTATE,
-  }
-
-  /** *********************************************************************** */
   /** STATES                                                                  */
   /** *********************************************************************** */
 
   const [user, setUser] = useState({} as any);
+  const [doubleFactor, setDoubleFactor] : any = useState(false);
   const [player, setPlayer] = useState({} as any);
   const [players, setPlayers] = useState({} as any);
   const [friendList, setFriendList] = useState([] as any);
@@ -147,8 +128,15 @@ const Profile = () => {
       matches_json.then((responseObject) => {
         setMatchesList(responseObject);
       });
-    }
-  }, [userId, update]);
+      request = "http://127.0.0.1:4200/auth/2fa/state/" + userId;
+      const double_json = getFetch({url : request});
+      double_json.then((responseObject)=> {
+        if(responseObject)
+        {
+            setDoubleFactor(true);
+        }
+      });
+    }}, [userId, update]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -181,9 +169,9 @@ const Profile = () => {
             <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (
                 <>
-                  <ChangePseudo id={userId} up={toggleUpdate} />
-                  <ChangePicture id={userId} up={toggleUpdate} />
-                  <DoubleAuth />
+                  <ChangeUsername id={userId} up={toggleUpdate}/>
+                  <ChangePicture id={userId} up={toggleUpdate}/>
+                  <DoubleAuth id={userId} up={toggleUpdate} authUp={setDoubleFactor} activated={doubleFactor}/>
                 </>
               ) : (
                 <>

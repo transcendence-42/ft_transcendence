@@ -58,12 +58,13 @@ function App() {
     if (data) {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
-  });
+  }, []);
   /*
    ** Context.Provider surround all routes and spread the contextValue, 
    ** BrowserRouter allows us to use routes.
    ** Routes surround all route
    */
+
   return (
     <Context.Provider value={contextValue}>
         <BrowserRouter>

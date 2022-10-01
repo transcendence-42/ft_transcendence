@@ -3,6 +3,7 @@ import { getFetch } from './getFetch';
 import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './leaderboard.css';
+import League from '../Profile/League';
 
 export default function Leaderboard() {
   /*
@@ -10,16 +11,14 @@ export default function Leaderboard() {
    */
   let location = useLocation();
   const { userID }: any = location.state || {}; //Destructuring
+  console.log(userID);
   const [users, setUsers]: any = useState(null);
   let i = 1;
 
   useEffect(() => {
-    console.log('test : ' + userID);
     let request = 'http://127.0.0.1:4200/users';
-    console.log(request);
     const json = getFetch({ url: request });
     json.then((responseObject) => {
-      console.log(responseObject);
       setUsers(responseObject);
     });
   }, [userID]);
@@ -29,66 +28,70 @@ export default function Leaderboard() {
   if (users) {
     return (
       <>
-        <div className="leaderboard mt-5" data-testid="tracker">
-          <div>
-            <div className="frame">
-              <div>
-                <h1 className="pinkText " style={{ fontSize: '4vw' }}>
-                  LEADERBOARD
-                </h1>
-              </div>
-              <div className="container1">
-                <div className="blueText" style={{ fontSize: '2vw' }}>
-                  <h2 className="column">RANK</h2>
-                </div>
-                <div className="blueText" style={{ fontSize: '2vw' }}>
-                  <h2 className="column">NAME</h2>
-                </div>
-                <div className="blueText" style={{ fontSize: '2vw' }}>
-                  <h2 className="column">Elo Ratings</h2>
-                </div>
-              </div>
-              <div className="container1">
-                <table>
-                  <tbody>
-                    {users &&
-                      users
-                        .sort((a: { eloRating: any }, b: { eloRating: any }) =>
-                          a.eloRating < b.eloRating ? 1 : -1,
-                        )
-                        .map(
-                          (user: {
-                            eloRating: string;
-                            id: React.Key;
-                            username: string;
-                          }) => (
-                            <tr key={user.id} className="leaderboard-tr">
-                              <td
-                                className="leaderboard-td"
-                                style={{ fontSize: '2vw' }}
-                              >
-                                {i++}
-                              </td>
-                              <td
-                                className="leaderboard-td"
-                                style={{ fontSize: '2vw' }}
-                              >
-                                {user.username}
-                              </td>
-                              <td
-                                className="leaderboard-td"
-                                style={{ fontSize: '2vw' }}
-                              >
-                                {user && user.eloRating}
-                              </td>
-                            </tr>
-                          ),
+        <h1 className="pinkText " style={{ fontSize: '4vw' }}>
+          LEADERBOARD
+        </h1>
+        <div className="container1 scroll" data-testid="tracker">
+          <table className="table">
+            <thead>
+              <tr className='leaderboard-tr text-center'>
+                <th scope="col">RANK</th>
+                <th scope="col">NAME</th>
+                <th scope="col">ELO</th>
+                <th scope="col">LEAGUE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users &&
+                users
+                  .sort((a: { eloRating: any }, b: { eloRating: any }) =>
+                    a.eloRating < b.eloRating ? 1 : -1,
+                  )
+                  .map(
+                    (user: {
+                      eloRating: string;
+                      id: React.Key;
+                      username: string;
+                    }) => (
+                      <tr className='leaderboard-tr text-center' key={user.id}>
+                        {userID === user.id ? (
+                          <>
+                            <td
+                              style={{ fontSize: '2vw' }}
+                              className="pinkText"
+                            >
+                              {i++}
+                            </td>
+                            <td
+                              style={{ fontSize: '2vw' }}
+                              className="pinkText"
+                            >
+                              {user.username}
+                            </td>
+                            <td
+                              style={{ fontSize: '2vw' }}
+                              className="pinkText"
+                            >
+                              {user.eloRating}
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td style={{ fontSize: '2vw' }}>{i++}</td>
+                            <td style={{ fontSize: '2vw' }}>{user.username}</td>
+                            <td style={{ fontSize: '2vw' }}>
+                              {user.eloRating}
+                            </td>
+                          </>
                         )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+                        <td>
+                          <League elo={user.eloRating} size={'2vw'} />
+                        </td>
+                      </tr>
+                    ),
+                  )}
+            </tbody>
+          </table>
         </div>
       </>
     );

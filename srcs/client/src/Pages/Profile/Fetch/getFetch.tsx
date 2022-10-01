@@ -1,5 +1,10 @@
 
 export async function getFetch(props : any){
+
+    /**
+   * @props url: url for the request
+   * Generic function for GET Fetch
+   */
 	try{
 		const response = await
 		fetch(props.url, {

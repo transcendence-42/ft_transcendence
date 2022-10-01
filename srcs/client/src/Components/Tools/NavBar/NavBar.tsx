@@ -12,6 +12,7 @@ export default function NavBar(props: any) {
   const contextValue = useContext(Context);
   const [socket, originalId] = useContext(SocketContext);
 
+  console.log(`userid : ${props.userID}`);
   /*
    ** Fetching data for logout
    */
@@ -41,7 +42,8 @@ export default function NavBar(props: any) {
   };
 
   /*
-   ** Here this function allows us to fetch our first data and start the connection flow only if we are from auth42 page
+   ** Here this function allows us to fetch our first data and start the
+   ** connection flow only if we are from auth42 page
    */
 
   if (contextValue.isConnected) {
@@ -67,7 +69,11 @@ export default function NavBar(props: any) {
         <Navbar.Toggle className="" />
         <Navbar.Collapse className="">
           <Nav className="navbar-nav ms-auto ">
-            <Link to="/leaderboard" className="aNav">
+            <Link
+              to="/leaderboard"
+              state={{ userID: props.userID }}
+              className="aNav"
+            >
               <span></span>
               <span></span>
               <span></span>

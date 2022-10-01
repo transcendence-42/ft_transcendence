@@ -39,3 +39,17 @@
   				    0px 0px 6px #852388,
               inset 0px 0px 6px #852388;
 }
+.btn-yellow {
+  --bs-btn-hover-color: #f5df17;
+  --bs-btn-hover-bg: #b90ba262;
+  --bs-btn-hover-border-color: #fceb06;
+  --bs-btn-active-color: #f5df17;
+  --bs-btn-active-bg: #b90ba262;
+  --bs-btn-active-border-color: #fceb06;
+	border: 2px solid #DCCA2A;
+  background-color: rgb(5, 2, 30);
+  box-shadow:	0px 0px 5px #FF6ADE,
+              inset 0px 0px 5px #FF6ADE,
+  				    0px 0px 6px #852388,
+              inset 0px 0px 6px #852388;
+}

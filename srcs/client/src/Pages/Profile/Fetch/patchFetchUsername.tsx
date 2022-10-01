@@ -1,24 +1,19 @@
+export async function patchFetchUsername(props : any){
 
-export async function getFetchFriends(props : any){
    /**
    * @props url: url for the request with userID inside
-   * Get the Friends informations of an user
+   * Patching the username of an user
    */
-		const response = await
+	const response = await
 		fetch(props.url, {
-	  method: "GET",
+	  method: "PATCH",
 	  credentials: "include",
 	  headers: {
 		Accept: "application/json",
 		"Content-Type": "application/json",
 		"Access-Control-Allow-Credentials": "true",
-	  }
-	}).then((response) =>{
-			if (response.status !== 200){
-				return;
-			}
-			return (response.json());
-		})
+	  },
+	  body: JSON.stringify({ username: props.name})
+	})
 	return response;
- };
-
+}

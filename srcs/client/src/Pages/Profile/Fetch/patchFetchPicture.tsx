@@ -1,5 +1,10 @@
 
 export async function patchFetchPicture(props : any){
+
+   /**
+   * @props url: url for the request with userID inside
+   * Patching the picture of an user
+   */
 	const response = await
 	fetch(props.url, {
 	  method: "PATCH",
