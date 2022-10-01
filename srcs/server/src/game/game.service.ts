@@ -640,7 +640,30 @@ export class GameService {
             '$.gamePhysics.ball',
             JSON.stringify(game.gamePhysics.ball),
           )
-          .call('JSON.SET', game.id, '$.players', JSON.stringify(game.players))
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].score',
+            JSON.stringify(game.players[0].score),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[1].score',
+            JSON.stringify(game.players[1].score),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].updating',
+            JSON.stringify(game.players[0].updating),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].updating',
+            JSON.stringify(game.players[0].updating),
+          )
           .exec();
       }
     }
@@ -778,15 +801,18 @@ export class GameService {
       throw new CannotPauseGameException('you have used all your pauses');
     }
     // Pause the game and unpause it after a delay with a callback
-    game.players.map((p) =>
-      p.userId === userId ? { ...p, pauseCount: --p.pauseCount } : p,
-    );
+    const i: number = game.players.findIndex((p) => p.userId === userId);
     const ballSpeed = game.gamePhysics.ball.speed;
-    // update redis
+    // update redis with updated pause count
     await this.redis
       .multi()
       .select(DB.GAMES)
-      .call('JSON.SET', id, '$.players', JSON.stringify(game.players))
+      .call(
+        'JSON.SET',
+        id,
+        `$.players[${i}].pauseCount`,
+        JSON.stringify(--game.players[i].pauseCount),
+      )
       .call('JSON.SET', id, '$.status', Status.PAUSED)
       .exec();
     this.server.to(id).emit('pause', +Params.PAUSE_TIME);
