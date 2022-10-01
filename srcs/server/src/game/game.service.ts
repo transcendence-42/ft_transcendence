@@ -551,17 +551,16 @@ export class GameService {
 
   /** End a game */
   private async _endGame(
-    gameId: string,
+    game: Game,
     motive: number,
     loserId?: string,
   ): Promise<Match> {
     // emit a game end info to all players / viewers so they go back to lobby
-    this.server.to(gameId).emit('gameEnd', motive);
+    this.server.to(game.id).emit('gameEnd', motive);
     // disconnect players / viewers from game room and connect them to lobby
-    this.server.in(gameId).socketsJoin(Params.LOBBY);
-    this.server.in(gameId).socketsLeave(gameId);
+    this.server.in(game.id).socketsJoin(Params.LOBBY);
+    this.server.in(game.id).socketsLeave(game.id);
     // save game result in database
-    const game: Game = await this._getGame(gameId);
     const createMatchDto: CreateMatchDto = {
       players: game.players.map((p: any) => ({
         playerId: +p.userId,
@@ -571,7 +570,7 @@ export class GameService {
       })),
     };
     // remove the game from the list
-    await this._removeGame(gameId);
+    await this._removeGame(game.id);
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -621,7 +620,7 @@ export class GameService {
       // check scores and end the game if one player scores 9
       const loserId = this._weHaveALoser(game);
       if (loserId !== '') {
-        this._endGame(game.id, Motive.WIN, loserId);
+        this._endGame(game, Motive.WIN, loserId);
         clearInterval(interval);
         return;
       }
@@ -761,7 +760,7 @@ export class GameService {
     const interval = this._getInterval(id);
     if (interval) clearInterval(interval);
     if (game.players.length > 1)
-      return await this._endGame(id, Motive.ABANDON, userId);
+      return await this._endGame(game, Motive.ABANDON, userId);
     else await this._cancelGame(id);
   }
 
@@ -1022,6 +1021,7 @@ export class GameService {
     const scores = game.players.map((player) => ({
       side: player.side,
       score: player.score,
+      name: player.name,
     }));
     return scores;
   }

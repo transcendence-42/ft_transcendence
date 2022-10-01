@@ -57,6 +57,39 @@ export const drawScores = (
   }
 };
 
+/** Draw scores */
+export const drawUsernames = (
+  ctx: CanvasRenderingContext2D,
+  scores: any,
+  map: any,
+) => {
+  if (scores) {
+    // Get current canvas width
+    const cWidth: any = document
+      .getElementById('pongCanvas')
+      ?.getAttribute('width');
+    let display: string = '';
+    scores.forEach((s: any) => {
+      ctx.font = `${map.score.style} ${+cWidth * 0.028}px ${map.fontFamily}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.shadowBlur = map.score.shadow;
+      ctx.shadowColor = map.score.shadowColor;
+      ctx.fillStyle = map.text.fill;
+      const wPos =
+        +s.side === 0 ? map.canvas.size.w / 4 : map.canvas.size.w / 1.33;
+      ctx.fillText(display, map.canvas.size.w / wPos, 30);
+    });
+    ctx.font = `${map.score.style} ${+cWidth * 0.078}px ${map.fontFamily}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowBlur = map.score.shadow;
+    ctx.shadowColor = map.score.shadowColor;
+    ctx.fillStyle = map.text.fill;
+    ctx.fillText(display, map.canvas.size.w / 2, 30);
+  }
+};
+
 /** Draw player's paddles */
 export const drawPaddles = (
   ctx: CanvasRenderingContext2D,
