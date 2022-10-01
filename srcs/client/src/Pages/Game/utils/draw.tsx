@@ -75,7 +75,6 @@ export const drawUsernames = (
       ctx.shadowBlur = map.altText.shadow;
       ctx.shadowColor = map.altText.shadowColor;
       ctx.fillStyle = map.altText.fill;
-      console.log(s.side);
       const wPos =
         s.side === 0 ? map.canvas.size.w / 4 : map.canvas.size.w / 1.33;
       ctx.fillText(s.name, wPos, 30);

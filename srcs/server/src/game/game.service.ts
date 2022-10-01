@@ -1240,11 +1240,24 @@ export class GameService {
       input === Move.UP ? Params.PLAYERSPEED * -1 : Params.PLAYERSPEED;
     // handle possible collision
     let updatedPaddle: Physic = this._getUpdatedObject(paddle, move);
-    if (
-      this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.TOP]) ||
+    if (this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.TOP])) {
+      updatedPaddle = {
+        ...paddle,
+        coordinates: {
+          x: paddle.coordinates.x,
+          y: Params.WALLSIZE + 1,
+        },
+      };
+    } else if (
       this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.BOTTOM])
     ) {
-      updatedPaddle = this._bounce(paddle);
+      updatedPaddle = {
+        ...paddle,
+        coordinates: {
+          x: paddle.coordinates.x,
+          y: Params.CANVASH - Params.WALLSIZE - 1 - Params.BARHEIGHT,
+        },
+      };
     }
     game.gamePhysics.players[playerIndex] = updatedPaddle;
   }
