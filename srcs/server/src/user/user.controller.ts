@@ -183,6 +183,33 @@ export class UserController {
     return res;
   }
 
+  /** Get all friend requests for a user */
+  @ApiTags('Friends')
+  @Get(':id/friendrequests')
+  @ApiOperation({ summary: 'Get all friendship requests of a users' })
+  @ApiOkResponse({
+    description: 'Array of all friendship requests',
+    type: Friendship,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+    type: BaseApiException,
+  })
+  @ApiNoContentResponse({ description: 'No friendship request' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  async getUserFriendshipRequests(
+    @Param('id', ParseIntPipe) id: number,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    const res = await this.userService.findUserFriendshipRequests(
+      id,
+      paginationQuery,
+    );
+    return res;
+  }
+
   // RATING OPERATIONS ---------------------------------------------------------
   /** Get rating history for a user */
   @ApiTags('Elo ratings')

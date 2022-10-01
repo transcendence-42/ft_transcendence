@@ -1,24 +1,46 @@
 // React
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 // Socket
-import { SocketContext } from '../../socket';
+import { SocketContext } from './socket/socket';
 // Game
 import Game from './Game';
 import GameList from './GameList';
 import PongModal from '../../Components/Modal/PongModal';
 import { mapNeon } from './conf/maps';
+// Modals
+import Matchmaking from './modals/MatchMaking';
+import MapSelect from './modals/MapSelect';
+import GoBack from './modals/GoBack';
 // Styles
 import './Game.css';
 import '../../Styles';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
-import Matchmaking from './modals/MatchMaking';
-import MapSelect from './modals/MapSelect';
-import GoBack from './modals/GoBack';
-import { useNavigate } from 'react-router-dom';
 
-const GameLobby = (props: any) => {
-  // Enums
-  enum Action {
+const GameLobby: FC = () => {
+  /** 
+   * @locationState origin.name:  Name of the previous page
+   *                origin.loc:   Location of the previous page to go back
+   *                origin.state: State of the origin to restore it when go back
+   *                gameId?:      Id of the game on which apply the action. Can
+   *                              be '' if not needed.
+   *                action?:      0: Do nothing | 1: Join | 2: Spectacte
+   * 
+   * @props         userId:       id of the current user
+   */
+
+  /** *********************************************************************** */
+  /** ENUMS                                                                   */
+  /** *********************************************************************** */
+  
+  enum eAction {
+    NOTHING = 0,
+    JOIN,
+    SPECTATE,
+  }
+  
+  enum eEvents {
     GO_LOBBY = 0,
     VIEW_GAME,
     CREATE_GAME,
@@ -26,22 +48,48 @@ const GameLobby = (props: any) => {
     RECO_GAME,
   }
 
-  enum MatchMaking {
+  enum eMatchMaking {
     NOT_IN_QUEUE = 0,
     IN_QUEUE,
     IN_GAME,
   }
 
+  /** *********************************************************************** */
+  /** GLOBAL                                                                  */
+  /** *********************************************************************** */
+ 
   const navigate = useNavigate();
-  const socket = useContext(SocketContext);
+  const [socket, userId] = useContext(SocketContext);
 
+  /** *********************************************************************** */
+  /** STATES                                                                  */
+  /** *********************************************************************** */
+  
+  // Get a state from location provider
+  const location: any = useLocation();
+  let origin: { loc: string, name: string, state: any };
+  let gameId: string; 
+  let action: number;
+  if (location.state) {
+    ({ origin, gameId, action } = location.state);
+  } else {
+    origin = { loc: '/lobby', name: 'lobby', state: null };
+    gameId = '';
+    action = 0;
+  }
+  
   // States
-  const [game, setGame] = useState({ action: Action.GO_LOBBY, id: 'lobby' });
+  const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
+  const [player, setPlayer] = useState({} as any);
   const [message, setMessage] = useState({} as any);
   const [gameList, setGameList] = useState([] as any);
-  const [matchMaking, setMatchMaking] = useState(MatchMaking.NOT_IN_QUEUE);
+  const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
 
+  /** *********************************************************************** */
+  /** MODAL                                                                   */
+  /** *********************************************************************** */
+  
   // Modal states
   const [showGoBack, setShowGoBack] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
@@ -55,51 +103,58 @@ const GameLobby = (props: any) => {
   const handleCloseMapSelect = () => setShowMapSelect(false);
   const handleShowMapSelect = () => setShowMapSelect(true);
 
+  /** *********************************************************************** */
+  /** SOCKET EVENTS HANDLERS                                                  */
+  /** *********************************************************************** */
+  
   // Socket events handlers
-  const handleConnect = useCallback(() => {
-    setGame({ action: Action.GO_LOBBY, id: 'lobby' });
-    socket.emit('findAllGame');
-  }, [socket, Action]);
-
   const handleGameList = useCallback((gameList: any) => {
     setGameList(gameList);
   }, []);
 
+  const handleScoreUpdate = useCallback((scoreData: any) => {
+    const updatedGameList = gameList.map((g: any) => {
+      if (g.id === scoreData.id) {
+        return ({
+          ...g,
+          players: scoreData.players,
+        })
+      } else {
+        return g;
+      }
+    })
+    setGameList(updatedGameList);
+  }, [gameList]);
+
   const handleGameId = useCallback(
     (data: any) => {
       setMessage({});
-      setGame({ id: data.id, action: Action.CREATE_GAME });
+      setGame({ id: data.id, action: eEvents.CREATE_GAME });
     },
-    [Action.CREATE_GAME],
+    [eEvents.CREATE_GAME],
   );
 
   const handleReconnect = useCallback(
     (gameId: any) => {
       setMessage({});
-      setGame({ id: gameId, action: Action.RECO_GAME });
+      setGame({ id: gameId, action: eEvents.RECO_GAME });
     },
-    [Action.RECO_GAME],
+    [eEvents.RECO_GAME],
   );
 
-  const handleMatchMaking = useCallback(
-    (value: MatchMaking) => {
-      setMatchMaking(value);
-      socket.emit('matchMaking', { value: true });
-    },
-    [socket],
-  );
+  const handleMatchMaking = useCallback((value: eMatchMaking) => {
+    socket.emit('matchMaking', { value: value });
+  }, [socket]);
 
   const handleOpponentFound = useCallback(() => {
-    console.log('action : ' + game.action + 'id: ' + game.id);
-    if (game.action === Action.VIEW_GAME) {
+    if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
     }
     handleShowMatchMaking();
     setTimeout(() => {
       handleCloseMatchMaking();
-      setMatchMaking(MatchMaking.IN_GAME);
     }, 2000);
-  }, [MatchMaking.IN_GAME, Action.VIEW_GAME, game, socket]);
+  }, [eEvents.VIEW_GAME, game, socket]);
 
   const handleInfo = useCallback((info: any) => {
     setMessage({ message: info.message });
@@ -108,69 +163,121 @@ const GameLobby = (props: any) => {
     }, 4000);
   }, []);
 
-  // component event handlers
+  const handlePlayersInfos = useCallback((data: any) => {
+    const player = data.players
+      ? data.players.find((p: any) => p.id === userId.toString())
+      : {};
+    if (player) {
+      setMatchMaking(player.matchmaking);
+      setPlayer(player);
+      // reconnect game if needed
+      if (player.game && game.id === 'lobby')
+        setGame({ id: player.game, action: eEvents.JOIN_GAME });
+    }
+  }, []);
+
+  /** *********************************************************************** */
+  /** COMPONENT EVENT HANDLERS                                                */
+  /** *********************************************************************** */
+  
   const handleNewGame = () => {
-    setMatchMaking(MatchMaking.IN_GAME);
     socket.emit('createGame');
   };
 
-  const backTo = (room: any) => {
-    socket.emit('findAllGame');
-    setMessage({});
-    setMatchMaking(MatchMaking.NOT_IN_QUEUE);
-    setGame(room);
+  const backToOrigin = () => {
+    if (origin.name === 'lobby') {
+      socket.emit('findAllGame');
+      setMessage({});
+      setMatchMaking(eMatchMaking.NOT_IN_QUEUE);
+      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
+    } else {
+      navigate(origin.loc, { state: origin.state });
+    }
   };
 
   const handleBackTo = () => {
     handleCloseGoBack();
     // Viewer : remove the viewer and change its room in the server
-    if (game.action === Action.VIEW_GAME) {
+    if (game.action === eEvents.VIEW_GAME) {
       socket.emit('viewerLeaves', { id: game.id });
-      if (props.origin.name !== 'lobby')
-        navigate(props.origin.loc);
-      else backTo({ id: 'lobby', action: Action.GO_LOBBY });
+      backToOrigin();
     }
     // Player : cancel if 1 player / abandon if match started
-    if (game.action !== Action.VIEW_GAME) {
+    if (game.action !== eEvents.VIEW_GAME) {
       socket.emit('playerAbandons', { id: game.id });
-      
-      backTo({ id: 'lobby', action: Action.GO_LOBBY });
+      setTimeout(() => {
+        backToOrigin();
+      }, 2000);
+    }
+  };
+
+  /** *********************************************************************** */
+  /** INITIALIZATION                                                          */
+  /** *********************************************************************** */
+
+  const init = () => {
+    // Check state action
+    if (action === eAction.JOIN && gameId !== null) {
+      setGame({ id: gameId, action: eEvents.JOIN_GAME });
+    }
+    else if (action === eAction.SPECTATE && gameId !== null) {
+      setGame({ id: gameId, action: eEvents.VIEW_GAME });
+    }
+    else {
+      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
+      socket.emit('findAllGame');
     }
   };
 
   useEffect(() => {
+    socket.on('opponentFound', handleOpponentFound);
+     return () => {
+      socket.off('opponentFound', handleOpponentFound);
+    }
+  }, [handleOpponentFound]);
+
+  useEffect(() => {
+    socket.on('scoreUpdate', handleScoreUpdate);
+    return () => {
+      socket.off('scoreUpdate', handleScoreUpdate);
+    };
+  }, [gameList]);
+
+  useEffect(() => {
+    init();
     // Socket listeners
-    socket.on('connect', handleConnect);
     socket.on('gameList', handleGameList);
     socket.on('reconnect', handleReconnect);
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
-    socket.on('opponentFound', handleOpponentFound);
     socket.on('info', handleInfo);
+    socket.on('playersInfos', handlePlayersInfos);
     // get all games
     socket.emit('findAllGame');
     return () => {
-      socket.off('connect', handleConnect);
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);
       socket.off('exception', handleInfo);
-      socket.off('opponentFound', handleOpponentFound);
       socket.off('info', handleInfo);
+      socket.off('playersInfos', handlePlayersInfos);
     };
-  }, [handleOpponentFound]);
+  }, []);
 
-  // Render
+  /** *********************************************************************** */
+  /** RENDER                                                                  */
+  /** *********************************************************************** */
+
   return (
     <>
       {/* Modals */}
       <PongModal
-        title={`Go back to ${props.origin.name}`}
+        title={`Go back to ${origin.name}`}
         closeHandler={handleCloseGoBack}
         show={showGoBack}
         textBtn1="Cancel"
         handleBtn1={handleCloseGoBack}
-        textBtn2={`Go back to ${props.origin.name}`}
+        textBtn2={`Go back to ${origin.name}`}
         handleBtn2={handleBackTo}
       >
         <GoBack />
@@ -195,8 +302,8 @@ const GameLobby = (props: any) => {
 
       {/* Action buttons */}
       <div id="game-actions" className="row">
-        <div className="col-xs-6 col-md-3"></div>
-        <div className="col-xs-6 col-md-6">
+        <div className="col-xs-1 col-md-2"></div>
+        <div className="col-xs-10 col-md-8">
           <button
             type="button"
             className="btn btn-blue text-blue me-2 mb-4"
@@ -204,7 +311,7 @@ const GameLobby = (props: any) => {
           >
             <PaletteOutlinedIcon />
           </button>
-          {game && game.action === Action.GO_LOBBY && (
+          {game && game.action === eEvents.GO_LOBBY && (
             <button
               type="button"
               className="btn btn-blue text-blue me-2 mb-4"
@@ -213,37 +320,37 @@ const GameLobby = (props: any) => {
               Create New Game
             </button>
           )}
-          {game && game.action === Action.VIEW_GAME && (
+          {game && game.action === eEvents.VIEW_GAME && (
             <button
               type="button"
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleBackTo}
             >
-              Go back to {props.origin.name}
+              Go back to {origin.name}
             </button>
           )}
-          {game && game.action > Action.VIEW_GAME && (
+          {game && game.action > eEvents.VIEW_GAME && (
             <button
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleShowGoBack}
             >
-              Go back to {props.origin.name} 
+              Go back to {origin.name} 
             </button>
           )}
-          {matchMaking === MatchMaking.NOT_IN_QUEUE ? (
+          {matchMaking === eMatchMaking.NOT_IN_QUEUE ? (
             <button
               className="btn btn-pink text-pink mb-4"
               style={{ cursor: 'pointer' }}
-              onClick={() => handleMatchMaking(MatchMaking.IN_QUEUE)}
+              onClick={() => handleMatchMaking(eMatchMaking.IN_QUEUE)}
             >
               Join queue
             </button>
           ) : (
-            matchMaking === MatchMaking.IN_QUEUE && (
+            matchMaking === eMatchMaking.IN_QUEUE && (
               <button
                 className="btn btn-pink text-pink mb-4"
                 style={{ cursor: 'pointer' }}
-                onClick={() => handleMatchMaking(MatchMaking.NOT_IN_QUEUE)}
+                onClick={() => handleMatchMaking(eMatchMaking.NOT_IN_QUEUE)}
               >
                 <span
                   className="spinner-grow spinner-grow-sm"
@@ -255,38 +362,40 @@ const GameLobby = (props: any) => {
             )
           )}
         </div>
-        <div className="col-xs-6 col-md-3"></div>
+        <div className="col-xs-1 col-md-2"></div>
       </div>
 
       {/* Content : game list or game screen*/}
       <div id="game-content" className="row">
-        <div className="col-xs-6 col-md-3"></div>
-        {game && game.action === Action.GO_LOBBY && (
-          <div className="col-xs-6 col-md-6">
+        <div className="col-xs-1 col-md-2"></div>
+        {game && game.action === eEvents.GO_LOBBY && (
+          <div className="col-xs-10 col-md-8">
             <GameList
               gameList={gameList}
               setGame={setGame}
               handleNewGame={handleNewGame}
-              actionVal={Action}
+              event={eEvents}
+              userId={userId.toString()}
             />
           </div>
         )}
-        {game && game.action > Action.GO_LOBBY && (
-          <div id="stage" className="col-xs-6 col-md-6">
+        {game && game.action > eEvents.GO_LOBBY && (
+          <div id="stage" className="col-xs-10 col-md-8">
             <Game
               socket={socket}
               id={game.id}
               action={game.action}
-              actionVal={Action}
-              backTo={backTo}
+              event={eEvents}
+              origin={origin.name}
+              backToOrigin={backToOrigin}
               setMatchMaking={setMatchMaking}
-              matchMakingVal={MatchMaking}
+              matchMakingVal={eMatchMaking}
               className="translate-middle"
               map={gameMap}
             />
           </div>
         )}
-        <div className="col-xs-6 col-md-3"></div>
+        <div className="col-xs-1 col-md-2"></div>
       </div>
 
       {/* Information messages */}

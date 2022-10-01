@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { createClient } from 'redis';
+import Redis from 'ioredis';
 
 @Module({
   providers: [
@@ -13,8 +13,7 @@ import { createClient } from 'redis';
       inject: ['REDIS_OPTIONS'],
       provide: 'REDIS_CLIENT',
       useFactory: async (options: { url: string }) => {
-        const client = createClient(options);
-        await client.connect();
+        const client = new Redis(options.url);
         return client;
       },
     },

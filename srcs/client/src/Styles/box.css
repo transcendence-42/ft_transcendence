@@ -1,0 +1,23 @@
+.box-blue {
+	border: 2px solid #b4e8f1;
+  background-color: rgb(5, 2, 30);
+  box-shadow: 0px 0px 5px #60c2c2,
+              inset 0px 0px 5px #60c2c2,
+				      0px 0px 6px #214141,
+				      inset 0px 0px 6px #214141;
+}
+
+.box-pink {
+	border: 2px solid #eb89d6;
+  background-color: rgb(5, 2, 30);
+  box-shadow:	0px 0px 5px #FF6ADE,
+              inset 0px 0px 5px #FF6ADE,
+  				    0px 0px 6px #852388,
+              inset 0px 0px 6px #852388;
+}
+
+.box-dark {
+	border: 2px solid rgb(5, 2, 30);
+  background-color: rgb(5, 2, 30);
+  box-shadow:	none,
+}

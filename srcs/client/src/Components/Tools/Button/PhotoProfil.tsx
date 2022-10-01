@@ -1,15 +1,16 @@
-import React from 'react'
-function PhotoProfil(props : any) {
+import React from 'react';
 
+function PhotoProfil(props: any) {
   return (
-    <>
-      <div className="profilBox" style={{
-				width: props.width,
-				height: props.height,
-			}}>
-        <img src={props.url} alt="IMG"></img>
-      </div>
-    </>
+    <img
+      className="box-blue rounded-circle mx-auto d-block"
+      src={props.url}
+      style={{
+        width: props.width,
+        height: props.height,
+      }}
+      alt="IMG"
+    ></img>
   );
 }
 

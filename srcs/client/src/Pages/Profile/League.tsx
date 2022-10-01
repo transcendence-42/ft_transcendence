@@ -5,6 +5,13 @@ import "../../Components/Tools/Box.css"
 
 export default function League(props : any) {
 
+	/**
+   * @props
+   * elo: elo of the user
+   * size: size of the font
+   * Display the League of the user according of is Elo
+   */
+
 	if (props.elo >= 1500){
   		return (
 			<>

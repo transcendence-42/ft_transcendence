@@ -4,13 +4,13 @@ export const mapNeon = Object.freeze({
   canvas: { fill: '#05021E', size: { w: 900, h: 500 } },
   paddle: {
     size: { w: 12, h: 54 },
-    fill: '#fffcff',
+    fill: '#FF87FF',
     shadow: 15,
     shadowColor: '#FF6ADE'
   },
-  ball: { size: 12, fill: '#fffcff', shadow: 15, shadowColor: '#FF6ADE' },
-  wall: { size: 5, fill: '#fffcff', shadow: 15, shadowColor: '#FF6ADE' },
-  text: { size: 40, fill: '#fffcff', shadow: 15, shadowColor: '#FF6ADE' },
+  ball: { size: 12, fill: '#FF87FF', shadow: 15, shadowColor: '#FF6ADE' },
+  wall: { size: 5, fill: '#FF87FF', shadow: 15, shadowColor: '#FF6ADE' },
+  text: { size: 40, fill: '#FF87FF', shadow: 15, shadowColor: '#FF6ADE' },
   altText: {
     size: 40,
     style: 'bold',

@@ -14,20 +14,9 @@ export class Game {
   }
 
   id: string;
-  status: 0 | 1 | 2 | 3 | 4;
+  status: number;
   players: Player[];
   viewers?: Client[];
   gameGrid?: GameGrid;
   gamePhysics?: GamePhysics;
-
-  toJson?(): any {
-    return {
-      id: this.id,
-      status: this.status,
-      players: this.players.map((p: any) => p.toJson()),
-      viewers: this.viewers.map((v: any) => v.toJson()),
-      gameGrid: this.gameGrid?.toJson(),
-      gamePhysics: this.gamePhysics?.toJson(),
-    };
-  }
 }

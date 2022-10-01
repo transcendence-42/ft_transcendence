@@ -1,5 +1,9 @@
 
 export async function requestFriendship(props : any){
+
+   /**
+   * Sending information about a Friendship request to DB
+   */
 	try{
 		await
 		fetch(props.url, {
