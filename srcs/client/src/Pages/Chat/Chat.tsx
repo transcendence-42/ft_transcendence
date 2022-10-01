@@ -108,10 +108,9 @@ export default function Chat(props: any) {
       );
       console.log(`heres channel created`, channel);
       if (channel) {
-
         sessionStorage.setItem("currentChannel", JSON.stringify(channel));
         setCurrentChannel(channel);
-        setAllChannels((prevAllChannels) => [...prevAllChannels, channel])
+        setAllChannels((prevAllChannels) => [...prevAllChannels, channel]);
         switchChannel(channel.id);
         handleCloseCreateChannel();
       }
@@ -264,6 +263,7 @@ export default function Chat(props: any) {
         setAllUsers(userHashTable);
         console.log("Trying to connect to server");
       }
+      socket.auth = { id: user.id.toString() };
       socket.connect();
       console.groupEnd();
     })();
@@ -287,7 +287,7 @@ export default function Chat(props: any) {
           channelIds.push(chan.channelId.toString());
         }
         console.log(`This is channel Ids Im pushing ${channelIds}`);
-        socket.emit(eEvent.InitConnection, { channelIds, userId: user.id });
+        socket.emit(eEvent.InitConnection, channelIds);
       }
       console.log("Connected to server successfully");
     });

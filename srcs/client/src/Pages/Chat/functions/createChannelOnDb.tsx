@@ -17,7 +17,6 @@ const createChannelOnDb = async (
       `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
       "GET"
     );
-    // returns the created channel id to be used by handleCreateChannelForm
     return [channel, userOnChannel];
   }
   return alert(`Error while creating channel! ${channel.message}`);
