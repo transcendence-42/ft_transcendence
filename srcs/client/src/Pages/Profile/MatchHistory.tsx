@@ -8,16 +8,21 @@ const MatchHistory = (props: any) => {
   if (!props.matchesList.length) {
     return (
       <div
-        className="blueBoxMatch"
         style={{
           width: '100%',
           height: '100%',
         }}
       >
         <h3 className="text-pink text-start">Matches History</h3>
-        <div className="text-blue mt-2" style={{ fontSize: '1.2em' }}>
-          Play a Game first
-        </div>
+        <table className="table table-borderless scroll m-1 align-middle match-history mb-3">
+          <tbody>
+            <tr className="border-blue" style={{ fontSize: '1.2em' }}>
+              <td className="text-blue mt-3" style={{ textAlign: 'left' }}>
+                Play a Game first
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     );
   } else {
@@ -29,17 +34,17 @@ const MatchHistory = (props: any) => {
         }}
       >
         <h3 className="text-pink text-start">Matches History</h3>
-        <table className="table table-borderless scroll m-1 align-middle match-history">
+        <table className="table table-borderless scroll m-1 align-middle match-history mb-3">
           <tbody>
             {props.matchesList.map(
               (matches: any, index: number) =>
                 index < 10 && (
                   <tr
-                    className="border-blue w-100"
+                    className="border-blue"
                     key={index}
                     style={{ fontSize: '1.2em' }}
                   >
-                    <td>
+                    <td className="text-end">
                       <PhotoProfilDropdown
                         url={matches.players[0].player.profilePicture}
                         id={matches.players[0].playerId}
@@ -60,7 +65,13 @@ const MatchHistory = (props: any) => {
                     <td className="text-blue text-center">
                       {matches.players[0].score}
                     </td>
-                    <td className="text-blue"> - </td>
+                    <td>
+                      <WinLose
+                        size={'0.6em'}
+                        id={props.id}
+                        players={matches.players}
+                      />
+                    </td>
                     <td className="text-blue text-center">
                       {matches.players[1].score}
                     </td>
@@ -80,13 +91,6 @@ const MatchHistory = (props: any) => {
                         originalId={props.originalId}
                         width={'50px'}
                         height={'50px'}
-                      />
-                    </td>
-                    <td>
-                      <WinLose
-                        size={'0.8em'}
-                        id={props.id}
-                        players={matches.players}
                       />
                     </td>
                   </tr>

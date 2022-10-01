@@ -7,9 +7,7 @@ export default function League(props : any) {
 
 	if (props.elo >= 1500){
   		return (
-			<>
 				<div className="textGold" style={{fontSize: props.size}}> GOLD</div>
-			</>
  		);
 	}
 	else if (props.elo >= 1100 && props.elo < 1500)

@@ -5,7 +5,6 @@ import '../profile.css';
 import { updateFriendship } from '../Fetch/updateFriendship';
 
 const FriendshipRejected = (props: any) => {
-
   enum eFriendshipStatus {
     REQUESTED = 0,
     ACCEPTED,
@@ -23,13 +22,13 @@ const FriendshipRejected = (props: any) => {
   }
 
   return (
-    <>
-      <button className="btn" onClick={() => onClickAccepted()}>
-        <div className="redText" style={{ fontSize: '1.2vw' }}>
-          Reject
-        </div>
-      </button>
-    </>
+    <button
+      className="btn btn-pink text-pink"
+      style={{ fontSize: '0.8em' }}
+      onClick={() => onClickAccepted()}
+    >
+      Reject
+    </button>
   );
 };
 

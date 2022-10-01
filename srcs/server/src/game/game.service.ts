@@ -371,6 +371,22 @@ export class GameService {
       });
   }
 
+  /** disconnect old sockets */
+  async disconnectOldSockets() {
+    this.server.disconnectSockets();
+    const data: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
+        .exec()
+    )[1][1];
+    const players = JSON.parse(data)[0].players;
+    for (const p of players) {
+      await this._savePlayerInfos(p.id, { status: ePlayerStatus.OFFLINE });
+    }
+  }
+
   /** *********************************************************************** */
   /** GAME LOOP                                                               */
   /** *********************************************************************** */
@@ -394,7 +410,7 @@ export class GameService {
     pipeline: ChainableCommander,
   ) {
     // Add it to the game room and leave lobby
-    player.socket.leave(Params.LOBBY);
+    //player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
     // Add player in player db with its game for further checks
     pipeline.select(DB.PLAYERS).set(player.userId, game.id);
@@ -487,6 +503,7 @@ export class GameService {
         status: ePlayerStatus.ONLINE,
         game: '',
         updated: 1,
+        matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
       });
       // remove the updated info after 2 seconds to avoid too much updates
       setTimeout(async () => {
@@ -514,13 +531,14 @@ export class GameService {
 
   /** Cancel game */
   private async _cancelGame(gameId: string) {
-    this.server.in(gameId).socketsJoin(Params.LOBBY);
+    //this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // update and send player info
     const userId = (await this._getGame(gameId)).players[0].userId;
     await this._savePlayerInfos(userId, {
       status: ePlayerStatus.ONLINE,
       game: '',
+      matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
     this._sendPlayersInfo();
     await this._removeGame(gameId);
@@ -721,7 +739,7 @@ export class GameService {
       .exec();
     // quit room and join lobby
     client.leave(id);
-    client.join(Params.LOBBY);
+    //client.join(Params.LOBBY);
     // resend game list to lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -846,7 +864,7 @@ export class GameService {
         );
     }
     client.join(id);
-    client.leave(Params.LOBBY);
+    //client.leave(Params.LOBBY);
     // update redis
     await pipeline.exec();
     // send a fresh gamelist to the lobby
@@ -888,6 +906,7 @@ export class GameService {
 
   /** handle player joining or leaving matchmaking */
   async handleMatchMaking(client: Socket, value: boolean) {
+    console.log(value);
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // add or remove the player

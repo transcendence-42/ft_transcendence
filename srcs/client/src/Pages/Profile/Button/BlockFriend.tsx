@@ -19,7 +19,7 @@ export default function BlockFriend(props : any) {
 			}}
 			onClick={()=>(blockSomeone())}
 			>
-				<div style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "0.8em"}}>
 					Block Friend
 				</div>
 			</button>

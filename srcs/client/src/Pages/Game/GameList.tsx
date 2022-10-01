@@ -86,7 +86,9 @@ const GameList = (props: any) => {
                       })
                     }
                   >
-                    Spectate
+                    {game.players.find((p: any) => p.userId === props.userId)
+                      ? 'Re-join'
+                      : 'Spectate'}
                   </button>
                 </td>
               </tr>

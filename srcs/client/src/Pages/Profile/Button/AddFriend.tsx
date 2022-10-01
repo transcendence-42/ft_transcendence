@@ -17,7 +17,7 @@ const AddFriend = (props : any) => {
 			}}
 			onClick={()=>(requestFriendship({url: url, addresseeId: props.id}))}
 			>
-				<div style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "0.8em"}}>
 					Add Friend
 				</div>
 			</button>

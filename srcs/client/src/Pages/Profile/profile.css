@@ -91,26 +91,44 @@
 
 /* Match history */
 .match-history tr td:nth-child(1) { 
-  width: 30%;
+  width: 10%;
 }
 .match-history tr td:nth-child(2) { 
-  width: 5%;
-}
-.match-history tr td:nth-child(3) { 
-  width: 4%;
-}
-.match-history tr td:nth-child(4) { 
-  width: 2%;
-}
-.match-history tr td:nth-child(5) { 
-  width: 4%;
-}
-.match-history tr td:nth-child(6) { 
-  width: 5%;
-}
-.match-history tr td:nth-child(7) { 
   width: 30%;
 }
-.match-history tr td:nth-child(8) { 
-  width: 20%;
+.match-history tr td:nth-child(3) { 
+  width: 5%;
+}
+.match-history tr td:nth-child(4) { 
+  width: 10%;
+}
+.match-history tr td:nth-child(5) { 
+  width: 5%;
+}
+.match-history tr td:nth-child(6) { 
+  width: 30%;
+}
+.match-history tr td:nth-child(7) { 
+  width: 10%;
+}
+
+/* Friends list */
+.friends-list tr td:nth-child(1) { 
+  width: 10%;
+}
+.friends-list tr td:nth-child(2) { 
+  width: 30%;
+}
+.friends-list tr td:nth-child(3) { 
+  width: 30%;
+}
+.friends-list tr td:nth-child(4) { 
+  width: 10%;
+}
+.friends-list tr td:nth-child(5) { 
+  width: 10%;
+}
+.friends-list tr td:nth-child(6) { 
+  width: 10%;
+
 }

@@ -22,7 +22,7 @@ const ChangePseudo = (props : any) => {
 			}}
 			onClick={()=>(toggle())}
 			>
-				<div style={{fontSize: "1vw"}}>
+				<div style={{fontSize: "0.8em"}}>
 					Change Username
 				</div>
 			</button>

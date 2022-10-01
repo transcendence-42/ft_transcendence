@@ -22,55 +22,23 @@ const OnlineOffline = (props: any) => {
   /** *********************************************************************** */
 
   return (
-    <div className='mt-2 mb-2 text-center w-100'>
+    <div className="mt-2 mb-2 text-center w-100">
       {props.status === ePlayerStatus.OFFLINE && (
-        <div
-          className="badge badge-black"
-          style={{ fontSize: props.size }}
-        >
+        <div className="badge badge-black" style={{ fontSize: props.size }}>
           OFFLINE
         </div>
       )}
-      {props.status === ePlayerStatus.ONLINE && (
-        <div
-          className="badge badge-green"
-          style={{ fontSize: props.size }}
-        >
-          ONLINE
-        </div>
-      )}
-      {props.status === ePlayerStatus.WAITING && (
-        <div
-          className="badge badge-blue"
-          style={{ fontSize: props.size }}
-        >
-          WAITING FOR AN OPPONENT
-        </div>
-      )}
       {props.status === ePlayerStatus.PLAYING && (
-        <div
-          className="badge badge-pink"
-          style={{ fontSize: props.size }}
-        >
+        <div className="badge badge-pink" style={{ fontSize: props.size }}>
           PLAYING
         </div>
       )}
-      {props.status === ePlayerStatus.SPECTATING && (
-        <div
-          className="badge badge-orange"
-          style={{ fontSize: props.size }}
-        >
-          SPECTATING
-        </div>
-      )}
-      {props.status === ePlayerStatus.CHALLENGE && (
-        <div
-          className="badge badge-red"
-          style={{ fontSize: props.size }}
-        >
-          CHALLENGING
-        </div>
-      )}
+      {props.status !== ePlayerStatus.OFFLINE &&
+        props.status !== ePlayerStatus.PLAYING && (
+          <div className="badge badge-green" style={{ fontSize: props.size }}>
+            ONLINE
+          </div>
+        )}
     </div>
   );
 };

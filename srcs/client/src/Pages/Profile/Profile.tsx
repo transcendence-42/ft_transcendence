@@ -66,6 +66,7 @@ const Profile = () => {
 
   const [user, setUser] = useState({} as any);
   const [player, setPlayer] = useState({} as any);
+  const [players, setPlayers] = useState({} as any);
   const [friendList, setFriendList] = useState([] as any);
   const [friendRequestList, setFriendRequestList] = useState([] as any);
   const [matchesList, setMatchesList] = useState([] as any);
@@ -76,6 +77,8 @@ const Profile = () => {
   /** *********************************************************************** */
 
   const handlePlayersInfo = useCallback((data: any) => {
+    // all players
+    setPlayers(data.players);
     // current player status
     const player = data.players
       ? data.players.find((p: any) => p.id === userId.toString())
@@ -97,6 +100,14 @@ const Profile = () => {
       if (update === 0) setUpdate(1);
     }, 100);
   }
+
+  const handleChallengePlayer = (id: string) => {
+    socket.emit('challengePlayer', { id: id });
+  };
+
+  const handleSwitchStatus = () => {
+    socket.emit('switchStatus');
+  };
 
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
@@ -146,28 +157,28 @@ const Profile = () => {
   if (user) {
     return (
       <div className='row'>
-        <div className='col-md-2'></div>
-        <div className='col-xs-12 col-md-8'>
+        <div className='col-xl-1'></div>
+        <div className='col-xs-12 col-xl-10'>
 
           {/* Profil picture + action buttons + stats */}
-          <div className="row mt-5" data-testid="tracker">
-            <div className="col-xs-12 col-md-2">
+          <div className="row mt-5 mb-5" data-testid="tracker">
+            <div className="col-xs-8 col-md-1 col-xl-2">
               <PhotoProfil
                 url={user.profilePicture}
                 width={'100px'}
                 height={'100px'}
               />
             </div>
-            <div className="col-xs-2 col-md-2">
+            <div className="col-xs-8 col-md-2 col-xl-2">
               <div
-                className="text-pink text-center"
+                className="text-blue text-center"
                 style={{ fontSize: '1.3em', fontWeight: 'bold' }}
               >
                 {user.username}
               </div>
               <OnlineOffline status={+player.status} size={'1.2em'} />
             </div>
-            <div className="col-xs-2 col-md-2">
+            <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (
                 <>
                   <ChangePseudo id={userId} up={toggleUpdate} />
@@ -181,31 +192,33 @@ const Profile = () => {
                 </>
               )}
             </div>
-            <div className="col-xs-6 col-md-6">
+            <div className="col-xs-12 col-md-6 col-xl-6">
               <Ladder stats={user.stats} elo={user.eloRating} />
             </div>
           </div>
 
           {/* Match history + friends */}
           <div className="row">
-            <div className="col-xs-12 col-md-6">
+            <div className="col-xs-12 col-xl-6">
               <MatchHistory
                 matchesList={matchesList}
                 id={+userId}
               />
             </div>
-            <div className="col-xs-12 col-md-6">
+            <div className="col-xs-12 col-xl-6">
               <FriendList
                 friendList={friendList}
                 friendRequestList={friendRequestList}
                 id={userId}
                 originalId={+originalId}
                 up={toggleUpdate}
+                players={players}
+                handleChallengePlayer={handleChallengePlayer}
               />
             </div>
           </div>
         </div>
-        <div className='col-md-2'></div>
+        <div className='col-xl-1'></div>
       </div>
     );
   }

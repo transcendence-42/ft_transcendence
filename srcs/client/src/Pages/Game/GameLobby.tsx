@@ -80,6 +80,7 @@ const GameLobby: FC = () => {
   
   // States
   const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
+  const [player, setPlayer] = useState({} as any);
   const [message, setMessage] = useState({} as any);
   const [gameList, setGameList] = useState([] as any);
   const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
@@ -166,7 +167,13 @@ const GameLobby: FC = () => {
     const player = data.players
       ? data.players.find((p: any) => p.id === userId.toString())
       : {};
-    if (player) setMatchMaking(player.matchmaking);
+    if (player) {
+      setMatchMaking(player.matchmaking);
+      setPlayer(player);
+      // reconnect game if needed
+      if (player.game && game.id === 'lobby')
+        setGame({ id: player.game, action: eEvents.JOIN_GAME });
+    }
   }, []);
 
   /** *********************************************************************** */
@@ -295,8 +302,8 @@ const GameLobby: FC = () => {
 
       {/* Action buttons */}
       <div id="game-actions" className="row">
-        <div className="col-xs-6 col-md-3"></div>
-        <div className="col-xs-6 col-md-6">
+        <div className="col-xs-1 col-md-2"></div>
+        <div className="col-xs-10 col-md-8">
           <button
             type="button"
             className="btn btn-blue text-blue me-2 mb-4"
@@ -355,24 +362,25 @@ const GameLobby: FC = () => {
             )
           )}
         </div>
-        <div className="col-xs-6 col-md-3"></div>
+        <div className="col-xs-1 col-md-2"></div>
       </div>
 
       {/* Content : game list or game screen*/}
       <div id="game-content" className="row">
-        <div className="col-xs-6 col-md-3"></div>
+        <div className="col-xs-1 col-md-2"></div>
         {game && game.action === eEvents.GO_LOBBY && (
-          <div className="col-xs-6 col-md-6">
+          <div className="col-xs-10 col-md-8">
             <GameList
               gameList={gameList}
               setGame={setGame}
               handleNewGame={handleNewGame}
               event={eEvents}
+              userId={userId.toString()}
             />
           </div>
         )}
         {game && game.action > eEvents.GO_LOBBY && (
-          <div id="stage" className="col-xs-6 col-md-6">
+          <div id="stage" className="col-xs-10 col-md-8">
             <Game
               socket={socket}
               id={game.id}
@@ -387,7 +395,7 @@ const GameLobby: FC = () => {
             />
           </div>
         )}
-        <div className="col-xs-6 col-md-3"></div>
+        <div className="col-xs-1 col-md-2"></div>
       </div>
 
       {/* Information messages */}

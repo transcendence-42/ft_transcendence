@@ -29,6 +29,7 @@ export class GameGateway
   onModuleInit() {
     //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
+    this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
     console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT} ...`);
   }
