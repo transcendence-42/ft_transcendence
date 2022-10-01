@@ -75,7 +75,7 @@ function App() {
               path="/lobby"
               element={<GameLobby origin={{ name: 'lobby', loc: '/lobby' }} />}
             />
-            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/leaderboard" element={<Leaderboard/>} />
             <Route index element={<Home updateID={update} userID={userID}/>} />
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />

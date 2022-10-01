@@ -7,6 +7,12 @@ import { useState } from "react";
 
 export default function ChangePicture(props : any) {
 
+	/**
+   * @props id:           ID of the user
+   *        up:           function triggering a re-render
+   * A button triggering a Modal for changing the user Picture
+   */
+
 	const [isShowing, setIsShowing] = useState(false);
 
 	function toggle() {

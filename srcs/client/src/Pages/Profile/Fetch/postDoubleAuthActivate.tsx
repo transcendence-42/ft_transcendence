@@ -1,4 +1,8 @@
 export async function postDoubleAuthActivate(props : any){
+
+   /**
+   * Sending information of the 2fa Status to DB
+   */
 	const response = await
 		fetch("http://127.0.0.1:4200/auth/2fa/activate", {
 	  method: "POST",

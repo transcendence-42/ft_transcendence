@@ -1,4 +1,9 @@
 export async function patchFetchUsername(props : any){
+
+   /**
+   * @props url: url for the request with userID inside
+   * Patching the username of an user
+   */
 	const response = await
 		fetch(props.url, {
 	  method: "PATCH",

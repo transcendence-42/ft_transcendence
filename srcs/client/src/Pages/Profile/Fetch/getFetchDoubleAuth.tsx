@@ -1,5 +1,9 @@
 
 export async function getFetchDoubleAuth(){
+   /**
+   * Generate a QR code for 2fa
+   */
+
 	const response = await
 	fetch("http://127.0.0.1:4200/auth/2fa/generate", {
   method: "GET",

@@ -1,5 +1,10 @@
 
 export async function getFetchMatch(props : any){
+
+   /**
+   * @props url: url for the request with userID inside
+   * Get the Matches informations of an user
+   */
 		const response = await
 		fetch(props.url, {
 	  method: "GET",

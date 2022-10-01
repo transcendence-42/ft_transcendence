@@ -60,7 +60,7 @@ export default function NavBar (props : any)
             <Navbar.Toggle className="" />
                 <Navbar.Collapse className="">
                 <Nav className="navbar-nav ms-auto ">
-                    <Link to="/leaderboard" className="aNav" >
+                    <Link to="/leaderboard" state={{userID:props.userID}} className="aNav" >
                         <span></span><span></span><span></span><span></span>
                         <h2 className="yellowText mt-2 px-2 ">Leaderboard</h2>
                     </Link>

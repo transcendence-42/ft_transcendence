@@ -7,6 +7,13 @@ import { useState } from "react";
 
 export default function ChangeUsername(props : any) {
 
+   /**
+   * @props id:           ID of the user
+   *        up:           function triggering a re-render
+   *
+   * A button triggering a Modal for changing the username
+   */
+
 	const [isShowing, setIsShowing] = useState(false);
 
 	function toggle() {

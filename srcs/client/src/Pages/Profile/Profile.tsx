@@ -85,11 +85,7 @@ export default function Profile () {
                         <>
                             <ChangeUsername id={userID} up={toggleUpdate}/>
                             <ChangePicture id={userID} up={toggleUpdate}/>
-                            { doubleFactor ?
-                                <></> // Mettre Double auth activated
-                                :
-                                <DoubleAuth id={userID} up={toggleUpdate} authUp={setDoubleFactor}/>
-                            }
+                            <DoubleAuth id={userID} up={toggleUpdate} authUp={setDoubleFactor} activated={doubleFactor}/>
                         </>
                         :
                         <>
