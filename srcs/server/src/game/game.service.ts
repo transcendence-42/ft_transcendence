@@ -381,9 +381,11 @@ export class GameService {
         .call('JSON.GET', eKeys.PLAYERSINFOS, '$')
         .exec()
     )[1][1];
-    const players = JSON.parse(data)[0].players;
-    for (const p of players) {
-      await this._savePlayerInfos(p.id, { status: ePlayerStatus.OFFLINE });
+    if (JSON.parse(data)) {
+      const players = JSON.parse(data)[0].players;
+      for (const p of players) {
+        await this._savePlayerInfos(p.id, { status: ePlayerStatus.OFFLINE });
+      }
     }
   }
 
