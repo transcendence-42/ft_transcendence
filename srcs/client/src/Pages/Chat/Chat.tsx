@@ -18,6 +18,7 @@ import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import BrowseModal from "../../Components/Modal/browseModal";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
+import { scryRenderedComponentsWithType } from "react-dom/test-utils";
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -121,8 +122,9 @@ export default function Chat(props: any) {
 
   const switchChannel = (channelId: number | null, channel?: Channel) => {
     if (!channelId) {
-      console.log(`Switching to empty channel`)
+      console.log(`Switching to empty channel`);
       setCurrentChannel({} as Channel);
+      return;
     }
     let switchToChannel;
     if (!channel) {
@@ -165,7 +167,7 @@ export default function Chat(props: any) {
       } else {
         const deleteUser = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
-          "DELETE"
+          "delete"
         );
         if (!deleteUser) {
           console.log(
@@ -195,16 +197,11 @@ export default function Chat(props: any) {
         );
         if (user.channels.length >= 2) {
           const newChan = user.channels.find(
-            (usrOnChan: UserOnChannel) => {
-              console.log(`searchinf for a channel change ${JSON.stringify(usrOnChan)}`)
-              if (usrOnChan.channelId !== channelId &&
-              usrOnChan.hasLeftChannel === false)
-              {
-                return usrOnChan;
-              }
-            }
+            (usrOnChan: UserOnChannel) =>
+              usrOnChan.channelId !== channelId &&
+              usrOnChan.hasLeftChannel === false
           );
-          console.log(`this is newChan ${newChan}`)
+          console.log(`this is newChan ${newChan}`);
           if (newChan) {
             switchChannel(newChan.channelId);
           }
@@ -212,6 +209,7 @@ export default function Chat(props: any) {
           switchChannel(null);
         }
       }
+      socket.emit(eEvent.UpdateOneChannel, channelId);
     })();
   };
 
@@ -241,6 +239,24 @@ export default function Chat(props: any) {
       channels: updatedChannels
     }));
   };
+
+  const updateChannel = (channel: Channel) => {
+    let channelAlreadyExists = false;
+    if (allChannels.find((chan) => chan.id === channel.id))
+      channelAlreadyExists = true;
+    if (!channelAlreadyExists) {
+      return addChannel(channel);
+    }
+    setAllChannels((prevState) => {
+      const newState = prevState.map((chan) => {
+        if (chan.id === channel.id) return channel;
+        return chan;
+      });
+      return newState;
+    });
+  };
+
+  const updateUserOnChannel = (userOnChannel: UserOnChannel) => {};
 
   const addChannel = (channel: any) => {
     const updatedChannels: Channel[] = allChannels;
@@ -419,7 +435,21 @@ export default function Chat(props: any) {
       (async () => {
         const url = "http://127.0.0.1:4200/channels/" + channelId;
         const channel = await fetchUrl(url);
-        addChannel(channel);
+        updateChannel(channel);
+      })();
+    });
+
+    socket.on(eEvent.UpdateUserOnChannel, (channelId) => {
+      (async () => {
+        const usrOnChan = await fetchUrl(
+          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${user.id}`
+        );
+        setUser((prevState) => {
+          const updatedChannels = user.channels.map((usr) =>
+            usr.channelId === channelId ? usrOnChan : usr
+          );
+          return { ...prevState, channels: updatedChannels };
+        });
       })();
     });
 
@@ -435,32 +465,35 @@ export default function Chat(props: any) {
       socket.off(eEvent.UpdateMessages);
       socket.off(eEvent.UpdateOneMessage);
       socket.off(eEvent.UpdateOneUser);
+      socket.off(eEvent.UpdateOneChannel);
+      socket.off(eEvent.JoinChannelResponse);
+      socket.off(eEvent.JoinChannel);
+      socket.off(eEvent.JoinChannelResponse);
       socket.off(eEvent.InitConnection);
-      socket.off(eEvent.SetId);
     };
   }, [isUserFetched]);
 
   return (
     <>
-        <BrowseModal
-          title="Browse channels"
-          show={showBrowseChannel}
-          closeHandler={handleCloseBrowseChannel}
-          textBtn1="Cancel"
-          handleBtn1={handleCloseBrowseChannel}
-          textBtn2="Validate"
-          handleBtn2={handleCloseBrowseChannel}
-        >
-          <BrowseChannels
-            allChannels={allChannels}
-            userChannels={user?.channels}
-            userId={user?.id}
-            socket={socket}
-            updateOwnChannels={updateOwnChannels}
-            switchChannel={switchChannel}
-            handleCloseBrowseChannel={handleCloseBrowseChannel}
-          />
-        </BrowseModal>
+      <BrowseModal
+        title="Browse channels"
+        show={showBrowseChannel}
+        closeHandler={handleCloseBrowseChannel}
+        textBtn1="Cancel"
+        handleBtn1={handleCloseBrowseChannel}
+        textBtn2="Validate"
+        handleBtn2={handleCloseBrowseChannel}
+      >
+        <BrowseChannels
+          allChannels={allChannels}
+          userChannels={user?.channels}
+          userId={user?.id}
+          socket={socket}
+          updateOwnChannels={updateOwnChannels}
+          switchChannel={switchChannel}
+          handleCloseBrowseChannel={handleCloseBrowseChannel}
+        />
+      </BrowseModal>
       <ChatModal
         title="Create a channel"
         show={showCreateChannel}

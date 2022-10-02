@@ -4,13 +4,11 @@ import { Socket, Server } from 'socket.io';
 import { ChannelType, UserRole } from '@prisma/client';
 import Redis from 'redis';
 import * as Cookie from 'cookie';
-import { Channel, Message } from './entities';
-import { eRedisDb, eChannelType, eChannelUserRole, eEvent } from './constants';
+import {  Message } from './entities';
+import { eRedisDb, eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
-import { MessageDto, JoinChannelDto } from './dto';
-import { UserOnChannel } from 'src/user/entities/userOnChannel.entity';
+import { MessageDto } from './dto';
 import { ChannelService } from 'src/channels/channel.service';
-import { CreateUserOnChannelDto } from 'src/channels/dto';
 
 export class ChatService {
   constructor(
@@ -71,12 +69,9 @@ export class ChatService {
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
-  updateOneChannel(client: Socket, channelId: number, type: ChannelType) {
-    this.logger.log(channelId, type);
-    if (type === ChannelType.PRIVATE || type === ChannelType.DIRECT) {
-      return;
-    }
+  updateOneChannel(client: Socket, channelId: number) {
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
+    client.to(channelId.toString()).emit(eEvent.UpdateUserOnChannel, channelId);
   }
 
   async initConnection(client: Socket, channelIds: string[]) {

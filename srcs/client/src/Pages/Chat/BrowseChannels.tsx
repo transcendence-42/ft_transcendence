@@ -82,10 +82,12 @@ export default function BrowseChannels({
   };
 
   const availableChannels = allChannels?.filter((channel: Channel) => {
+    console.log(`Channel type is ${channel.type}`);
     if (
       channel.type === eChannelType.DIRECT ||
       channel.type === eChannelType.PRIVATE
     ) {
+      console.log(`returning because channel type is ${channel.type}`);
       return;
     }
     console.log(
@@ -98,20 +100,20 @@ export default function BrowseChannels({
     const userInChan: UserOnChannel = userChannels?.find(
       (usrChan: UserOnChannel) => usrChan.channelId === channel.id
     );
-    if (userInChan && userInChan.isBanned) {
+    if (userInChan && (userInChan.isBanned || !userInChan.hasLeftChannel)) {
       return;
     }
     return channel;
   });
 
   let filtered: Channel[];
-  if (availableChannels.length !== 0 && channelSearch) {
-    filtered = allChannels.filter((channel: Channel) =>
+  if (channelSearch) {
+    filtered = availableChannels?.filter((channel: Channel) =>
       new RegExp(channelSearch, "i").test(channel.name)
     );
-  } else {
-    filtered = allChannels;
   }
+  else
+    filtered = availableChannels;
 
   return (
     <div className="row row-color">
@@ -120,10 +122,9 @@ export default function BrowseChannels({
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}
       ></input>
-      {filtered.length > 0 ? (
+      {filtered ? (
         <>
-          {filtered.length !== 0 &&
-            filtered.map((channel: Channel) => (
+            {filtered.map((channel: Channel) => (
               <div className="channels" key={channel.id}>
                 <div className="col">
                   <p>{channel.name}</p>

@@ -12,10 +12,10 @@ export enum eEvent {
   UpdateUsers= 'updateUsers',
   UserJoined= 'userJoined',
   UpdateOneUser = 'updateOneUser',
-  SetId= 'setId',
   SetIdResponse= 'setIdResponse',
   JoinChannelResponse= 'joinChannelResponse',
   AddedToRoom= 'addedToRoom',
   GetMessages = 'getMessages',
   InitConnection = 'initConnection',
+  UpdateUserOnChannel = 'updateUserOnChannel',
 };

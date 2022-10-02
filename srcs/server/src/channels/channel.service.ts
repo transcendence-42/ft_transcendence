@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ChannelType, UserOnChannel, UserRole } from '@prisma/client';
-import { Logger } from 'nestjs-pino';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import {
   CreateUserOnChannelDto,
@@ -23,9 +22,9 @@ export class ChannelService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly userService: UserService,
-    private readonly logger: Logger,
   ) {}
 
+  private readonly logger = new Logger(ChannelService.name);
   async findOne(id: number): Promise<Channel> {
     const channel = await this.prisma.channel.findUnique({
       where: {
@@ -101,6 +100,7 @@ export class ChannelService {
   }
 
   async delete(id: number): Promise<Channel> {
+    this.logger.debug(`Deleting from channel service`)
     try {
       const channel = await this.prisma.channel.delete({
         where: { id },
@@ -142,6 +142,7 @@ export class ChannelService {
       where: { channelId_userId: { userId, channelId } },
       include: { channel: true },
     });
+    this.logger.debug(`Not found our user ${JSON.stringify(userOnChannel)}`)
     if (!userOnChannel) throw new UserNotFoundException(userId);
     return userOnChannel;
   }
@@ -170,14 +171,54 @@ export class ChannelService {
     channelId: number,
     userId: number,
   ): Promise<UserOnChannel> {
+    this.logger.debug(`Trying to delete user here with id ${userId} and channel ${channelId}`)
     try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { users: true },
+      });
+      if (channel.ownerId === userId) {
+        if (this._countUsersStillInChannel(channel.users) === 1) {
+          await this.delete(channelId);
+          return channel.users[0];
+        } else {
+          const newOwnerId = this._findNextOwner(channel.users);
+          await this.update(newOwnerId, {
+            ownerId: newOwnerId,
+          } as UpdateChannelDto);
+          await this.updateUserOnChannel(channel.id, newOwnerId, {
+            role: UserRole.OWNER,
+          } as UpdateUserOnChannelDto);
+        }
+      }
       const userOnChannel = await this.prisma.userOnChannel.delete({
         where: { channelId_userId: { channelId, userId } },
         include: { channel: true },
       });
       return userOnChannel;
     } catch (e) {
+      this.logger.debug(`Got error ${JSON.stringify(e, null, 4)} when trying to delete user`)
       throw new UserNotFoundException(userId);
     }
+  }
+
+  private _countUsersStillInChannel(users: UserOnChannel[]): number {
+    let numberOfUsers = 0;
+    for (const user of users) {
+      if (user.hasLeftChannel === false) numberOfUsers += 1;
+    }
+    return numberOfUsers;
+  }
+
+  private _findNextOwner(users: UserOnChannel[]): number {
+    users.sort((a: { joinedAt: Date }, b: { joinedAt: Date }) =>
+      a.joinedAt < b.joinedAt ? 1 : -1,
+    );
+    let newOwner = users.find(
+      (user: UserOnChannel) =>
+        user.hasLeftChannel === false && user.role === UserRole.ADMIN,
+    );
+    if (newOwner) return newOwner.userId;
+    return users[0].userId; //return the oldest user
   }
 }

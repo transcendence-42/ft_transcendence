@@ -8,6 +8,7 @@ import {
   Query,
   Body,
   Patch,
+  Logger,
 } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -27,7 +28,6 @@ import {
   CreateUserOnChannelDto,
   UpdateUserOnChannelDto,
 } from './dto';
-import { Logger } from 'nestjs-pino';
 import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 
 @ApiTags('Channels')
@@ -35,9 +35,9 @@ import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 export class ChannelController {
   constructor(
     private readonly channelService: ChannelService,
-    private readonly logger: Logger,
   ) {}
 
+  private readonly logger = new Logger(ChannelController.name)
   @Get(':id')
   @ApiOperation({ summary: 'Get channel by id' })
   @ApiOkResponse({
@@ -109,6 +109,9 @@ export class ChannelController {
     type: BaseApiException,
   })
   delete(@Param('id', ParseIntPipe) id: number) {
+    this.logger.debug(`Deleting from delete channel`);
+    console.debug(`Deleting from delete channel`);
+    console.log(`Deleting from delete channel`);
     return this.channelService.delete(id);
   }
 
@@ -151,6 +154,9 @@ export class ChannelController {
     @Param('id', ParseIntPipe) id: number,
     @Param('userid', ParseIntPipe) userId: number,
   ) {
+    console.debug(`Deleting from delete channel USERONCHSN`);
+    console.log(`Deleting from delete channel USERONCHSN`);
+    this.logger.debug(`trying to delete channel ${id}`);
     return this.channelService.deleteUserOnChannel(id, userId);
   }
 }
