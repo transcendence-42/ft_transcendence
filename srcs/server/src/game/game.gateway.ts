@@ -13,9 +13,9 @@ import { Socket, Server } from 'socket.io';
 import { OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
-import { Player } from './entities';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @UseFilters(new WsExceptionsFilter())
 @WebSocketGateway()
@@ -46,10 +46,8 @@ export class GameGateway
 
   /** Create a new game */
   @SubscribeMessage('createGame')
-  async create(@ConnectedSocket() client: Socket) {
-    const players: Player[] = [];
-    players.push(new Player(client, client.handshake.query.userId.toString()));
-    await this.gameService.create(players);
+  async createWithOne(@ConnectedSocket() client: Socket) {
+    await this.gameService.createWithOne(client);
   }
 
   /** Find all games */
@@ -171,5 +169,14 @@ export class GameGateway
   @SubscribeMessage('switchStatus')
   async handleSwitchStatus(@ConnectedSocket() client: Socket) {
     await this.gameService.handleSwitchStatus(client);
+  }
+
+  /** Update username and pic associated with a player on redis */
+  @SubscribeMessage('updatePlayer')
+  async handleUpdatePlayer(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updatePlayerDto: UpdatePlayerDto,
+  ) {
+    await this.gameService.updatePlayer(client, updatePlayerDto);
   }
 }

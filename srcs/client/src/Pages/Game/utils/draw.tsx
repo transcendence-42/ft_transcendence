@@ -81,6 +81,8 @@ export const drawUsernames = (
       ctx.fillStyle = map.username.fill;
       const wPos =
         s.side === 0 ? map.canvas.size.w / 4 : map.canvas.size.w / 1.33;
+      if (s.name.length > 10)
+        s.name = `${s.name.slice(0, 9)}.`;
       ctx.fillText(s.name, wPos, 30);
     });
   }

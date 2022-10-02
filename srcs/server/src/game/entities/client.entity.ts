@@ -1,11 +1,11 @@
 import { Socket } from 'socket.io';
 
 export class Client {
-  constructor(socket: Socket, userId: string) {
+  constructor(socket: Socket, userId: string, name: string, pic: string) {
     this.socket = socket;
     this.userId = userId;
-    this.name = socket.handshake.query.name.toString();
-    this.pic = socket.handshake.query.pic.toString();
+    this.name = name;
+    this.pic = pic;
   }
   socket?: Socket;
   userId?: string;

@@ -4,7 +4,8 @@ import "../../../Components/Tools/Box.css"
 import "./ModalChangeContent.css"
 import {patchFetchPicture} from "../Fetch/patchFetchPicture"
 import FailAndSuccessPicture from './FailAndSuccessPicture'
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
+import { SocketContext } from '../../Game/socket/socket';
 
 const ModalPicture =
 ({ title, closeHandler, show, textBtn1,
@@ -23,6 +24,7 @@ const ModalPicture =
    const [content, setcontent] = useState('');
    const [url, setUrl] = useState('');
    const [status, setStatus] = useState(2);
+   const [socket, originalId] = useContext(SocketContext);
 
    function handleChange(event : any) {
      setcontent(event.target.value);
@@ -39,6 +41,7 @@ const ModalPicture =
         setStatus(0);
         return;
        }
+       socket.emit('updatePlayer', { name: content });
        setStatus(1);
        up();
        setTimeout(() => {

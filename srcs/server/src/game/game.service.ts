@@ -16,6 +16,7 @@ import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -252,6 +253,19 @@ export class GameService {
     }
   }
 
+  /** Get player infos from redis */
+  private async _getPlayerInfos(id: string): Promise<any> {
+    const data: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, `$.players[?(@.id=="${id}")]`)
+        .exec()
+    )[1][1];
+    if (data) return JSON.parse(data)[0];
+    return null;
+  }
+
   /** Go offline */
   async handleSwitchStatus(client: Socket) {
     const userId = client.handshake.query.userId.toString();
@@ -274,6 +288,14 @@ export class GameService {
     this._sendPlayersInfo();
   }
 
+  /** Update username and/or picture */
+  async updatePlayer(client: Socket, updatePlayerDto: UpdatePlayerDto) {
+    const userId = client.handshake.query.userId.toString();
+    console.log(updatePlayerDto);
+    await this._savePlayerInfos(userId, updatePlayerDto);
+    await this._sendPlayersInfo();
+  }
+
   /** *********************************************************************** */
   /** SOCKET                                                                  */
   /** *********************************************************************** */
@@ -281,14 +303,18 @@ export class GameService {
   /** add client to list */
   private async _addOrUpdateClient(client: Socket) {
     const userId = client.handshake.query.userId.toString();
+    const pic = client.handshake.query.pic.toString();
+    const name = client.handshake.query.name.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
-    else this.clients.push(new Client(client, userId));
+    else this.clients.push(new Client(client, userId, name, pic));
     // Save or update client as a player for players info
     await this._savePlayerInfos(userId, {
       id: userId,
       status: ePlayerStatus.ONLINE,
       matchmaking: 0,
+      pic: pic,
+      name: name,
     });
     this._sendPlayersInfo();
   }
@@ -698,6 +724,15 @@ export class GameService {
     this.gameLoops.push({ id: id, interval: gameInterval });
   }
 
+  /** Create with one */
+  async createWithOne(client: Socket) {
+    const userId: string = client.handshake.query.userId.toString();
+    const playerInfos: any = await this._getPlayerInfos(userId);
+    const players: Player[] = [];
+    players.push(new Player(client, userId, playerInfos.name, playerInfos.pic));
+    await this.create(players);
+  }
+
   /** Create a new game */
   async create(players: Player[]) {
     // Check if one of the user is already in a game or in match making
@@ -840,6 +875,8 @@ export class GameService {
     const pipeline = this.redis.pipeline();
     // remove user from matchmaking
     const userId: string = client.handshake.query.userId.toString();
+    // get player infos
+    const playerInfos = await this._getPlayerInfos(userId);
     const isMatchMaking = (
       await this.redis
         .multi()
@@ -855,7 +892,7 @@ export class GameService {
         .exec();
     // add new player to the game and emit new grid
     this._addPlayerToGame(
-      new Player(client, userId),
+      new Player(client, userId, playerInfos.name, playerInfos.pic),
       Side.RIGHT,
       game,
       pipeline,
