@@ -94,8 +94,8 @@ const Params = Object.freeze({
   LOBBY: 'lobby',
   CANVASW: 900,
   CANVASH: 500,
-  BALLSPEED: 6,
-  PLAYERSPEED: 10,
+  BALLSPEED: 3,
+  PLAYERSPEED: 8,
   BARWIDTH: 12,
   BARHEIGHT: 54,
   WALLSIZE: 15,
@@ -720,7 +720,7 @@ export class GameService {
     const gameInterval = setInterval(async () => {
       await this._gameLoop(game, gameInterval);
       game = await this._getGame(game.id);
-    }, 30);
+    }, 15);
     this.gameLoops.push({ id: id, interval: gameInterval });
   }
 
@@ -943,7 +943,7 @@ export class GameService {
   }
 
   /** continue a game after a server reboot */
-  async continue(client: Socket, id: string) {
+  async continue(id: string) {
     // check if there is a game loop for this game already
     if (!this.gameLoops.find((gl) => gl.id === id)) {
       let game: Game = await this._getGame(id);
@@ -955,11 +955,13 @@ export class GameService {
         .exec();
       // reinit grid and physics to restore ball interval
       this._initGame(game, Side.RIGHT);
+      // move again the two players in the game room
+      for (const p of game.players) this._getSocket(p.userId)?.join(id);
       // new game loop
       const gameInterval = setInterval(async () => {
         await this._gameLoop(game, gameInterval);
         game = await this._getGame(game.id);
-      }, 30);
+      }, 15);
       this.gameLoops.push({ id: id, interval: gameInterval });
     }
   }

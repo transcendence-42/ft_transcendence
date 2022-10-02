@@ -76,11 +76,8 @@ export class GameGateway
 
   /** Continue the game */
   @SubscribeMessage('continue')
-  async continue(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() updateGameDto: UpdateGameDto,
-  ) {
-    await this.gameService.continue(client, updateGameDto.id);
+  async handleContinue(@MessageBody() updateGameDto: UpdateGameDto) {
+    await this.gameService.continue(updateGameDto.id);
   }
 
   /** join game (new player) */
