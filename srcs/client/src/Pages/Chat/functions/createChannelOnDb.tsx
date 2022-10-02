@@ -1,18 +1,18 @@
 import { CreateChannelDto } from "../entities/create-channel.dto";
-import { Channel, UserOnChannel  } from "../entities/user.entity";
+import { Channel, UserOnChannel } from "../entities/user.entity";
 import { fetchUrl } from "../utils";
 
 const createChannelOnDb = async (
-  createChannelDto: CreateChannelDto,
+  createChannelDto: CreateChannelDto
 ): Promise<[Channel, UserOnChannel] | void> => {
   const channel = await fetchUrl(
-    "http://127.0.0.1:4200/channel/",
+    "http://127.0.0.1:4200/channels/",
     "PUT",
     createChannelDto
   );
   if (channel["id"]) {
     const userOnChannel = await fetchUrl(
-      `http://127.0.0.1:4200/channel/${channel.id}/useronchannel/${channel.ownerId}`,
+      `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${channel.ownerId}`,
       "GET"
     );
     return [channel, userOnChannel];

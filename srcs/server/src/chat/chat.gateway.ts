@@ -80,11 +80,9 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.JoinChannel)
-  handleJoinChannel(client: Socket, channel: JoinChannelDto) {
-    this.logger.debug(
-      `This is channel joining ${JSON.stringify(channel, null, 4)}`,
-    );
-    // return this.chatService.handleJoinChannel(client, channel);
+  handleJoinChannel(client: Socket, channelId: number) {
+    this.logger.debug(`This is channel joining ${channelId}`);
+    return this.chatService.joinChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.UpdateOneChannel)

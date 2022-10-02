@@ -119,11 +119,16 @@ export class ChannelService {
         data: {
           ...createUserOnChannelDto,
         },
+        include: { channel: true },
       });
       return result;
     } catch (e) {
       this.logger.error(
-        `Prisma failed to create UserOnChannel ${e['message']}`,
+        `Prisma failed to create UserOnChannel ${JSON.stringify(
+          createUserOnChannelDto,
+          null,
+          4,
+        )} with error: ${JSON.stringify(e, null, 4)} ${e['message']}`,
       );
       throw new ChannelNotFoundException(createUserOnChannelDto.userId);
     }
@@ -150,6 +155,7 @@ export class ChannelService {
       const result = await this.prisma.userOnChannel.update({
         where: { channelId_userId: { channelId, userId } },
         data: { ...updateUserOnChannelDto },
+        include: { channel: true },
       });
       return result;
     } catch (e) {
@@ -167,6 +173,7 @@ export class ChannelService {
     try {
       const userOnChannel = await this.prisma.userOnChannel.delete({
         where: { channelId_userId: { channelId, userId } },
+        include: { channel: true },
       });
       return userOnChannel;
     } catch (e) {

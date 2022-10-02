@@ -16,6 +16,7 @@ import { JoinChannelDto, Hashtable } from "./entities/entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
+import BrowseModal from "../../Components/Modal/browseModal";
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -32,7 +33,7 @@ const lobbyChannel: Channel = {
 
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
-  const myUserId: number = props.userId;
+  // const myUserId: number = props.userId;
   const currChanInLocalStorage =
     window.sessionStorage.getItem("currentChannel");
   const defaultChannel: Channel = currChanInLocalStorage
@@ -51,7 +52,6 @@ export default function Chat(props: any) {
   const [friends, setFriends] = useState([]);
   const [createDirectId, setCreateDirectid] = useState("");
 
-  const [joinChannelPassword, setJoinChannelPassword] = useState({});
   // state
   const [showBrowseChannel, setShowBrowseChannel] = useState(false);
   const [showCreateChannel, setshowCreateChannel] = useState(false);
@@ -67,8 +67,6 @@ export default function Chat(props: any) {
   const handleCloseFriendList = () => setshowFriendList(false);
   const handleShowFriendList = () => setshowFriendList(true);
 
-  const getValueOf = (key: number, obj: Record<number, string>) => obj[key];
-
   const createDirect = async (e: any, friendId: number, userId: number) => {
     const channelName = friendId.toString() + "_" + userId.toString();
     const newChannel = await handleCreateChannelForm(
@@ -80,7 +78,7 @@ export default function Chat(props: any) {
       updateOwnChannels
     );
     if (newChannel) {
-      handleAddToChannel(friendId, newChannel.id);
+      addToChannel(friendId, newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
@@ -113,26 +111,20 @@ export default function Chat(props: any) {
     })();
   };
 
-  const handleAddToChannel = async (userId: number, channelId: number) => {
+  const addToChannel = async (userId: number, channelId: number) => {
     const createUserOnChannelDto = {
       role: eUserRole.USER,
       userId,
       channelId
     };
     const newUser = await fetchUrl(
-      `http://127.0.0.1:4200/channel/${channelId}/useronchannel/`,
+      `http://127.0.0.1:4200/channels/${channelId}/useronchannel/`,
       "PUT",
       createUserOnChannelDto
     );
     if (newUser["userId"]) {
       // to be modified later to include a better way of handling error
       socket.emit(eEvent.AddUser, userId);
-      const updatedChannels = allChannels.map((channel: Channel) => {
-        if (channel.id === channelId) {
-          channel.users?.push(newUser);
-        }
-        return channel;
-      });
     } else {
       //to be changed for a better way of handling error
       return alert(
@@ -151,6 +143,11 @@ export default function Chat(props: any) {
   };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
+    console.log(
+      `Updating own channel. Before all my channels where ${JSON.stringify(
+        user.channels
+      )}`
+    );
     let updateAllChannels: UserOnChannel[] = [];
     if (user["channels"]) {
       updateAllChannels = user.channels;
@@ -181,43 +178,22 @@ export default function Chat(props: any) {
     socket.emit(eEvent.SendMessage, messageToSend);
     setMessage("");
   };
-  // to do: handleJoinChannel
-  const handleJoinChannel = (e: any, channel: Channel) => {
-    e.preventDefault();
-    console.log(`This is the channel ${JSON.stringify(channel, null, 4)}`);
-    if (!channel) {
-      console.log(`Channel doesnt exist`);
-      return;
-    }
-    if (
-      channel["type"] === eChannelType.PROTECTED &&
-      getValueOf(channel.id, joinChannelPassword) === ""
-    ) {
-      return alert("You must provide a Password!");
-    }
-
-    const channelDto: JoinChannelDto = { userId: user.id, ...channel };
-    socket.emit(eEvent.JoinChannel, {
-      name: channelDto.name,
-      id: channelDto.id,
-      userId: user.id,
-      password: channelDto.password
-    });
-    console.log(
-      `This is join channel dto ${JSON.stringify(channelDto, null, 4)}`
-    );
-    setJoinChannelPassword("");
-  };
 
   useEffect(() => {
     console.group("Use Effect #1: initChatUser");
     (async () => {
       console.log("fetching auth/success");
-      const response = await fetchUrl("http://127.0.0.1:4200/auth/success/");
+      let response = await fetchUrl("http://127.0.0.1:4200/auth/success/");
       console.log(`Fetched /auth/sucess`);
-      const { user } = response;
+      let { user } = response;
+      if (!user) {
+        console.log("Gettign another user");
+        response = await fetchUrl("http://127.0.0.1:4200/users/2");
+        user = response;
+      }
       console.log("Setting user");
       setUser(user);
+      console.log(`${JSON.stringify(user, null, 4)}`);
       console.log("setting user is fetched");
       setIsUserFetched(true);
       if (user && user.id) {
@@ -237,7 +213,7 @@ export default function Chat(props: any) {
         );
       }
       console.log("Fetching channels");
-      const channels = await fetchUrl(`http://127.0.0.1:4200/channel`);
+      const channels = await fetchUrl(`http://127.0.0.1:4200/channels`);
       console.log("Fetched channels");
 
       if (channels) {
@@ -293,6 +269,17 @@ export default function Chat(props: any) {
       setAllMessages(messages);
     });
 
+    socket.on(eEvent.GetMessages, ({ channelId, messages }) => {
+      console.log(
+        `GEtting all messages channelid: ${channelId} and messages ${messages}`
+      );
+      setAllMessages((prevAllMessages) => {
+        const newAllMessages = prevAllMessages;
+        newAllMessages[channelId] = messages;
+        return { ...newAllMessages };
+      });
+    });
+
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
       console.log(`Updating one message ${JSON.stringify(message)}`);
       setAllMessages((prevAllMessages) => {
@@ -318,12 +305,18 @@ export default function Chat(props: any) {
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
       console.log("recieved event udpateOneChannel");
       (async () => {
-        const url = "http://127.0.0.1:4200/channel/" + channelId;
+        const url = "http://127.0.0.1:4200/channels/" + channelId;
         const channel = await fetchUrl(url);
         addChannel(channel);
       })();
     });
 
+    socket.on(eEvent.JoinChannelResponse, ({ message, userOnChannel }) => {
+      if (!userOnChannel) {
+        return alert(`failed to join channel ${message}`);
+      }
+      updateOwnChannels(userOnChannel);
+    });
     console.groupEnd();
     return () => {
       socket.off("connect");
@@ -337,21 +330,27 @@ export default function Chat(props: any) {
 
   return (
     <>
-      <PongAdvancedModal
-        title="Browse channels"
-        show={showBrowseChannel}
-        closeHandler={handleCloseBrowseChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
-        handleBtn2={handleCloseBrowseChannel}
-      >
-        <BrowseChannels
-          allChannels={allChannels}
-          userChannel={user?.channels}
-          userId={user?.id}
-        />
-      </PongAdvancedModal>
+      {user && (
+        <BrowseModal
+          title="Browse channels"
+          show={showBrowseChannel}
+          closeHandler={handleCloseBrowseChannel}
+          textBtn1="Cancel"
+          handleBtn1={handleCloseBrowseChannel}
+          textBtn2="Validate"
+          handleBtn2={handleCloseBrowseChannel}
+        >
+          <BrowseChannels
+            allChannels={allChannels}
+            userChannels={user.channels}
+            userId={user?.id}
+            socket={socket}
+            updateOwnChannels={updateOwnChannels}
+            switchChannel={switchChannel}
+            handleCloseBrowseChannel={handleCloseBrowseChannel}
+          />
+        </BrowseModal>
+      )}
       <ChatModal
         title="Create a channel"
         show={showCreateChannel}

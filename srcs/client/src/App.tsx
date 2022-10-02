@@ -78,12 +78,9 @@ function App() {
           /> */}
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route index element={<Home updateID={update} userID={userID} />} />
+        <Route path="/chat" element={<Chat socket={ChatSocket} />} />
         <Route path="/" element={<AuthenticatedRoute res />}>
           <Route path="/about" element={<About />} />
-          <Route
-            path="/chat"
-            element={<Chat userId={userID} socket={ChatSocket} />}
-          />
           <Route path="/profile" element={<Profile />} />
           <Route path="/mapchoice" element={<MapChoice />} />
           <Route path="/matchmaking" element={<Matchmaking />} />

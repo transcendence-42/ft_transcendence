@@ -10,6 +10,6 @@ import { ChannelService } from "./channel.service";
 @Module({
     imports: [PrismaModule, UserModule],
     providers: [ChannelService, PrismaService, UserService, FriendshipService],
-    controllers: [ChannelController]
+    controllers: [ChannelController],
 })
 export class ChannelModule {}

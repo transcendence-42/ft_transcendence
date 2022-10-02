@@ -9,11 +9,14 @@ import { eRedisDb, eChannelType, eChannelUserRole, eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { MessageDto, JoinChannelDto } from './dto';
 import { UserOnChannel } from 'src/user/entities/userOnChannel.entity';
+import { ChannelService } from 'src/channels/channel.service';
+import { CreateUserOnChannelDto } from 'src/channels/dto';
 
 export class ChatService {
   constructor(
     @Inject('REDIS_CLIENT')
     private readonly redis: Redis.RedisClientType,
+    private readonly channelService: ChannelService,
   ) {}
 
   private readonly logger = new Logger(ChatService.name);
@@ -42,57 +45,30 @@ export class ChatService {
     console.log('emiting message to channel id', channelId);
     await this.redis.lPush(channelId, JSON.stringify(msg));
     this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
-    // client.emit(eEvent.UpdateOneMessage, msg);
   }
 
-  async handleJoinChannel(client: Socket, joinChannelDto: JoinChannelDto) {
-    const channel: Channel = await this.getObject(
-      joinChannelDto.id.toString(),
-      eRedisDb.Channels,
-    );
-    this.logger.debug(
-      `This is the channel found by find ${JSON.stringify(channel, null, 4)}`,
-    );
-
-    if (
-      joinChannelDto.type === eChannelType.Protected &&
-      joinChannelDto.password !== channel.password
-    ) {
-      client.emit(eEvent.JoinChannelResponse, { msg: 'bad password' });
-      return;
-    }
-    client.join(joinChannelDto.id.toString());
-    if (
-      //   !channel.users.find(
-      //     (user: ChannelUser) => user.id === joinChannelDto.userId,
-      //   )
-      !channel.users[joinChannelDto.userId]
-    ) {
-      const joinedAt = new Date();
-      const channelUser: UserOnChannel = {
-        channelId: joinChannelDto.id,
-        userId: joinChannelDto.userId,
-        role: UserRole.USER, //to be included in the joinChannelDto
-        joinedAt: joinedAt,
-        isBanned: false,
-        isMuted: false,
-        hasLeftChannel: false,
-      };
-      // channel.users.push(channelUser);
-      channel.users[joinChannelDto.userId] = channelUser;
-
-      this.setObject(channel.id.toString(), channel, eRedisDb.Channels);
-    }
-    client.emit(eEvent.JoinChannelResponse, {
-      msg: 'changed channel',
-      channel,
-    });
-    // manage bot sending message
-    this._joinedChannelBot(
-      joinChannelDto.userId,
-      joinChannelDto.id,
-      channel.name,
-    );
+  async joinChannel(client: Socket, channelId: number) {
+    // const channel = await this.channelService.findOne(joinChannelDto.id);
+    // if (
+    //   joinChannelDto.type === eChannelType.Protected &&
+    //   joinChannelDto.password !== channel.password
+    // ) {
+    //   client.emit(eEvent.JoinChannelResponse, { message: 'wrong password' });
+    //   return;
+    // }
+    // const dto: CreateUserOnChannelDto = {
+    //   channelId: channel.id,
+    //   role: UserRole.USER,
+    //   userId: joinChannelDto.userId,
+    // };
+    // const newUserOnChannel = await this.channelService.createUserOnChannel(dto);
+    // client.emit(eEvent.JoinChannelResponse, {
+    //   message: 'Joined Channel!',
+    //   newUserOnChannel,
+    // });
+    const messages = await this._getMessage(channelId.toString());
+    client.emit(eEvent.GetMessages, { channelId, messages });
+    client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
   updateOneChannel(client: Socket, channelId: number, type: ChannelType) {
@@ -115,16 +91,20 @@ export class ChatService {
     client.emit(eEvent.UpdateMessages, allMessages);
   }
 
+  private async _getMessage(id: string) {
+    const msg = await this.redis.lRange(id, 0, -1);
+    let parsedMessage = [];
+    for (const message in msg) {
+      parsedMessage.push(JSON.parse(msg[message]));
+    }
+    return parsedMessage;
+  }
+
   private async _getAllMessages(channelIds: string[]) {
     if (!channelIds || channelIds.length === 0) return;
     let messages: Hashtable<Message[]> = {};
     for (const id of channelIds) {
-      const msg = await this.redis.lRange(id, 0, -1);
-      let parsedMessage = [];
-      for (const message in msg) {
-        parsedMessage.push(JSON.parse(msg[message]));
-      }
-      messages[id] = parsedMessage;
+      messages[id] = await this._getMessage(id);
     }
     return messages;
   }

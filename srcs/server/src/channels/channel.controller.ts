@@ -30,8 +30,8 @@ import {
 import { Logger } from 'nestjs-pino';
 import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 
-@ApiTags('Channel')
-@Controller('channel')
+@ApiTags('Channels')
+@Controller('channels')
 export class ChannelController {
   constructor(
     private readonly channelService: ChannelService,
@@ -133,6 +133,8 @@ export class ChannelController {
   }
 
   @Patch(':id/useronchannel/:userid')
+  @ApiOperation({ summary: 'Updates a user on a channel' })
+  @ApiOkResponse({ description: 'Updated Channel', type: Channel })
   updateUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Param('userid', ParseIntPipe) userId: number,

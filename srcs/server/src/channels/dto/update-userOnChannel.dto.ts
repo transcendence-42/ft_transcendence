@@ -1,6 +1,6 @@
 import { UserRole } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsOptional } from 'class-validator';
+import { IsBoolean,IsEnum, IsOptional } from 'class-validator';
 
 export class UpdateUserOnChannelDto {
   @ApiProperty({ enum: UserRole })
@@ -8,11 +8,15 @@ export class UpdateUserOnChannelDto {
   @IsOptional()
   role?: UserRole;
 
-  @IsDate()
+  @IsBoolean()
   @IsOptional()
-  mutedTill?: Date;
+  isMuted?: boolean;
 
-  @IsDate()
+  @IsBoolean()
   @IsOptional()
-  bannedTill?: Date;
+  isBanned?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  hasLeftTheChannel?: boolean;
 }
