@@ -981,7 +981,6 @@ export class GameService {
 
   /** handle player joining or leaving matchmaking */
   async handleMatchMaking(client: Socket, value: boolean) {
-    console.log(value);
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // add or remove the player
@@ -1018,11 +1017,17 @@ export class GameService {
         .exec();
       const p1 = users[1][1];
       const p2 = users[2][1];
-      const playersToMatch = [];
+      const p1Infos = await this._getPlayerInfos(p1);
+      const p2Infos = await this._getPlayerInfos(p2);
+      const playersToMatch: Player[] = [];
       await this._savePlayerInfos(p1, { matchmaking: 2 });
       await this._savePlayerInfos(p2, { matchmaking: 2 });
-      playersToMatch.push({ userId: p1, socket: this._getSocket(p1) });
-      playersToMatch.push({ userId: p2, socket: this._getSocket(p2) });
+      playersToMatch.push(
+        new Player(this._getSocket(p1), p1, p1Infos.name, p1Infos.pic),
+      );
+      playersToMatch.push(
+        new Player(this._getSocket(p2), p2, p2Infos.name, p2Infos.pic),
+      );
       playersToMatch.forEach((p) => {
         this._getSocket(p.userId).emit('opponentFound');
       });
