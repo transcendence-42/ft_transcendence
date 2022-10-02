@@ -5,20 +5,18 @@ import "./Chat.css";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import ChatModal from "../../Components/Modal/ChatModals";
-import PongAdvancedModal from "../../Components/Modal/PongAdvancedModal";
 import BrowseChannels from "./BrowseChannels";
 import CreateChannel from "./CreateChannel";
 import FriendList from "./FriendList";
 import { MessageDto } from "./dtos/message.dto";
 import { Channel, UserOnChannel, User } from "./entities/user.entity";
 import { Message } from "./entities/message.entity";
-import { JoinChannelDto, Hashtable } from "./entities/entities";
+import { Hashtable } from "./entities/entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import BrowseModal from "../../Components/Modal/browseModal";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
-import { scryRenderedComponentsWithType } from "react-dom/test-utils";
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
@@ -36,7 +34,6 @@ export default function Chat(props: any) {
   const [isUserFetched, setIsUserFetched] = useState<boolean>(false);
   const [message, setMessage] = useState("");
   const [friends, setFriends] = useState([]);
-  const [createDirectId, setCreateDirectid] = useState("");
 
   // state
   const [showBrowseChannel, setShowBrowseChannel] = useState(false);
@@ -54,13 +51,14 @@ export default function Chat(props: any) {
   const handleShowFriendList = () => setshowFriendList(true);
 
   console.log(`Current channel init is ${currentChannel}`);
-  const createDirect = async (e: any, friendId: number, userId: number) => {
-    const channelName = friendId.toString() + "_" + userId.toString();
+  const createDirect = async (e: any, friendId: number) => {
+    console.log(`This is friedn id ${friendId}`);
+    const channelName = friendId.toString() + "_" + user.id.toString();
     const newChannel = await handleCreateChannelForm(
       e,
       channelName,
       eChannelType.DIRECT,
-      userId,
+      user.id,
       socket,
       updateOwnChannels
     );
@@ -68,6 +66,19 @@ export default function Chat(props: any) {
       addToChannel(friendId, newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
+  };
+  const otherUser = (channelId: number) => {
+    const channel = allChannels.find((chan) => chan.id === channelId);
+    console.log(
+      `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
+    );
+    const otherUserOnChannel = channel.users.find(
+      (usr) => usr.userId !== user.id
+    );
+    console.log(
+      `This is the otherUserOnChannel ${JSON.stringify(otherUserOnChannel)}`
+    );
+    return allUsers[otherUserOnChannel.userId];
   };
 
   const createNonDirectChannel = (
@@ -255,8 +266,6 @@ export default function Chat(props: any) {
       return newState;
     });
   };
-
-  const updateUserOnChannel = (userOnChannel: UserOnChannel) => {};
 
   const addChannel = (channel: any) => {
     const updatedChannels: Channel[] = allChannels;
@@ -509,21 +518,17 @@ export default function Chat(props: any) {
           createNonDirectChannel={createNonDirectChannel}
         />
       </ChatModal>
-      <PongAdvancedModal
+      <BrowseModal
         title="Select a friend"
         show={showFriendList}
         closeHandler={handleCloseFriendList}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseFriendList}
-        textBtn2="Validate"
-        handleBtn2={createDirect}
       >
         <FriendList
           userId={user?.id}
           friends={friends}
-          setCreateDirectId={setCreateDirectid}
+          createDirect={createDirect}
         />
-      </PongAdvancedModal>
+      </BrowseModal>
       <div className="row mx-5 main-row">
         <div className="col-2 rounded-4 blue-box-chat">
           <div className="channels-div h-50">
@@ -557,21 +562,27 @@ export default function Chat(props: any) {
               <div className="col overflow-auto scroll-bar-channels ">
                 <table>
                   <tbody>
-                    {user?.channels?.map((usrOnChan: UserOnChannel) => (
-                      <tr key={usrOnChan.channelId}>
-                        <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
-                          {usrOnChan.channel.name}
-                        </td>
-                        <td>
-                          <button
-                            onClick={(e) => leaveChannel(usrOnChan.channelId)}
-                            className="rounded-4 btn btn-chat btn-pink"
+                    {user?.channels?.map((usrOnChan: UserOnChannel) =>
+                      usrOnChan.channel.type === eChannelType.DIRECT ? (
+                        ""
+                      ) : (
+                        <tr key={usrOnChan.channelId}>
+                          <td
+                            onClick={(e) => switchChannel(usrOnChan.channelId)}
                           >
-                            leave
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                            {usrOnChan.channel.name}
+                          </td>
+                          <td>
+                            <button
+                              onClick={(e) => leaveChannel(usrOnChan.channelId)}
+                              className="rounded-4 btn btn-chat btn-pink"
+                            >
+                              leave
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -595,14 +606,27 @@ export default function Chat(props: any) {
               <div className="col  overflow-auto scroll-bar-direct">
                 <table>
                   <tbody>
-                    <tr>
-                      <td>User</td>
-                      <td>
-                        <button className="rounded-4 btn btn-chat btn-pink">
-                          game
-                        </button>
-                      </td>
-                    </tr>
+                    {!isEmpty(allChannels) &&
+                      !isEmpty(friends) &&
+                      !isEmpty(allUsers) &&
+                      user?.channels?.map((usrOnChan: UserOnChannel) =>
+                        usrOnChan.channel.type !== eChannelType.DIRECT ? (
+                          ""
+                        ) : (
+                          <tr key={usrOnChan.channelId}>
+                            <td
+                              onClick={(e) =>
+                                switchChannel(usrOnChan.channelId)
+                              }
+                            >
+                              {otherUser(usrOnChan.channelId).username}
+                              <button className="rounded-4 btn btn-chat btn-pink">
+                                game
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      )}
                   </tbody>
                 </table>
               </div>
@@ -617,7 +641,10 @@ export default function Chat(props: any) {
               <div className="row mt-2">
                 <div className="col">
                   <p className="blue-titles channel-name-margin">
-                    currentChannel: {currentChannel.name}
+                    currentChannel:{" "}
+                    {currentChannel.type === eChannelType.DIRECT
+                      ? `Direct with ` + otherUser(currentChannel.id).username
+                      : currentChannel.name}
                   </p>
                 </div>
               </div>
