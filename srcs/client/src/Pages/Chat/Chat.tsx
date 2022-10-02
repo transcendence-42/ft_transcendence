@@ -17,36 +17,21 @@ import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import BrowseModal from "../../Components/Modal/browseModal";
+import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 
 const isEmpty = (obj: any) => {
   for (const i in obj) return false;
   return true;
 };
 
-const lobbyChannel: Channel = {
-  name: "lobby",
-  type: eChannelType.PUBLIC,
-  id: 24098932842,
-  users: []
-  // bannedUsersId: []
-};
-
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
   // const myUserId: number = props.userId;
-  const currChanInLocalStorage =
-    window.sessionStorage.getItem("currentChannel");
-  const defaultChannel: Channel = currChanInLocalStorage
-    ? JSON.parse(currChanInLocalStorage)
-    : lobbyChannel;
-  console.log(`Current channel init is ${currChanInLocalStorage}`);
   const [user, setUser] = useState({} as User);
   const [allMessages, setAllMessages] = useState({} as Hashtable<Message[]>);
   const [allUsers, setAllUsers] = useState({} as Hashtable<User>);
   const [allChannels, setAllChannels] = useState([] as Channel[]);
-  const [currentChannel, setCurrentChannel] = useState(
-    defaultChannel as Channel
-  );
+  const [currentChannel, setCurrentChannel] = useState({} as Channel);
   const [isUserFetched, setIsUserFetched] = useState<boolean>(false);
   const [message, setMessage] = useState("");
   const [friends, setFriends] = useState([]);
@@ -67,6 +52,7 @@ export default function Chat(props: any) {
   const handleCloseFriendList = () => setshowFriendList(false);
   const handleShowFriendList = () => setshowFriendList(true);
 
+  console.log(`Current channel init is ${currentChannel}`);
   const createDirect = async (e: any, friendId: number, userId: number) => {
     const channelName = friendId.toString() + "_" + userId.toString();
     const newChannel = await handleCreateChannelForm(
@@ -133,13 +119,100 @@ export default function Chat(props: any) {
     }
   };
 
-  const switchChannel = (channelId: number) => {
-    const channel = allChannels.find((chan: Channel) => chan.id === channelId);
-    console.log(`This is current channel id ${channel?.id}`);
-    if (channel) {
-      setCurrentChannel(channel);
-      sessionStorage.setItem("currentChannel", JSON.stringify(channel));
+  const switchChannel = (channelId: number | null, channel?: Channel) => {
+    if (!channelId) {
+      console.log(`Switching to empty channel`)
+      setCurrentChannel({} as Channel);
     }
+    let switchToChannel;
+    if (!channel) {
+      switchToChannel = allChannels.find(
+        (chan: Channel) => chan.id === channelId
+      );
+      console.log(
+        `trying to switch to channel id ${channelId} and found ${switchToChannel?.id}`
+      );
+    } else {
+      switchToChannel = channel;
+    }
+    if (switchToChannel) {
+      setCurrentChannel(switchToChannel);
+      sessionStorage.setItem("currentChannel", JSON.stringify(switchToChannel));
+    }
+  };
+
+  const leaveChannel = (channelId: number) => {
+    (async () => {
+      const userOnChannel = user.channels.find(
+        (usrOnChan: UserOnChannel) => usrOnChan.channelId === channelId
+      );
+      if (userOnChannel.isBanned || userOnChannel.isMuted) {
+        const dto: UpdateUserOnChannelDto = {
+          hasLeftTheChannel: true
+        };
+        const updatedUsrOnChan = await fetchUrl(
+          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
+          "PATCH",
+          dto
+        );
+        if (!updatedUsrOnChan) {
+          console.error(
+            `Couldn't update channel ${channelId} in leave channel!`
+          );
+          return;
+        }
+        updateOwnChannels(updatedUsrOnChan);
+      } else {
+        const deleteUser = await fetchUrl(
+          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
+          "DELETE"
+        );
+        if (!deleteUser) {
+          console.log(
+            `Failed to delete user ${JSON.stringify(
+              userOnChannel
+            )}from channel in leave channel`
+          );
+        }
+        console.log(
+          `These are my new OwnChannels before mapping ${JSON.stringify(
+            user.channels
+          )}`
+        );
+        setUser((prevUser) => {
+          const updatedChannels = prevUser.channels.filter(
+            (usrOnChan) => usrOnChan.channelId !== channelId
+          );
+          console.log(
+            `These are my new OwnChannels ${JSON.stringify(updatedChannels)}`
+          );
+          return { ...prevUser, channels: updatedChannels };
+        });
+      }
+      if (currentChannel.id === channelId) {
+        console.log(
+          `Trying to find a channel to be in length of channels ${user.channels.length}`
+        );
+        if (user.channels.length >= 2) {
+          const newChan = user.channels.find(
+            (usrOnChan: UserOnChannel) => {
+              console.log(`searchinf for a channel change ${JSON.stringify(usrOnChan)}`)
+              if (usrOnChan.channelId !== channelId &&
+              usrOnChan.hasLeftChannel === false)
+              {
+                return usrOnChan;
+              }
+            }
+          );
+          console.log(`this is newChan ${newChan}`)
+          if (newChan) {
+            switchChannel(newChan.channelId);
+          }
+        } else {
+          switchChannel(null);
+        }
+      }
+    })();
   };
 
   const updateOwnChannels = (userOnChannel: UserOnChannel) => {
@@ -148,14 +221,24 @@ export default function Chat(props: any) {
         user.channels
       )}`
     );
-    let updateAllChannels: UserOnChannel[] = [];
+    let updatedChannels: UserOnChannel[] = [];
+    let inOwnChannels = false;
     if (user["channels"]) {
-      updateAllChannels = user.channels;
+      updatedChannels = user.channels;
     }
-    updateAllChannels.push(userOnChannel);
+    updatedChannels = updatedChannels.map((usrOnChan) => {
+      if (usrOnChan.channelId === userOnChannel.channelId) {
+        inOwnChannels = true;
+        return userOnChannel;
+      }
+      return usrOnChan;
+    });
+    if (!inOwnChannels) {
+      updatedChannels.push(userOnChannel);
+    }
     setUser((prevUser: User) => ({
       ...prevUser,
-      channels: updateAllChannels
+      channels: updatedChannels
     }));
   };
 
@@ -177,6 +260,34 @@ export default function Chat(props: any) {
     console.log("Emitting message", JSON.stringify(messageToSend, null, 4));
     socket.emit(eEvent.SendMessage, messageToSend);
     setMessage("");
+  };
+
+  const setDefaultChannel = (channels, userChannels) => {
+    const currChanInLocalStorage =
+      window.sessionStorage.getItem("currentChannel");
+    console.log(
+      `This is channel i got form localStorage ${currChanInLocalStorage} and this is userChannel ${JSON.stringify(
+        user.channels
+      )}`
+    );
+    if (currChanInLocalStorage) {
+      const channelObject: Channel = JSON.parse(currChanInLocalStorage);
+      console.log(`This is channelObj ${JSON.stringify(channelObject)}`);
+      console.log(
+        `Did i find ${JSON.stringify(
+          userChannels.find(
+            (userOnChan) => channelObject.id === userOnChan.channelId
+          )
+        )}`
+      );
+      const channelInMyChannels = userChannels?.find(
+        (usrOnChan) => channelObject.id === usrOnChan.channelId
+      );
+      if (channelInMyChannels) {
+        console.log(`making the switch now`);
+        switchChannel(channelObject.id, channelObject);
+      }
+    }
   };
 
   useEffect(() => {
@@ -220,6 +331,7 @@ export default function Chat(props: any) {
         console.log("setting all channels");
         setAllChannels(channels);
         console.log("set all channels");
+        setDefaultChannel(channels, user.channels);
       }
       // const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
       console.log("Fetching all users");
@@ -330,7 +442,6 @@ export default function Chat(props: any) {
 
   return (
     <>
-      {user && (
         <BrowseModal
           title="Browse channels"
           show={showBrowseChannel}
@@ -342,7 +453,7 @@ export default function Chat(props: any) {
         >
           <BrowseChannels
             allChannels={allChannels}
-            userChannels={user.channels}
+            userChannels={user?.channels}
             userId={user?.id}
             socket={socket}
             updateOwnChannels={updateOwnChannels}
@@ -350,7 +461,6 @@ export default function Chat(props: any) {
             handleCloseBrowseChannel={handleCloseBrowseChannel}
           />
         </BrowseModal>
-      )}
       <ChatModal
         title="Create a channel"
         show={showCreateChannel}
@@ -420,7 +530,10 @@ export default function Chat(props: any) {
                           {usrOnChan.channel.name}
                         </td>
                         <td>
-                          <button className="rounded-4 btn btn-chat btn-pink">
+                          <button
+                            onClick={(e) => leaveChannel(usrOnChan.channelId)}
+                            className="rounded-4 btn btn-chat btn-pink"
+                          >
                             leave
                           </button>
                         </td>
@@ -464,66 +577,76 @@ export default function Chat(props: any) {
           </div>
         </div>
         <div className="col-8 rounded-4 blue-box-chat">
-          <div className="row mt-2">
-            <div className="col">
-              <p className="blue-titles channel-name-margin">
-                currentChannel: {currentChannel.name}
-              </p>
-            </div>
-          </div>
-          <div className="row h-75 pt-3">
-            <div className="col h-100 overflow-auto scroll-bar-messages ">
-              <div className="message-position">
-                <>
-                  {console.log(
-                    `AllsMessges of current channelid ${JSON.stringify(
-                      allMessages[currentChannel.id]
-                    )}`
-                  )}
-                  {allMessages &&
-                    allMessages[currentChannel.id]?.map((message: Message) => (
-                      <div
-                        className={
-                          message.fromUserId === user.id
-                            ? "myMessages"
-                            : "otherMessages"
-                        }
-                        key={message.id}
-                      >
-                        <div className="messageFromUser">
-                          User:
-                          {allUsers[message.fromUserId].username || "Pong Bot"}
-                        </div>
-                        <br />
-                        <div className="messageDate">
-                          Date: {new Date(message.sentDate).toLocaleString()}
-                        </div>
-                        <br />
-                        <div className="messageContent">
-                          Message: {message.content}
-                        </div>
-                        <br />
-                      </div>
-                    ))}
-                </>
+          {isEmpty(currentChannel) ? (
+            <div> Join a Channel! </div>
+          ) : (
+            <>
+              <div className="row mt-2">
+                <div className="col">
+                  <p className="blue-titles channel-name-margin">
+                    currentChannel: {currentChannel.name}
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="row pt-4">
-            <div className="col text-center">
-              <input
-                onChange={(e) => setMessage(e.target.value)}
-                value={message}
-                type="text"
-                maxLength={128}
-                className="rounded-3 input-field-chat"
-                placeholder="Send a message..."
-              ></input>
-              <button type="button" onClick={handleSendMessage}>
-                Send
-              </button>
-            </div>
-          </div>
+              <div className="row h-75 pt-3">
+                <div className="col h-100 overflow-auto scroll-bar-messages ">
+                  <div className="message-position">
+                    <>
+                      {console.log(
+                        `AllsMessges of current channelid ${JSON.stringify(
+                          allMessages[currentChannel.id]
+                        )}`
+                      )}
+                      {allMessages &&
+                        allMessages[currentChannel.id]?.map(
+                          (message: Message) => (
+                            <div
+                              className={
+                                message.fromUserId === user.id
+                                  ? "myMessages"
+                                  : "otherMessages"
+                              }
+                              key={message.id}
+                            >
+                              <div className="messageFromUser">
+                                User:
+                                {allUsers[message.fromUserId].username ||
+                                  "Pong Bot"}
+                              </div>
+                              <br />
+                              <div className="messageDate">
+                                Date:{" "}
+                                {new Date(message.sentDate).toLocaleString()}
+                              </div>
+                              <br />
+                              <div className="messageContent">
+                                Message: {message.content}
+                              </div>
+                              <br />
+                            </div>
+                          )
+                        )}
+                    </>
+                  </div>
+                </div>
+              </div>
+              <div className="row pt-4">
+                <div className="col text-center">
+                  <input
+                    onChange={(e) => setMessage(e.target.value)}
+                    value={message}
+                    type="text"
+                    maxLength={128}
+                    className="rounded-3 input-field-chat"
+                    placeholder="Send a message..."
+                  ></input>
+                  <button type="button" onClick={handleSendMessage}>
+                    Send
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <div className="col-2 rounded-4 blue-box-chat">
           <div className="row mt-2">

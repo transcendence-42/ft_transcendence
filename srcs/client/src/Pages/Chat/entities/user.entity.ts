@@ -88,7 +88,7 @@ export class UserOnChannel {
   isMuted: boolean = false;
   isBanned: boolean = false;
   channel: Channel;
-  hasLeftTheChannel: boolean;
+  hasLeftChannel: boolean;
 }
 
 export class Channel {
