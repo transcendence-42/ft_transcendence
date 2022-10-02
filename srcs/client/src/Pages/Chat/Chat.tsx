@@ -1,9 +1,6 @@
-
-
-
 import "bootstrap";
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js";
+import "bootstrap/dist/js/bootstrap.bundle";
 import "./Chat.css";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
@@ -12,6 +9,7 @@ import PongAdvancedModal from "../../Components/Modal/PongAdvancedModal";
 import BrowseChannels from "./BrowseChannels";
 import CreateChannel from "./CreateChannel";
 import FriendList from "./FriendList";
+import ChannelsMessages from "./ChannelsMessages"
 import {
   MessageDto,
   Channel,
@@ -19,7 +17,7 @@ import {
   Message,
   UserOnChannel,
   Hashtable,
-  User
+  User,
 } from "./entities";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl } from "./utils";
@@ -34,7 +32,7 @@ const lobbyChannel: Channel = {
   name: "lobby",
   type: eChannelType.PUBLIC,
   id: 24098932842,
-  users: []
+  users: [],
 };
 
 export default function Chat(props: any) {
@@ -124,7 +122,7 @@ export default function Chat(props: any) {
     const createUserOnChannelDto = {
       role: eUserRole.USER,
       userId,
-      channelId
+      channelId,
     };
     const newUser = await fetchUrl(
       `http://127.0.0.1:4200/channel/${channelId}/useronchannel/`,
@@ -165,7 +163,7 @@ export default function Chat(props: any) {
     updateAllChannels.push(userOnChannel);
     setUser((prevUser: User) => ({
       ...prevUser,
-      channels: updateAllChannels
+      channels: updateAllChannels,
     }));
   };
 
@@ -182,7 +180,7 @@ export default function Chat(props: any) {
     const messageToSend: MessageDto = {
       content: message,
       toChannelOrUserId: currentChannel.id,
-      fromUserId: user.id
+      fromUserId: user.id,
     };
     console.log("Emitting message", JSON.stringify(messageToSend, null, 4));
     socket.emit(eEvent.SendMessage, messageToSend);
@@ -208,7 +206,7 @@ export default function Chat(props: any) {
       name: channelDto.name,
       id: channelDto.id,
       userId: user.id,
-      password: channelDto.password
+      password: channelDto.password,
     });
     console.log(
       `This is join channel dto ${JSON.stringify(channelDto, null, 4)}`
@@ -373,7 +371,7 @@ export default function Chat(props: any) {
         />
       </ChatModal>
       <PongAdvancedModal
-        title="Select a friend"
+        title="Select a "
         show={showFriendList}
         closeHandler={handleCloseFriendList}
         textBtn1="Cancel"
@@ -387,218 +385,144 @@ export default function Chat(props: any) {
           setCreateDirectId={setCreateDirectid}
         />
       </PongAdvancedModal>
-
       <div className="container-fluid h-75 ">
-      {/* first div to center chat */}
-      <div className="row main ">
-        {/* Div Channel */}
-        <div className=" rounded-4 blue-box-chat col chat-sidebar-left ms-3 overflow-hidden h-100" >
-          <div className="h-50 overflow-hidden  ">
-            <div className="row mt-2  ">
-              <div className="col-9 my-sidebar  mt-1">
-                <p className="yellow-titles ">CHANNELS</p>
-              </div>
-              <div className="col-1">
-                <button
-                  className="float-end rounded-4  color-dropdown channel-button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >+</button>
-                <ul className="dropdown-menu channel-menu">
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowBrowseChannel}
-                  >
-                    Browse channels
-                  </li>
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowCreateChannel}
-                  >
-                    Create a channel
-                  </li>
-                </ul>
-              </div>
-            </div>
-               {/* Div which list the channels */}
-            <div className="row h-100">
-              <div className="col-12 h-100 scroll-bar-messages ">
-                <table>
-                  <tbody>
-                    {user?.channels?.map((usrOnChan: UserOnChannel) => (
-                      <tr key={usrOnChan.channelId}>
-                        <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
-                          {usrOnChan.channel.name}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          {/* Div with the title messages with modals */}
-          <div className="messages-div h-50">
-            <div className="row">
-              <div className="col-9 overflow-auto pt-1">
-                <p className="yellow-titles">MESSAGES</p>
-              </div>
-              <div className="col-1">
-                <button
-                  className="message-button float-end rounded-4 "
-                  onClick={handleShowFriendList}
+        {/* first div to center chat */}
+        <div className="row main ">
+          {/* Div Channel */}
+          <ChannelsMessages
+            handleShowBrowseChannel = {handleShowBrowseChannel}
+            handleShowCreateChannel = {handleShowCreateChannel}
+            user = {user}
+            switchChannel = {switchChannel}
+            handleShowFriendList = {handleShowFriendList}
+            />
+          {/* Div Middle */}
+          <div className="  col col-sm col-md col-lg col-xl col-xxl
+                          h-100 rounded-4 blue-box-chat  overflow-hidden ms-2 me-2">
+            <div className="row mt-2">
+              <div className="col">
+                <p
+                  className="badge bg-warning text-dark"
+                  style={{ fontSize: "12px" }}
                 >
-                  +
+                  {/* <p className="blue-titles channel-name-margin " style={{fontSize:"12px"}}> */}
+                  currentChannel: {currentChannel.name}
+                </p>
+              </div>
+
+              <div
+                className="col btn btn-pink pinkText"
+                style={{ fontSize: "12px" }}
+              >
+                leave
+              </div>
+            </div>
+            {/* Div with all list of messages */}
+            <div className="row h-75 ">
+              <div className="col scroll-bar-messages h-100 px-4 ">
+                <div className=" ">
+                  <>
+                    {console.log(
+                      `AllsMessges of current channelid ${JSON.stringify(
+                        allMessages[currentChannel.id]
+                      )}`
+                    )}
+                    {allMessages &&
+                      allMessages[currentChannel.id]?.map(
+                        (message: Message) => (
+                          <div
+                            className={
+                              message.fromUserId === user.id
+                                ? "myMessages"
+                                : "otherMessages"
+                            }
+                            key={message.id}
+                          >
+                            <div className="messageDate text-center text-white">
+                              {new Date(message.sentDate).toLocaleString()}
+                            </div>
+                            <div className="row">
+                              <div className="messageFromUser  col-3">
+                                {allUsers[message.fromUserId].username ||
+                                  "Pong Bot"}
+                                :
+                              </div>
+                              <div className="col-1"></div>
+                              <div
+                                style={{ wordWrap: "break-word" }}
+                                className="messageContent col text-white pb-5"
+                              >
+                                {message.content}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      )}
+                  </>
+                </div>
+              </div>
+            </div>
+
+            <div className="row" style={{ height: "15%" }}>
+              <div className="col-12 text-center align-self-center ">
+                <input
+                  className="rounded-3 input-field-chat w-75 "
+                  onChange={(e) => setMessage(e.target.value)}
+                  value={message}
+                  type="text"
+                  maxLength={50}
+                  placeholder="Send a message..."
+                ></input>
+                <button type="button" onClick={handleSendMessage}>
+                  Send
                 </button>
               </div>
             </div>
-             {/* Div with list of users with modals to send messages */}
-            <div className="row h-75">
-              <div className="col  overflow-auto scroll-bar-direct">
+          </div>
+          {/* Div Members */}
+          <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  h-100">
+            <div className="row mt-2">
+              <div className="col">
+                <p
+                  className="blue-titles center-position"
+                  style={{ fontSize: "12px" }}
+                >
+                  MEMBERS
+                </p>
+                <>
+                  {!isEmpty(currentChannel) &&
+                    currentChannel.users?.map((user: UserOnChannel) => (
+                      <div key={user.userId}>
+                        {allUsers && allUsers[user.userId]?.username}
+                      </div>
+                    ))}
+                </>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col overflow-auto">
                 <table>
                   <tbody>
                     <tr>
                       <td>User</td>
                       <td>
-                      <div className="col-1">
-                <button
-                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul className="dropdown-menu channel-menu">
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowBrowseChannel}
-                  >
-                    Open chat
-                  </li>
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowCreateChannel}
-                  >
-                    Play a game
-                  </li>
-                </ul>
-              </div>
+                        <button
+                          className="rounded-4 dropdown-toggle color-dropdown channel-button "
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        ></button>
+                        <ul className="dropdown-menu channel-menu text-center">
+                          <li className="dropdown-item">Mute</li>
+                          <li className="dropdown-item">Ban</li>
+                          <li className="dropdown-item">Kick</li>
+                          <li className="dropdown-item">Block</li>
+                        </ul>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
-          </div>
-        </div>
-
-         {/* Div Middle */}
-        <div className="  col col-sm col-md col-lg col-xl col-xxl h-100 rounded-4 blue-box-chat  overflow-hidden">
-          <div className="row mt-2">
-            <div className="col">
-              <p className="blue-titles channel-name-margin" style={{fontSize:"12px"}}>
-                currentChannel: {currentChannel.name}
-              </p>
-            </div>
-        
-            <div className="col flex-end text-pink text-end " style={{fontSize:"12px"}}>
-                            leave
-            </div>
-         
-          </div>
-          {/* Div with all list of messages */}
-          <div className="row h-75 ">
-            <div className="col scroll-bar-messages h-100 px-4 " >
-              <div className=" " >
-                <>
-                  {console.log(
-                    `AllsMessges of current channelid ${JSON.stringify(
-                      allMessages[currentChannel.id]
-                    )}`
-                  )}
-                  {allMessages &&
-                    allMessages[currentChannel.id]?.map((message: Message) => (
-                      <div
-                        className={
-                          message.fromUserId === user.id
-                            ? "myMessages"
-                            : "otherMessages"
-                        }
-                        key={message.id}
-                      >
-                        <div className="messageDate text-center text-white">
-                          {new Date(message.sentDate).toLocaleString()}
-                        </div>
-                        <div className="row" >
-                          <div className="messageFromUser  col-3" >
-                          {allUsers[message.fromUserId].username || "Pong Bot"}:
-                        </div>
-                        <div className="col-1" ></div>
-                        <div style={{wordWrap:"break-word"}} className="messageContent col text-white pb-5">
-                          {message.content} 
-                        </div>
-                      </div>
-                      </div>
-                    ))}
-                </>
-              </div>
-            </div>
-          </div>
-
-          <div className="row"  style={{height:"15%"}}>
-            <div className="col-12 text-center align-self-center ">
-              <input className="rounded-3 input-field-chat w-75 " 
-                onChange={(e) => setMessage(e.target.value)}
-                value={message}
-                type="text"
-                maxLength={50}
-                placeholder="Send a message..."
-              ></input>
-              <button type="button" onClick={handleSendMessage}>
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-         {/* Div Members */}
-        <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  h-100">
-          <div className="row mt-2">
-            <div className="col">
-              <p className="blue-titles center-position"  style={{fontSize:"12px"}} >
-                MEMBERS
-              </p>
-              <>
-                {!isEmpty(currentChannel) &&
-                  currentChannel.users?.map((user: UserOnChannel) => (
-                    <div key={user.userId}>
-                      {allUsers && allUsers[user.userId]?.username}
-                    </div>
-                  ))}
-              </>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col overflow-auto">
-              <table>
-                <tbody>
-                  <tr>
-                    <td>User</td>
-                    <td>
-                      <button
-                        className="rounded-4 dropdown-toggle color-dropdown channel-button "
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul className="dropdown-menu channel-menu text-center">
-                        <li className="dropdown-item">Mute</li>
-                        <li className="dropdown-item">Ban</li>
-                        <li className="dropdown-item">Kick</li>
-                        <li className="dropdown-item">Block</li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
           </div>
         </div>
       </div>
