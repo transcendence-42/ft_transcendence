@@ -308,11 +308,20 @@ export class GameService {
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
     else this.clients.push(new Client(client, userId, name, pic));
+    // Check if player is registered in a game for status
+    let status: ePlayerStatus = ePlayerStatus.ONLINE;
+    let matchmaking: ePlayerMatchMakingStatus =
+      ePlayerMatchMakingStatus.NOT_IN_QUEUE;
+    const playerInfos = await this._getPlayerInfos(userId);
+    if (playerInfos) {
+      status = playerInfos.status;
+      matchmaking = playerInfos.matchmaking;
+    }
     // Save or update client as a player for players info
     await this._savePlayerInfos(userId, {
       id: userId,
-      status: ePlayerStatus.ONLINE,
-      matchmaking: 0,
+      status: status,
+      matchmaking: matchmaking,
       pic: pic,
       name: name,
     });
