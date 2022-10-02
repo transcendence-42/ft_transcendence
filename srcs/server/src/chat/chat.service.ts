@@ -4,7 +4,7 @@ import { Socket, Server } from 'socket.io';
 import { ChannelType, UserRole } from '@prisma/client';
 import Redis from 'redis';
 import * as Cookie from 'cookie';
-import {  Message } from './entities';
+import { Message } from './entities';
 import { eRedisDb, eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { MessageDto } from './dto';
@@ -45,25 +45,15 @@ export class ChatService {
     this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
   }
 
+  async addedToChannel(client: Socket, channelId: number) {
+    await this.joinChannel(client, channelId);
+    this.server
+      .to(channelId.toString())
+      .emit(eEvent.UpdateUserOnChannel, channelId);
+  }
+
   async joinChannel(client: Socket, channelId: number) {
-    // const channel = await this.channelService.findOne(joinChannelDto.id);
-    // if (
-    //   joinChannelDto.type === eChannelType.Protected &&
-    //   joinChannelDto.password !== channel.password
-    // ) {
-    //   client.emit(eEvent.JoinChannelResponse, { message: 'wrong password' });
-    //   return;
-    // }
-    // const dto: CreateUserOnChannelDto = {
-    //   channelId: channel.id,
-    //   role: UserRole.USER,
-    //   userId: joinChannelDto.userId,
-    // };
-    // const newUserOnChannel = await this.channelService.createUserOnChannel(dto);
-    // client.emit(eEvent.JoinChannelResponse, {
-    //   message: 'Joined Channel!',
-    //   newUserOnChannel,
-    // });
+    client.join(channelId.toString());
     const messages = await this._getMessage(channelId.toString());
     client.emit(eEvent.GetMessages, { channelId, messages });
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
@@ -75,6 +65,7 @@ export class ChatService {
   }
 
   async initConnection(client: Socket, channelIds: string[]) {
+    client.join(client.handshake.auth.id.toString());
     for (const channel of channelIds) {
       this.logger.debug(`Client join channel ${channel}`);
       client.join(channel);

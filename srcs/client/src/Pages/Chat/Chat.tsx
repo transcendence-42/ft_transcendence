@@ -63,21 +63,27 @@ export default function Chat(props: any) {
       updateOwnChannels
     );
     if (newChannel) {
+      sessionStorage.setItem("currentChannel", JSON.stringify(newChannel));
       addToChannel(friendId, newChannel.id);
+      setCurrentChannel(newChannel);
+      setAllChannels((prevAllChannels) => [...prevAllChannels, newChannel]);
+      switchChannel(newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
-  const otherUser = (channelId: number) => {
+  const otherUser = (channelId: number): User | undefined => {
     const channel = allChannels.find((chan) => chan.id === channelId);
     console.log(
       `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
     );
+    if (!channel) return;
     const otherUserOnChannel = channel.users.find(
       (usr) => usr.userId !== user.id
     );
     console.log(
       `This is the otherUserOnChannel ${JSON.stringify(otherUserOnChannel)}`
     );
+    if (!otherUserOnChannel) return;
     return allUsers[otherUserOnChannel.userId];
   };
 
@@ -122,7 +128,8 @@ export default function Chat(props: any) {
     );
     if (newUser["userId"]) {
       // to be modified later to include a better way of handling error
-      socket.emit(eEvent.AddUser, userId);
+      socket.emit(eEvent.AddUser, { channelId, userId });
+      // socket.emit(eEvent.UpdateOneChannel, channelId);
     } else {
       //to be changed for a better way of handling error
       return alert(
@@ -253,9 +260,16 @@ export default function Chat(props: any) {
 
   const updateChannel = (channel: Channel) => {
     let channelAlreadyExists = false;
-    if (allChannels.find((chan) => chan.id === channel.id))
+    if (allChannels.find((chan) => chan.id === channel.id)) {
+      console.log(
+        `Channel already exist... Updating it in after event updateOneChannel`
+      );
       channelAlreadyExists = true;
+    }
     if (!channelAlreadyExists) {
+      console.log(
+        `Channel doesn't exist... creating it in after event updateOneChannel`
+      );
       return addChannel(channel);
     }
     setAllChannels((prevState) => {
@@ -313,6 +327,29 @@ export default function Chat(props: any) {
         switchChannel(channelObject.id, channelObject);
       }
     }
+  };
+
+  const havePrivilege = (other: UserOnChannel): boolean => {
+    const self = user.channels.find(
+      (usrOnChan) => usrOnChan.channelId === other.channelId
+    );
+    if (self.role === eUserRole.OWNER) return true;
+    if (self.role === eUserRole.USER) return false;
+    if (self.role === eUserRole.ADMIN && other.role === eUserRole.USER)
+      return true;
+    return false;
+  };
+
+  const muteUser = (otherUser: UserOnChannel) => {
+    if (!havePrivilege(otherUser))
+      return alert("You don't have enough privileges to Mute this user!");
+    const url = `http://127.0.0.1:4200/channels/${otherUser.channelId}/useronchannel/${otherUser.userId}`;
+    const mutedUser = fetchUrl(url, "PATCH", {
+      isMuted: true
+    } as UpdateUserOnChannelDto);
+    setTimeout(() => {
+      fetchUrl(url, "PATCH", { isMuted: false } as UpdateUserOnChannelDto);
+    }, 10000);
   };
 
   useEffect(() => {
@@ -439,12 +476,23 @@ export default function Chat(props: any) {
       })();
     });
 
+    socket.on(eEvent.AddUser, (channelId) => {
+      console.log(`RECIEVED EVENT ADDEd TO CHANNEL`)
+      socket.emit(eEvent.AddedToChannel, channelId);
+    });
+
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
       console.log("recieved event udpateOneChannel");
       (async () => {
         const url = "http://127.0.0.1:4200/channels/" + channelId;
-        const channel = await fetchUrl(url);
+        const channel: Channel = await fetchUrl(url);
         updateChannel(channel);
+        if (channel.type === eChannelType.PRIVATE) {
+          const userOnChannel = channel.users.find(
+            (usr) => usr.userId === user.id
+          );
+          if (userOnChannel) updateOwnChannels(userOnChannel);
+        }
       })();
     });
 
@@ -453,6 +501,7 @@ export default function Chat(props: any) {
         const usrOnChan = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${user.id}`
         );
+        console.log(`Updating user on channel ${JSON.stringify(usrOnChan)}`);
         setUser((prevState) => {
           const updatedChannels = user.channels.map((usr) =>
             usr.channelId === channelId ? usrOnChan : usr
@@ -472,13 +521,13 @@ export default function Chat(props: any) {
     return () => {
       socket.off("connect");
       socket.off(eEvent.UpdateMessages);
+      socket.off(eEvent.GetMessages);
       socket.off(eEvent.UpdateOneMessage);
       socket.off(eEvent.UpdateOneUser);
+      socket.off(eEvent.AddUser);
       socket.off(eEvent.UpdateOneChannel);
+      socket.off(eEvent.UpdateUserOnChannel);
       socket.off(eEvent.JoinChannelResponse);
-      socket.off(eEvent.JoinChannel);
-      socket.off(eEvent.JoinChannelResponse);
-      socket.off(eEvent.InitConnection);
     };
   }, [isUserFetched]);
 
@@ -619,7 +668,8 @@ export default function Chat(props: any) {
                                 switchChannel(usrOnChan.channelId)
                               }
                             >
-                              {otherUser(usrOnChan.channelId).username}
+                              {otherUser(usrOnChan.channelId)?.username ||
+                                "loading..."}
                               <button className="rounded-4 btn btn-chat btn-pink">
                                 game
                               </button>
@@ -642,8 +692,12 @@ export default function Chat(props: any) {
                 <div className="col">
                   <p className="blue-titles channel-name-margin">
                     currentChannel:{" "}
-                    {currentChannel.type === eChannelType.DIRECT
-                      ? `Direct with ` + otherUser(currentChannel.id).username
+                    {currentChannel.type === eChannelType.DIRECT &&
+                    !isEmpty(allChannels) &&
+                    !isEmpty(allUsers) &&
+                    !isEmpty(friends)
+                      ? `Direct with ` +
+                          otherUser(currentChannel.id)?.username || "loading"
                       : currentChannel.name}
                   </p>
                 </div>

@@ -12,4 +12,6 @@ export enum eEvent {
   CreateChannel = 'createChannel',
   InitConnection = 'initConnection',
   UpdateUserOnChannel = 'updateUserOnChannel',
+  AddUser = 'addUser',
+  AddedToChannel = 'addedToChannel',
 }

@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { eChannelType, eEvent } from "../constants";
 import { CreateChannelDto } from "../entities/create-channel.dto";
-import { Channel, UserOnChannel  } from "../entities/user.entity";
+import { Channel, UserOnChannel } from "../entities/user.entity";
 import createChannelOnDb from "./createChannelOnDb";
 
 const handleCreateChannelForm = (
@@ -26,13 +26,15 @@ const handleCreateChannelForm = (
       password
     };
     const resp: [Channel, UserOnChannel] | void = await createChannelOnDb(
-      createChannelDto,
+      createChannelDto
     );
     if (!resp) {
       throw new Error("Failed to create user on database");
     }
     updateOwnChannels(resp[1]);
-    socket.emit(eEvent.CreateChannel, resp[0].id);
+    if (type !== eChannelType.DIRECT) {
+      socket.emit(eEvent.CreateChannel, resp[0].id);
+    }
     return resp[0];
   })();
   return channel;

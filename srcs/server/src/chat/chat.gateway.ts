@@ -85,6 +85,19 @@ export class ChatGateway
     return this.chatService.joinChannel(client, channelId);
   }
 
+  @SubscribeMessage(eEvent.AddedToChannel)
+  addedToChannel(client: Socket, channelId: number) {
+    this.chatService.addedToChannel(client, channelId);
+  }
+
+  @SubscribeMessage(eEvent.AddUser)
+  addUser(client: Socket, payload: { channelId; userId }) {
+    this.logger.debug(`Recieved AddedUser with data ${JSON.stringify(payload)}`)
+    client
+      .to(payload.userId.toString())
+      .emit(eEvent.AddUser, payload.channelId);
+  }
+
   @SubscribeMessage(eEvent.UpdateOneChannel)
   updateOneChannel(client: Socket, id: number) {
     this.logger.debug(`gateway ${id} `);
