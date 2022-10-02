@@ -47,12 +47,14 @@ export const drawScores = (
       else if (display) display = display + s.score.toString();
       else display = display + ' ' + s.score.toString();
     });
-    ctx.font = `${map.score.style} ${+cWidth * 0.078}px ${map.fontFamily}`;
+    ctx.font = `${map.score.style} ${+cWidth * map.score.size * 0.078}px ${
+      map.fontFamily
+    }`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.shadowBlur = map.score.shadow;
     ctx.shadowColor = map.score.shadowColor;
-    ctx.fillStyle = map.text.fill;
+    ctx.fillStyle = map.score.fill;
     ctx.fillText(display, map.canvas.size.w / 2, 30);
   }
 };
@@ -69,12 +71,14 @@ export const drawUsernames = (
       .getElementById('pongCanvas')
       ?.getAttribute('width');
     scores.forEach((s: any) => {
-      ctx.font = `${map.score.style} ${+cWidth * 0.028}px ${map.fontFamily}`;
+      ctx.font = `${map.score.style} ${+cWidth * map.username.size * 0.044}px ${
+        map.fontFamily
+      }`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.shadowBlur = map.altText.shadow;
-      ctx.shadowColor = map.altText.shadowColor;
-      ctx.fillStyle = map.altText.fill;
+      ctx.shadowBlur = map.username.shadow;
+      ctx.shadowColor = map.username.shadowColor;
+      ctx.fillStyle = map.username.fill;
       const wPos =
         s.side === 0 ? map.canvas.size.w / 4 : map.canvas.size.w / 1.33;
       ctx.fillText(s.name, wPos, 30);
@@ -138,12 +142,14 @@ export const drawMessages = (
       100,
     );
     // Draw message
-    ctx.font = `${map.score.style} ${+cWidth * 0.044}px ${map.fontFamily}`;
+    ctx.font = `${map.score.style} ${+cWidth * map.message.size * 0.044}px ${
+      map.fontFamily
+    }`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = map.altText.fill;
-    ctx.shadowBlur = map.altText.shadow;
-    ctx.shadowColor = map.altText.shadowColor;
+    ctx.fillStyle = map.message.fill;
+    ctx.shadowBlur = map.message.shadow;
+    ctx.shadowColor = map.message.shadowColor;
     ctx.fillText(message, map.canvas.size.w / 2, map.canvas.size.h / 2);
   }
 };
