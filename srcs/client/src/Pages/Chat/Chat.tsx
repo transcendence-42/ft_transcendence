@@ -4,12 +4,10 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import "./Chat.css";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
-import ChatModal from "../../Components/Modal/ChatModals";
-import PongAdvancedModal from "../../Components/Modal/PongAdvancedModal";
-import BrowseChannels from "./BrowseChannels";
-import CreateChannel from "./CreateChannel";
-import FriendList from "./FriendList";
-import ChannelsMessages from "./ChannelsMessages"
+import ChannelsMessages from "./ChannelsMessages/ChannelsMessages"
+import Conversation from "./Conversation/Conversation"
+import Members from "./Members/Members"
+import ModalChat from "./Modal/ModalChat"
 import {
   MessageDto,
   Channel,
@@ -340,55 +338,8 @@ export default function Chat(props: any) {
 
   return (
     <>
-      <PongAdvancedModal
-        title="Browse channels"
-        show={showBrowseChannel}
-        closeHandler={handleCloseBrowseChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
-        handleBtn2={handleCloseBrowseChannel}
-      >
-        <BrowseChannels
-          allChannels={allChannels}
-          userChannel={user?.channels}
-          userId={user?.id}
-        />
-      </PongAdvancedModal>
-      <ChatModal
-        title="Create a channel"
-        show={showCreateChannel}
-        closeHandler={handleCloseCreateChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseCreateChannel}
-        textBtn2="Create"
-        handleBtn2={createNonDirectChannel}
-      >
-        <CreateChannel
-          userId={user.id}
-          friends={friends}
-          createNonDirectChannel={createNonDirectChannel}
-        />
-      </ChatModal>
-      <PongAdvancedModal
-        title="Select a "
-        show={showFriendList}
-        closeHandler={handleCloseFriendList}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseFriendList}
-        textBtn2="Validate"
-        handleBtn2={createDirect}
-      >
-        <FriendList
-          userId={user?.id}
-          friends={friends}
-          setCreateDirectId={setCreateDirectid}
-        />
-      </PongAdvancedModal>
-      <div className="container-fluid h-75 ">
-        {/* first div to center chat */}
-        <div className="row main ">
-          {/* Div Channel */}
+      <div className="container-fluid h-75">
+        <div className="row main justify-content-center ms-2 ">
           <ChannelsMessages
             handleShowBrowseChannel = {handleShowBrowseChannel}
             handleShowCreateChannel = {handleShowCreateChannel}
@@ -396,136 +347,37 @@ export default function Chat(props: any) {
             switchChannel = {switchChannel}
             handleShowFriendList = {handleShowFriendList}
             />
-          {/* Div Middle */}
-          <div className="  col col-sm col-md col-lg col-xl col-xxl
-                          h-100 rounded-4 blue-box-chat  overflow-hidden ms-2 me-2">
-            <div className="row mt-2">
-              <div className="col">
-                <p
-                  className="badge bg-warning text-dark"
-                  style={{ fontSize: "12px" }}
-                >
-                  {/* <p className="blue-titles channel-name-margin " style={{fontSize:"12px"}}> */}
-                  currentChannel: {currentChannel.name}
-                </p>
-              </div>
-
-              <div
-                className="col btn btn-pink pinkText"
-                style={{ fontSize: "12px" }}
-              >
-                leave
-              </div>
-            </div>
-            {/* Div with all list of messages */}
-            <div className="row h-75 ">
-              <div className="col scroll-bar-messages h-100 px-4 ">
-                <div className=" ">
-                  <>
-                    {console.log(
-                      `AllsMessges of current channelid ${JSON.stringify(
-                        allMessages[currentChannel.id]
-                      )}`
-                    )}
-                    {allMessages &&
-                      allMessages[currentChannel.id]?.map(
-                        (message: Message) => (
-                          <div
-                            className={
-                              message.fromUserId === user.id
-                                ? "myMessages"
-                                : "otherMessages"
-                            }
-                            key={message.id}
-                          >
-                            <div className="messageDate text-center text-white">
-                              {new Date(message.sentDate).toLocaleString()}
-                            </div>
-                            <div className="row">
-                              <div className="messageFromUser  col-3">
-                                {allUsers[message.fromUserId].username ||
-                                  "Pong Bot"}
-                                :
-                              </div>
-                              <div className="col-1"></div>
-                              <div
-                                style={{ wordWrap: "break-word" }}
-                                className="messageContent col text-white pb-5"
-                              >
-                                {message.content}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      )}
-                  </>
-                </div>
-              </div>
-            </div>
-
-            <div className="row" style={{ height: "15%" }}>
-              <div className="col-12 text-center align-self-center ">
-                <input
-                  className="rounded-3 input-field-chat w-75 "
-                  onChange={(e) => setMessage(e.target.value)}
-                  value={message}
-                  type="text"
-                  maxLength={50}
-                  placeholder="Send a message..."
-                ></input>
-                <button type="button" onClick={handleSendMessage}>
-                  Send
-                </button>
-              </div>
-            </div>
-          </div>
-          {/* Div Members */}
-          <div className="  rounded-4 blue-box-chat col chat-sidebar-right me-3  h-100">
-            <div className="row mt-2">
-              <div className="col">
-                <p
-                  className="blue-titles center-position"
-                  style={{ fontSize: "12px" }}
-                >
-                  MEMBERS
-                </p>
-                <>
-                  {!isEmpty(currentChannel) &&
-                    currentChannel.users?.map((user: UserOnChannel) => (
-                      <div key={user.userId}>
-                        {allUsers && allUsers[user.userId]?.username}
-                      </div>
-                    ))}
-                </>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col overflow-auto">
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>User</td>
-                      <td>
-                        <button
-                          className="rounded-4 dropdown-toggle color-dropdown channel-button "
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        ></button>
-                        <ul className="dropdown-menu channel-menu text-center">
-                          <li className="dropdown-item">Mute</li>
-                          <li className="dropdown-item">Ban</li>
-                          <li className="dropdown-item">Kick</li>
-                          <li className="dropdown-item">Block</li>
-                        </ul>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <Conversation
+            currentChannel = {currentChannel}
+            allMessages = {allMessages}
+            allUsers = {allUsers}
+            user = {user}
+            setMessage = {setMessage}
+            message = {message}
+            handleSendMessage = {handleSendMessage}
+            />
+          <Members
+            currentChannel = {currentChannel}
+            allUsers = {allUsers}
+            isEmpty = {isEmpty}
+            />
         </div>
       </div>
+      {/* MODAL */}
+      <ModalChat
+        user = {user}
+        friends = {friends}
+        allChannels = {allChannels}
+        showBrowseChannel = {showBrowseChannel}
+        handleCloseBrowseChannel = {handleCloseBrowseChannel}
+        showCreateChannel = {showCreateChannel}
+        handleCloseCreateChannel = {handleCloseCreateChannel}
+        showFriendList = {showFriendList}
+        handleCloseFriendList = {handleCloseFriendList}
+        setCreateDirectid = {setCreateDirectid}
+        createDirect = {createDirect}
+        createNonDirectChannel = {createNonDirectChannel}
+        />
     </>
   );
 }

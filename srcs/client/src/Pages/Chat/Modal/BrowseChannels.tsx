@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./BrowseChannels.css";
-import { Channel, UserOnChannel } from "./entities";
-import { eChannelType } from "./constants";
+import { Channel, UserOnChannel } from "../entities";
+import { eChannelType } from "../constants";
 
 export default function BrowseChannels({
   allChannels,

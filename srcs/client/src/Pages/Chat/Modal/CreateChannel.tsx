@@ -1,6 +1,6 @@
 import "./CreateChannel.css";
 import { useState } from "react";
-import { eChannelType } from "./constants";
+import { eChannelType } from "../constants";
 
 export default function CreateChannel({
   userId,
@@ -35,7 +35,7 @@ export default function CreateChannel({
           onChange={(e) => setChannelName(e.target.value)}
           value={channelName}
           maxLength={6}
-         
+
         ></input>
         <div className="form-check">
           <input

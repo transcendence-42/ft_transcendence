@@ -1,7 +1,9 @@
 import React from "react";
-import { UserOnChannel } from "./entities";
-import "../../Components/Tools/Text.css";
-import "../../Components/Tools/Box.css";
+import ChannelsDropDown from "./ChannelsDropDown";
+import { UserOnChannel } from "../entities";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
+import "../Chat.css";
 
 export default function ChannelsMessages({
   handleShowBrowseChannel,
@@ -13,8 +15,8 @@ export default function ChannelsMessages({
 }: any) {
   return (
     <div
-      className=" rounded-4 blue-box-chat col chat-sidebar-left
-					ms-3 overflow-hidden h-100"
+      className=" rounded-4 blue-box-chat col-3 chat-sidebar-left
+      ms-2 overflow-hidden h-100"
     >
       <div className="h-50 overflow-hidden  ">
         <div className="row mt-2  ">
@@ -22,21 +24,10 @@ export default function ChannelsMessages({
             <p className="yellow-titles ">CHANNELS</p>
           </div>
           <div className="col-1">
-            <button
-              className="float-end rounded-4  color-dropdown channel-button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              +
-            </button>
-            <ul className="dropdown-menu channel-menu">
-              <li className="dropdown-item" onClick={handleShowBrowseChannel}>
-                Browse channels
-              </li>
-              <li className="dropdown-item" onClick={handleShowCreateChannel}>
-                Create a channel
-              </li>
-            </ul>
+            <ChannelsDropDown
+            handleShowBrowseChannel = {handleShowBrowseChannel}
+            handleShowCreateChannel = {handleShowCreateChannel}
+            />
           </div>
         </div>
         {/* Div which list the channels */}

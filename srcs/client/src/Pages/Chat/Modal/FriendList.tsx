@@ -1,8 +1,8 @@
 import React from "react";
-import { eChannelType } from "./constants";
-import { ChatUser, Friendship } from "./entities";
-import "../../Components/Tools/Text.css";
-import "../../Components/Tools/Box.css";
+import { eChannelType } from "../constants";
+import { ChatUser, Friendship } from "../entities";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
 import "./FriendList.css";
 
 export default function FriendList({
