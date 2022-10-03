@@ -568,6 +568,8 @@ export class GameService {
 
   /** Cancel game */
   private async _cancelGame(gameId: string) {
+    // emit a game end info to all players / viewers so they go back to lobby
+    this.server.to(gameId).emit('gameEnd', Motive.CANCEL);
     //this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // update and send player info

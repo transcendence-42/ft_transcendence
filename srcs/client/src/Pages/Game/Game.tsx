@@ -77,7 +77,7 @@ const Game = (props: any) => {
     else if (motive === eMotive.ABANDON)
       setMessage(`One player abandoned. Moving back to ${props.origin}`);
     else if (motive === eMotive.CANCEL)
-      setMessage(`Player canceled the game. Moving back to ${props.origin}`);
+      setMessage(`Game canceled. Moving back to ${props.origin}`);
     setTimeout(() => {
       props.backToOrigin();
     }, 4000);
