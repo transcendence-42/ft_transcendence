@@ -240,6 +240,8 @@ const GameLobby: FC = () => {
       setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
       socket.emit('findAllGame');
     }
+    // Get players infos
+    socket.emit('getPlayersInfos');
   };
 
   useEffect(() => {
