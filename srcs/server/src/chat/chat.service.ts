@@ -47,6 +47,7 @@ export class ChatService {
 
   async addedToChannel(client: Socket, channelId: number) {
     await this.joinChannel(client, channelId);
+    client.emit(eEvent.UpdateOneChannel, channelId);
     this.server
       .to(channelId.toString())
       .emit(eEvent.UpdateUserOnChannel, channelId);

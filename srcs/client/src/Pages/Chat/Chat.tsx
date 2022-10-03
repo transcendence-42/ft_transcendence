@@ -51,6 +51,9 @@ export default function Chat(props: any) {
   const handleShowFriendList = () => setshowFriendList(true);
 
   console.log(`Current channel init is ${currentChannel}`);
+  console.log(`Current user on channels ${JSON.stringify(user.channels)}`)
+  console.log(`Current all channels ${JSON.stringify(allChannels)}`)
+
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
     const channelName = friendId.toString() + "_" + user.id.toString();
@@ -64,6 +67,7 @@ export default function Chat(props: any) {
     );
     if (newChannel) {
       sessionStorage.setItem("currentChannel", JSON.stringify(newChannel));
+      socket.emit(eEvent.CreateChannel, newChannel.id);
       addToChannel(friendId, newChannel.id);
       setCurrentChannel(newChannel);
       setAllChannels((prevAllChannels) => [...prevAllChannels, newChannel]);
@@ -502,12 +506,7 @@ export default function Chat(props: any) {
           `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${user.id}`
         );
         console.log(`Updating user on channel ${JSON.stringify(usrOnChan)}`);
-        setUser((prevState) => {
-          const updatedChannels = user.channels.map((usr) =>
-            usr.channelId === channelId ? usrOnChan : usr
-          );
-          return { ...prevState, channels: updatedChannels };
-        });
+        updateOwnChannels(usrOnChan);
       })();
     });
 
