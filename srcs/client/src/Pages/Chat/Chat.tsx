@@ -51,8 +51,12 @@ export default function Chat(props: any) {
   const handleShowFriendList = () => setshowFriendList(true);
 
   console.log(`Current channel init is ${currentChannel}`);
-  console.log(`Current user on channels ${JSON.stringify(user.channels)}`)
-  console.log(`Current all channels ${JSON.stringify(allChannels)}`)
+  console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
+  console.log(`Current all channels ${JSON.stringify(allChannels)}`);
+
+  const findChannel = (channelId) => {
+    return allChannels.find((chan: Channel) => chan.id === channelId);
+  };
 
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
@@ -481,7 +485,7 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.AddUser, (channelId) => {
-      console.log(`RECIEVED EVENT ADDEd TO CHANNEL`)
+      console.log(`RECIEVED EVENT ADDEd TO CHANNEL`);
       socket.emit(eEvent.AddedToChannel, channelId);
     });
 
@@ -768,10 +772,16 @@ export default function Chat(props: any) {
                 MEMBERS
               </p>
               <>
-                {!isEmpty(currentChannel) &&
+                {/* {!isEmpty(currentChannel) &&
                   currentChannel.users?.map((user: UserOnChannel) => (
                     <div key={user.userId}>
                       {allUsers && allUsers[user.userId]?.username}
+                    </div>
+                  ))} */}
+                {!isEmpty(currentChannel) &&
+                  findChannel(currentChannel.id)?.users?.map((members) => (
+                    <div key={members.userId}>
+                      {allUsers && allUsers[members.userId]?.username}
                     </div>
                   ))}
               </>
