@@ -123,7 +123,6 @@ const Game = (props: any) => {
   }, []);
 
   useEffect(() => {
-    console.log('use effect : ' + props.action);
     if (props.action !== props.event.VIEW_GAME) {
       document.addEventListener('keydown', handleMove);
       return () => {

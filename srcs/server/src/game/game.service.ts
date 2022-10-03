@@ -141,6 +141,10 @@ export class GameService {
   gameLoops: GameLoop[];
 
   /** *********************************************************************** */
+  /** ERROR MANAGEMENT                                                        */
+  /** *********************************************************************** */
+
+  /** *********************************************************************** */
   /** USER INFOS                                                              */
   /** *********************************************************************** */
 
@@ -615,14 +619,23 @@ export class GameService {
     //this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // update and send player info
-    const userId = (await this._getGame(gameId)).players[0].userId;
+    let userId: string;
+    try {
+      userId = (await this._getGame(gameId)).players[0].userId;
+    } catch (e) {
+      return;
+    }
     await this._savePlayerInfos(userId, {
       status: ePlayerStatus.ONLINE,
       game: '',
       matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
     this._sendPlayersInfo();
-    await this._removeGame(gameId);
+    try {
+      await this._removeGame(gameId);
+    } catch (e) {
+      return;
+    }
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
