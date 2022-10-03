@@ -2,6 +2,7 @@ import React from "react";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import "../Chat.css";
+import ChannelsList from "./ChannelsList";
 import ChannelsDropDown from "./ChannelsDropDown";
 import { UserOnChannel } from "../entities/user.entity";
 import { eChannelType } from "../constants";
@@ -37,24 +38,10 @@ export default function ChannelsAndDirect({
         </div>
         {/* Div which list the channels */}
         <div className="row h-100">
-          <div className="col-12 h-100 scroll-bar-messages ">
-            <table>
-              <tbody>
-                {user?.channels?.map((usrOnChan: UserOnChannel) =>
-                  usrOnChan.channel.type === eChannelType.DIRECT ? (
-                    ""
-                  ) : (
-                    <tr key={usrOnChan.channelId}>
-                      <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
-                        {usrOnChan.channel.name}
-                      </td>
-                      <td></td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
+          <ChannelsList
+          	user = {user}
+            switchChannel = {switchChannel}
+          />
         </div>
       </div>
       {/* Div with the title messages with modals */}

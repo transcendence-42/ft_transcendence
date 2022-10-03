@@ -55,15 +55,15 @@ export default function Conversation({
               style={{ fontSize: "12px" }}
               onClick={(e) => leaveChannel(currentChannel.id)}
             >
-            <div className="pinkText ">Leave</div>
+            <div className="textPink ">Leave</div>
             </button>
             {/* </div> */}
 
-            <div className="messages-div h-50">
-              <div className="row">
+            <div className="messages-div h-50 ">
+              <div className="row justify-content-center">
                 <div className="col-1">
                   <button
-                    className="message-button float-end rounded-4 "
+                    className="message-button float-end rounded-4  "
                     onClick={handleShowAddToChannel}
                   >
                     add a friend

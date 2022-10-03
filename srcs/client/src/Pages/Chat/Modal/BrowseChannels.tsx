@@ -38,7 +38,7 @@ export default function BrowseChannels({
       let res;
       if (userOnChannel) {
         const payload: UpdateUserOnChannelDto = {
-          hasLeftTheChannel: false
+          hasLeftTheChannel: false,
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${userId}`,
@@ -55,7 +55,7 @@ export default function BrowseChannels({
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id
+          channelId: channel.id,
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel`,
@@ -125,9 +125,6 @@ export default function BrowseChannels({
           {filtered.map((channel: Channel) => (
             <div className="channels" key={channel.id}>
               <div className="col">
-                <p>{channel.name}</p>
-              </div>
-              <div className="col">
                 {userChannels?.find(
                   (usrOnChan: UserOnChannel) =>
                     channel.id === usrOnChan.channelId
@@ -139,12 +136,18 @@ export default function BrowseChannels({
                     switch
                   </button>
                 ) : (
-                  <button
-                    className="btn rounded-4 btn-pink btn-join"
-                    onClick={(e) => handleJoinChannel(e, channel)}
-                  >
-                    Join
-                  </button>
+                  <table className="table">
+                    <tbody>
+                      <tr>
+                        <td
+                          className="channel"
+                          onClick={(e) => handleJoinChannel(e, channel)}
+                        >
+                          {channel.name}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 )}
               </div>
             </div>
