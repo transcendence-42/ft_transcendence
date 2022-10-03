@@ -95,18 +95,20 @@ export class ChannelService {
       });
       return result;
     } catch (e) {
+      this.logger.error('In update channel');
       throw new ChannelNotFoundException(id);
     }
   }
 
   async delete(id: number): Promise<Channel> {
-    this.logger.debug(`Deleting from channel service`)
+    this.logger.debug(`Deleting from channel service`);
     try {
       const channel = await this.prisma.channel.delete({
         where: { id },
       });
       return channel;
     } catch (e) {
+      this.logger.error('In delete channel');
       throw new ChannelNotFoundException(id);
     }
   }
@@ -142,7 +144,7 @@ export class ChannelService {
       where: { channelId_userId: { userId, channelId } },
       include: { channel: true },
     });
-    this.logger.debug(`Not found our user ${JSON.stringify(userOnChannel)}`)
+    this.logger.debug(`Not found our user ${JSON.stringify(userOnChannel)}`);
     if (!userOnChannel) throw new UserNotFoundException(userId);
     return userOnChannel;
   }
@@ -171,7 +173,9 @@ export class ChannelService {
     channelId: number,
     userId: number,
   ): Promise<UserOnChannel> {
-    this.logger.debug(`Trying to delete user here with id ${userId} and channel ${channelId}`)
+    this.logger.debug(
+      `Trying to delete user here with id ${userId} and channel ${channelId}`,
+    );
     try {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
@@ -179,11 +183,17 @@ export class ChannelService {
       });
       if (channel.ownerId === userId) {
         if (this._countUsersStillInChannel(channel.users) === 1) {
+          this.logger.debug(
+            `Deleting channel ${channelId} in delete UserONChannel`,
+          );
           await this.delete(channelId);
           return channel.users[0];
         } else {
           const newOwnerId = this._findNextOwner(channel.users);
-          await this.update(newOwnerId, {
+          this.logger.debug(
+            `finding next owner for channel ${channelId} in delete UserONChannel`,
+          );
+          await this.update(channelId, {
             ownerId: newOwnerId,
           } as UpdateChannelDto);
           await this.updateUserOnChannel(channel.id, newOwnerId, {
@@ -197,7 +207,9 @@ export class ChannelService {
       });
       return userOnChannel;
     } catch (e) {
-      this.logger.debug(`Got error ${JSON.stringify(e, null, 4)} when trying to delete user`)
+      this.logger.debug(
+        `Got error ${JSON.stringify(e, null, 4)} when trying to delete user`,
+      );
       throw new UserNotFoundException(userId);
     }
   }
