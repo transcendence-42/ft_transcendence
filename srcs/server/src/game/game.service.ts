@@ -372,6 +372,9 @@ export class GameService {
     }
     // add client to the server list
     await this._addOrUpdateClient(client);
+    // switch client status to online
+    await this._savePlayerInfos(userId, { status: ePlayerStatus.ONLINE });
+    await this._sendPlayersInfo();
     // if the user id is in a game, reconnect the client to the game
     const gameId: any = (
       await this.redis.multi().select(DB.PLAYERS).hget('players', userId).exec()
