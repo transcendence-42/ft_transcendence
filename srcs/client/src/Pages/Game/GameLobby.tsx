@@ -177,8 +177,13 @@ const GameLobby: FC = () => {
       setMatchMaking(player.matchmaking);
       setPlayer(player);
       // reconnect game if needed
-      if (player.game && game.id === 'lobby')
-        setGame({ id: player.game, action: eEvents.JOIN_GAME });
+      if (player.game && game.id === 'lobby') {
+        if (
+          gameList &&
+          gameList.some((g: any) => g.id === player.game) === true
+        )
+          setGame({ id: player.game, action: eEvents.JOIN_GAME });
+      }
     }
   }, []);
 

@@ -432,7 +432,7 @@ export class GameService {
         )
           ++nbOffline;
       }
-      if (nbOffline === 2) this._cancelGame(gameId);
+      if (nbOffline === 2) this._cancelGame(gameId, true);
     }
   }
 
@@ -502,6 +502,13 @@ export class GameService {
       game: game.id,
     });
     this._sendPlayersInfo();
+    // Remove player from other game if he is a viewer
+    const isViewer: any = (
+      await this.redis.multi().select(DB.VIEWERS).get(player.userId).exec()
+    )[1][1];
+    if (isViewer !== null) {
+      player.socket.leave(isViewer);
+    }
   }
 
   /** Check if a player is already in a game */
@@ -613,17 +620,21 @@ export class GameService {
   }
 
   /** Cancel game */
-  private async _cancelGame(gameId: string) {
+  private async _cancelGame(gameId: string, safe?: boolean) {
     // emit a game end info to all players / viewers so they go back to lobby
     this.server.to(gameId).emit('gameEnd', Motive.CANCEL);
     //this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // update and send player info
     let userId: string;
-    try {
+    if (safe === false || safe === undefined) {
       userId = (await this._getGame(gameId)).players[0].userId;
-    } catch (e) {
-      return;
+    } else {
+      try {
+        userId = (await this._getGame(gameId)).players[0].userId;
+      } catch (e) {
+        return;
+      }
     }
     await this._savePlayerInfos(userId, {
       status: ePlayerStatus.ONLINE,
@@ -631,10 +642,14 @@ export class GameService {
       matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
     this._sendPlayersInfo();
-    try {
+    if (safe === false || safe === undefined) {
       await this._removeGame(gameId);
-    } catch (e) {
-      return;
+    } else {
+      try {
+        await this._removeGame(gameId);
+      } catch (e) {
+        return;
+      }
     }
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
@@ -764,7 +779,9 @@ export class GameService {
   /** Start a game */
   private async _startGame(id: string) {
     let game: Game = await this._getGame(id);
+    if (!game) return;
     // Update players info
+    if (game.players[1] === undefined) throw new PlayerNotFoundException('');
     for (let i = 0; i < 2; ++i) {
       await this._savePlayerInfos(game.players[i].userId, {
         status: ePlayerStatus.PLAYING,
