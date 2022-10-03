@@ -207,7 +207,8 @@ const FriendList = (props: any) => {
                   }
                 </tr>
               ))
-            ) : (
+            ) : 
+            !props.friendRequestList && (
               <tr className="border-blue">
                 <td
                   className="text-blue mt-3"
