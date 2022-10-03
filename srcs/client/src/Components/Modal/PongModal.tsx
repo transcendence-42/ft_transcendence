@@ -19,7 +19,7 @@ const PongModal = (props: any) => {
       show={props.show}
       onHide={props.closeHandler}
       size={props.size || ''}
-      backdrop={props.backdrop || ''}
+      backdrop={props.backdrop || true}
     >
       <Modal.Header closeButton={props.closeButton || true}>
         <Modal.Title className="text-blue">{props.title}</Modal.Title>

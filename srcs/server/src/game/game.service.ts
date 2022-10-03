@@ -291,7 +291,6 @@ export class GameService {
   /** Update username and/or picture */
   async updatePlayer(client: Socket, updatePlayerDto: UpdatePlayerDto) {
     const userId = client.handshake.query.userId.toString();
-    console.log(updatePlayerDto);
     await this._savePlayerInfos(userId, updatePlayerDto);
     await this._sendPlayersInfo();
   }

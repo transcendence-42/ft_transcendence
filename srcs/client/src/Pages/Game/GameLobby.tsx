@@ -75,7 +75,7 @@ const GameLobby: FC = () => {
   } else {
     origin = { loc: '/lobby', name: 'lobby', state: null };
     gameId = '';
-    action = 0;
+    action = eAction.NOTHING;
   }
 
   // States
