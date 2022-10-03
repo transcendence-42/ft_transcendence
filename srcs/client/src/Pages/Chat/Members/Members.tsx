@@ -1,6 +1,6 @@
 import React from "react";
 import { UserOnChannel } from "../entities/user.entity";
-import { findChannel, isEmpty } from "../utils";
+import { getChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import UserInMembers from "./UserInMembers";
@@ -24,15 +24,14 @@ export default function Members({
           </p>
           <>
             {!isEmpty(currentChannel) &&
-              findChannel(currentChannel.id, allChannels)?.users?.map(
-                (member) =>
-                  member.userId === userId ? (
-                    ""
-                  ) : (
-                    <div key={member.userId}>
-                      <UserInMembers user={allUsers[member.userId]?.username} />
-                    </div>
-                  )
+              getChannel(currentChannel.id, allChannels)?.users?.map((member) =>
+                member.userId === userId ? (
+                  ""
+                ) : (
+                  <div key={member.userId}>
+                    <UserInMembers user={allUsers[member.userId]?.username} />
+                  </div>
+                )
               )}
           </>
         </div>

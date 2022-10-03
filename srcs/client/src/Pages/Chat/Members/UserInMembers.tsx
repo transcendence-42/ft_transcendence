@@ -1,6 +1,6 @@
 import React from "react";
 import { UserOnChannel } from "../entities/user.entity";
-import { findChannel, isEmpty } from "../utils";
+import { getChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 

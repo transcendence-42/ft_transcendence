@@ -5,6 +5,7 @@ import "./Chat.css";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { MessageDto } from "./dtos/message.dto";
+import { UpdateChannelDto } from "./dtos/update-channel.dto";
 import { Channel, UserOnChannel, User } from "./entities/user.entity";
 import { Message } from "./entities/message.entity";
 import { Hashtable } from "./entities/entities";
@@ -13,7 +14,7 @@ import Members from "./Members/Members";
 import ModalChat from "./Modal/ModalChat";
 import ChannelsAndDirect from "./ChannelsAndDirect/ChannelsAndDirect";
 import { eEvent, eChannelType, eUserRole } from "./constants";
-import { fetchUrl, isEmpty } from "./utils";
+import { fetchUrl, getChannel, getUserOnChannel, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 
@@ -105,8 +106,15 @@ export default function Chat(props: any) {
   const addToChannelAndClose = (userId: number, channelId: number) => {
     //replicate what I did in createDirect and NonDirect as far as emit
     // and updating channels goes.
-    addToChannel(userId, channelId);
-    handleCloseAddToChannel();
+    (async () => {
+      const userOnChannel = await addToChannel(userId, channelId);
+      const channel = await fetchUrl(
+        `http://127.0.0.1:4200/channels/${channelId}`
+      );
+      updateChannel(channel);
+      updateOwnChannels(userOnChannel);
+      handleCloseAddToChannel();
+    })();
   };
 
   const addToChannel = async (userId: number, channelId: number) => {
@@ -124,6 +132,7 @@ export default function Chat(props: any) {
     if (newUser["userId"]) {
       // to be modified later to include a better way of handling error
       socket.emit(eEvent.AddUser, { channelId, userId });
+      return newUser;
       // socket.emit(eEvent.UpdateOneChannel, channelId);
     } else {
       //to be changed for a better way of handling error
@@ -334,12 +343,10 @@ export default function Chat(props: any) {
       return true;
     return false;
   };
-//block user
-// ban user
-// muteUser
-  const banUser = (userId: number) => {
-
-  };
+  //block user
+  // ban user
+  // muteUser
+  const banUser = (userId: number) => {};
 
   const muteUser = (otherUser: UserOnChannel) => {
     if (!havePrivilege(otherUser))
@@ -351,6 +358,31 @@ export default function Chat(props: any) {
     setTimeout(() => {
       fetchUrl(url, "PATCH", { isMuted: false } as UpdateUserOnChannelDto);
     }, 10000);
+  };
+
+  const changeChannelPassword = (channelId: number, newPassword: string) => {
+    (async () => {
+      const url = `http://127.0.0.1:4200/channels/${channelId}`;
+      const dto: UpdateChannelDto = {
+        password: newPassword
+      };
+      const updatedChannel = await fetchUrl(url, "PATCH", dto);
+      updateChannel(updatedChannel);
+      socket.emit(eEvent.UpdateOneChannel, channelId);
+    })();
+  };
+
+  const setChannelPassword = (channelId: number, password: string) => {
+    (async () => {
+      const url = `http://127.0.0.1:4200/channels/${channelId}`;
+      const dto: UpdateChannelDto = {
+        password,
+        type: eChannelType.PROTECTED
+      };
+      const updatedChannel = await fetchUrl(url, "PATCH", dto);
+      updateChannel(updatedChannel);
+      socket.emit(eEvent.UpdateOneChannel, channelId);
+    })();
   };
 
   useEffect(() => {
@@ -555,6 +587,8 @@ export default function Chat(props: any) {
                 handleSendMessage={handleSendMessage}
                 handleShowAddToChannel={handleShowAddToChannel}
                 handleCloseAddToChannel={handleCloseAddToChannel}
+                setChannelPassword={setChannelPassword}
+                changeChannelPassword={changeChannelPassword}
               />
               <Members
                 currentChannel={currentChannel}

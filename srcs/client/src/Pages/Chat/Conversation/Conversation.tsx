@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Conversation.css";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
@@ -19,8 +19,26 @@ export default function Conversation({
   handleSendMessage,
   handleCloseAddToChannel,
   handleShowAddToChannel,
+  changeChannelPassword,
+  setChannelPassword,
   ...props
 }: any) {
+  const [newChannelPassword, setNewChannelPassword] = useState("");
+
+  const handlePasswordOperation = () => {
+    console.log(
+      `Changing password for channel ${currentChannel.id} with password ${newChannelPassword}`
+    );
+    if (!newChannelPassword) {
+      return alert("Password cant be empty!");
+    }
+    if (currentChannel.type === eChannelType.DIRECT) {
+      changeChannelPassword(currentChannel.id, newChannelPassword);
+    } else {
+      setChannelPassword(currentChannel.id, newChannelPassword);
+    }
+    setNewChannelPassword("");
+  };
   return (
     <div
       className="col-6 chat-sidebar-middle
@@ -58,6 +76,23 @@ export default function Conversation({
             >
               leave
             </button>
+
+            {currentChannel.type === eChannelType.DIRECT ? (
+              ""
+            ) : (
+              <>
+                <button
+                  onClick={(e) => handlePasswordOperation()}
+                  className="col-3 btn btn-leave me-2"
+                >
+                  Change channel password
+                </button>
+                <input
+                  onChange={(e) => setNewChannelPassword(e.target.value)}
+                  placeholder="channel Pass"
+                ></input>
+              </>
+            )}
             {/* <div className="pinkText ">leave</div> */}
             {/* </div> */}
 

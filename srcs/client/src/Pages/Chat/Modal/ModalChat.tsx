@@ -46,8 +46,8 @@ export default function ModalChat({
       >
         <BrowseChannels
           allChannels={allChannels}
-          userChannel={user?.channels}
-          userId={user?.id}
+          userChannels={user.channels}
+          userId={user.id}
           socket={socket}
           updateOwnChannels={updateOwnChannels}
           switchChannel={switchChannel}

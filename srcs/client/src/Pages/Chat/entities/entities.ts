@@ -19,9 +19,3 @@ export interface UpdateUserOnChannelDto {
   bannedTill?: Date;
 }
 
-export interface UpdateChannelDto {
-  name?: string;
-  type?: eChannelType;
-  password?: string;
-  ownerId?: number;
-}

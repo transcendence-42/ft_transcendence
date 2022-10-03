@@ -1,4 +1,4 @@
-import { User, Channel } from "./entities/user.entity";
+import { User, Channel, UserOnChannel } from "./entities/user.entity";
 
 export async function fetchUrl(
   path: string,
@@ -69,6 +69,10 @@ export const otherUser = (
   if (!otherUserOnChannel) return;
   return allUsers[otherUserOnChannel.userId];
 };
-export const findChannel = (channelId, allChannels) => {
+export const getChannel = (channelId, allChannels) => {
   return allChannels.find((chan: Channel) => chan.id === channelId);
+};
+
+export const getUserOnChannel = (userId, users: UserOnChannel[]) => {
+  return users.find((usr) => usr.userId === userId);
 };
