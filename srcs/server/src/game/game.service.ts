@@ -945,7 +945,7 @@ export class GameService {
     const game: Game = await this._getGame(id);
     // get pipeline
     const pipeline = this.redis.pipeline();
-    // remove user from matchmaking
+    // get user id
     const userId: string = client.handshake.query.userId.toString();
     // get player infos
     const playerInfos = await this._getPlayerInfos(userId);
@@ -962,20 +962,22 @@ export class GameService {
         .select(DB.MATCHMAKING)
         .srem('users', userId)
         .exec();
-    // add new player to the game and emit new grid
-    this._addPlayerToGame(
-      new Player(client, userId, playerInfos.name, playerInfos.pic),
-      Side.RIGHT,
-      game,
-      pipeline,
-    );
-    // update redis
-    await pipeline.exec();
-    // Start game
-    await this._startGame(id);
-    // update the lobby with the new player
-    const gameList = await this._createGameList();
-    this.server.to(Params.LOBBY).emit('gameList', gameList);
+    // it this is not a re join, add new player to the game and emit new grid
+    if (!(await this._isPlayerInThisGame(userId, id))) {
+      this._addPlayerToGame(
+        new Player(client, userId, playerInfos.name, playerInfos.pic),
+        Side.RIGHT,
+        game,
+        pipeline,
+      );
+      // update redis
+      await pipeline.exec();
+      // Start game
+      await this._startGame(id);
+      // update the lobby with the new player
+      const gameList = await this._createGameList();
+      this.server.to(Params.LOBBY).emit('gameList', gameList);
+    }
   }
 
   /** view a game (viewer) */
