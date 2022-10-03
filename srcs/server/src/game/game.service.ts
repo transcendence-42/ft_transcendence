@@ -1564,7 +1564,7 @@ export class GameService {
   /** CHALLENGE                                                               */
   /** *********************************************************************** */
 
-  async handleCreateChallenge(client: Socket, id: string) {
+  async createChallenge(client: Socket, id: string) {
     // get both players
     const userId: string = client.handshake.query.userId.toString();
     const challenger = this.clients.find((c) => c.userId === userId);
@@ -1645,12 +1645,21 @@ export class GameService {
         status: eChallengeStatus.ACCEPTED,
       });
       // create a match and launch it
-      const playersToMatch = [];
+      const playersToMatch: Player[] = [];
+      const player1Infos = await this._getPlayerInfos(userId);
+      const player2Infos = await this._getPlayerInfos(opponent.userId);
       playersToMatch.push({
         userId: opponent.userId,
         socket: this._getSocket(opponent.userId),
+        name: player1Infos ? player1Infos.name : '',
+        pic: player1Infos ? player1Infos.pic : '',
       });
-      playersToMatch.push({ userId: userId, socket: client });
+      playersToMatch.push({
+        userId: userId,
+        socket: client,
+        name: player2Infos ? player2Infos.name : '',
+        pic: player2Infos ? player2Infos.pic : '',
+      });
       setTimeout(() => {
         this.create(playersToMatch);
       }, 2000);

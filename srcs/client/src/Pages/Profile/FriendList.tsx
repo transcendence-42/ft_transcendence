@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import '../../Components/Tools/Text.css';
 import '../../Components/Tools/Box.css';
 import './profile.css';
@@ -29,26 +29,14 @@ const FriendList = (props: any) => {
   }
 
   /** *********************************************************************** */
-  /** STATES                                                                  */
-  /** *********************************************************************** */
-
-  const [playerList, setPlayerList] = useState([] as any);
-
-  /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
   const getPlayerFromId = (id: number) => {
-    return playerList.find((p: any) => p.id === id.toString());
+    if (props.players !== undefined)
+      return props.players.find((p: any) => p.id === id.toString());
+    return null
   };
-
-  /** *********************************************************************** */
-  /** INITIALIZATION                                                          */
-  /** *********************************************************************** */
-
-  useEffect(() => {
-    setPlayerList(props.playerList);
-  }, [props.playerList]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -131,33 +119,29 @@ const FriendList = (props: any) => {
                       <td>
                         <OnlineOffline
                           status={
-                            playerList ? getPlayerFromId(friend.id).status : 0
+                            props.players ? getPlayerFromId(friend.id).status : 0
                           }
                           size={'1em'}
                         />
                       </td>
                       <td></td>
                       <td></td>
-                      {playerList &&
+                      {props.players &&
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.ONLINE && (
-                          <>
                             <td>
                               <button
-                                onClick={props.handleChallengePlayer(
-                                  friend.id.toString(),
-                                )}
+                                type="button"
                                 className="btn btn-pink text-pink"
+                                onClick={() => props.handleChallengePlayer(friend.id.toString())}
                               >
-                                Challenge
+                                challenge
                               </button>
                             </td>
-                          </>
                         )}
-                      {playerList &&
+                      {props.players &&
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.PLAYING && (
-                          <>
                             <td>
                               <Link
                                 to="/lobby"
@@ -175,9 +159,8 @@ const FriendList = (props: any) => {
                                 Spectate
                               </Link>
                             </td>
-                          </>
                         )}
-                      {playerList &&
+                      {props.players &&
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.WAITING && (
                           <>
@@ -214,7 +197,7 @@ const FriendList = (props: any) => {
                   className="text-blue mt-3"
                   style={{ fontSize: '1.2em', width: '100%' }}
                 >
-                  New Friends awaits you
+                  New Friends awaits you ...
                 </td>
                 <td></td>
                 <td></td>

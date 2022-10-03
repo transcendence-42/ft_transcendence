@@ -149,7 +149,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() createChallengeDto: CreateChallengeDto,
   ) {
-    await this.gameService.handleCreateChallenge(client, createChallengeDto.id);
+    await this.gameService.createChallenge(client, createChallengeDto.id);
   }
 
   /** Update challenge */

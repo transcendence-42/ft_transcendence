@@ -45,7 +45,7 @@ const Profile = () => {
   /** *********************************************************************** */
 
   const [user, setUser] = useState({} as any);
-  const [doubleFactor, setDoubleFactor] : any = useState(false);
+  const [doubleFactor, setDoubleFactor]: any = useState(false);
   const [player, setPlayer] = useState({} as any);
   const [players, setPlayers] = useState({} as any);
   const [friendList, setFriendList] = useState([] as any);
@@ -128,15 +128,15 @@ const Profile = () => {
       matches_json.then((responseObject) => {
         setMatchesList(responseObject);
       });
-      request = "http://127.0.0.1:4200/auth/2fa/state/" + userId;
-      const double_json = getFetch({url : request});
-      double_json.then((responseObject)=> {
-        if(responseObject)
-        {
-            setDoubleFactor(true);
+      request = 'http://127.0.0.1:4200/auth/2fa/state/' + userId;
+      const double_json = getFetch({ url: request });
+      double_json.then((responseObject) => {
+        if (responseObject) {
+          setDoubleFactor(true);
         }
       });
-    }}, [userId, update]);
+    }
+  }, [userId, update]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -144,10 +144,9 @@ const Profile = () => {
 
   if (user) {
     return (
-      <div className='row'>
-        <div className='col-xl-1'></div>
-        <div className='col-xs-12 col-xl-10'>
-
+      <div className="row">
+        <div className="col-xl-1"></div>
+        <div className="col-xs-12 col-xl-10">
           {/* Profil picture + action buttons + stats */}
           <div className="row mt-5 mb-5" data-testid="tracker">
             <div className="col-xs-8 col-md-1 col-xl-2">
@@ -169,9 +168,14 @@ const Profile = () => {
             <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (
                 <>
-                  <ChangeUsername id={userId} up={toggleUpdate}/>
-                  <ChangePicture id={userId} up={toggleUpdate}/>
-                  <DoubleAuth id={userId} up={toggleUpdate} authUp={setDoubleFactor} activated={doubleFactor}/>
+                  <ChangeUsername id={userId} up={toggleUpdate} />
+                  <ChangePicture id={userId} up={toggleUpdate} />
+                  <DoubleAuth
+                    id={userId}
+                    up={toggleUpdate}
+                    authUp={setDoubleFactor}
+                    activated={doubleFactor}
+                  />
                 </>
               ) : (
                 <>
@@ -188,10 +192,7 @@ const Profile = () => {
           {/* Match history + friends */}
           <div className="row">
             <div className="col-xs-12 col-xl-6">
-              <MatchHistory
-                matchesList={matchesList}
-                id={+userId}
-              />
+              <MatchHistory matchesList={matchesList} id={+userId} />
             </div>
             <div className="col-xs-12 col-xl-6">
               <FriendList
@@ -206,7 +207,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        <div className='col-xl-1'></div>
+        <div className="col-xl-1"></div>
       </div>
     );
   }
