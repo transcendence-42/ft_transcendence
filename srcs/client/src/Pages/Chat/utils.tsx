@@ -41,12 +41,6 @@ export const otherUser = (
   userId,
   allUsers
 ): User | undefined => {
-  console.log(`This is channel id ${channelId}`);
-  console.log(`This is allChannels ${JSON.stringify(allChannels)}`);
-  console.log(`This is userChannels ${JSON.stringify(userChannels)}`);
-  console.log(`This is user id ${userId}`);
-  console.log(`This is allUsers ${JSON.stringify(allUsers)}`);
-  console.groupEnd();
   if (
     isEmpty(allChannels) ||
     isEmpty(userChannels) ||
@@ -54,10 +48,15 @@ export const otherUser = (
     !channelId ||
     !userId
   ) {
-    console.log(`returning from group ootheruser`);
+    console.group("otherUser");
+    console.log(`This is channel id ${channelId}`);
+    console.log(`This is allChannels ${JSON.stringify(allChannels)}`);
+    console.log(`This is userChannels ${JSON.stringify(userChannels)}`);
+    console.log(`This is user id ${userId}`);
+    console.log(`This is allUsers ${JSON.stringify(allUsers)}`);
+    console.groupEnd();
     return;
   }
-  console.group("otherUser");
   const channel = allChannels.find((chan) => chan.id === channelId);
   console.log(
     `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
