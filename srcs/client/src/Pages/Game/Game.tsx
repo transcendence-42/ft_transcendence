@@ -123,11 +123,12 @@ const Game = (props: any) => {
   }, []);
 
   useEffect(() => {
-    if (props.action !== props.event.VIEW_GAME)
+    if (props.action !== props.event.VIEW_GAME) {
       document.addEventListener('keydown', handleMove);
-    return () => {
-      document.removeEventListener('keydown', handleMove);
-    };
+      return () => {
+        document.removeEventListener('keydown', handleMove);
+      };
+    }
   }, [props.action]);
 
   /** *********************************************************************** */

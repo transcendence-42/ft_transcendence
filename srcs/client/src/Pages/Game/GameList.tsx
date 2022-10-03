@@ -77,7 +77,20 @@ const GameList = (props: any) => {
                   )}
                 </td>
                 <td>
+                  {game.players.find((p: any) => p.userId === props.userId) ?
                   <button
+                    className="btn btn-blue text-blue"
+                    onClick={() =>
+                      props.setGame({
+                        id: game.id,
+                        action: props.event.JOIN_GAME,
+                      })
+                    }
+                  >
+                    Re-join
+                  </button>
+                 :
+                 <button
                     className="btn btn-blue text-blue"
                     onClick={() =>
                       props.setGame({
@@ -86,10 +99,9 @@ const GameList = (props: any) => {
                       })
                     }
                   >
-                    {game.players.find((p: any) => p.userId === props.userId)
-                      ? 'Re-join'
-                      : 'Spectate'}
+                    Spectate
                   </button>
+                }
                 </td>
               </tr>
             ))}

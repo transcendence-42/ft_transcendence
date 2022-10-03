@@ -190,6 +190,10 @@ const GameLobby: FC = () => {
     socket.emit('createGame');
   };
 
+  const handleSetGame = (data: any) => {
+    setGame(data);
+  };
+
   const backToOrigin = () => {
     if (origin.name === 'lobby') {
       socket.emit('findAllGame');
@@ -381,7 +385,7 @@ const GameLobby: FC = () => {
           <div className="col-xs-10 col-md-8">
             <GameList
               gameList={gameList}
-              setGame={setGame}
+              setGame={handleSetGame}
               handleNewGame={handleNewGame}
               event={eEvents}
               userId={userId.toString()}
