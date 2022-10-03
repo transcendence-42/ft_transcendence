@@ -104,7 +104,7 @@ const Profile = () => {
     return () => {
       socket.off('playersInfos', handlePlayersInfo);
     };
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     if (userId) {

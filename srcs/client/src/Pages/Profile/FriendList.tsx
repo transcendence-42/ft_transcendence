@@ -152,7 +152,6 @@ const FriendList = (props: any) => {
                                 Challenge
                               </button>
                             </td>
-                            <td></td>
                           </>
                         )}
                       {playerList &&
@@ -176,7 +175,6 @@ const FriendList = (props: any) => {
                                 Spectate
                               </Link>
                             </td>
-                            <td></td>
                           </>
                         )}
                       {playerList &&
@@ -217,6 +215,11 @@ const FriendList = (props: any) => {
                 >
                   New Friends awaits you
                 </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
               </tr>
             )}
           </tbody>
