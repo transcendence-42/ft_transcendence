@@ -703,6 +703,17 @@ export default function Chat(props: any) {
                           otherUser(currentChannel.id)?.username || "loading"
                       : currentChannel.name}
                   </p>
+                  <BrowseModal
+                    title="Select a friend"
+                    show={showFriendList}
+                    closeHandler={handleCloseFriendList}
+                  >
+                    <FriendList
+                      userId={user?.id}
+                      friends={friends}
+                      createDirect={createDirect}
+                    />
+                  </BrowseModal>
                 </div>
               </div>
               <div className="row h-75 pt-3">
