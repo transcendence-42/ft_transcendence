@@ -33,8 +33,14 @@ const OnlineOffline = (props: any) => {
           PLAYING
         </div>
       )}
+      {props.status === ePlayerStatus.WAITING && (
+        <div className="badge badge-orange" style={{ fontSize: props.size }}>
+          WAITING
+        </div>
+      )}
       {props.status !== ePlayerStatus.OFFLINE &&
-        props.status !== ePlayerStatus.PLAYING && (
+        props.status !== ePlayerStatus.PLAYING && 
+        props.status !== ePlayerStatus.WAITING && (
           <div className="badge badge-green" style={{ fontSize: props.size }}>
             ONLINE
           </div>
