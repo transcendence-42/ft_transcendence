@@ -27,16 +27,17 @@ export default function Conversation({
       h-100 rounded-4 blue-box-chat  overflow-hidden ms-2 me-2"
     >
       {isEmpty(currentChannel) ? (
-        <div> Join a Channel! </div>
+        <div className="row mt-3 ">
+          <div className="pinkText"> Join or Create a Channel ! </div>
+        </div>
       ) : (
         <>
           <div className="row mt-2">
             <div className="col">
               <p
-                className="badge bg-warning text-dark"
+                className="badge bg-primary bg-darken-xl"
                 style={{ fontSize: "12px" }}
               >
-                currentChannel:
                 {currentChannel.type !== eChannelType.DIRECT
                   ? currentChannel.name
                   : `Direct with ` +
@@ -81,6 +82,7 @@ export default function Conversation({
             allUsers={allUsers}
             message={message}
           />
+          <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
               <input
@@ -89,9 +91,13 @@ export default function Conversation({
                 value={message}
                 type="text"
                 maxLength={50}
-                placeholder="Send a message..."
+                placeholder="  Send a message..."
               ></input>
-              <button type="button" onClick={handleSendMessage}>
+              <button
+                type="button"
+                className="btn rounded-4 btn-pink btn-join ms-2 mb-1"
+                onClick={handleSendMessage}
+              >
                 Send
               </button>
             </div>

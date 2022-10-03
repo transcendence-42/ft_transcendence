@@ -24,6 +24,16 @@
 				0px 0px 25.6977px #187BCA;
 }
 
+.textPink{
+  font-family: 'Montserrat', normal;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  color: #FF80F2;
+  text-shadow:	0px 0px 7.49518px #FF6ADE,
+  				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
+}
+
 .textIron{
   font-family: 'Montserrat', sans-serif;
   font-weight: var(--weight);
