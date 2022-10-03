@@ -54,18 +54,17 @@ services:
       args: 
         - POSTGRES_USER=${POSTGRES_USER}
     container_name: database
+    entrypoint: './docker-entrypoint.${RUNNING_ENV}.sh'
     env_file: ['.env.dev']
     restart: always
     ports: ['${POSTGRES_PORT}:5432']
     networks: ['transcendence']
-    entrypoint: ['./docker-entrypoint.${RUNNING_ENV}.sh']
     healthcheck:
       test: if [ ! -f "/tmp/.ready" ];then exit 1; fi;
       interval: 30s
       timeout: 30s
       retries: 10
       start_period: 20s
-      # test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
 
   adminer:
     image: adminer

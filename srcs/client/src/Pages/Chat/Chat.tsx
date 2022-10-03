@@ -1,27 +1,21 @@
 import "bootstrap";
 import "../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
-import "../../../node_modules/bootstrap/dist/js/bootstrap.bundle.js";
+import "bootstrap/dist/js/bootstrap.bundle";
 import "./Chat.css";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
-import ChatModal from "../../Components/Modal/ChatModals";
-import BrowseChannels from "./BrowseChannels";
-import CreateChannel from "./CreateChannel";
-import FriendList from "./FriendList";
 import { MessageDto } from "./dtos/message.dto";
 import { Channel, UserOnChannel, User } from "./entities/user.entity";
 import { Message } from "./entities/message.entity";
 import { Hashtable } from "./entities/entities";
+import Conversation from "./Conversation/Conversation";
+import Members from "./Members/Members";
+import ModalChat from "./Modal/ModalChat";
+import ChannelsAndMessages from "./ChannelsAndMessages/ChannelsAndMessages";
 import { eEvent, eChannelType, eUserRole } from "./constants";
-import { fetchUrl } from "./utils";
+import { fetchUrl, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
-import BrowseModal from "../../Components/Modal/browseModal";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
-
-const isEmpty = (obj: any) => {
-  for (const i in obj) return false;
-  return true;
-};
 
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
@@ -54,10 +48,6 @@ export default function Chat(props: any) {
   console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
   console.log(`Current all channels ${JSON.stringify(allChannels)}`);
 
-  const findChannel = (channelId) => {
-    return allChannels.find((chan: Channel) => chan.id === channelId);
-  };
-
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
     const channelName = friendId.toString() + "_" + user.id.toString();
@@ -78,21 +68,6 @@ export default function Chat(props: any) {
       switchChannel(newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
-  };
-  const otherUser = (channelId: number): User | undefined => {
-    const channel = allChannels.find((chan) => chan.id === channelId);
-    console.log(
-      `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
-    );
-    if (!channel) return;
-    const otherUserOnChannel = channel.users.find(
-      (usr) => usr.userId !== user.id
-    );
-    console.log(
-      `This is the otherUserOnChannel ${JSON.stringify(otherUserOnChannel)}`
-    );
-    if (!otherUserOnChannel) return;
-    return allUsers[otherUserOnChannel.userId];
   };
 
   const createNonDirectChannel = (
@@ -536,294 +511,57 @@ export default function Chat(props: any) {
 
   return (
     <>
-      <BrowseModal
-        title="Browse channels"
-        show={showBrowseChannel}
-        closeHandler={handleCloseBrowseChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
-        handleBtn2={handleCloseBrowseChannel}
-      >
-        <BrowseChannels
-          allChannels={allChannels}
-          userChannels={user?.channels}
-          userId={user?.id}
-          socket={socket}
-          updateOwnChannels={updateOwnChannels}
-          switchChannel={switchChannel}
-          handleCloseBrowseChannel={handleCloseBrowseChannel}
-        />
-      </BrowseModal>
-      <ChatModal
-        title="Create a channel"
-        show={showCreateChannel}
-        closeHandler={handleCloseCreateChannel}
-        textBtn1="Cancel"
-        handleBtn1={handleCloseCreateChannel}
-        textBtn2="Create"
-        handleBtn2={createNonDirectChannel}
-      >
-        <CreateChannel
-          userId={user.id}
-          friends={friends}
-          createNonDirectChannel={createNonDirectChannel}
-        />
-      </ChatModal>
-      <BrowseModal
-        title="Select a friend"
-        show={showFriendList}
-        closeHandler={handleCloseFriendList}
-      >
-        <FriendList
-          userId={user?.id}
-          friends={friends}
-          createDirect={createDirect}
-        />
-      </BrowseModal>
-      <div className="row mx-5 main-row">
-        <div className="col-2 rounded-4 blue-box-chat">
-          <div className="channels-div h-50">
-            <div className="row mt-2">
-              <div className="col overflow-auto">
-                <p className="yellow-titles titles-position">CHANNELS</p>
-              </div>
-              <div className="col">
-                <button
-                  className="float-end rounded-4 dropdown-toggle color-dropdown channel-button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                ></button>
-                <ul className="dropdown-menu channel-menu">
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowBrowseChannel}
-                  >
-                    Browse channels
-                  </li>
-                  <li
-                    className="dropdown-item"
-                    onClick={handleShowCreateChannel}
-                  >
-                    Create a channel
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="row h-75">
-              <div className="col overflow-auto scroll-bar-channels ">
-                <table>
-                  <tbody>
-                    {user?.channels?.map((usrOnChan: UserOnChannel) =>
-                      usrOnChan.channel.type === eChannelType.DIRECT ? (
-                        ""
-                      ) : (
-                        <tr key={usrOnChan.channelId}>
-                          <td
-                            onClick={(e) => switchChannel(usrOnChan.channelId)}
-                          >
-                            {usrOnChan.channel.name}
-                          </td>
-                          <td>
-                            <button
-                              onClick={(e) => leaveChannel(usrOnChan.channelId)}
-                              className="rounded-4 btn btn-chat btn-pink"
-                            >
-                              leave
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div className="messages-div h-50">
-            <div className="row">
-              <div className="col overflow-auto">
-                <p className="yellow-titles titles-position">MESSAGES</p>
-              </div>
-              <div className="col">
-                <button
-                  className="message-button float-end rounded-4 titles-position"
-                  onClick={handleShowFriendList}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div className="row h-75">
-              <div className="col  overflow-auto scroll-bar-direct">
-                <table>
-                  <tbody>
-                    {!isEmpty(allChannels) &&
-                      !isEmpty(friends) &&
-                      !isEmpty(allUsers) &&
-                      user?.channels?.map((usrOnChan: UserOnChannel) =>
-                        usrOnChan.channel.type !== eChannelType.DIRECT ? (
-                          ""
-                        ) : (
-                          <tr key={usrOnChan.channelId}>
-                            <td
-                              onClick={(e) =>
-                                switchChannel(usrOnChan.channelId)
-                              }
-                            >
-                              {otherUser(usrOnChan.channelId)?.username ||
-                                "loading..."}
-                              <button className="rounded-4 btn btn-chat btn-pink">
-                                game
-                              </button>
-                            </td>
-                          </tr>
-                        )
-                      )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-8 rounded-4 blue-box-chat">
-          {isEmpty(currentChannel) ? (
-            <div> Join a Channel! </div>
-          ) : (
+      <div className="container-fluid h-75">
+        <div className="row main justify-content-center ms-2 ">
+          {allChannels && (
             <>
-              <div className="row mt-2">
-                <div className="col">
-                  <p className="blue-titles channel-name-margin">
-                    currentChannel:{" "}
-                    {currentChannel.type === eChannelType.DIRECT &&
-                    !isEmpty(allChannels) &&
-                    !isEmpty(allUsers) &&
-                    !isEmpty(friends)
-                      ? `Direct with ` +
-                          otherUser(currentChannel.id)?.username || "loading"
-                      : currentChannel.name}
-                  </p>
-                  <BrowseModal
-                    title="Select a friend"
-                    show={showFriendList}
-                    closeHandler={handleCloseFriendList}
-                  >
-                    <FriendList
-                      userId={user?.id}
-                      friends={friends}
-                      createDirect={createDirect}
-                    />
-                  </BrowseModal>
-                </div>
-              </div>
-              <div className="row h-75 pt-3">
-                <div className="col h-100 overflow-auto scroll-bar-messages ">
-                  <div className="message-position">
-                    <>
-                      {console.log(
-                        `AllsMessges of current channelid ${JSON.stringify(
-                          allMessages[currentChannel.id]
-                        )}`
-                      )}
-                      {allMessages &&
-                        allMessages[currentChannel.id]?.map(
-                          (message: Message) => (
-                            <div
-                              className={
-                                message.fromUserId === user.id
-                                  ? "myMessages"
-                                  : "otherMessages"
-                              }
-                              key={message.id}
-                            >
-                              <div className="messageFromUser">
-                                User:
-                                {allUsers[message.fromUserId].username ||
-                                  "Pong Bot"}
-                              </div>
-                              <br />
-                              <div className="messageDate">
-                                Date:{" "}
-                                {new Date(message.sentDate).toLocaleString()}
-                              </div>
-                              <br />
-                              <div className="messageContent">
-                                Message: {message.content}
-                              </div>
-                              <br />
-                            </div>
-                          )
-                        )}
-                    </>
-                  </div>
-                </div>
-              </div>
-              <div className="row pt-4">
-                <div className="col text-center">
-                  <input
-                    onChange={(e) => setMessage(e.target.value)}
-                    value={message}
-                    type="text"
-                    maxLength={128}
-                    className="rounded-3 input-field-chat"
-                    placeholder="Send a message..."
-                  ></input>
-                  <button type="button" onClick={handleSendMessage}>
-                    Send
-                  </button>
-                </div>
-              </div>
+              <ChannelsAndMessages
+                handleShowBrowseChannel={handleShowBrowseChannel}
+                handleShowCreateChannel={handleShowCreateChannel}
+                user={user}
+                allUsers={allUsers}
+                allChannels={allChannels}
+                friends={friends}
+                switchChannel={switchChannel}
+                handleShowFriendList={handleShowFriendList}
+              />
+              <Conversation
+                allChannels={allChannels}
+                currentChannel={currentChannel}
+                allMessages={allMessages}
+                leaveChannel={leaveChannel}
+                allUsers={allUsers}
+                user={user}
+                setMessage={setMessage}
+                message={message}
+                handleSendMessage={handleSendMessage}
+              />
+              <Members
+                currentChannel={currentChannel}
+                allUsers={allUsers}
+                allChannels={allChannels}
+              />
             </>
           )}
         </div>
-        <div className="col-2 rounded-4 blue-box-chat">
-          <div className="row mt-2">
-            <div className="col">
-              <p className="blue-titles center-position titles-position">
-                MEMBERS
-              </p>
-              <>
-                {/* {!isEmpty(currentChannel) &&
-                  currentChannel.users?.map((user: UserOnChannel) => (
-                    <div key={user.userId}>
-                      {allUsers && allUsers[user.userId]?.username}
-                    </div>
-                  ))} */}
-                {!isEmpty(currentChannel) &&
-                  findChannel(currentChannel.id)?.users?.map((members) => (
-                    <div key={members.userId}>
-                      {allUsers && allUsers[members.userId]?.username}
-                    </div>
-                  ))}
-              </>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col overflow-auto">
-              <table>
-                <tbody>
-                  <tr>
-                    <td>User</td>
-                    <td>
-                      <button
-                        className="rounded-4 dropdown-toggle color-dropdown channel-button "
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      ></button>
-                      <ul className="dropdown-menu channel-menu text-center">
-                        <li className="dropdown-item">Mute</li>
-                        <li className="dropdown-item">Ban</li>
-                        <li className="dropdown-item">Kick</li>
-                        <li className="dropdown-item">Block</li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </div>
+      {/* MODAL */}
+      <ModalChat
+        user={user}
+        friends={friends}
+        allChannels={allChannels}
+        socket={socket}
+        updateOwnChannels={updateOwnChannels}
+        switchChannel={switchChannel}
+        showBrowseChannel={showBrowseChannel}
+        handleCloseBrowseChannel={handleCloseBrowseChannel}
+        showCreateChannel={showCreateChannel}
+        handleCloseCreateChannel={handleCloseCreateChannel}
+        showFriendList={showFriendList}
+        handleCloseFriendList={handleCloseFriendList}
+        createDirect={createDirect}
+        createNonDirectChannel={createNonDirectChannel}
+      />
     </>
   );
 }

@@ -13,7 +13,7 @@ import { MessageDto, JoinChannelDto } from './dto';
 import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
 
-@WebSocketGateway(4444, {
+@WebSocketGateway({
   cors: {
     credentials: true,
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],

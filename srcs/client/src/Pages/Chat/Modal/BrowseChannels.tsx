@@ -1,10 +1,10 @@
 import { useState } from "react";
 import "./BrowseChannels.css";
-import { Channel, UserOnChannel } from "./entities/user.entity";
-import { eChannelType, eEvent, eUserRole } from "./constants";
-import { fetchUrl } from "./utils";
-import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
-import { CreateUserOnChannelDto } from "./dtos/create-userOnChannel.dto";
+import { Channel, UserOnChannel } from "../entities/user.entity";
+import { eChannelType, eEvent, eUserRole } from "../constants";
+import { fetchUrl } from "../utils";
+import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
+import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
 
 export default function BrowseChannels({
   allChannels,
@@ -111,9 +111,7 @@ export default function BrowseChannels({
     filtered = availableChannels?.filter((channel: Channel) =>
       new RegExp(channelSearch, "i").test(channel.name)
     );
-  }
-  else
-    filtered = availableChannels;
+  } else filtered = availableChannels;
 
   return (
     <div className="row row-color">
@@ -124,33 +122,33 @@ export default function BrowseChannels({
       ></input>
       {filtered ? (
         <>
-            {filtered.map((channel: Channel) => (
-              <div className="channels" key={channel.id}>
-                <div className="col">
-                  <p>{channel.name}</p>
-                </div>
-                <div className="col">
-                  {userChannels?.find(
-                    (usrOnChan: UserOnChannel) =>
-                      channel.id === usrOnChan.channelId
-                  ) ? (
-                    <button
-                      className="btn rounded-4 btn-pink btn-switch"
-                      onClick={(e) => handleSwitchChannel(e, channel.id)}
-                    >
-                      switch
-                    </button>
-                  ) : (
-                    <button
-                      className="btn rounded-4 btn-pink btn-join"
-                      onClick={(e) => handleJoinChannel(e, channel)}
-                    >
-                      Join
-                    </button>
-                  )}
-                </div>
+          {filtered.map((channel: Channel) => (
+            <div className="channels" key={channel.id}>
+              <div className="col">
+                <p>{channel.name}</p>
               </div>
-            ))}{" "}
+              <div className="col">
+                {userChannels?.find(
+                  (usrOnChan: UserOnChannel) =>
+                    channel.id === usrOnChan.channelId
+                ) ? (
+                  <button
+                    className="btn rounded-4 btn-pink btn-switch"
+                    onClick={(e) => handleSwitchChannel(e, channel.id)}
+                  >
+                    switch
+                  </button>
+                ) : (
+                  <button
+                    className="btn rounded-4 btn-pink btn-join"
+                    onClick={(e) => handleJoinChannel(e, channel)}
+                  >
+                    Join
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}{" "}
         </>
       ) : (
         ""

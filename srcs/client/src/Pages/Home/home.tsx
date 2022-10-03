@@ -6,9 +6,7 @@ import "../../Components/Tools/Box.css"
 import "../../Components/Tools/Text.css"
 import "../../Components/Tools/VirtualPong/virtualPong.css"
 
-
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 
 
 export default function Home ({updateID, userID } : any) {

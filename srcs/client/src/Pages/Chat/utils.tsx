@@ -1,3 +1,5 @@
+import { User, Channel } from "./entities/user.entity";
+
 export async function fetchUrl(
   path: string,
   method: string = "GET",
@@ -26,3 +28,48 @@ export async function fetchUrl(
     );
   return response;
 }
+
+export const isEmpty = (obj: any) => {
+  for (const i in obj) return false;
+  return true;
+};
+
+export const otherUser = (
+  channelId: number,
+  allChannels,
+  userChannels,
+  userId,
+  allUsers
+): User | undefined => {
+  console.log(`This is channel id ${channelId}`);
+  console.log(`This is allChannels ${JSON.stringify(allChannels)}`);
+  console.log(`This is userChannels ${JSON.stringify(userChannels)}`);
+  console.log(`This is user id ${userId}`);
+  console.log(`This is allUsers ${JSON.stringify(allUsers)}`);
+  console.groupEnd();
+  if (
+    isEmpty(allChannels) ||
+    isEmpty(userChannels) ||
+    isEmpty(allUsers) ||
+    !channelId ||
+    !userId
+  ) {
+    console.log(`returning from group ootheruser`);
+    return;
+  }
+  console.group("otherUser");
+  const channel = allChannels.find((chan) => chan.id === channelId);
+  console.log(
+    `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
+  );
+  if (!channel) return;
+  const otherUserOnChannel = channel.users.find((usr) => usr.userId !== userId);
+  console.log(
+    `This is the otherUserOnChannel ${JSON.stringify(otherUserOnChannel)}`
+  );
+  if (!otherUserOnChannel) return;
+  return allUsers[otherUserOnChannel.userId];
+};
+export const findChannel = (channelId, allChannels) => {
+  return allChannels.find((chan: Channel) => chan.id === channelId);
+};
