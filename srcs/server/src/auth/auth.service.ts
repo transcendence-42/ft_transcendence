@@ -11,7 +11,7 @@ import {
   BadCredentialsException,
   CredentialsTakenException,
 } from './exceptions';
-import {UserNotFoundException} from 'src/user/exceptions'
+import { UserNotFoundException } from 'src/user/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
@@ -32,8 +32,8 @@ export class AuthService {
   /******************************* 42 Oauth2 Flow ******************************/
 
   handleFtRedirect(user: RequestUser, res: Response) {
-      console.debug(`redirecting to Home`);
-      return res.redirect(this.HOME_PAGE);
+    console.debug(`redirecting to Home`);
+    return res.redirect(this.HOME_PAGE);
   }
 
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
@@ -48,14 +48,14 @@ export class AuthService {
       await this.userService.getUserCredentialsByEmail(userInfo.email);
     if (credentialsByEmail !== null && credentialsByEmail.password)
       throw new CredentialsTakenException(
-        'Found a user with the same email in database'
-        );
+        'Found a user with the same email in database',
+      );
     const credentialsByUsername: Credentials =
       await this.userService.getUserCredentialsByUsername(userInfo.username);
     if (credentialsByUsername !== null && credentialsByUsername.password)
       throw new CredentialsTakenException(
-        `found username ${credentialsByUsername.username} with a password in database`
-        );
+        `found username ${credentialsByUsername.username} with a password in database`,
+      );
 
     /* this means that the user doesn't have an account
      * (we checked if the email and username exist and we didn't find any)
@@ -101,7 +101,7 @@ export class AuthService {
       throw new UserAlreadyExistsException(userInfo.username);
 
     /* the strenght of the hashing algorithm */
-    const saltRounds: number = 10;
+    const saltRounds = 10;
     const salt: string = await Bcrypt.genSalt(saltRounds);
     const hash: string = await Bcrypt.hash(userInfo.password, salt);
 
@@ -113,8 +113,8 @@ export class AuthService {
   }
 
   async handleLocalLogin(user: RequestUser, res: Response) {
-      console.debug(`redirecting to Home`);
-      return res.redirect(this.HOME_PAGE);
+    console.debug(`redirecting to Home`);
+    return res.redirect(this.HOME_PAGE);
   }
 
   async validateLocalUser(payload: LocalLoginUserDto): Promise<RequestUser> {
@@ -224,7 +224,7 @@ export class AuthService {
       twoFactorCode,
       user,
     );
-    console.log('validating code')
+    console.log('validating code');
     if (!isCodeValid) throw new UnauthorizedException('Bad 2FA Code!');
     user.isTwoFactorAuthenticated = true;
     return { message: 'Logged in with Two factor successfully!' };
@@ -234,10 +234,9 @@ export class AuthService {
     const userDb = await this.userService.findOne(id);
     if (!userDb) throw new UserNotFoundException(id);
     const credentials = await this.userService.getUserCredentialsByEmail(
-      userDb.email
-      );
-    if (credentials.twoFactorActivated)
-      return true;
+      userDb.email,
+    );
+    if (credentials && credentials.twoFactorActivated) return true;
     return false;
   }
   /********************************** Helpers ********************************/

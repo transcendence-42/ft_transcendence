@@ -5,6 +5,7 @@ import {
   drawPaddles,
   drawScores,
   drawStage,
+  drawUsernames,
 } from '../../Pages/Game/utils/draw';
 import './canvas.css';
 
@@ -18,6 +19,7 @@ const Canvas = (props: any) => {
     if (scores.length > 1) {
       drawStage(ctx, grid, map);
       drawScores(ctx, scores, map);
+      drawUsernames(ctx, scores, map);
       drawPaddles(ctx, grid, map);
       drawBall(ctx, grid, map);
     }
