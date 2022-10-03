@@ -54,11 +54,9 @@ export default function Conversation({
               className="col-3 btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
               onClick={(e) => leaveChannel(currentChannel.id)}
-              // className="rounded-4 btn btn-chat btn-pink"
             >
-              leave
+            <div className="pinkText ">Leave</div>
             </button>
-            {/* <div className="pinkText ">leave</div> */}
             {/* </div> */}
 
             <div className="messages-div h-50">
