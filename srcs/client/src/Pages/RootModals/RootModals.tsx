@@ -168,7 +168,7 @@ const RootModals = () => {
       socket.off('gameChallenge', handleGameChallenge);
       socket.off('gameChallengeReply', handleGameChallengeReply);
     };
-  }, []);
+  }, [handleGameChallenge, handleGameChallengeReply]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
