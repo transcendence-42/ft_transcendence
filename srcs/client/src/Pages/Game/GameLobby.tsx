@@ -389,6 +389,7 @@ const GameLobby: FC = () => {
               handleNewGame={handleNewGame}
               event={eEvents}
               userId={userId.toString()}
+              handleInfo={handleInfo}
             />
           </div>
         )}

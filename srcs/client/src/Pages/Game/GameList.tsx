@@ -3,6 +3,30 @@ import '../../Styles';
 import { Link } from 'react-router-dom';
 
 const GameList = (props: any) => {
+  const isPlayerAlreadyInGame = (): boolean => {
+    const isPlayer = props.gameList.find((g: any) =>
+      g.players.some((p: any) => p.userId === props.userId),
+    );
+    if (isPlayer !== undefined) return true;
+    return false;
+  };
+
+  const handleJoin = (data: any) => {
+    if (isPlayerAlreadyInGame()) {
+      props.handleInfo({
+        message: 'You are already registered in a game, please rejoin!',
+      });
+    } else props.setGame(data);
+  };
+
+  const handleSpectate = (data: any) => {
+    if (isPlayerAlreadyInGame()) {
+      props.handleInfo({
+        message: 'You are already registered in a game, please rejoin!',
+      });
+    } else props.setGame(data);
+  };
+
   const defaultPic: string = '/img/default-user.jpg';
   return (
     <div>
@@ -58,7 +82,7 @@ const GameList = (props: any) => {
                     <button
                       className="btn btn-pink text-pink"
                       onClick={() =>
-                        props.setGame({
+                        handleJoin({
                           id: game.id,
                           action: props.event.JOIN_GAME,
                         })
@@ -77,31 +101,31 @@ const GameList = (props: any) => {
                   )}
                 </td>
                 <td>
-                  {game.players.find((p: any) => p.userId === props.userId) ?
-                  <button
-                    className="btn btn-blue text-blue"
-                    onClick={() =>
-                      props.setGame({
-                        id: game.id,
-                        action: props.event.JOIN_GAME,
-                      })
-                    }
-                  >
-                    Re-join
-                  </button>
-                 :
-                 <button
-                    className="btn btn-blue text-blue"
-                    onClick={() =>
-                      props.setGame({
-                        id: game.id,
-                        action: props.event.VIEW_GAME,
-                      })
-                    }
-                  >
-                    Spectate
-                  </button>
-                }
+                  {game.players.find((p: any) => p.userId === props.userId) ? (
+                    <button
+                      className="btn btn-blue text-blue"
+                      onClick={() =>
+                        props.setGame({
+                          id: game.id,
+                          action: props.event.JOIN_GAME,
+                        })
+                      }
+                    >
+                      Re-join
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-blue text-blue"
+                      onClick={() =>
+                        handleSpectate({
+                          id: game.id,
+                          action: props.event.VIEW_GAME,
+                        })
+                      }
+                    >
+                      Spectate
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
