@@ -28,6 +28,7 @@ export default function ModalChat({
 }: any) {
   return (
     <>
+    {/* BROWSE CHANNEL */}
       <PongAdvancedModal
         title="Browse channels"
         show={showBrowseChannel}
@@ -47,6 +48,7 @@ export default function ModalChat({
           handleCloseBrowseChannel={handleCloseBrowseChannel}
         />
       </PongAdvancedModal>
+    {/* CREATE CHANNEL */}
       <ChatModal
         title="Create a channel"
         show={showCreateChannel}
@@ -62,6 +64,7 @@ export default function ModalChat({
           createNonDirectChannel={createNonDirectChannel}
         />
       </ChatModal>
+      {/* SELECT FRIEND */}
       <BrowseModal
         title="Select Friend"
         show={showFriendList}

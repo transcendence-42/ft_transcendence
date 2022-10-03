@@ -3,6 +3,7 @@ import { UserOnChannel } from "../entities/user.entity";
 import { findChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
+import UserInMembers from "./UserInMembers"
 
 export default function Members({
   currentChannel,
@@ -24,8 +25,10 @@ export default function Members({
             {!isEmpty(currentChannel) &&
               findChannel(currentChannel.id, allChannels)?.users?.map(
                 (members) => (
-                  <div key={members.userId}>
-                    {allUsers && allUsers[members.userId]?.username}
+                  <div key={members.userId} >
+                    {/* {allUsers && allUsers[members.userId]?.username} */}
+                    <UserInMembers
+                      user = {allUsers[members.userId]?.username} />
                   </div>
                 )
               )}
@@ -34,26 +37,7 @@ export default function Members({
       </div>
       <div className="row">
         <div className="col overflow-auto">
-          <table>
-            <tbody>
-              <tr>
-                <td>User</td>
-                <td>
-                  <button
-                    className="rounded-4 dropdown-toggle color-dropdown channel-button "
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  ></button>
-                  <ul className="dropdown-menu channel-menu text-center">
-                    <li className="dropdown-item">Mute</li>
-                    <li className="dropdown-item">Ban</li>
-                    <li className="dropdown-item">Kick</li>
-                    <li className="dropdown-item">Block</li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
         </div>
       </div>
     </div>
