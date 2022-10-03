@@ -7,6 +7,7 @@ import FriendList from "./FriendList";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import BrowseModal from "../../../Components/Modal/browseModal";
+import AddFriendToChannel from "./AddFriendToChannel";
 
 export default function ModalChat({
   user,
@@ -23,7 +24,12 @@ export default function ModalChat({
   handleCloseFriendList,
   setCreateDirectid,
   createDirect,
+  addToChannel,
+  handleCloseAddToChannel,
+  handleShowAddToChannel,
+  showAddToChannel,
   createNonDirectChannel,
+  currentChannel,
   ...props
 }: any) {
   return (
@@ -63,7 +69,7 @@ export default function ModalChat({
         />
       </ChatModal>
       <BrowseModal
-        title="Select Friend"
+        title="Select Friend" // create a direct channel
         show={showFriendList}
         closeHandler={handleCloseFriendList}
         textBtn1="Cancel"
@@ -75,6 +81,23 @@ export default function ModalChat({
           createDirect={createDirect}
         />
       </BrowseModal>
+      {currentChannel && (
+        <BrowseModal
+          title="Add a Friend" //add someone to a channel
+          show={showAddToChannel}
+          closeHandler={handleCloseAddToChannel}
+          textBtn1="Cancel"
+          handleBtn1={handleCloseAddToChannel}
+        >
+          <AddFriendToChannel
+            userId={user?.id}
+            friends={friends}
+            addToChannel={addToChannel}
+            allChannels={allChannels}
+            channel={currentChannel}
+          />
+        </BrowseModal>
+      )}
     </>
   );
 }

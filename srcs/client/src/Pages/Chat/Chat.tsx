@@ -11,7 +11,7 @@ import { Hashtable } from "./entities/entities";
 import Conversation from "./Conversation/Conversation";
 import Members from "./Members/Members";
 import ModalChat from "./Modal/ModalChat";
-import ChannelsAndMessages from "./ChannelsAndMessages/ChannelsAndMessages";
+import ChannelsAndDirect from "./ChannelsAndDirect/ChannelsAndDirect";
 import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
@@ -33,6 +33,7 @@ export default function Chat(props: any) {
   const [showBrowseChannel, setShowBrowseChannel] = useState(false);
   const [showCreateChannel, setshowCreateChannel] = useState(false);
   const [showFriendList, setshowFriendList] = useState(false);
+  const [showAddToChannel, setShowAddToChannel] = useState(false);
 
   // handlers
   const handleCloseCreateChannel = () => setshowCreateChannel(false);
@@ -43,6 +44,9 @@ export default function Chat(props: any) {
 
   const handleCloseFriendList = () => setshowFriendList(false);
   const handleShowFriendList = () => setshowFriendList(true);
+
+  const handleCloseAddToChannel = () => setShowAddToChannel(false);
+  const handleShowAddToChannel = () => setShowAddToChannel(true);
 
   console.log(`Current channel init is ${currentChannel}`);
   console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
@@ -98,12 +102,20 @@ export default function Chat(props: any) {
     })();
   };
 
+  const addToChannelAndClose = (userId: number, channelId: number) => {
+    //replicate what I did in createDirect and NonDirect as far as emit
+    // and updating channels goes.
+    addToChannel(userId, channelId);
+    handleCloseAddToChannel();
+  };
+
   const addToChannel = async (userId: number, channelId: number) => {
     const createUserOnChannelDto = {
       role: eUserRole.USER,
       userId,
       channelId
     };
+    // api returns the userOnChannel if hasleftTheChannel ?
     const newUser = await fetchUrl(
       `http://127.0.0.1:4200/channels/${channelId}/useronchannel/`,
       "PUT",
@@ -515,7 +527,7 @@ export default function Chat(props: any) {
         <div className="row main justify-content-center ms-2 ">
           {allChannels && (
             <>
-              <ChannelsAndMessages
+              <ChannelsAndDirect
                 handleShowBrowseChannel={handleShowBrowseChannel}
                 handleShowCreateChannel={handleShowCreateChannel}
                 user={user}
@@ -535,6 +547,8 @@ export default function Chat(props: any) {
                 setMessage={setMessage}
                 message={message}
                 handleSendMessage={handleSendMessage}
+                handleShowAddToChannel={handleShowAddToChannel}
+                handleCloseAddToChannel={handleCloseAddToChannel}
               />
               <Members
                 currentChannel={currentChannel}
@@ -561,6 +575,11 @@ export default function Chat(props: any) {
         handleCloseFriendList={handleCloseFriendList}
         createDirect={createDirect}
         createNonDirectChannel={createNonDirectChannel}
+        addToChannel={addToChannelAndClose}
+        handleCloseAddToChannel={handleCloseAddToChannel}
+        handleShowAddToChannel={handleShowAddToChannel}
+        showAddToChannel={showAddToChannel}
+        currentChannel={currentChannel}
       />
     </>
   );

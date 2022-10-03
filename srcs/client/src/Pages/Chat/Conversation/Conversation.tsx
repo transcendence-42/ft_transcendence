@@ -17,6 +17,8 @@ export default function Conversation({
   message,
   leaveChannel,
   handleSendMessage,
+  handleCloseAddToChannel,
+  handleShowAddToChannel,
   ...props
 }: any) {
   return (
@@ -50,12 +52,26 @@ export default function Conversation({
             <button
               className="col-3 btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
-                onClick={(e) => leaveChannel(currentChannel.id)}
-                // className="rounded-4 btn btn-chat btn-pink"
+              onClick={(e) => leaveChannel(currentChannel.id)}
+              // className="rounded-4 btn btn-chat btn-pink"
             >
-                leave</button>
-              {/* <div className="pinkText ">leave</div> */}
+              leave
+            </button>
+            {/* <div className="pinkText ">leave</div> */}
             {/* </div> */}
+
+            <div className="messages-div h-50">
+              <div className="row">
+                <div className="col-1">
+                  <button
+                    className="message-button float-end rounded-4 "
+                    onClick={handleShowAddToChannel}
+                  >
+                    add a friend
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           {/* // Div with all list of messages */}
           <Dialogue

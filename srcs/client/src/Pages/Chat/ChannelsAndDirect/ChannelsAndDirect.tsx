@@ -7,7 +7,7 @@ import { UserOnChannel } from "../entities/user.entity";
 import { eChannelType } from "../constants";
 import { isEmpty, otherUser } from "../utils";
 
-export default function ChannelsAndMessages({
+export default function ChannelsAndDirect({
   handleShowBrowseChannel,
   handleShowCreateChannel,
   user,
@@ -48,9 +48,7 @@ export default function ChannelsAndMessages({
                       <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
                         {usrOnChan.channel.name}
                       </td>
-                      <td>
-
-                      </td>
+                      <td></td>
                     </tr>
                   )
                 )}
