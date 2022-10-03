@@ -334,6 +334,12 @@ export default function Chat(props: any) {
       return true;
     return false;
   };
+//block user
+// ban user
+// muteUser
+  const banUser = (userId: number) => {
+
+  };
 
   const muteUser = (otherUser: UserOnChannel) => {
     if (!havePrivilege(otherUser))
@@ -554,6 +560,7 @@ export default function Chat(props: any) {
                 currentChannel={currentChannel}
                 allUsers={allUsers}
                 allChannels={allChannels}
+                userId={user.id}
               />
             </>
           )}

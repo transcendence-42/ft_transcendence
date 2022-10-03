@@ -9,6 +9,9 @@ export default function UserInMembers({
   currentChannel,
   allUsers,
   allChannels,
+  muteUser,
+  banUser,
+  blockUser,
   ...props
 }: any) {
   return (
@@ -16,7 +19,9 @@ export default function UserInMembers({
       <table>
         <tbody>
           <tr>
-            <td className="textPink" style={{fontSize:"0.9em"}}  >{user}</td>
+            <td className="textPink" style={{ fontSize: "0.9em" }}>
+              {user}
+            </td>
             <td>
               <button
                 className="rounded-4 dropdown-toggle color-dropdown channel-button "
@@ -24,9 +29,21 @@ export default function UserInMembers({
                 aria-expanded="false"
               ></button>
               <ul className="dropdown-menu channel-menu text-center">
-                <li className="dropdown-item">Mute</li>
-                <li className="dropdown-item">Ban</li>
-                <li className="dropdown-item">Block</li>
+                <li
+                  onClick={(e) => muteUser(user.id)}
+                  className="dropdown-item"
+                >
+                  Mute
+                </li>
+                <li onClick={(e) => banUser(user.id)} className="dropdown-item">
+                  Ban
+                </li>
+                <li
+                  onClick={(e) => blockUser(user.id)}
+                  className="dropdown-item"
+                >
+                  Block
+                </li>
               </ul>
             </td>
           </tr>
