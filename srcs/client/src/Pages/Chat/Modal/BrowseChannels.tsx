@@ -142,20 +142,26 @@ export default function BrowseChannels({
                   <table className="table">
                     <tbody>
                       <tr>
-                        <td
+                        channel.type === eChannelType.PROTECTED ?
+                        (<td
                           className="channel"
                           data-bs-toggle="collapse"
-                          data-bs-target="#collapseProtected" aria-controls="collapseProtected"
+                          data-bs-target="#collapseProtected"
+                          aria-controls="collapseProtected"
                           onClick={(e) => handleJoinChannel(e, channel)}>
                           {channel.name}
                           <div className="collapse" id="collapseProtected">
                             <input
                                type="name"
-                               className="form-control form-control-margin"
+                               className="form-control"
                                placeholder="Password">
-                              
                             </input>
-                          </div>
+                          </div>) : 
+                          (<td
+                            className="channel"
+                            onClick={(e) => handleJoinChannel(e, channel)}>
+                            {channel.name}
+                            </td>)
                           
                         </td>
                       </tr>
