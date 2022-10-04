@@ -26,7 +26,6 @@ export default function Members({
               findChannel(currentChannel.id, allChannels)?.users?.map(
                 (members) => (
                   <div key={members.userId} >
-                    {/* {allUsers && allUsers[members.userId]?.username} */}
                     <UserInMembers
                       user = {allUsers[members.userId]?.username} />
                   </div>

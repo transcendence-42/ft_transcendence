@@ -19,10 +19,9 @@ body
   color: #80ffff;
 }
 .chat-sidebar-left {
-  max-width: 125px;
-  min-width: 125px;
-  /* -ms-flex: 0 0 125px;
-  flex: 0 0 125px; */
+  max-width: 150px;
+  min-width: 150px;
+
 }
 
 .chat-sidebar-middle {
@@ -30,11 +29,9 @@ body
   min-width: 300px;
 }
 .chat-sidebar-right {
-  max-width: 125px;
-  min-width: 125px;
-  /* -ms-flex: 0 0 125px;
-  flex: 0 0 125px;
-  margin-right: auto */
+  max-width: 150px;
+  min-width: 150px;
+
 }
 
 @media (max-width: 485px) {

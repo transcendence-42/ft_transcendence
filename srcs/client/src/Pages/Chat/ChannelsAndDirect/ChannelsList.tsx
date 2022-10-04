@@ -23,6 +23,7 @@ export default function ChannelsList({
                     <tr key={usrOnChan.channelId}>
                       <td onClick={(e) => switchChannel(usrOnChan.channelId)}
                       className="text-start channel"
+                      style={{fontSize:"0.9em"}}
                       >
                         {usrOnChan.channel.name}
                       </td>
