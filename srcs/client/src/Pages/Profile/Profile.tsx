@@ -71,7 +71,7 @@ const Profile = () => {
     if (player && player.updated === 1) {
       setUpdate(1);
     }
-  }, []);
+  }, [userId]);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -103,7 +103,7 @@ const Profile = () => {
     return () => {
       socket.off('playersInfos', handlePlayersInfo);
     };
-  }, [id]);
+  }, [handlePlayersInfo, id, socket]);
 
   useEffect(() => {
     if (userId) {
@@ -190,7 +190,11 @@ const Profile = () => {
                   />
                 </>
               ) : (
-                <AddFriend id={userId} originalId={+originalId} />
+                <AddFriend
+                  id={userId}
+                  originalId={+originalId}
+                  friendList={friendList}
+                />
               )}
             </div>
             <div className="col-xs-12 col-md-5 col-xl-6">
