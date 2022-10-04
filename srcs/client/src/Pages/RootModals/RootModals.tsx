@@ -49,71 +49,6 @@ const RootModals = () => {
   const handleShowMatchMaking = () => setShowMatchMaking(true);
 
   /** *********************************************************************** */
-  /** SOCKET EVENTS HANDLERS                                                  */
-  /** *********************************************************************** */
-
-  // Socket events handlers
-  const handleGameChallenge = useCallback((data: any) => {
-    handleShowGameChallenge();
-    // Show a different modal depending on if you are challenger or challengee
-    if (data.who === eChallengeWho.CHALLENGER) {
-      setGameChallengeData({
-        title: `You are challenging a player !`,
-        me: data.challenger,
-        opponent: data.challengee,
-        timer: data.timer,
-        message: `You are challenging ${data.challengee.name} to a PONG game!`,
-        btn1Text: `Cancel`,
-        btn1Handler: handleCancel,
-        btn2Text: undefined,
-        btn2Handler: undefined,
-      });
-    } else {
-      setGameChallengeData({
-        title: `You are challenged !`,
-        opponent: data.challenger,
-        timer: data.timer,
-        message: `${data.challenger.name} is challenging you to a PONG game!`,
-        btn1Text: `Refuse`,
-        btn1Handler: handleRefuse,
-        btn2Text: `Accept`,
-        btn2Handler: handleAccept,
-      });
-    }
-  }, []);
-
-  const handleGameChallengeReply = useCallback((data: any) => {
-    if (data.status === eChallengeStatus.CANCEL) {
-      setGameChallengeData({
-        ...gameChallengeData,
-        message: `${gameChallengeData.opponent.name} canceled his request :(`,
-      });
-    } else if (data.status === eChallengeStatus.REFUSED) {
-      setGameChallengeData({
-        ...gameChallengeData,
-        message: `${gameChallengeData.opponent.name} refused your challenge :(`,
-      });
-    } else if (data.status === eChallengeStatus.ACCEPTED) {
-      setGameChallengeData({
-        ...gameChallengeData,
-        message: `${gameChallengeData.opponent.name} accepted your challenge ! Game will start in few seconds`,
-      });
-      navigate('/lobby');
-    }
-    setTimeout(() => {
-      handleCloseGameChallenge();
-    }, 2000);
-  }, []);
-
-  const handleOpponentFound = useCallback(() => {
-    handleShowMatchMaking();
-    navigate('/lobby');
-    setTimeout(() => {
-      handleCloseMatchMaking();
-    }, 2000);
-  }, []);
-
-  /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
@@ -149,6 +84,71 @@ const RootModals = () => {
       handleCloseGameChallenge();
     }, 2000);
   };
+
+  /** *********************************************************************** */
+  /** SOCKET EVENTS HANDLERS                                                  */
+  /** *********************************************************************** */
+
+  // Socket events handlers
+  const handleGameChallenge = useCallback((data: any) => {
+    handleShowGameChallenge();
+    // Show a different modal depending on if you are challenger or challengee
+    if (data.who === eChallengeWho.CHALLENGER) {
+      setGameChallengeData({
+        title: `You are challenging a player !`,
+        me: data.challenger,
+        opponent: data.challengee,
+        timer: data.timer,
+        message: `You are challenging ${data.challengee.name} to a PONG game!`,
+        btn1Text: `Cancel`,
+        btn1Handler: handleCancel,
+        btn2Text: undefined,
+        btn2Handler: undefined,
+      });
+    } else {
+      setGameChallengeData({
+        title: `You are challenged !`,
+        opponent: data.challenger,
+        timer: data.timer,
+        message: `${data.challenger.name} is challenging you to a PONG game!`,
+        btn1Text: `Refuse`,
+        btn1Handler: handleRefuse,
+        btn2Text: `Accept`,
+        btn2Handler: handleAccept,
+      });
+    }
+  }, [handleAccept, handleCancel, handleRefuse]);
+
+  const handleGameChallengeReply = useCallback((data: any) => {
+    if (data.status === eChallengeStatus.CANCEL) {
+      setGameChallengeData({
+        ...gameChallengeData,
+        message: `${gameChallengeData.opponent.name} canceled his request :(`,
+      });
+    } else if (data.status === eChallengeStatus.REFUSED) {
+      setGameChallengeData({
+        ...gameChallengeData,
+        message: `${gameChallengeData.opponent.name} refused your challenge :(`,
+      });
+    } else if (data.status === eChallengeStatus.ACCEPTED) {
+      setGameChallengeData({
+        ...gameChallengeData,
+        message: `${gameChallengeData.opponent.name} accepted your challenge ! Game will start in few seconds`,
+      });
+      navigate('/lobby');
+    }
+    setTimeout(() => {
+      handleCloseGameChallenge();
+    }, 2000);
+  }, [eChallengeStatus.ACCEPTED, eChallengeStatus.CANCEL, eChallengeStatus.REFUSED, gameChallengeData, navigate]);
+
+  const handleOpponentFound = useCallback(() => {
+    handleShowMatchMaking();
+    navigate('/lobby');
+    setTimeout(() => {
+      handleCloseMatchMaking();
+    }, 2000);
+  }, []);
 
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */

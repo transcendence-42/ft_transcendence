@@ -10,11 +10,10 @@ const MatchHistory = (props: any) => {
       <div
         style={{
           width: '100%',
-          height: '100%',
         }}
       >
         <h3 className="text-pink text-start">Matches History</h3>
-        <table className="table table-borderless scroll m-1 align-middle match-history mb-3">
+        <table className="table table-borderless scroll m-1 align-middle match-history">
           <tbody>
             <tr className="border-blue w-100" style={{ fontSize: '1.2em' }}>
               <td className="text-blue mt-3" style={{ textAlign: 'left' }}>
@@ -28,13 +27,13 @@ const MatchHistory = (props: any) => {
   } else {
     return (
       <div
+        className='mb-0'
         style={{
           width: '100%',
-          height: '100%',
         }}
       >
         <h3 className="text-pink text-start">Matches History</h3>
-        <table className="table table-borderless scroll m-1 align-middle match-history mb-3">
+        <table className="table table-borderless scroll m-1 align-middle match-history">
           <tbody>
             {props.matchesList.map(
               (matches: any, index: number) =>

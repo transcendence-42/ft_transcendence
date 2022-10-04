@@ -15,8 +15,6 @@ import OnlineOffline from './OnlineOffline';
 import ChangePicture from './Button/ChangePicture';
 import DoubleAuth from './Button/DoubleAuth';
 import Ladder from './Ladder';
-import MatchHistory from './MatchHistory';
-import FriendList from './FriendList';
 import ChangeUsername from './Button/ChangeUsername';
 // Utils
 import { getFetch } from './Fetch/getFetch';
@@ -24,12 +22,14 @@ import { getFetchMatch } from './Fetch/getFetchMatch';
 import { getFetchFriends } from './Fetch/getFetchFriends';
 // Context
 import { SocketContext } from '../Game/socket/socket';
+import PaginatedMatchHistory from './PaginatedMatchHistory';
+import PaginatedFriendList from './PaginatedFriendList';
 
 const Profile = () => {
   /**
    * @locationState userId:  id of the user whose profile we are looking at.
    */
-  
+
   /** *********************************************************************** */
   /** GLOBAL                                                                  */
   /** *********************************************************************** */
@@ -43,11 +43,11 @@ const Profile = () => {
   if (id) {
     userId = +id;
   } else userId = 0;
-  
+
   /** *********************************************************************** */
   /** STATES                                                                  */
   /** *********************************************************************** */
-  
+
   const [user, setUser] = useState({} as any);
   const [doubleFactor, setDoubleFactor]: any = useState(false);
   const [player, setPlayer] = useState({} as any);
@@ -201,13 +201,18 @@ const Profile = () => {
 
           {/* Match history + friends */}
           <div className="row">
-            <div className="col-xs-12 col-xl-6">
-              <MatchHistory matchesList={matchesList} id={+userId} />
+            <div className="col-xs-12 col-xl-6 d-flex flex-column">
+              <PaginatedMatchHistory
+                items={matchesList}
+                itemsPerPage={5}
+                userId={+userId}
+              />
             </div>
             <div className="col-xs-12 col-xl-6">
-              <FriendList
-                friendList={friendList}
+              <PaginatedFriendList
+                items={friendList}
                 friendRequestList={friendRequestList}
+                itemsPerPage={5}
                 id={userId}
                 originalId={+originalId}
                 up={toggleUpdate}

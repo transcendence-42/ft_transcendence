@@ -1,0 +1,73 @@
+import React, { useEffect, useState } from 'react';
+import ReactPaginate from 'react-paginate';
+import FriendList from './FriendList';
+
+const PaginatedFriendList = ({
+  items,
+  friendRequestList,
+  itemsPerPage,
+  userId,
+  originalId,
+  up,
+  players,
+  handleChallengePlayer,
+}: any) => {
+  /** *********************************************************************** */
+  /** STATES                                                                  */
+  /** *********************************************************************** */
+  const [currentItems, setCurrentItems] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [itemOffset, setItemOffset] = useState(0);
+
+  /** *********************************************************************** */
+  /** INITIALIZATION                                                          */
+  /** *********************************************************************** */
+
+  useEffect(() => {
+    // fetch items from props.
+    const endOffset = itemOffset + itemsPerPage;
+    if (items) {
+      setCurrentItems(items.slice(itemOffset, endOffset));
+      setPageCount(Math.ceil(items.length / itemsPerPage));
+    }
+  }, [itemOffset, itemsPerPage, items]);
+
+  // Invoke when user click to request another 'page'.
+  const handlePageClick = (event: any) => {
+    const newOffset = (event.selected * itemsPerPage) % items.length;
+    setItemOffset(newOffset);
+  };
+
+  return (
+    <>
+      <FriendList
+        friendList={currentItems}
+        friendRequestList={friendRequestList}
+        id={userId}
+        originalId={+originalId}
+        up={up}
+        players={players}
+        handleChallengePlayer={handleChallengePlayer}
+      />
+      {items && items.length > itemsPerPage &&
+      <ReactPaginate
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        previousLabel="< previous"
+        previousLinkClassName="text-blue"
+        previousClassName="me-2"
+        nextLinkClassName="text-blue"
+        nextClassName="ms-2"
+        pageLinkClassName="text-pink"
+        pageClassName="me-1 ms-1"
+        activeLinkClassName="text-decoration-underline"
+        containerClassName="pagination justify-content-center mb-3"
+      />}
+    </>
+  );
+};
+
+export default PaginatedFriendList;

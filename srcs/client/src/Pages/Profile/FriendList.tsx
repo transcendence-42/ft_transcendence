@@ -46,14 +46,13 @@ const FriendList = (props: any) => {
     <div
       style={{
         width: '100%',
-        height: '100%',
       }}
     >
       <h3 className="text-pink text-start">Friends</h3>
       {
         <table className="table table-borderless scroll m-1 align-middle friends-list">
           <tbody>
-            {props.friendRequestList &&
+            {props.friendRequestList && props.friendRequestList.length > 0 &&
               props.id === props.originalId &&
               props.friendRequestList.map((friendship: any, index: number) => (
                 <tr
@@ -97,7 +96,7 @@ const FriendList = (props: any) => {
                   }
                 </tr>
               ))}
-            {props.friendList ? (
+            {props.friendList && props.friendList.length > 0 ? (
               props.friendList.map((friend: any, index: number) => (
                 <tr
                   className="border-blue"
@@ -191,7 +190,7 @@ const FriendList = (props: any) => {
                 </tr>
               ))
             ) : 
-            !props.friendRequestList && (
+            props.friendRequestList && props.friendRequestList.length === 0 && (
               <tr className="border-blue">
                 <td
                   className="text-blue mt-3"

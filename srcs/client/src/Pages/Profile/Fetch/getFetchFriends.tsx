@@ -15,7 +15,7 @@ export async function getFetchFriends(props : any){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
-				return;
+				return ([] as any);
 			}
 			return (response.json());
 		})
