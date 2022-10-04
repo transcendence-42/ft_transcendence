@@ -38,7 +38,7 @@ export default function ChannelsAndDirect({
           </div>
         </div>
         {/* Div which list the channels */}
-        <div className="row h-100">
+        <div className="row h-75">
           <ChannelsList user={user} switchChannel={switchChannel} />
         </div>
       </div>

@@ -57,8 +57,6 @@ export default function Conversation({
             >
             <div className="textPink ">Leave</div>
             </button>
-            {/* </div> */}
-
             <div className="messages-div h-50 ">
               <div className="row justify-content-center">
                 <div className="col-1">

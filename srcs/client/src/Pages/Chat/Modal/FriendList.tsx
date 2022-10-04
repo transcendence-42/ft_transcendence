@@ -15,6 +15,10 @@ export default function FriendList({
     console.log(`${JSON.stringify(friend, null, 4)}`)
   );
 
+  // let test = {
+
+  // }
+
   return (
     <div className="col">
       <>
@@ -23,7 +27,7 @@ export default function FriendList({
             <div
               onClick={(e) => createDirect(e, friend.id)}
               key={friend.id}
-              className="btn rounded-4 btn-pink btn-switch"
+              className="btn rounded-4 btn-pink btn-switch textPink m-1"
             >
               {friend.username}
             </div>

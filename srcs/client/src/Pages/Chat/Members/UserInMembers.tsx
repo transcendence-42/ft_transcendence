@@ -5,13 +5,7 @@ import { Link } from "react-router-dom";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 
-export default function UserInMembers({
-  user,
-  currentChannel,
-  allUsers,
-  allChannels,
-  ...props
-}: any) {
+export default function UserInMembers({ user, id, ...props }: any) {
   return (
     <>
       <table>
@@ -21,8 +15,10 @@ export default function UserInMembers({
               {user}
             </td>
             <td>
+            <div className="btn-group dropleft">
               <button
-                className="rounded-4 dropdown-toggle color-dropdown channel-button "
+                className="rounded-4 dropdown-toggle
+                color-dropdown channel-button "
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ></button>
@@ -30,14 +26,12 @@ export default function UserInMembers({
                 <li className="dropdown-item">Mute</li>
                 <li className="dropdown-item">Ban</li>
                 <li className="dropdown-item">Block</li>
-                <Link
-                  state={{ userID: props.id, originalId: props.originalId }}
-                  to="/profile"
-                >
-                  <li className="dropdown-item">View Profile</li>{" "}
+                <Link to={`/profile/${id}`}>
+                  <li className="dropdown-item"> View Profile </li>
                 </Link>
                 <li className="dropdown-item">Challenge</li>
               </ul>
+            </div>
             </td>
           </tr>
         </tbody>

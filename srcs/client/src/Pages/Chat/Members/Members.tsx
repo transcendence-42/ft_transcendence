@@ -3,7 +3,7 @@ import { UserOnChannel } from "../entities/user.entity";
 import { findChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
-import UserInMembers from "./UserInMembers"
+import UserInMembers from "./UserInMembers";
 
 export default function Members({
   currentChannel,
@@ -21,18 +21,19 @@ export default function Members({
           >
             MEMBERS
           </p>
-
         </div>
       </div>
       <div className="row">
-        <div className="col overflow-auto">
-        <>
+        <div className="col">
+          <>
             {!isEmpty(currentChannel) &&
               findChannel(currentChannel.id, allChannels)?.users?.map(
                 (members) => (
-                  <div key={members.userId} >
+                  <div key={members.userId}>
                     <UserInMembers
-                      user = {allUsers[members.userId]?.username} />
+                      user={allUsers[members.userId]?.username}
+                      id={allUsers[members.userId]?.id}
+                    />
                   </div>
                 )
               )}

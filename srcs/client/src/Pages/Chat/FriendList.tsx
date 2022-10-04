@@ -18,9 +18,7 @@ export default function FriendList({
               key={friend.id}
               className="btn rounded-4 btn-pink btn-switch"
             >
-              <div
-                className="col"
-              >
+              <div className="col">
                 {friend.username}
               </div>
             </div>
