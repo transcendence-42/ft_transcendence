@@ -271,8 +271,8 @@ export class GameService {
     return null;
   }
 
-  /** Go offline */
-  async handleSwitchStatus(client: Socket) {
+  /** Go offline / online */
+  async switchStatus(client: Socket) {
     const userId = client.handshake.query.userId.toString();
     // Save or update client as a player for players info
     let status: any = (
@@ -286,9 +286,10 @@ export class GameService {
         )
         .exec()
     )[1][1];
+    console.log('coucou');
     status = JSON.parse(status)[0];
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
-    if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
+    else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
     await this._savePlayerInfos(userId, { status: status });
     this._sendPlayersInfo();
   }

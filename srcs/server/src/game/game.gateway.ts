@@ -168,7 +168,7 @@ export class GameGateway
   /** Switch a user to offline until the next action */
   @SubscribeMessage('switchStatus')
   async handleSwitchStatus(@ConnectedSocket() client: Socket) {
-    await this.gameService.handleSwitchStatus(client);
+    await this.gameService.switchStatus(client);
   }
 
   /** Update username and pic associated with a player on redis */

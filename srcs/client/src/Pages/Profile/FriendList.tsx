@@ -41,10 +41,7 @@ const FriendList = (props: any) => {
   /** *********************************************************************** */
   /** RENDER                                                                  */
   /** *********************************************************************** */
-  console.log('friendlist');
-  console.log(props.friendRequestList);
-  console.log(props.id);
-  console.log(props.originalId);
+
   return (
     <div
       style={{
@@ -131,6 +128,7 @@ const FriendList = (props: any) => {
                               : 0
                           }
                           size={'1em'}
+                          displaySwitch={false}
                         />
                       </td>
                       <td></td>

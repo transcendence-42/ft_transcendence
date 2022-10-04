@@ -9,7 +9,6 @@ import '../../Components/Tools/Box.css';
 import '../../Styles/';
 // Components
 import AddFriend from './Button/AddFriend';
-import BlockFriend from './Button/BlockFriend';
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil';
 import OnlineOffline from './OnlineOffline';
 import ChangePicture from './Button/ChangePicture';
@@ -51,7 +50,7 @@ const Profile = () => {
   const [user, setUser] = useState({} as any);
   const [doubleFactor, setDoubleFactor]: any = useState(false);
   const [player, setPlayer] = useState({} as any);
-  const [players, setPlayers] = useState({} as any);
+  const [players, setPlayers] = useState([] as any);
   const [friendList, setFriendList] = useState([] as any);
   const [friendRequestList, setFriendRequestList] = useState([] as any);
   const [matchesList, setMatchesList] = useState([] as any);
@@ -173,7 +172,14 @@ const Profile = () => {
               >
                 {user.username}
               </div>
-              <OnlineOffline status={+player?.status} size={'1.2em'} />
+              <OnlineOffline
+                status={+player?.status}
+                size={'1.2em'}
+                userId={userId}
+                currentId={originalId}
+                switchHandler={handleSwitchStatus}
+                displaySwitch={true}
+              />
             </div>
             <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (

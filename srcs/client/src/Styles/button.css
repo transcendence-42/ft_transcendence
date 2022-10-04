@@ -53,3 +53,14 @@
   				    0px 0px 6px #852388,
               inset 0px 0px 6px #852388;
 }
+
+.btn-dark-pink {
+  --bs-btn-hover-color: #fda1f4;
+  --bs-btn-hover-bg: none;
+  --bs-btn-hover-border-color: none;
+  --bs-btn-active-color: #fda1f4;
+  --bs-btn-active-bg: none;
+  --bs-btn-active-border-color: none;
+	border: none;
+  background-color: rgb(5, 2, 30);
+}
