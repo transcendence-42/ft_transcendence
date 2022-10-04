@@ -55,8 +55,6 @@ export default function Chat(props: any) {
   console.log(`Current all channels ${JSON.stringify(allChannels)}`);
   console.groupEnd();
 
-  const [updateOneUserState, setUpdateOneUserState] = useState(null);
-
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
     const channelName = friendId.toString() + "_" + user.id.toString();
@@ -447,40 +445,6 @@ export default function Chat(props: any) {
     );
   }, []);
 
-  // useEffect(() => {
-  //   if (updateOneUserState === null)
-  //     return;
-  //   callMe(updateOneUserState);
-  //   setUpdateOneUserState(null);
-  // }, [updateOneUserState])
-
-  const callMe = (channelId) => {
-    console.group("UpdateChannelEvent");
-    console.log(`All my channels are ${JSON.stringify(allChannels)}`);
-    console.log(`all my users in are ${JSON.stringify(allUsers)}`);
-    (async () => {
-      console.log("recieved event udpateOneChannel");
-      console.log(`All my channels are ${JSON.stringify(allChannels)}`);
-      const url = "http://127.0.0.1:4200/channels/" + channelId;
-      const channel: Channel = await fetchUrl(url);
-      updateChannel(channel);
-      // if (channel.type === eChannelType.PRIVATE) {
-      const isInOwnChannel = channel.users.find(
-        (usr) => usr.userId === user.id
-      );
-      if (isInOwnChannel) {
-        const userOnChan = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${user.id}`
-        );
-        console.log(
-          `Upadting ownChannels because the user is in the channel ${userOnChan}`
-        );
-        updateOwnUserOnChannel(userOnChan);
-      }
-      console.groupEnd();
-    })();
-  };
-
   useEffect(() => {
     if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
@@ -545,8 +509,30 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
-      // setUpdateOneUserState(channelId);
-      callMe(channelId);
+    console.group("UpdateChannelEvent");
+    console.log(`All my channels are ${JSON.stringify(allChannels)}`);
+    console.log(`all my users in are ${JSON.stringify(allUsers)}`);
+    (async () => {
+      console.log("recieved event udpateOneChannel");
+      console.log(`All my channels are ${JSON.stringify(allChannels)}`);
+      const url = "http://127.0.0.1:4200/channels/" + channelId;
+      const channel: Channel = await fetchUrl(url);
+      updateChannel(channel);
+      // if (channel.type === eChannelType.PRIVATE) {
+      const isInOwnChannel = channel.users.find(
+        (usr) => usr.userId === user.id
+      );
+      if (isInOwnChannel) {
+        const userOnChan = await fetchUrl(
+          `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${user.id}`
+        );
+        console.log(
+          `Upadting ownChannels because the user is in the channel ${userOnChan}`
+        );
+        updateOwnUserOnChannel(userOnChan);
+      }
+      console.groupEnd();
+    })();
     });
 
     socket.on(eEvent.UpdateUserOnChannel, (channelId) => {
