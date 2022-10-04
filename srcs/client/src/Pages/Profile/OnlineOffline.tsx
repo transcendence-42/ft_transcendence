@@ -44,7 +44,7 @@ const OnlineOffline = (props: any) => {
           <div className="badge badge-black" style={{ fontSize: props.size }}>
             OFFLINE
           </div>
-          {props.displaySwitch && (
+          {props.displaySwitch && props.userId === props.currentId && (
             <button
               className="btn btn-dark-pink text-pink"
               onClick={props.switchHandler}
@@ -71,7 +71,7 @@ const OnlineOffline = (props: any) => {
             <div className="badge badge-green" style={{ fontSize: props.size }}>
               ONLINE
             </div>
-            {props.displaySwitch && (
+            {props.displaySwitch && props.userId === props.currentId && (
             <button
               className="btn btn-dark-pink text-pink"
               onClick={props.switchHandler}

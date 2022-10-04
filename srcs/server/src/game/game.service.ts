@@ -286,7 +286,6 @@ export class GameService {
         )
         .exec()
     )[1][1];
-    console.log('coucou');
     status = JSON.parse(status)[0];
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
     else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;

@@ -97,12 +97,8 @@ const Profile = () => {
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
-  const init = async () => {
-    socket.emit('getPlayersInfos');
-  };
-
   useEffect(() => {
-    init();
+    socket.emit('getPlayersInfos');
     socket.on('playersInfos', handlePlayersInfo);
     return () => {
       socket.off('playersInfos', handlePlayersInfo);

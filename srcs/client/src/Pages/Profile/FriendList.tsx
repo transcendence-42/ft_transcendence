@@ -35,7 +35,7 @@ const FriendList = (props: any) => {
   const getPlayerFromId = (id: number) => {
     if (props.players !== undefined)
       return props.players.find((p: any) => p.id === id.toString());
-    return null;
+    return { status: 0 };
   };
 
   /** *********************************************************************** */
