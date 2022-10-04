@@ -188,10 +188,7 @@ const Profile = () => {
                   />
                 </>
               ) : (
-                <>
-                  <AddFriend id={userId} originalId={+originalId} />
-                  <BlockFriend id={userId} originalId={+originalId} />
-                </>
+                <AddFriend id={userId} originalId={+originalId} />
               )}
             </div>
             <div className="col-xs-12 col-md-5 col-xl-6">
@@ -205,7 +202,7 @@ const Profile = () => {
               <PaginatedMatchHistory
                 items={matchesList}
                 itemsPerPage={5}
-                userId={+userId}
+                userId={userId}
               />
             </div>
             <div className="col-xs-12 col-xl-6">

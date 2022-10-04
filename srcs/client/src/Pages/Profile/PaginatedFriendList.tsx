@@ -6,7 +6,7 @@ const PaginatedFriendList = ({
   items,
   friendRequestList,
   itemsPerPage,
-  userId,
+  id,
   originalId,
   up,
   players,
@@ -43,7 +43,7 @@ const PaginatedFriendList = ({
       <FriendList
         friendList={currentItems}
         friendRequestList={friendRequestList}
-        id={userId}
+        id={id}
         originalId={+originalId}
         up={up}
         players={players}
