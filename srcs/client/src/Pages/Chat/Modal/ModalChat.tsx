@@ -15,7 +15,7 @@ export default function ModalChat({
   allChannels,
   socket,
   switchChannel,
-  updateOwnChannels,
+  updateOwnUserOnChannel,
   showBrowseChannel,
   handleCloseBrowseChannel,
   showCreateChannel,
@@ -34,7 +34,7 @@ export default function ModalChat({
 }: any) {
   return (
     <>
-    {/* BROWSE CHANNEL */}
+      {/* BROWSE CHANNEL */}
       <PongAdvancedModal
         title="Browse channels"
         show={showBrowseChannel}
@@ -49,12 +49,12 @@ export default function ModalChat({
           userChannels={user.channels}
           userId={user.id}
           socket={socket}
-          updateOwnChannels={updateOwnChannels}
+          updateOwnUserOnChannel={updateOwnUserOnChannel}
           switchChannel={switchChannel}
           handleCloseBrowseChannel={handleCloseBrowseChannel}
         />
       </PongAdvancedModal>
-    {/* CREATE CHANNEL */}
+      {/* CREATE CHANNEL */}
       <ChatModal
         title="Create a channel"
         show={showCreateChannel}

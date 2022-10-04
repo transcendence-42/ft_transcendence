@@ -3,7 +3,7 @@ import "./Conversation.css";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import Dialogue from "./Dialogue";
-import { isEmpty, otherUser } from "../utils";
+import { isEmpty, otherUser, getUserOnChannel } from "../utils";
 import { eChannelType } from "../constants";
 
 export default function Conversation({
@@ -117,24 +117,31 @@ export default function Conversation({
             allUsers={allUsers}
             message={message}
           />
+              {console.log(`inside conv ${JSON.stringify(getUserOnChannel(user.id, user.channels))}`)}
           <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
-              <input
-                className="rounded-3 input-field-chat w-75 "
-                onChange={(e) => setMessage(e.target.value)}
-                value={message}
-                type="text"
-                maxLength={50}
-                placeholder="  Send a message..."
-              ></input>
-              <button
-                type="button"
-                className="btn rounded-4 btn-pink btn-join ms-2 mb-1"
-                onClick={handleSendMessage}
-              >
-                Send
-              </button>
+              {getUserOnChannel(user.id, user.channels).isMuted ? (
+                <div>You are muted</div>
+              ) : (
+                <>
+                  <input
+                    className="rounded-3 input-field-chat w-75 "
+                    onChange={(e) => setMessage(e.target.value)}
+                    value={message}
+                    type="text"
+                    maxLength={50}
+                    placeholder="  Send a message..."
+                  ></input>
+                  <button
+                    type="button"
+                    className="btn rounded-4 btn-pink btn-join ms-2 mb-1"
+                    onClick={handleSendMessage}
+                  >
+                    Send
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </>

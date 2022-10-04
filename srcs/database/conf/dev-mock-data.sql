@@ -1,35 +1,4 @@
 --
--- PostgreSQL database cluster dump
---
-
-SET default_transaction_read_only = off;
-
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-
---
--- Roles
---
-
-CREATE ROLE transcendence;
-ALTER ROLE transcendence WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:Ta/N+6aNUJkQe88ppBSJLA==$b2oliCa6UmS02SZ313pFkRhmVz1fLzUSmA3NU4GYecI=:pOc0qH3C3W7nSUNQ9FFcbaxYQ5to0QCWUpSENMi+09I=';
-
-
-
-
-
-
---
--- Databases
---
-
---
--- Database "template1" dump
---
-
-\connect template1
-
---
 -- PostgreSQL database dump
 --
 
@@ -48,80 +17,31 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- PostgreSQL database dump complete
+-- Name: ChannelType; Type: TYPE; Schema: public; Owner: transcendence
 --
 
---
--- Database "postgres" dump
---
+CREATE TYPE public."ChannelType" AS ENUM (
+    'PUBLIC',
+    'PRIVATE',
+    'PROTECTED',
+    'DIRECT'
+);
 
-\connect postgres
 
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 14.5
--- Dumped by pg_dump version 14.5
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+ALTER TYPE public."ChannelType" OWNER TO transcendence;
 
 --
--- PostgreSQL database dump complete
+-- Name: UserRole; Type: TYPE; Schema: public; Owner: transcendence
 --
 
---
--- Database "transcendence_db" dump
---
-
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 14.5
--- Dumped by pg_dump version 14.5
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: transcendence_db; Type: DATABASE; Schema: -; Owner: transcendence
---
-
-CREATE DATABASE "transcendence_db" WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'en_US.utf8';
+CREATE TYPE public."UserRole" AS ENUM (
+    'OWNER',
+    'ADMIN',
+    'USER'
+);
 
 
-ALTER DATABASE "transcendence_db" OWNER TO transcendence;
-
-\connect -reuse-previous=on "dbname='transcendence_db'"
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
+ALTER TYPE public."UserRole" OWNER TO transcendence;
 
 SET default_tablespace = '';
 
@@ -168,9 +88,9 @@ ALTER SEQUENCE public."Achievement_id_seq" OWNED BY public."Achievement".id;
 CREATE TABLE public."Channel" (
     id integer NOT NULL,
     name text NOT NULL,
-    "channelMode" integer DEFAULT 0 NOT NULL,
     password text,
-    "ownerId" integer NOT NULL
+    "ownerId" integer NOT NULL,
+    type public."ChannelType" NOT NULL
 );
 
 
@@ -257,8 +177,7 @@ ALTER TABLE public."Friendship" OWNER TO transcendence;
 
 CREATE TABLE public."Match" (
     id integer NOT NULL,
-    date timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    status integer DEFAULT 0 NOT NULL
+    date timestamp(3) without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -293,9 +212,9 @@ ALTER SEQUENCE public."Match_id_seq" OWNED BY public."Match".id;
 CREATE TABLE public."PlayerOnMatch" (
     "matchId" integer NOT NULL,
     "playerId" integer NOT NULL,
-    "playerNum" integer DEFAULT 1 NOT NULL,
-    "playerScore" integer DEFAULT 0 NOT NULL,
-    "winProbability" double precision NOT NULL
+    status integer,
+    score integer DEFAULT 0 NOT NULL,
+    side integer DEFAULT 0 NOT NULL
 );
 
 
@@ -410,7 +329,11 @@ ALTER TABLE public."UserAchievement" OWNER TO transcendence;
 CREATE TABLE public."UserOnChannel" (
     "channelId" integer NOT NULL,
     "userId" integer NOT NULL,
-    mode integer DEFAULT 0 NOT NULL
+    role public."UserRole" NOT NULL,
+    "joinedAt" timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "isBanned" boolean DEFAULT false NOT NULL,
+    "isMuted" boolean DEFAULT false NOT NULL,
+    "hasLeftChannel" boolean DEFAULT false NOT NULL
 );
 
 
@@ -517,7 +440,8 @@ COPY public."Achievement" (id, name) FROM stdin;
 -- Data for Name: Channel; Type: TABLE DATA; Schema: public; Owner: transcendence
 --
 
-COPY public."Channel" (id, name, "channelMode", password, "ownerId") FROM stdin;
+COPY public."Channel" (id, name, password, "ownerId", type) FROM stdin;
+29	ok	lol	2	PROTECTED
 \.
 
 
@@ -526,6 +450,7 @@ COPY public."Channel" (id, name, "channelMode", password, "ownerId") FROM stdin;
 --
 
 COPY public."Credentials" (email, username, password, id, "userId", "twoFactorActivated", "twoFactorSecret") FROM stdin;
+nammari@student.42.fr	nammari	\N	1	3	f	\N
 \.
 
 
@@ -535,6 +460,16 @@ COPY public."Credentials" (email, username, password, id, "userId", "twoFactorAc
 
 COPY public."Friendship" ("requesterId", "addresseeId", date, status) FROM stdin;
 1	2	2022-09-24 07:39:51.107	1
+3	2	2022-10-02 21:39:45.697	1
+1	3	2022-10-02 21:40:00.37	1
+6	3	2022-10-04 07:36:06.462	1
+3	5	2022-10-04 07:36:11.446	0
+3	4	2022-10-04 07:36:17.973	1
+4	5	2022-10-04 07:36:27.493	0
+4	2	2022-10-04 07:36:30.47	0
+4	1	2022-10-04 07:36:37.402	1
+1	5	2022-10-04 07:36:45.008	1
+6	1	2022-10-04 07:36:51.817	1
 \.
 
 
@@ -542,7 +477,7 @@ COPY public."Friendship" ("requesterId", "addresseeId", date, status) FROM stdin
 -- Data for Name: Match; Type: TABLE DATA; Schema: public; Owner: transcendence
 --
 
-COPY public."Match" (id, date, status) FROM stdin;
+COPY public."Match" (id, date) FROM stdin;
 \.
 
 
@@ -550,7 +485,7 @@ COPY public."Match" (id, date, status) FROM stdin;
 -- Data for Name: PlayerOnMatch; Type: TABLE DATA; Schema: public; Owner: transcendence
 --
 
-COPY public."PlayerOnMatch" ("matchId", "playerId", "playerNum", "playerScore", "winProbability") FROM stdin;
+COPY public."PlayerOnMatch" ("matchId", "playerId", status, score, side) FROM stdin;
 \.
 
 
@@ -561,6 +496,10 @@ COPY public."PlayerOnMatch" ("matchId", "playerId", "playerNum", "playerScore", 
 COPY public."Rating" (id, date, rating, "userId") FROM stdin;
 1	2022-09-24 07:37:40.267	1000	1
 2	2022-09-24 07:38:10.28	1000	2
+3	2022-10-02 21:38:02.243	1000	3
+4	2022-10-04 07:34:16.113	1000	4
+5	2022-10-04 07:34:32.315	1000	5
+6	2022-10-04 07:34:44.845	1000	6
 \.
 
 
@@ -571,6 +510,10 @@ COPY public."Rating" (id, date, rating, "userId") FROM stdin;
 COPY public."Stats" (id, wins, losses, "userId") FROM stdin;
 1	0	0	1
 2	0	0	2
+3	0	0	3
+4	0	0	4
+5	0	0	5
+6	0	0	6
 \.
 
 
@@ -581,6 +524,10 @@ COPY public."Stats" (id, wins, losses, "userId") FROM stdin;
 COPY public."User" (id, email, username, "createdAt", "currentStatus", "profilePicture", "eloRating") FROM stdin;
 1	homer@springfield.com	homer	2022-09-24 07:37:40.267	1	http://site.com/image.png	1000
 2	noufel@springfield.com	noufel	2022-09-24 07:38:10.28	1	http://site.com/image.png	1000
+3	nammari@student.42.fr	nammari	2022-10-02 21:38:02.243	1	https://cdn.intra.42.fr/users/nammari.jpg	1000
+4	boomer@springfield.com	Boomer	2022-10-04 07:34:16.113	1	http://site.com/image.png	1000
+5	monaliza@springfield.com	MonaLiza	2022-10-04 07:34:32.315	1	http://site.com/image.png	1000
+6	toto@springfield.com	toto	2022-10-04 07:34:44.845	1	http://site.com/image.png	1000
 \.
 
 
@@ -596,7 +543,9 @@ COPY public."UserAchievement" ("achievementId", date, "userId") FROM stdin;
 -- Data for Name: UserOnChannel; Type: TABLE DATA; Schema: public; Owner: transcendence
 --
 
-COPY public."UserOnChannel" ("channelId", "userId", mode) FROM stdin;
+COPY public."UserOnChannel" ("channelId", "userId", role, "joinedAt", "isBanned", "isMuted", "hasLeftChannel") FROM stdin;
+29	2	OWNER	2022-10-03 07:07:43.563	f	f	f
+29	3	USER	2022-10-03 18:33:02.292	f	f	f
 \.
 
 
@@ -624,6 +573,16 @@ c8764789-4c29-49bf-a937-6c5b64de9146	7ce1b83763886480f14256aee14be5d15b0f3634f76
 7b6c55fa-d04b-4b26-871f-3bbacfc21478	41020e4ed4aea7e72036149f24c0925a698b4407ac9a190c57808d2d4e307e5f	2022-09-22 10:05:02.032896+00	20220829150217_default_user_status_1	\N	\N	2022-09-22 10:05:02.027905+00	1
 63f9a900-239c-4a1b-ba0b-9ca85f119769	e8f6bf33fe4fe39614a6728a0f25b7468076f7264eeb4de083b2370928f5fb2d	2022-09-22 10:05:02.082054+00	20220830134617_fixing_unique_contraints	\N	\N	2022-09-22 10:05:02.075358+00	1
 f97ba7ea-ff59-44c9-98de-7fc955595f57	d95f6c19aad293a2bc5aa224020ec137f6a2d2e56c1daf8e531b2b36ca8a4a9b	2022-09-22 10:05:02.101971+00	20220831080803_fk_constraints_update	\N	\N	2022-09-22 10:05:02.083633+00	1
+b8d96efc-2e44-40de-94be-592eed25fd30	e696236c820b38e20e3865f269f405da106a39a5543759c2ab6ef2526b1df3d8	2022-10-02 21:37:27.1419+00	20221001081318_banned_users_id_added_migration	\N	\N	2022-10-02 21:37:27.137541+00	1
+0e448563-fab6-4b8e-b1f6-1572a7546b6d	bbaf139c703093eee860f5cc2b35cd8a221dee6cb554aed3593048f14dbb462a	2022-10-02 21:37:27.096803+00	20220909153655_updating_players_on_match_sides	\N	\N	2022-10-02 21:37:27.090492+00	1
+1d3ebfa9-989f-4c17-bebc-d233d5ee3359	6a46d9cb192c1190da0962f9549272486a1ff6610389deee6aacda864caf8e15	2022-10-02 21:37:27.104093+00	20220909154704_simplifying_attribute_names	\N	\N	2022-10-02 21:37:27.098089+00	1
+7b6e4816-d4f6-43d6-ad9e-d41f28f3531f	9aba9bf94ebe8288e6913462684106b797e265c9c18c45369d2de431dc7d38f7	2022-10-02 21:37:27.111147+00	20220910074815_	\N	\N	2022-10-02 21:37:27.105745+00	1
+80fef73a-a6c0-40f5-8dff-3fea880cb1e1	a3cc469bf55138c3233034710ac4d87c3361c323fe77bbbd593eb825b9d781bc	2022-10-02 21:37:27.148262+00	20221001091748_has_left_the_channel_migration	\N	\N	2022-10-02 21:37:27.143312+00	1
+09a83ef7-660d-4b88-8f43-281acc4db55c	b0e99c8b992ad609f7699602edd83c21bbda6a5aa0fada73dc48e24550807c4c	2022-10-02 21:37:27.120415+00	20220925161438_channel_migration	\N	\N	2022-10-02 21:37:27.11266+00	1
+b82cecff-cfcc-43e0-a062-a0bab369fd86	d8fac66e1e3d32cc8b1cdb700e991444fcd441f3b6b12b0b6c904ec3f4427071	2022-10-02 21:37:27.129942+00	20220925214259_channel_migration_enum_and_date	\N	\N	2022-10-02 21:37:27.121899+00	1
+f4caa299-2b1e-4dbd-bdcf-2877458cb2cd	a3cce64a7325c393527057730eca8c07612ad66f245599ce0cbf7a68ecfab429	2022-10-02 21:37:27.136177+00	20220926091517_channel_migration_joined_at	\N	\N	2022-10-02 21:37:27.131281+00	1
+29e31e52-8634-4db6-9a5f-923e6550769b	3aff01f80c9bf1ce2f0081da55ca3428c3f72366f1ba5482ee7f5f5918b8155c	2022-10-02 21:37:27.15549+00	20221001113614_is_banned_is_muted	\N	\N	2022-10-02 21:37:27.149564+00	1
+335b23e5-2747-4504-b60a-3101bb78b75b	e127f38397cd7e912c6dfe78df88265af68faeabb6a9c60cc22a4efe05c90570	2022-10-02 21:37:27.162265+00	20221001115615_	\N	\N	2022-10-02 21:37:27.15691+00	1
 \.
 
 
@@ -638,14 +597,14 @@ SELECT pg_catalog.setval('public."Achievement_id_seq"', 1, false);
 -- Name: Channel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: transcendence
 --
 
-SELECT pg_catalog.setval('public."Channel_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Channel_id_seq"', 29, true);
 
 
 --
 -- Name: Credentials_id_seq; Type: SEQUENCE SET; Schema: public; Owner: transcendence
 --
 
-SELECT pg_catalog.setval('public."Credentials_id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Credentials_id_seq"', 1, true);
 
 
 --
@@ -659,21 +618,21 @@ SELECT pg_catalog.setval('public."Match_id_seq"', 1, false);
 -- Name: Rating_id_seq; Type: SEQUENCE SET; Schema: public; Owner: transcendence
 --
 
-SELECT pg_catalog.setval('public."Rating_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."Rating_id_seq"', 6, true);
 
 
 --
 -- Name: Stats_id_seq; Type: SEQUENCE SET; Schema: public; Owner: transcendence
 --
 
-SELECT pg_catalog.setval('public."Stats_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."Stats_id_seq"', 6, true);
 
 
 --
 -- Name: User_id_seq; Type: SEQUENCE SET; Schema: public; Owner: transcendence
 --
 
-SELECT pg_catalog.setval('public."User_id_seq"', 2, true);
+SELECT pg_catalog.setval('public."User_id_seq"', 6, true);
 
 
 --
@@ -770,13 +729,6 @@ ALTER TABLE ONLY public."User"
 
 ALTER TABLE ONLY public._prisma_migrations
     ADD CONSTRAINT _prisma_migrations_pkey PRIMARY KEY (id);
-
-
---
--- Name: Channel_name_key; Type: INDEX; Schema: public; Owner: transcendence
---
-
-CREATE UNIQUE INDEX "Channel_name_key" ON public."Channel" USING btree (name);
 
 
 --
@@ -919,9 +871,5 @@ ALTER TABLE ONLY public."UserOnChannel"
 
 --
 -- PostgreSQL database dump complete
---
-
---
--- PostgreSQL database cluster dump complete
 --
 

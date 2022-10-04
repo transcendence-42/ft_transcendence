@@ -11,7 +11,7 @@ export default function BrowseChannels({
   userChannels,
   userId,
   socket,
-  updateOwnChannels,
+  updateOwnUserOnChannel,
   switchChannel,
   handleCloseBrowseChannel,
   ...props
@@ -72,7 +72,7 @@ export default function BrowseChannels({
           return;
         }
       }
-      updateOwnChannels(res);
+      updateOwnUserOnChannel(res);
       socket.emit(eEvent.JoinChannel, channel.id);
       switchChannel(channel.id);
       handleCloseBrowseChannel();

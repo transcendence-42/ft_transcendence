@@ -9,6 +9,7 @@ import { eRedisDb, eEvent } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { MessageDto } from './dto';
 import { ChannelService } from 'src/channels/channel.service';
+import { UpdateUserOnChannelDto } from 'src/channels/dto';
 
 export class ChatService {
   constructor(
@@ -43,6 +44,19 @@ export class ChatService {
     console.log('emiting message to channel id', channelId);
     await this.redis.lPush(channelId, JSON.stringify(msg));
     this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
+  }
+
+  async muteUser(client: Socket, userId: number, channelId: number) {
+    this.server
+      .to(channelId.toString())
+      .emit(eEvent.UpdateOneChannel, channelId);
+    this.server.to(userId.toString()).emit(eEvent.MuteUser, channelId);
+    this.logger.debug(`Muting user ${userId} on channel ${channelId}`)
+    setTimeout(async () => {
+      await this.channelService.updateUserOnChannel(channelId, userId, {
+        isMuted: false,
+      } as UpdateUserOnChannelDto);
+    }, 1000 * 60);
   }
 
   async addedToChannel(client: Socket, channelId: number) {

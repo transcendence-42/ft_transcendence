@@ -10,7 +10,7 @@ const handleCreateChannelForm = (
   type: eChannelType,
   ownerId: number,
   socket: Socket,
-  updateOwnChannels: Function,
+  updateOwnUserOnChannel: Function,
   password?: string
 ) => {
   const channel = (async () => {
@@ -31,7 +31,7 @@ const handleCreateChannelForm = (
     if (!resp) {
       throw new Error("Failed to create user on database");
     }
-    updateOwnChannels(resp[1]);
+    updateOwnUserOnChannel(resp[1]);
     if (type !== eChannelType.DIRECT) {
       socket.emit(eEvent.CreateChannel, resp[0].id);
     }

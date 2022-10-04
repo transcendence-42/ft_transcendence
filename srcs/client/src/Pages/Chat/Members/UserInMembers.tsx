@@ -1,14 +1,13 @@
 import React from "react";
-import { UserOnChannel } from "../entities/user.entity";
-import { getChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
+import { eUserRole } from "../constants";
 
 export default function UserInMembers({
-  user,
+  memberName,
+  self,
+  member,
   currentChannel,
-  allUsers,
-  allChannels,
   muteUser,
   banUser,
   blockUser,
@@ -20,7 +19,7 @@ export default function UserInMembers({
         <tbody>
           <tr>
             <td className="textPink" style={{ fontSize: "0.9em" }}>
-              {user}
+              {memberName}
             </td>
             <td>
               <button
@@ -29,17 +28,35 @@ export default function UserInMembers({
                 aria-expanded="false"
               ></button>
               <ul className="dropdown-menu channel-menu text-center">
+                {member.role === eUserRole.OWNER ||
+                (self.role === eUserRole.ADMIN &&
+                  member.role === eUserRole.ADMIN) ||
+                self.role === eUserRole.USER ? (
+                  ""
+                ) : (
+                  <>
+                    {member.isMuted ? (
+                      ""
+                    ) : (
+                      <li
+                        onClick={(e) =>
+                          muteUser(member.userId, member.channelId)
+                        }
+                        className="dropdown-item"
+                      >
+                        Mute
+                      </li>
+                    )}
+                    <li
+                      onClick={(e) => banUser(member.userId, member.channelId)}
+                      className="dropdown-item"
+                    >
+                      Ban
+                    </li>
+                  </>
+                )}
                 <li
-                  onClick={(e) => muteUser(user.id)}
-                  className="dropdown-item"
-                >
-                  Mute
-                </li>
-                <li onClick={(e) => banUser(user.id)} className="dropdown-item">
-                  Ban
-                </li>
-                <li
-                  onClick={(e) => blockUser(user.id)}
+                  onClick={(e) => blockUser(member.id)}
                   className="dropdown-item"
                 >
                   Block

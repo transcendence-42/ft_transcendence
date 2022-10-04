@@ -18,5 +18,7 @@ export enum eEvent {
   GetMessages = 'getMessages',
   InitConnection = 'initConnection',
   UpdateUserOnChannel = 'updateUserOnChannel',
-  AddedToChannel ='addedToChannel'
+  AddedToChannel ='addedToChannel',
+  MuteUser = 'muteUser',
+  BanUser = 'banUser',
 };

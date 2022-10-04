@@ -14,4 +14,6 @@ export enum eEvent {
   UpdateUserOnChannel = 'updateUserOnChannel',
   AddUser = 'addUser',
   AddedToChannel = 'addedToChannel',
+  MuteUser = 'muteUser',
+  BanUser = 'banUser',
 }

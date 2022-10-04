@@ -108,6 +108,11 @@ export class ChatGateway
   handleCreateChannel(client: Socket, channelId: number) {
     return this.chatService.createChannel(client, channelId);
   }
+
+  @SubscribeMessage(eEvent.MuteUser)
+  muteUser(client: Socket, {userId, channelId}) {
+    return this.chatService.muteUser(client, userId, channelId);
+  }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )
   //on create channel: create room with (room_channelId)

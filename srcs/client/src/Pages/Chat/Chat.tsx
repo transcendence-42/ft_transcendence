@@ -14,7 +14,7 @@ import Members from "./Members/Members";
 import ModalChat from "./Modal/ModalChat";
 import ChannelsAndDirect from "./ChannelsAndDirect/ChannelsAndDirect";
 import { eEvent, eChannelType, eUserRole } from "./constants";
-import { fetchUrl, getChannel, getUserOnChannel, isEmpty } from "./utils";
+import { fetchUrl } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 
@@ -49,9 +49,13 @@ export default function Chat(props: any) {
   const handleCloseAddToChannel = () => setShowAddToChannel(false);
   const handleShowAddToChannel = () => setShowAddToChannel(true);
 
-  console.log(`Current channel init is ${currentChannel}`);
+  console.group(`Outside useEffects`);
+  console.log(`Current channel init is ${JSON.stringify(currentChannel)}`);
   console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
   console.log(`Current all channels ${JSON.stringify(allChannels)}`);
+  console.groupEnd();
+
+  const [updateOneUserState, setUpdateOneUserState] = useState(null);
 
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
@@ -62,7 +66,7 @@ export default function Chat(props: any) {
       eChannelType.DIRECT,
       user.id,
       socket,
-      updateOwnChannels
+      updateOwnUserOnChannel
     );
     if (newChannel) {
       sessionStorage.setItem("currentChannel", JSON.stringify(newChannel));
@@ -89,7 +93,7 @@ export default function Chat(props: any) {
         type,
         ownerId,
         socket,
-        updateOwnChannels,
+        updateOwnUserOnChannel,
         password
       );
       console.log(`heres channel created`, channel);
@@ -112,7 +116,7 @@ export default function Chat(props: any) {
         `http://127.0.0.1:4200/channels/${channelId}`
       );
       updateChannel(channel);
-      updateOwnChannels(userOnChannel);
+      updateOwnUserOnChannel(userOnChannel);
       handleCloseAddToChannel();
     })();
   };
@@ -185,7 +189,7 @@ export default function Chat(props: any) {
           );
           return;
         }
-        updateOwnChannels(updatedUsrOnChan);
+        updateOwnUserOnChannel(updatedUsrOnChan);
       } else {
         const deleteUser = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
@@ -235,61 +239,49 @@ export default function Chat(props: any) {
     })();
   };
 
-  const updateOwnChannels = (userOnChannel: UserOnChannel) => {
-    console.log(
-      `Updating own channel. Before all my channels where ${JSON.stringify(
-        user.channels
-      )}`
-    );
-    let updatedChannels: UserOnChannel[] = [];
-    let inOwnChannels = false;
-    if (user["channels"]) {
-      updatedChannels = user.channels;
-    }
-    updatedChannels = updatedChannels.map((usrOnChan) => {
-      if (usrOnChan.channelId === userOnChannel.channelId) {
-        inOwnChannels = true;
-        return userOnChannel;
+  const updateOwnUserOnChannel = (userOnChannel: UserOnChannel) => {
+    console.group(`updateOwnUserOnChannel`);
+    setUser((prevUser: User) => {
+      console.log(
+        `Updating own channel. Before all my channels where ${JSON.stringify(
+          prevUser.channels
+        )}`
+      );
+      let inOwnChannels = false;
+      let updatedChannels: UserOnChannel[] = [];
+      updatedChannels = prevUser.channels.map((usrOnChan) => {
+        if (usrOnChan.channelId === userOnChannel.channelId) {
+          inOwnChannels = true;
+          return userOnChannel;
+        }
+        return usrOnChan;
+      });
+      if (!inOwnChannels) {
+        updatedChannels.push(userOnChannel);
       }
-      return usrOnChan;
+      return { ...prevUser, channels: updatedChannels };
     });
-    if (!inOwnChannels) {
-      updatedChannels.push(userOnChannel);
-    }
-    setUser((prevUser: User) => ({
-      ...prevUser,
-      channels: updatedChannels
-    }));
+    console.groupEnd();
   };
 
   const updateChannel = (channel: Channel) => {
     let channelAlreadyExists = false;
-    if (allChannels.find((chan) => chan.id === channel.id)) {
-      console.log(
-        `Channel already exist... Updating it in after event updateOneChannel`
-      );
-      channelAlreadyExists = true;
-    }
-    if (!channelAlreadyExists) {
-      console.log(
-        `Channel doesn't exist... creating it in after event updateOneChannel`
-      );
-      return addChannel(channel);
-    }
+    console.group(`UpdateChannels`);
     setAllChannels((prevState) => {
+      console.log(`These are all my channels ${JSON.stringify(prevState)}`);
       const newState = prevState.map((chan) => {
-        if (chan.id === channel.id) return channel;
+        if (chan.id === channel.id) {
+          channelAlreadyExists = true;
+          return channel;
+        }
         return chan;
       });
+      if (channelAlreadyExists) {
+        newState.push(channel);
+      }
       return newState;
     });
-  };
-
-  const addChannel = (channel: any) => {
-    const updatedChannels: Channel[] = allChannels;
-    console.log(`Here are all channels before updating ${user.channels}`);
-    updatedChannels.push(channel);
-    setAllChannels(updatedChannels);
+    console.groupEnd();
   };
 
   const handleSendMessage = (e: any) => {
@@ -333,32 +325,36 @@ export default function Chat(props: any) {
     }
   };
 
-  const havePrivilege = (other: UserOnChannel): boolean => {
-    const self = user.channels.find(
-      (usrOnChan) => usrOnChan.channelId === other.channelId
-    );
-    if (self.role === eUserRole.OWNER) return true;
-    if (self.role === eUserRole.USER) return false;
-    if (self.role === eUserRole.ADMIN && other.role === eUserRole.USER)
-      return true;
-    return false;
-  };
   //block user
   // ban user
   // muteUser
-  const banUser = (userId: number) => {};
+  const blockUser = (userId: number) => {};
+  const banUser = (userId: number, channelId: number) => {};
 
-  const muteUser = (otherUser: UserOnChannel) => {
-    if (!havePrivilege(otherUser))
-      return alert("You don't have enough privileges to Mute this user!");
-    const url = `http://127.0.0.1:4200/channels/${otherUser.channelId}/useronchannel/${otherUser.userId}`;
-    const mutedUser = fetchUrl(url, "PATCH", {
-      isMuted: true
-    } as UpdateUserOnChannelDto);
-    setTimeout(() => {
-      fetchUrl(url, "PATCH", { isMuted: false } as UpdateUserOnChannelDto);
-    }, 10000);
+  const muteUser = (userId: number, channelId: number) => {
+    (async () => {
+      console.log(
+        `On mute user all mu channels are ${JSON.stringify(allChannels)}`
+      );
+      console.log(`On mute user all mu users are ${JSON.stringify(allUsers)}`);
+      const url = `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userId}`;
+      const mutedUser = await fetchUrl(url, "PATCH", {
+        isMuted: true
+      } as UpdateUserOnChannelDto);
+      if (mutedUser) {
+        console.log(`This is the muted user ${JSON.stringify(mutedUser)}`);
+        socket.emit(eEvent.MuteUser, {
+          userId,
+          channelId
+        });
+      }
+    })();
   };
+
+  // update the userOnChannel with isMuted === true;
+  // emit an event MutedUser -> which sets a setTimeout of 5 minutes to unmute a user
+  // the server then emits an event (update user to all ppl in channel)
+  // and another one You have been muted to display a message to the user
 
   const changeChannelPassword = (channelId: number, newPassword: string) => {
     (async () => {
@@ -451,6 +447,40 @@ export default function Chat(props: any) {
     );
   }, []);
 
+  // useEffect(() => {
+  //   if (updateOneUserState === null)
+  //     return;
+  //   callMe(updateOneUserState);
+  //   setUpdateOneUserState(null);
+  // }, [updateOneUserState])
+
+  const callMe = (channelId) => {
+    console.group("UpdateChannelEvent");
+    console.log(`All my channels are ${JSON.stringify(allChannels)}`);
+    console.log(`all my users in are ${JSON.stringify(allUsers)}`);
+    (async () => {
+      console.log("recieved event udpateOneChannel");
+      console.log(`All my channels are ${JSON.stringify(allChannels)}`);
+      const url = "http://127.0.0.1:4200/channels/" + channelId;
+      const channel: Channel = await fetchUrl(url);
+      updateChannel(channel);
+      // if (channel.type === eChannelType.PRIVATE) {
+      const isInOwnChannel = channel.users.find(
+        (usr) => usr.userId === user.id
+      );
+      if (isInOwnChannel) {
+        const userOnChan = await fetchUrl(
+          `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${user.id}`
+        );
+        console.log(
+          `Upadting ownChannels because the user is in the channel ${userOnChan}`
+        );
+        updateOwnUserOnChannel(userOnChan);
+      }
+      console.groupEnd();
+    })();
+  };
+
   useEffect(() => {
     if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
@@ -515,18 +545,8 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.UpdateOneChannel, (channelId) => {
-      console.log("recieved event udpateOneChannel");
-      (async () => {
-        const url = "http://127.0.0.1:4200/channels/" + channelId;
-        const channel: Channel = await fetchUrl(url);
-        updateChannel(channel);
-        if (channel.type === eChannelType.PRIVATE) {
-          const userOnChannel = channel.users.find(
-            (usr) => usr.userId === user.id
-          );
-          if (userOnChannel) updateOwnChannels(userOnChannel);
-        }
-      })();
+      // setUpdateOneUserState(channelId);
+      callMe(channelId);
     });
 
     socket.on(eEvent.UpdateUserOnChannel, (channelId) => {
@@ -535,7 +555,7 @@ export default function Chat(props: any) {
           `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${user.id}`
         );
         console.log(`Updating user on channel ${JSON.stringify(usrOnChan)}`);
-        updateOwnChannels(usrOnChan);
+        updateOwnUserOnChannel(usrOnChan);
       })();
     });
 
@@ -543,7 +563,18 @@ export default function Chat(props: any) {
       if (!userOnChannel) {
         return alert(`failed to join channel ${message}`);
       }
-      updateOwnChannels(userOnChannel);
+      updateOwnUserOnChannel(userOnChannel);
+    });
+
+    socket.on(eEvent.MuteUser, (channelId) => {
+      const channel = allChannels.find((chan) => chan.id === channelId);
+      if (channel) {
+        alert(`You have been muted from channel ${channel.name}`);
+      } else {
+        console.log(
+          `Couldn't find the channel where the user have been muted from in eVent.MuteUser`
+        );
+      }
     });
     console.groupEnd();
     return () => {
@@ -556,6 +587,7 @@ export default function Chat(props: any) {
       socket.off(eEvent.UpdateOneChannel);
       socket.off(eEvent.UpdateUserOnChannel);
       socket.off(eEvent.JoinChannelResponse);
+      socket.off(eEvent.MuteUser);
     };
   }, [isUserFetched]);
 
@@ -590,12 +622,17 @@ export default function Chat(props: any) {
                 setChannelPassword={setChannelPassword}
                 changeChannelPassword={changeChannelPassword}
               />
-              <Members
-                currentChannel={currentChannel}
-                allUsers={allUsers}
-                allChannels={allChannels}
-                userId={user.id}
-              />
+              {user && user.channels && (
+                <Members
+                  currentChannel={currentChannel}
+                  allUsers={allUsers}
+                  allChannels={allChannels}
+                  user={user}
+                  muteUser={muteUser}
+                  banUser={banUser}
+                  blockUser={blockUser}
+                />
+              )}
             </>
           )}
         </div>
@@ -606,7 +643,7 @@ export default function Chat(props: any) {
         friends={friends}
         allChannels={allChannels}
         socket={socket}
-        updateOwnChannels={updateOwnChannels}
+        updateOwnUserOnChannel={updateOwnUserOnChannel}
         switchChannel={switchChannel}
         showBrowseChannel={showBrowseChannel}
         handleCloseBrowseChannel={handleCloseBrowseChannel}

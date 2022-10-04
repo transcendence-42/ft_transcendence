@@ -92,6 +92,7 @@ export class ChannelService {
       const result: Channel = await this.prisma.channel.update({
         where: { id },
         data: { ...updateChannelDto },
+        include: {users: true}
       });
       return result;
     } catch (e) {

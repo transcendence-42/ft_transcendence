@@ -40,6 +40,7 @@ export default function ChannelsAndDirect({
           <div className="col-12 h-100 scroll-bar-messages ">
             <table>
               <tbody>
+                {console.log(`This is userOnChan ${JSON.stringify(user.channels)}`)}
                 {user?.channels?.map((usrOnChan: UserOnChannel) =>
                   usrOnChan.channel.type === eChannelType.DIRECT ? (
                     ""
