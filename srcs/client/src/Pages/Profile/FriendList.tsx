@@ -35,7 +35,7 @@ const FriendList = (props: any) => {
   const getPlayerFromId = (id: number) => {
     if (props.players !== undefined)
       return props.players.find((p: any) => p.id === id.toString());
-    return null
+    return null;
   };
 
   /** *********************************************************************** */
@@ -52,7 +52,8 @@ const FriendList = (props: any) => {
       {
         <table className="table table-borderless scroll m-1 align-middle friends-list">
           <tbody>
-            {props.friendRequestList && props.friendRequestList.length > 0 &&
+            {props.friendRequestList &&
+              props.friendRequestList.length > 0 &&
               props.id === props.originalId &&
               props.friendRequestList.map((friendship: any, index: number) => (
                 <tr
@@ -96,51 +97,57 @@ const FriendList = (props: any) => {
                   }
                 </tr>
               ))}
-            {props.friendList && props.friendList.length > 0 ? (
-              props.friendList.map((friend: any, index: number) => (
-                <tr
-                  className="border-blue"
-                  key={index}
-                  style={{ fontSize: '1.2em' }}
-                >
-                  {
-                    <>
-                      <td>
-                        <PhotoProfilDropdown
-                          url={friend.profilePicture}
-                          id={friend.id}
-                          originalId={props.originalId}
-                          width={'50px'}
-                          height={'50px'}
-                        />
-                      </td>
-                      <td className="text-pink">{friend.username}</td>
-                      <td>
-                        <OnlineOffline
-                          status={
-                            props.players ? getPlayerFromId(friend.id).status : 0
-                          }
-                          size={'1em'}
-                        />
-                      </td>
-                      <td></td>
-                      <td></td>
-                      {props.players &&
-                        getPlayerFromId(friend.id).status ===
-                          ePlayerStatus.ONLINE && (
+            {props.friendList && props.friendList.length > 0
+              ? props.friendList.map((friend: any, index: number) => (
+                  <tr
+                    className="border-blue"
+                    key={index}
+                    style={{ fontSize: '1.2em' }}
+                  >
+                    {
+                      <>
+                        <td>
+                          <PhotoProfilDropdown
+                            url={friend.profilePicture}
+                            id={friend.id}
+                            originalId={props.originalId}
+                            width={'50px'}
+                            height={'50px'}
+                          />
+                        </td>
+                        <td className="text-pink">{friend.username}</td>
+                        <td>
+                          <OnlineOffline
+                            status={
+                              props.players
+                                ? getPlayerFromId(friend.id).status
+                                : 0
+                            }
+                            size={'1em'}
+                          />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        {props.players &&
+                          getPlayerFromId(friend.id).status ===
+                            ePlayerStatus.ONLINE && (
                             <td>
                               <button
                                 type="button"
                                 className="btn btn-pink text-pink"
-                                onClick={() => props.handleChallengePlayer(friend.id.toString())}
+                                onClick={() =>
+                                  props.handleChallengePlayer(
+                                    friend.id.toString(),
+                                  )
+                                }
                               >
                                 challenge
                               </button>
                             </td>
-                        )}
-                      {props.players &&
-                        getPlayerFromId(friend.id).status ===
-                          ePlayerStatus.PLAYING && (
+                          )}
+                        {props.players &&
+                          getPlayerFromId(friend.id).status ===
+                            ePlayerStatus.PLAYING && (
                             <td>
                               <Link
                                 to="/lobby"
@@ -158,53 +165,54 @@ const FriendList = (props: any) => {
                                 Spectate
                               </Link>
                             </td>
-                        )}
-                      {props.players &&
-                        getPlayerFromId(friend.id).status ===
-                          ePlayerStatus.WAITING && (
-                          <>
-                            <td>
-                              <Link
-                                to="/lobby"
-                                state={{
-                                  origin: {
-                                    name: 'profile',
-                                    loc: `/profile/${props.id}`,
-                                    state: null,
-                                  },
-                                  gameId: getPlayerFromId(friend.id).game,
-                                  action: eAction.JOIN,
-                                }}
-                                className="btn btn-pink text-pink"
-                              >
-                                Join
-                              </Link>
-                            </td>
-                            <td></td>
-                          </>
-                        )}
-                      <td></td>
-                      <td></td>
-                    </>
-                  }
-                </tr>
-              ))
-            ) : 
-            props.friendRequestList && props.friendRequestList.length === 0 && (
-              <tr className="border-blue">
-                <td
-                  className="text-blue mt-3"
-                  style={{ fontSize: '1.2em', width: '100%' }}
-                >
-                  New Friends awaits you ...
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            )}
+                          )}
+                        {props.players &&
+                          getPlayerFromId(friend.id).status ===
+                            ePlayerStatus.WAITING && (
+                            <>
+                              <td>
+                                <Link
+                                  to="/lobby"
+                                  state={{
+                                    origin: {
+                                      name: 'profile',
+                                      loc: `/profile/${props.id}`,
+                                      state: null,
+                                    },
+                                    gameId: getPlayerFromId(friend.id).game,
+                                    action: eAction.JOIN,
+                                  }}
+                                  className="btn btn-pink text-pink"
+                                >
+                                  Join
+                                </Link>
+                              </td>
+                              <td></td>
+                            </>
+                          )}
+                        <td></td>
+                        <td></td>
+                      </>
+                    }
+                  </tr>
+                ))
+              : props.friendRequestList &&
+                (props.friendRequestList.length === 0 ||
+                  props.id !== props.originalId) && (
+                  <tr className="border-blue">
+                    <td
+                      className="text-blue mt-3"
+                      style={{ fontSize: '1.2em', width: '100%' }}
+                    >
+                      New Friends awaits you ...
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                )}
           </tbody>
         </table>
       }
