@@ -159,7 +159,7 @@ const Profile = () => {
         <div className="col-xs-12 col-xl-10">
           {/* Profil picture + action buttons + stats */}
           <div className="row mt-5 mb-5" data-testid="tracker">
-            <div className="col-xs-8 col-md-1 col-xl-2">
+            <div className="col-xs-8 col-md-2 col-xl-2">
               <PhotoProfil
                 url={user.profilePicture}
                 width={'100px'}
@@ -194,7 +194,7 @@ const Profile = () => {
                 </>
               )}
             </div>
-            <div className="col-xs-12 col-md-6 col-xl-6">
+            <div className="col-xs-12 col-md-5 col-xl-6">
               <Ladder stats={user.stats} elo={user.eloRating} />
             </div>
           </div>

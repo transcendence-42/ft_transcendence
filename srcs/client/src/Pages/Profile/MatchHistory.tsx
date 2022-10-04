@@ -16,7 +16,7 @@ const MatchHistory = (props: any) => {
         <h3 className="text-pink text-start">Matches History</h3>
         <table className="table table-borderless scroll m-1 align-middle match-history mb-3">
           <tbody>
-            <tr className="border-blue" style={{ fontSize: '1.2em' }}>
+            <tr className="border-blue w-100" style={{ fontSize: '1.2em' }}>
               <td className="text-blue mt-3" style={{ textAlign: 'left' }}>
                 Play a Game first
               </td>
@@ -40,7 +40,7 @@ const MatchHistory = (props: any) => {
               (matches: any, index: number) =>
                 index < 10 && (
                   <tr
-                    className="border-blue"
+                    className="border-blue w-100"
                     key={index}
                     style={{ fontSize: '1.2em' }}
                   >
@@ -65,7 +65,7 @@ const MatchHistory = (props: any) => {
                     <td className="text-blue text-center">
                       {matches.players[0].score}
                     </td>
-                    <td>
+                    <td className='text-center'>
                       <WinLose
                         size={'0.6em'}
                         id={props.id}
@@ -93,6 +93,7 @@ const MatchHistory = (props: any) => {
                         height={'50px'}
                       />
                     </td>
+                    <td></td>
                   </tr>
                 ),
             )}
