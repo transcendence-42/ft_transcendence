@@ -29,21 +29,25 @@ const Profile = () => {
   /**
    * @locationState userId:  id of the user whose profile we are looking at.
    */
-
+  
   /** *********************************************************************** */
   /** GLOBAL                                                                  */
   /** *********************************************************************** */
 
+  // Get game socket
   const [socket, originalId] = useContext(SocketContext);
+  // Get user id from params
   let { id } = useParams();
+  // Handle id errors
   let userId: number;
-  if (id) userId = +id;
-  else userId = +originalId;
-
+  if (id) {
+    userId = +id;
+  } else userId = 0;
+  
   /** *********************************************************************** */
   /** STATES                                                                  */
   /** *********************************************************************** */
-
+  
   const [user, setUser] = useState({} as any);
   const [doubleFactor, setDoubleFactor]: any = useState(false);
   const [player, setPlayer] = useState({} as any);
@@ -65,7 +69,7 @@ const Profile = () => {
       ? data.players.find((p: any) => p.id === userId.toString())
       : {};
     setPlayer(player);
-    if (player.updated === 1) {
+    if (player && player.updated === 1) {
       setUpdate(1);
     }
   }, []);
@@ -108,34 +112,40 @@ const Profile = () => {
 
   useEffect(() => {
     if (userId) {
+      // One first check
       let request = 'http://127.0.0.1:4200/users/' + userId;
       const user_json = getFetch({ url: request });
       user_json.then((responseObject) => {
-        setUser(responseObject);
-      });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/friends';
-      const friend_json = getFetchFriends({ url: request });
-      friend_json.then((responseObject) => {
-        setFriendList(responseObject);
-      });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/friendrequests';
-      const friendRequests_json = getFetchFriends({ url: request });
-      friendRequests_json.then((responseObject) => {
-        setFriendRequestList(responseObject);
-      });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/matches';
-      const matches_json = getFetchMatch({ url: request });
-      matches_json.then((responseObject) => {
-        setMatchesList(responseObject);
-      });
-      request = 'http://127.0.0.1:4200/auth/2fa/state/' + userId;
-      const double_json = getFetch({ url: request });
-      double_json.then((responseObject) => {
-        if (responseObject) {
-          setDoubleFactor(true);
+        if (responseObject.statusCode && responseObject.statusCode === 404) {
+          setUser(null);
+        } else {
+          setUser(responseObject);
+          // All user queries if user exists
+          request = 'http://127.0.0.1:4200/users/' + userId + '/friends';
+          const friend_json = getFetchFriends({ url: request });
+          friend_json.then((responseObject) => {
+            setFriendList(responseObject);
+          });
+          request = 'http://127.0.0.1:4200/users/' + userId + '/friendrequests';
+          const friendRequests_json = getFetchFriends({ url: request });
+          friendRequests_json.then((responseObject) => {
+            setFriendRequestList(responseObject);
+          });
+          request = 'http://127.0.0.1:4200/users/' + userId + '/matches';
+          const matches_json = getFetchMatch({ url: request });
+          matches_json.then((responseObject) => {
+            setMatchesList(responseObject);
+          });
+          request = 'http://127.0.0.1:4200/auth/2fa/state/' + userId;
+          const double_json = getFetch({ url: request });
+          double_json.then((responseObject) => {
+            if (responseObject) {
+              setDoubleFactor(true);
+            }
+          });
         }
       });
-    }
+    } else setUser(null);
   }, [userId, update]);
 
   /** *********************************************************************** */
@@ -163,7 +173,7 @@ const Profile = () => {
               >
                 {user.username}
               </div>
-              <OnlineOffline status={+player.status} size={'1.2em'} />
+              <OnlineOffline status={+player?.status} size={'1.2em'} />
             </div>
             <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (
@@ -210,8 +220,13 @@ const Profile = () => {
         <div className="col-xl-1"></div>
       </div>
     );
+  } else {
+    return (
+      <div className="row text-center">
+        <div className="col text-pink fs-2">User #{id} not found</div>
+      </div>
+    );
   }
-  return <></>;
 };
 
 export default Profile;

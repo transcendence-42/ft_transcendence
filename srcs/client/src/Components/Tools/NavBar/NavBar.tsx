@@ -12,7 +12,6 @@ export default function NavBar(props: any) {
   const contextValue = useContext(Context);
   const [socket, originalId] = useContext(SocketContext);
 
-  console.log(`userid : ${props.userID}`);
   /*
    ** Fetching data for logout
    */

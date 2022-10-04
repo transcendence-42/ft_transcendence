@@ -17,6 +17,7 @@ import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { User } from 'src/user/entities/user.entity';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -1553,6 +1554,21 @@ export class GameService {
 
   /** returns player info to requester */
   async handlePlayersInfos(client: Socket) {
+    // Complete data in redis if needed with missing infos
+    try {
+      const users: User[] = await this.userService.findAll({} as any);
+      for (const user of users) {
+        if ((await this._getPlayerInfos(user.id.toString())) === null)
+          await this._savePlayerInfos(user.id.toString(), {
+            id: user.id.toString(),
+            status: ePlayerStatus.OFFLINE,
+            matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
+            pic: user.profilePicture,
+            name: user.username,
+          });
+      }
+    } catch (e) {} // no user in database
+    // extract data from redis and send it
     const data: any = (
       await this.redis
         .multi()
