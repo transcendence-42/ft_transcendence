@@ -31,16 +31,15 @@ body
 .chat-sidebar-right {
   max-width: 150px;
   min-width: 150px;
-
 }
 
-@media (max-width: 485px) {
+@media (max-width: 510px) {
   .chat-sidebar-left
    {
     display: none;
   }
 }
-@media (max-width: 615px) {
+@media (max-width: 690px) {
   .chat-sidebar-right
    {
     display: none;

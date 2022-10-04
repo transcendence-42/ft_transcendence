@@ -21,7 +21,12 @@ export default function Members({
           >
             MEMBERS
           </p>
-          <>
+
+        </div>
+      </div>
+      <div className="row">
+        <div className="col overflow-auto">
+        <>
             {!isEmpty(currentChannel) &&
               findChannel(currentChannel.id, allChannels)?.users?.map(
                 (members) => (
@@ -32,11 +37,6 @@ export default function Members({
                 )
               )}
           </>
-        </div>
-      </div>
-      <div className="row">
-        <div className="col overflow-auto">
-
         </div>
       </div>
     </div>

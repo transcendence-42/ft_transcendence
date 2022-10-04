@@ -16,6 +16,7 @@ export default function DirectList({
 	otherUser,
   ...props
 }: any) {
+
   return (
 	<>
 	<div className="col overflow-auto scroll-bar-direct">
@@ -31,7 +32,7 @@ export default function DirectList({
                     ) : (
                       <tr key={usrOnChan.channelId}>
                         <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
-                          <div className="text-start channel" style={{fontSize:"0.9em"}}>
+                          <div className="channel" style={{fontSize:"0.9em"}}>
 						  <DirectsDropDown
 						  user = {otherUser(
                             usrOnChan.channelId,
@@ -40,6 +41,13 @@ export default function DirectList({
                             user?.id,
                             allUsers
                           )?.username || "loading..."}
+						  id = {otherUser(
+                            usrOnChan.channelId,
+                            allChannels,
+                            user?.channels,
+                            user?.id,
+                            allUsers
+                          )?.id || "loading..."}
 						  />
                           </div>
                         </td>

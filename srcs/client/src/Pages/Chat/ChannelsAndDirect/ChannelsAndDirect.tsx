@@ -57,7 +57,7 @@ export default function ChannelsAndDirect({
             </button>
           </div>
         </div>
-        {/* Div with list of users with modals to send messages */}
+        {/* Div with list of users with modals to send Direct messages */}
         <div className="row h-75">
           <DirectList
             user={user}
