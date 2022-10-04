@@ -29,7 +29,10 @@ export default function BrowseChannels({
       channel["type"] === eChannelType.PROTECTED &&
       joinChannelPassword === ""
     ) {
-      return alert("You must provide a Password!");
+      // return alert("You must provide a Password!");
+      return (
+        <div></div>
+      );
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -141,9 +144,19 @@ export default function BrowseChannels({
                       <tr>
                         <td
                           className="channel"
-                          onClick={(e) => handleJoinChannel(e, channel)}
-                        >
+                          data-bs-toggle="collapse"
+                          data-bs-target="#collapseProtected" aria-controls="collapseProtected"
+                          onClick={(e) => handleJoinChannel(e, channel)}>
                           {channel.name}
+                          <div className="collapse" id="collapseProtected">
+                            <input
+                               type="name"
+                               className="form-control form-control-margin"
+                               placeholder="Password">
+                              
+                            </input>
+                          </div>
+                          
                         </td>
                       </tr>
                     </tbody>
