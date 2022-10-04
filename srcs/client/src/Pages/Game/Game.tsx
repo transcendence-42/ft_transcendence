@@ -38,7 +38,7 @@ const Game = (props: any) => {
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
-  const handleMove = (event: any) => {
+  const handleMove = useCallback((event: any) => {
     if (event.key === 'w' || event.key === 'W') {
       socket.emit('updateGame', { move: eMovement.UP, id: props.id });
     }
@@ -51,7 +51,7 @@ const Game = (props: any) => {
     else if (event.key === 'c' || event.key === 'C') {
       socket.emit('continue', { id: props.id });
     }
-  };
+  }, [eMovement.DOWN, eMovement.UP, props.id, socket]);
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -99,14 +99,14 @@ const Game = (props: any) => {
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
-  const initGame = () => {
+  const initGame = useCallback(() => {
     if (props.action === props.event.JOIN_GAME) {
       socket.emit('joinGame', { id: props.id });
       props.setMatchMaking(props.matchMakingVal.IN_GAME);
     } else if (props.action === props.event.VIEW_GAME)
       socket.emit('viewGame', { id: props.id });
     socket.emit('getGameGrid', { id: props.id });
-  };
+  }, [props, socket]);
 
   useEffect(() => {
     initGame();
@@ -120,7 +120,7 @@ const Game = (props: any) => {
       socket.off('gameEnd', handleGameEnd);
       socket.off('pause', handlePause);
     };
-  }, []);
+  }, [handleGameEnd, handleGridUpdate, handlePause, handleScoresUpdate, initGame, socket]);
 
   useEffect(() => {
     if (props.action !== props.event.VIEW_GAME) {
@@ -129,7 +129,7 @@ const Game = (props: any) => {
         document.removeEventListener('keydown', handleMove);
       };
     }
-  }, [props.action]);
+  }, [handleMove, props.action, props.event.VIEW_GAME]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */

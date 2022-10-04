@@ -185,7 +185,7 @@ const GameLobby: FC = () => {
           setGame({ id: player.game, action: eEvents.JOIN_GAME });
       }
     }
-  }, []);
+  }, [eEvents.JOIN_GAME, game.id, gameList, userId]);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -235,7 +235,7 @@ const GameLobby: FC = () => {
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
-  const init = () => {
+  const init = useCallback(() => {
     // Check state action
     if (action === eAction.JOIN && gameId !== null) {
       setGame({ id: gameId, action: eEvents.JOIN_GAME });
@@ -243,27 +243,37 @@ const GameLobby: FC = () => {
       setGame({ id: gameId, action: eEvents.VIEW_GAME });
     } else {
       setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
-      socket.emit('findAllGame');
+      //socket.emit('findAllGame');
     }
     // Get players infos
     socket.emit('getPlayersInfos');
-  };
+  }, [
+    action,
+    eAction.JOIN,
+    eAction.SPECTATE,
+    eEvents.GO_LOBBY,
+    eEvents.JOIN_GAME,
+    eEvents.VIEW_GAME,
+    gameId,
+    socket,
+  ]);
 
   useEffect(() => {
     socket.on('opponentFound', handleOpponentFound);
     return () => {
       socket.off('opponentFound', handleOpponentFound);
     };
-  }, [handleOpponentFound]);
+  }, [handleOpponentFound, socket]);
 
   useEffect(() => {
     socket.on('scoreUpdate', handleScoreUpdate);
     return () => {
       socket.off('scoreUpdate', handleScoreUpdate);
     };
-  }, [gameList]);
+  }, [gameList, handleScoreUpdate, socket]);
 
   useEffect(() => {
+    console.log('toto')
     init();
     // Socket listeners
     socket.on('gameList', handleGameList);
@@ -272,8 +282,6 @@ const GameLobby: FC = () => {
     socket.on('exception', handleInfo);
     socket.on('info', handleInfo);
     socket.on('playersInfos', handlePlayersInfos);
-    // get all games
-    socket.emit('findAllGame');
     return () => {
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
@@ -282,7 +290,15 @@ const GameLobby: FC = () => {
       socket.off('info', handleInfo);
       socket.off('playersInfos', handlePlayersInfos);
     };
-  }, []);
+  }, [
+    handleGameId,
+    handleGameList,
+    handleInfo,
+    handlePlayersInfos,
+    handleReconnect,
+    init,
+    socket,
+  ]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
