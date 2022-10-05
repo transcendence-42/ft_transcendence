@@ -80,6 +80,7 @@ const GameLobby: FC = () => {
 
   // States
   const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [player, setPlayer] = useState({} as any);
   const [message, setMessage] = useState({} as any);
   const [gameList, setGameList] = useState([] as any);
@@ -243,7 +244,7 @@ const GameLobby: FC = () => {
       setGame({ id: gameId, action: eEvents.VIEW_GAME });
     } else {
       setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
-      //socket.emit('findAllGame');
+      socket.emit('findAllGame');
     }
     // Get players infos
     socket.emit('getPlayersInfos');
@@ -273,6 +274,13 @@ const GameLobby: FC = () => {
   }, [gameList, handleScoreUpdate, socket]);
 
   useEffect(() => {
+    socket.on('playersInfos', handlePlayersInfos);
+    return () => {
+      socket.off('playersInfos', handlePlayersInfos);
+    };
+  }, [handlePlayersInfos, socket]);
+
+  useEffect(() => {
     console.log('toto')
     init();
     // Socket listeners
@@ -281,20 +289,17 @@ const GameLobby: FC = () => {
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
     socket.on('info', handleInfo);
-    socket.on('playersInfos', handlePlayersInfos);
     return () => {
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);
       socket.off('exception', handleInfo);
       socket.off('info', handleInfo);
-      socket.off('playersInfos', handlePlayersInfos);
     };
   }, [
     handleGameId,
     handleGameList,
     handleInfo,
-    handlePlayersInfos,
     handleReconnect,
     init,
     socket,
