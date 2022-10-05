@@ -50,10 +50,7 @@ const RootModals = () => {
   const handleShowGameChallenge = () => setShowGameChallenge(true);
   const handleCloseMatchMaking = () => setShowMatchMaking(false);
   const handleShowMatchMaking = () => setShowMatchMaking(true);
-  const handleCloseFirstConnection = () => {
-    setShowFirstConnection(false);
-    setTimeout(() => handleCloseFirstConnection(), 2000);
-  }
+  const handleCloseFirstConnection = () => setShowFirstConnection(false);
   const handleShowFirstConnection = () => setShowFirstConnection(true);
 
   /** *********************************************************************** */
@@ -219,15 +216,20 @@ const RootModals = () => {
         title="Matchmaking"
         closeHandler={handleCloseMatchMaking}
         show={showMatchMaking}
+        closeButton={false}
       >
         <MatchMaking />
       </PongModal>
 
       {/* First connection */}
       <PongModal
-        title="Welcomme"
+        title="Welcome, ponger !"
         closeHandler={handleCloseFirstConnection}
         show={showFirstConnection}
+        textBtn1='Got it !'
+        handleBtn1={handleCloseFirstConnection}
+        closeButton={false}
+        backdrop="static"
       >
         <MatchMaking />
       </PongModal>
