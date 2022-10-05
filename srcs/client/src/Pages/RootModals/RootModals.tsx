@@ -68,6 +68,7 @@ const RootModals = () => {
 
   const handleRefuse = useCallback(() => {
     handleCloseGameChallenge();
+    console.log(gameChallengeData);
     const opponent = gameChallengeData.opponent;
     socket.emit('updateChallenge', {
       id: opponent.userId.toString(),

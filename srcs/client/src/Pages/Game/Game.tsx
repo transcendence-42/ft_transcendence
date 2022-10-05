@@ -110,6 +110,9 @@ const Game = (props: any) => {
 
   useEffect(() => {
     initGame();
+  }, [initGame]);
+  
+  useEffect(() => {
     socket.on('updateGrid', handleGridUpdate);
     socket.on('updateScores', handleScoresUpdate);
     socket.on('gameEnd', handleGameEnd);
@@ -120,7 +123,7 @@ const Game = (props: any) => {
       socket.off('gameEnd', handleGameEnd);
       socket.off('pause', handlePause);
     };
-  }, [handleGameEnd, handleGridUpdate, handlePause, handleScoresUpdate, initGame, socket]);
+  }, [handleGameEnd, handleGridUpdate, handlePause, handleScoresUpdate, socket]);
 
   useEffect(() => {
     if (props.action !== props.event.VIEW_GAME) {

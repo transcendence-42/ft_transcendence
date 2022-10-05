@@ -9,6 +9,7 @@ import {
   PlayerNotFoundException,
   gameIsPausedException,
   gameRegistrationException,
+  TooMuchPlayersException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
@@ -480,6 +481,8 @@ export class GameService {
     game: Game,
     pipeline: ChainableCommander,
   ) {
+    // Check the number of players in the game. Max is 2
+    if (game.players.length > 1) throw new TooMuchPlayersException();
     // Add it to the game room and leave lobby
     //player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
@@ -707,7 +710,6 @@ export class GameService {
   /** Initialize game */
   private _initGame(game: Game, side: number) {
     if (game.status === Status.CREATED) {
-      console.log('kikou');
       this._initGameGrid(game);
       this._initGamePhysics(game);
     } else {

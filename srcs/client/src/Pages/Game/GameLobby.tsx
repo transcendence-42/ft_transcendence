@@ -250,12 +250,12 @@ const GameLobby: FC = () => {
     socket.emit('getPlayersInfos');
   }, [
     action,
+    gameId,
     eAction.JOIN,
     eAction.SPECTATE,
     eEvents.GO_LOBBY,
     eEvents.JOIN_GAME,
     eEvents.VIEW_GAME,
-    gameId,
     socket,
   ]);
 
@@ -281,7 +281,11 @@ const GameLobby: FC = () => {
   }, [handlePlayersInfos, socket]);
 
   useEffect(() => {
+    console.log('toto');
     init();
+  }, [init]);
+
+  useEffect(() => {
     // Socket listeners
     socket.on('gameList', handleGameList);
     socket.on('reconnect', handleReconnect);
@@ -300,7 +304,6 @@ const GameLobby: FC = () => {
     handleGameList,
     handleInfo,
     handleReconnect,
-    init,
     socket,
   ]);
 
