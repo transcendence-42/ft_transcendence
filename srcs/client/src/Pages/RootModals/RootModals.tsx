@@ -64,17 +64,16 @@ const RootModals = () => {
       id: opponent.userId.toString(),
       status: eChallengeStatus.CANCEL,
     });
-  }, [eChallengeStatus.CANCEL, gameChallengeData.opponent, socket]);
+  }, [eChallengeStatus.CANCEL, gameChallengeData, socket]);
 
   const handleRefuse = useCallback(() => {
     handleCloseGameChallenge();
-    console.log(gameChallengeData);
     const opponent = gameChallengeData.opponent;
     socket.emit('updateChallenge', {
       id: opponent.userId.toString(),
       status: eChallengeStatus.REFUSED,
     });
-  }, [eChallengeStatus.REFUSED, gameChallengeData.opponent, socket]);
+  }, [eChallengeStatus.REFUSED, gameChallengeData, socket]);
 
   const handleAccept = useCallback(() => {
     socket.emit('updateChallenge', {

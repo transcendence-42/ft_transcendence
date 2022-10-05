@@ -808,8 +808,10 @@ export class GameService {
       .exec();
     // game loop
     const gameInterval = setInterval(async () => {
-      await this._gameLoop(game, gameInterval);
-      game = await this._getGame(game.id);
+      try {
+        await this._gameLoop(game, gameInterval);
+        game = await this._getGame(game.id);
+      } catch (e) {}
     }, 15);
     this.gameLoops.push({ id: id, interval: gameInterval });
   }
@@ -1060,8 +1062,10 @@ export class GameService {
         for (const p of game.players) this._getSocket(p.userId)?.join(id);
         // new game loop
         const gameInterval = setInterval(async () => {
-          await this._gameLoop(game, gameInterval);
-          game = await this._getGame(game.id);
+          try {
+            await this._gameLoop(game, gameInterval);
+            game = await this._getGame(game.id);
+          } catch (e) {}
         }, 15);
         this.gameLoops.push({ id: id, interval: gameInterval });
       }

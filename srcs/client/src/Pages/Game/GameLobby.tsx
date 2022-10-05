@@ -281,7 +281,6 @@ const GameLobby: FC = () => {
   }, [handlePlayersInfos, socket]);
 
   useEffect(() => {
-    console.log('toto');
     init();
   }, [init]);
 
