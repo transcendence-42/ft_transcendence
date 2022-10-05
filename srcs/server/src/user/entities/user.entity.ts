@@ -23,4 +23,5 @@ export class User {
   friendshipAddressed?: Friendship[];
   matches?: PlayerOnMatch[];
   achievements?: UserAchievement[];
+  blockedUsersIds: number[];
 }

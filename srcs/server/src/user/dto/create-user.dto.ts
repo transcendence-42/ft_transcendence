@@ -30,4 +30,5 @@ export class CreateUserDto {
     example: 'http://site.com/image.png',
   })
   readonly profilePicture?: string;
+
 }

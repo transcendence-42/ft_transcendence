@@ -1,6 +1,7 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsNumber,
   IsObject,
   IsOptional,
@@ -70,4 +71,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     isArray: false,
   })
   readonly stats?: UpdateStatsDto;
+
+  @IsOptional()
+  readonly blockedUsersIds?: number[];
 }

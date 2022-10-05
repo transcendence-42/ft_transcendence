@@ -13,6 +13,7 @@ export default function Members({
   blockUser,
   muteUser,
   banUser,
+  blockedUsers,
   ...props
 }: any) {
   const self = user.channels.find(
@@ -30,22 +31,24 @@ export default function Members({
           </p>
           <>
             {!isEmpty(currentChannel) &&
-              getChannel(currentChannel.id, allChannels)?.users?.map((member: UserOnChannel) =>
-                member.userId === user.id || member.hasLeftChannel ? (
-                  ""
-                ) : (
-                  <div key={member.userId}>
-                    <UserInMembers
-                      memberName={allUsers[member.userId]?.username}
-                      self={self}
-                      member={member}
-                      muteUser={muteUser}
-                      banUser={banUser}
-                      blockUser={blockUser}
-                      currentChannel={currentChannel}
-                    />
-                  </div>
-                )
+              getChannel(currentChannel.id, allChannels)?.users?.map(
+                (member: UserOnChannel) =>
+                  member.userId === user.id || member.hasLeftChannel ? (
+                    ""
+                  ) : (
+                    <div key={member.userId}>
+                      <UserInMembers
+                        memberName={allUsers[member.userId]?.username}
+                        self={self}
+                        member={member}
+                        muteUser={muteUser}
+                        banUser={banUser}
+                        blockUser={blockUser}
+                        currentChannel={currentChannel}
+                        blockedUsers={blockedUsers}
+                      />
+                    </div>
+                  )
               )}
           </>
         </div>

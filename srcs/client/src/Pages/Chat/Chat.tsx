@@ -17,11 +17,13 @@ import { eEvent, eChannelType, eUserRole } from "./constants";
 import { fetchUrl, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
+import { UpdateUserDto } from "./dtos/update-user.dto";
 
 export default function Chat(props: any) {
   const socket: Socket = props.socket;
   // const myUserId: number = props.userId;
   const [user, setUser] = useState({} as User);
+  const [blockedUsers, setBlockedUsers] = useState({} as Hashtable<boolean>);
   const [allMessages, setAllMessages] = useState({} as Hashtable<Message[]>);
   const [allUsers, setAllUsers] = useState({} as Hashtable<User>);
   const [allChannels, setAllChannels] = useState([] as Channel[]);
@@ -401,7 +403,32 @@ export default function Chat(props: any) {
   //block user
   // ban user
   // muteUser
-  const blockUser = (userId: number) => {};
+  const blockUser = useCallback(
+    (userId: number) => {
+      (async () => {
+        console.group("block user");
+        console.log(`Blocking user ${userId}`);
+        const url = `http://127.0.0.1:4200/users/${userId}`;
+        const dto: UpdateUserDto = { blockedUsersIds: user.blockedUsersIds };
+        dto.blockedUsersIds.push(userId);
+        console.log(`this is the dto im sending ${JSON.stringify(dto)}`);
+        await fetchUrl(url, "PATCH", dto);
+        setUser((prevUser) => {
+          const newBanList = prevUser.blockedUsersIds;
+          newBanList.push(userId);
+          return { ...prevUser, blockedUsersIds: newBanList };
+        });
+        setBlockedUsers((prevBlockedUsers) => {
+          const updatedBlockedUsers = prevBlockedUsers;
+          updatedBlockedUsers[userId] = true;
+          return { ...updatedBlockedUsers };
+        });
+        console.groupEnd();
+      })();
+    },
+    [user.blockedUsersIds]
+  );
+
   const banUser = useCallback((userId: number, channelId: number) => {
     (async () => {
       console.group(`Ban User`);
@@ -480,6 +507,16 @@ export default function Chat(props: any) {
       }
       console.log("Setting user");
       setUser(user);
+      const blockedUsers: Hashtable<boolean> = {};
+      console.log(
+        `This is the list of blocked users on init ${JSON.stringify(
+          blockedUsers
+        )}`
+      );
+      for (const blockedUser in user.blockedUsersIds) {
+        blockedUsers[blockedUser] = true;
+      }
+      setBlockedUsers(blockedUsers);
       console.log(`${JSON.stringify(user, null, 4)}`);
       console.log("setting user is fetched");
       setIsUserFetched(true);
@@ -674,6 +711,7 @@ export default function Chat(props: any) {
                 handleCloseAddToChannel={handleCloseAddToChannel}
                 setChannelPassword={setChannelPassword}
                 changeChannelPassword={changeChannelPassword}
+                blockedUsers={blockedUsers}
               />
               {user && user.channels && (
                 <Members
@@ -684,6 +722,7 @@ export default function Chat(props: any) {
                   muteUser={muteUser}
                   banUser={banUser}
                   blockUser={blockUser}
+                  blockedUsers={blockedUsers}
                 />
               )}
             </>

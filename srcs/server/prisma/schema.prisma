@@ -31,6 +31,7 @@ model User {
   profilePicture      String?
   currentStatus       Int               @default(1)
   eloRating           Int               @default(1000)
+  blockedUsersIds     Int[]
   credentials         Credentials?
   stats               Stats?
   ratingHistory       Rating[]

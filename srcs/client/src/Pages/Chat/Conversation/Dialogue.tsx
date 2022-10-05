@@ -10,6 +10,7 @@ export default function Dialogue({
   user,
   allUsers,
   message,
+  blockedUsers,
   ...props
 }: any) {
   return (
@@ -25,33 +26,39 @@ export default function Dialogue({
                 )}`
               )}
               {allMessages &&
-                allMessages[currentChannel.id]?.map((message: Message) => (
-                  <div
-                    className={
-                      message.fromUserId === user.id
-                        ? "myMessages textPink"
-                        : "otherMessages textBlue"
-                    }
-                    key={message.id}
-                  >
-                    <div className="messageDate text-white "
-                          style={{fontSize:"0.7em"}} >
-                      {new Date(message.sentDate).toLocaleString()}
-                    </div>
-                    <div className="row">
-                      <div className="messageFromUser col-3">
-                        {allUsers[message.fromUserId].username || "Pong Bot"}:
-                      </div>
-                      <div className="col-1"></div>
+                allMessages[currentChannel.id]?.map((message: Message) =>
+                  blockedUsers[message.fromUserId] ? (
+                    ""
+                  ) : (
+                    <div
+                      className={
+                        message.fromUserId === user.id
+                          ? "myMessages textPink"
+                          : "otherMessages textBlue"
+                      }
+                      key={message.id}
+                    >
                       <div
-                        style={{ wordWrap: "break-word" }}
-                        className="messageContent col text-white pb-5"
+                        className="messageDate text-white "
+                        style={{ fontSize: "0.7em" }}
                       >
-                        {message.content}
+                        {new Date(message.sentDate).toLocaleString()}
+                      </div>
+                      <div className="row">
+                        <div className="messageFromUser col-3">
+                          {allUsers[message.fromUserId].username || "Pong Bot"}:
+                        </div>
+                        <div className="col-1"></div>
+                        <div
+                          style={{ wordWrap: "break-word" }}
+                          className="messageContent col text-white pb-5"
+                        >
+                          {message.content}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
             </>
           </div>
         </div>

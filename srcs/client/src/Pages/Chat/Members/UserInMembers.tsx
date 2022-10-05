@@ -11,6 +11,7 @@ export default function UserInMembers({
   muteUser,
   banUser,
   blockUser,
+  blockedUsers,
   ...props
 }: any) {
   return (
@@ -55,12 +56,23 @@ export default function UserInMembers({
                     </li>
                   </>
                 )}
-                <li
-                  onClick={(e) => blockUser(member.id)}
-                  className="dropdown-item"
-                >
-                  Block
-                </li>
+                <>
+                  {console.log(
+                    `This is list of blocked users ${JSON.stringify(
+                      blockedUsers
+                    )}`
+                  )}
+                  {blockedUsers[member.userId] ? (
+                    ""
+                  ) : (
+                    <li
+                      onClick={(e) => blockUser(member.userId)}
+                      className="dropdown-item"
+                    >
+                      Block
+                    </li>
+                  )}
+                </>
               </ul>
             </td>
           </tr>
