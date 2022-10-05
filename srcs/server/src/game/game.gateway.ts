@@ -6,11 +6,12 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  WsException,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
-import { OnModuleInit, UseFilters } from '@nestjs/common';
+import { Catch, OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
@@ -18,6 +19,7 @@ import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @UseFilters(new WsExceptionsFilter())
+@Catch(WsException)
 @WebSocketGateway()
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
@@ -149,7 +151,7 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() createChallengeDto: CreateChallengeDto,
   ) {
-    await this.gameService.handleCreateChallenge(client, createChallengeDto.id);
+    await this.gameService.createChallenge(client, createChallengeDto.id);
   }
 
   /** Update challenge */
@@ -168,7 +170,7 @@ export class GameGateway
   /** Switch a user to offline until the next action */
   @SubscribeMessage('switchStatus')
   async handleSwitchStatus(@ConnectedSocket() client: Socket) {
-    await this.gameService.handleSwitchStatus(client);
+    await this.gameService.switchStatus(client);
   }
 
   /** Update username and pic associated with a player on redis */

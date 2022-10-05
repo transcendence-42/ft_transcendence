@@ -12,6 +12,7 @@ const PongModal = (props: any) => {
    *        handleBtn2:   Function associated with the second button
    *        backdrop:     Control if a click outside close the modal or not
    *        closeButton:  Boolean to authorize close button on top right or not
+   *        showButtons:  Boolean to show or hide buttons. Default to true
    */
 
   return (
@@ -26,7 +27,9 @@ const PongModal = (props: any) => {
       </Modal.Header>
       <Modal.Body>{props.children}</Modal.Body>
       <Modal.Footer className="modal-footer">
-        {props.handleBtn1 && (
+        {
+          (props.showButtons === undefined || props.showButtons === true)
+          && props.handleBtn1 && (
           <button
             type="button"
             className="btn btn-blue text-blue"
@@ -35,7 +38,9 @@ const PongModal = (props: any) => {
             {props.textBtn1}
           </button>
         )}
-        {props.handleBtn2 && (
+        {
+          (props.showButtons === undefined || props.showButtons === true)
+          && props.handleBtn2 && (
           <button
             type="button"
             className="btn btn-pink text-pink"

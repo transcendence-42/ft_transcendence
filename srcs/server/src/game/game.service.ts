@@ -9,6 +9,7 @@ import {
   PlayerNotFoundException,
   gameIsPausedException,
   gameRegistrationException,
+  TooMuchPlayersException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
@@ -17,6 +18,7 @@ import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { User } from 'src/user/entities/user.entity';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -270,8 +272,8 @@ export class GameService {
     return null;
   }
 
-  /** Go offline */
-  async handleSwitchStatus(client: Socket) {
+  /** Go offline / online */
+  async switchStatus(client: Socket) {
     const userId = client.handshake.query.userId.toString();
     // Save or update client as a player for players info
     let status: any = (
@@ -287,7 +289,7 @@ export class GameService {
     )[1][1];
     status = JSON.parse(status)[0];
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
-    if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
+    else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
     await this._savePlayerInfos(userId, { status: status });
     this._sendPlayersInfo();
   }
@@ -372,6 +374,9 @@ export class GameService {
     }
     // add client to the server list
     await this._addOrUpdateClient(client);
+    // switch client status to online
+    await this._savePlayerInfos(userId, { status: ePlayerStatus.ONLINE });
+    await this._sendPlayersInfo();
     // if the user id is in a game, reconnect the client to the game
     const gameId: any = (
       await this.redis.multi().select(DB.PLAYERS).hget('players', userId).exec()
@@ -476,6 +481,8 @@ export class GameService {
     game: Game,
     pipeline: ChainableCommander,
   ) {
+    // Check the number of players in the game. Max is 2
+    if (game.players.length > 1) throw new TooMuchPlayersException();
     // Add it to the game room and leave lobby
     //player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
@@ -801,8 +808,10 @@ export class GameService {
       .exec();
     // game loop
     const gameInterval = setInterval(async () => {
-      await this._gameLoop(game, gameInterval);
-      game = await this._getGame(game.id);
+      try {
+        await this._gameLoop(game, gameInterval);
+        game = await this._getGame(game.id);
+      } catch (e) {}
     }, 15);
     this.gameLoops.push({ id: id, interval: gameInterval });
   }
@@ -1053,8 +1062,10 @@ export class GameService {
         for (const p of game.players) this._getSocket(p.userId)?.join(id);
         // new game loop
         const gameInterval = setInterval(async () => {
-          await this._gameLoop(game, gameInterval);
-          game = await this._getGame(game.id);
+          try {
+            await this._gameLoop(game, gameInterval);
+            game = await this._getGame(game.id);
+          } catch (e) {}
         }, 15);
         this.gameLoops.push({ id: id, interval: gameInterval });
       }
@@ -1550,6 +1561,21 @@ export class GameService {
 
   /** returns player info to requester */
   async handlePlayersInfos(client: Socket) {
+    // Complete data in redis if needed with missing infos
+    try {
+      const users: User[] = await this.userService.findAll({} as any);
+      for (const user of users) {
+        if ((await this._getPlayerInfos(user.id.toString())) === null)
+          await this._savePlayerInfos(user.id.toString(), {
+            id: user.id.toString(),
+            status: ePlayerStatus.OFFLINE,
+            matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
+            pic: user.profilePicture,
+            name: user.username,
+          });
+      }
+    } catch (e) {} // no user in database
+    // extract data from redis and send it
     const data: any = (
       await this.redis
         .multi()
@@ -1564,7 +1590,7 @@ export class GameService {
   /** CHALLENGE                                                               */
   /** *********************************************************************** */
 
-  async handleCreateChallenge(client: Socket, id: string) {
+  async createChallenge(client: Socket, id: string) {
     // get both players
     const userId: string = client.handshake.query.userId.toString();
     const challenger = this.clients.find((c) => c.userId === userId);
@@ -1645,12 +1671,21 @@ export class GameService {
         status: eChallengeStatus.ACCEPTED,
       });
       // create a match and launch it
-      const playersToMatch = [];
+      const playersToMatch: Player[] = [];
+      const player1Infos = await this._getPlayerInfos(userId);
+      const player2Infos = await this._getPlayerInfos(opponent.userId);
       playersToMatch.push({
         userId: opponent.userId,
         socket: this._getSocket(opponent.userId),
+        name: player1Infos ? player1Infos.name : '',
+        pic: player1Infos ? player1Infos.pic : '',
       });
-      playersToMatch.push({ userId: userId, socket: client });
+      playersToMatch.push({
+        userId: userId,
+        socket: client,
+        name: player2Infos ? player2Infos.name : '',
+        pic: player2Infos ? player2Infos.pic : '',
+      });
       setTimeout(() => {
         this.create(playersToMatch);
       }, 2000);

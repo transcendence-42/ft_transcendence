@@ -11,7 +11,6 @@ export default function Leaderboard() {
    */
   let location = useLocation();
   const { userID }: any = location.state || {}; //Destructuring
-  console.log(userID);
   const [users, setUsers]: any = useState(null);
   let i = 1;
 

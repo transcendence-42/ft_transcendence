@@ -7,9 +7,9 @@ import './profile.css';
 export default function Ladder(props: any) {
   return (
     <div className="row">
+      <div className="col d-flex flex-row justify-content-center w-100">
       
-      {/* League */}
-      <div className='col d-flex flex-row justify-content-end'>
+        {/* League */}
         <div
           className="rounded-circle box-blue d-flex flex-column align-items-center justify-content-center me-2"
           style={{
@@ -22,10 +22,8 @@ export default function Ladder(props: any) {
           </span>
           <League elo={props.elo} size={'1.2em'} />
         </div>
-      </div>
 
-      {/* Wins */}
-      <div className='col d-flex flex-row justify-content-center'>
+        {/* Wins */}
         <div
           className="rounded-circle box-blue d-flex flex-column align-items-center justify-content-center me-2"
           style={{
@@ -40,10 +38,8 @@ export default function Ladder(props: any) {
             {props.stats ? props.stats.wins : '0'}
           </div>
         </div>
-      </div>
 
-      {/* Loses */}
-      <div className='col d-flex flex-row justify-content-start'>
+        {/* Loses */}
         <div
           className="rounded-circle box-blue d-flex flex-column align-items-center justify-content-center"
           style={{
@@ -58,6 +54,7 @@ export default function Ladder(props: any) {
             {props.stats ? props.stats.losses : '0'}
           </div>
         </div>
+
       </div>
     </div>
   );
