@@ -151,6 +151,7 @@ export default function BrowseChannels({
                             </div>    
                           }
                         </td>
+                        
                       </tr>
                     </tbody>
                   </table>

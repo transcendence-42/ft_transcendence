@@ -64,7 +64,7 @@ export default function Conversation({
               <div className="row justify-content-center">
                 <div className="col-1">
                   <button
-                    className="message-button float-end rounded-4  "
+                    className="message-button float-end rounded-4"
                     onClick={handleShowAddToChannel}
                   >
                     add a friend
@@ -94,7 +94,8 @@ export default function Conversation({
               ></input>
               <button
                 type="button"
-                className="btn rounded-4 btn-pink btn-join ms-2 mb-1"
+                // className="btn rounded-4 btn-pink btn-join ms-2 mb-1"
+                className="btn rounded-3 btn-pink btn-join ms-3"
                 onClick={handleSendMessage}
               >
                 Send
