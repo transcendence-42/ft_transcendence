@@ -26,7 +26,8 @@ const ModalPicture =
 
    function handleChange(event : any) {
      setcontent(event.target.value);
-     setUrl("http://127.0.0.1:4200/users/" + id);
+     const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+     setUrl(`${apiUrl}/users/` + id);
    };
 
    function patchAndClose(e : any)

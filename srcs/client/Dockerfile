@@ -13,7 +13,23 @@ RUN     npm i -g npm@8.18.0 \
  &&     npm run build
 
 # stage 2. serve files with nginx, node is not needed anymore
-FROM    nginx
+FROM    nginx:alpine
+
+# create a certificate for https
+RUN     apk update && apk upgrade && apk add --update --no-cache \
+            openssl \
+ &&     rm -f /var/cache/apk/* \
+\
+# generate self signed certificate
+ &&     mkdir /etc/nginx/certificates && \
+	    openssl req \
+		    -x509 \
+		    -newkey rsa:2048 \
+		    -keyout /etc/nginx/certificates/transcendence.key \
+		    -days 365 \
+		    -out /etc/nginx/certificates/transcendence.cert \
+		    -nodes \
+		    -subj /CN=transcendence.42.fr
 
 # copy conf files to the container 
 RUN     rm -f /etc/nginx/conf.d/default.conf

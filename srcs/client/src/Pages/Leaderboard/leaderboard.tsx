@@ -16,7 +16,8 @@ export default function Leaderboard() {
   let i = 1;
 
   useEffect(() => {
-    let request = 'http://127.0.0.1:4200/users';
+    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+    let request = `${apiUrl}/users`;
     const json = getFetch({ url: request });
     json.then((responseObject) => {
       setUsers(responseObject);

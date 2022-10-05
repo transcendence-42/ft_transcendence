@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 const TwoFactorLogin = () => {
   const [code, setCode] = useState("");
   const navigate = useNavigate();
-  const postTwoFactorCode = async (e) => {
+
+  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+  const postTwoFactorCode = async (e: any) => {
     e.preventDefault();
-    fetch("http://127.0.0.1:4200/auth/2fa/authenticate/", {
+    fetch(`${apiUrl}/auth/2fa/authenticate/`, {
       method: "POST",
       credentials: "include",
       headers: {

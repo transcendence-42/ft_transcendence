@@ -6,7 +6,8 @@ import { requestFriendship } from "../Fetch/requestFriendship"
 
 const AddFriend = (props : any) => {
 
-	const url = `http://127.0.0.1:4200/users/${props.originalId}/friends`;
+  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+	const url = `${apiUrl}/users/${props.originalId}/friends`;
 
 	return (
 		<>

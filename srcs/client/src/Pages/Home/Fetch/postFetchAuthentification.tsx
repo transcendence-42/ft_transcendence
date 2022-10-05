@@ -1,6 +1,7 @@
 export async function postFetchAuthentification(props : any){
+  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
 	const response = await
-		fetch("http://127.0.0.1:4200/auth/2fa/authenticate", {
+		fetch(`${apiUrl}/auth/2fa/authenticate`, {
 	  method: "POST",
 	  credentials: "include",
 	  headers: {

@@ -107,28 +107,29 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
+    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
     if (userId) {
-      let request = 'http://127.0.0.1:4200/users/' + userId;
+      let request = `${apiUrl}/users/` + userId;
       const user_json = getFetch({ url: request });
       user_json.then((responseObject) => {
         setUser(responseObject);
       });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/friends';
+      request = `${apiUrl}/users/` + userId + '/friends';
       const friend_json = getFetchFriends({ url: request });
       friend_json.then((responseObject) => {
         setFriendList(responseObject);
       });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/friendrequests';
+      request = `${apiUrl}/users/` + userId + '/friendrequests';
       const friendRequests_json = getFetchFriends({ url: request });
       friendRequests_json.then((responseObject) => {
         setFriendRequestList(responseObject);
       });
-      request = 'http://127.0.0.1:4200/users/' + userId + '/matches';
+      request = `${apiUrl}/users/` + userId + '/matches';
       const matches_json = getFetchMatch({ url: request });
       matches_json.then((responseObject) => {
         setMatchesList(responseObject);
       });
-      request = "http://127.0.0.1:4200/auth/2fa/state/" + userId;
+      request = `${apiUrl}/auth/2fa/state/` + userId;
       const double_json = getFetch({url : request});
       double_json.then((responseObject)=> {
         if(responseObject)

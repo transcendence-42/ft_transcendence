@@ -33,7 +33,8 @@ export default function Home({ updateID, userID }: any) {
    ** First function to Auth the user from our app -> 42Auth -> back -> front
    */
   const getUser = async () => {
-    await fetch('http://127.0.0.1:4200/auth/success', {
+    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+    await fetch(`${apiUrl}/auth/success`, {
       method: 'GET',
       credentials: 'include',
       headers: {
