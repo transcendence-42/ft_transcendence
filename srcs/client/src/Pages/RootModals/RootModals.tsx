@@ -100,7 +100,6 @@ const RootModals = () => {
   const handleGameChallenge = useCallback(
     (data: any) => {
       handleShowGameChallenge();
-      console.log(data);
       // Show a different modal depending on if you are challenger or challengee
       if (data.who === eChallengeWho.CHALLENGER) {
         setGameChallengeData({
