@@ -92,7 +92,7 @@ export class ChannelService {
       const result: Channel = await this.prisma.channel.update({
         where: { id },
         data: { ...updateChannelDto },
-        include: {users: true}
+        include: { users: true },
       });
       return result;
     } catch (e) {
@@ -145,8 +145,12 @@ export class ChannelService {
       where: { channelId_userId: { userId, channelId } },
       include: { channel: true },
     });
-    this.logger.debug(`Not found our user ${JSON.stringify(userOnChannel)}`);
-    if (!userOnChannel) throw new UserNotFoundException(userId);
+    if (!userOnChannel) {
+      this.logger.debug(
+        `Not found our user ${userId} in channel ${channelId}`,
+      );
+      throw new UserNotFoundException(userId);
+    }
     return userOnChannel;
   }
 

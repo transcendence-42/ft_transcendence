@@ -3,5 +3,5 @@ export class UpdateUserOnChannelDto {
   role?: eUserRole;
   isMuted?: boolean;
   isBanned?: boolean;
-  hasLeftTheChannel?: boolean;
+  hasLeftChannel?: boolean;
 }

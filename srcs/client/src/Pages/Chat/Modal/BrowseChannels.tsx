@@ -38,7 +38,7 @@ export default function BrowseChannels({
       let res;
       if (userOnChannel) {
         const payload: UpdateUserOnChannelDto = {
-          hasLeftTheChannel: false
+          hasLeftChannel: false
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${userId}`,

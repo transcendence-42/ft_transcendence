@@ -18,5 +18,5 @@ export class UpdateUserOnChannelDto {
 
   @IsBoolean()
   @IsOptional()
-  hasLeftTheChannel?: boolean;
+  hasLeftChannel?: boolean;
 }

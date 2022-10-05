@@ -21,4 +21,6 @@ export enum eEvent {
   AddedToChannel ='addedToChannel',
   MuteUser = 'muteUser',
   BanUser = 'banUser',
+  LeaveChannel = 'leaveChannel',
+  LeavingChannel = 'leavingChannel',
 };

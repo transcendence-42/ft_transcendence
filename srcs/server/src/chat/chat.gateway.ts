@@ -12,6 +12,7 @@ import { ChatService } from './chat.service';
 import { MessageDto, JoinChannelDto } from './dto';
 import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
+import { channel } from 'diagnostics_channel';
 
 @WebSocketGateway({
   cors: {
@@ -92,11 +93,21 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.AddUser)
   addUser(client: Socket, payload: { channelId; userId }) {
-    this.logger.debug(`Recieved AddedUser with data ${JSON.stringify(payload)}`)
+    this.logger.debug(
+      `Recieved AddedUser with data ${JSON.stringify(payload)}`,
+    );
     client
       .to(payload.userId.toString())
       .emit(eEvent.AddUser, payload.channelId);
   }
+
+  @SubscribeMessage(eEvent.LeaveChannel)
+  leaveChannel(client: Socket, { userId, channelId }) {
+    this.chatService.leaveChannel(client, userId, channelId);
+  }
+
+  @SubscribeMessage(eEvent.LeavingChannel)
+  leavingChannel(client: Socket, channelId) {}
 
   @SubscribeMessage(eEvent.UpdateOneChannel)
   updateOneChannel(client: Socket, id: number) {
@@ -110,8 +121,13 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.MuteUser)
-  muteUser(client: Socket, {userId, channelId}) {
+  muteUser(client: Socket, { userId, channelId }) {
     return this.chatService.muteUser(client, userId, channelId);
+  }
+
+  @SubscribeMessage(eEvent.BanUser)
+  banUser(client: Socket, { userId, channelId }) {
+    return this.chatService.banUser(client, userId, channelId);
   }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )

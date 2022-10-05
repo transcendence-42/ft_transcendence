@@ -5,7 +5,7 @@ import { ChannelType, UserRole } from '@prisma/client';
 import Redis from 'redis';
 import * as Cookie from 'cookie';
 import { Message } from './entities';
-import { eRedisDb, eEvent } from './constants';
+import { eRedisDb, eEvent, eIdType } from './constants';
 import { Hashtable } from './interfaces/hashtable.interface';
 import { MessageDto } from './dto';
 import { ChannelService } from 'src/channels/channel.service';
@@ -47,15 +47,81 @@ export class ChatService {
   }
 
   async muteUser(client: Socket, userId: number, channelId: number) {
+    const channel = await this.channelService.findOne(channelId);
+    if (!channel) {
+      this.logger.debug(
+        `The channel which recieved a mute user event has been deleted`,
+      );
+      return;
+    }
     this.server
-      .to(channelId.toString())
+      .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneChannel, channelId);
-    this.server.to(userId.toString()).emit(eEvent.MuteUser, channelId);
-    this.logger.debug(`Muting user ${userId} on channel ${channelId}`)
+    this.server
+      .to(this._makeId(userId, eIdType.User))
+      .emit(
+        eEvent.MuteUser,
+        `You have been muted from channel ${channel.name}`,
+      );
+    this.logger.debug(`Muting user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
       await this.channelService.updateUserOnChannel(channelId, userId, {
         isMuted: false,
       } as UpdateUserOnChannelDto);
+      this.server
+        .to(this._makeId(userId, eIdType.User))
+        .emit(
+          eEvent.MuteUser,
+          `You are now unmuted from channel ${channel.name}`,
+        );
+      this.server
+        .to(this._makeId(channelId, eIdType.Channel))
+        .emit(eEvent.UpdateOneChannel, channelId);
+    }, 1000 * 60);
+    // inside the setTimeout include an emit event to display you are now unmuted ?
+    // so that the user can refresh its own user if they are still in the channel.
+  }
+
+  leaveChannel(client: Socket, userId: number, channelId: number) {
+    this.server
+      .to(this._makeId(userId, eIdType.User))
+      .emit(eEvent.LeaveChannel, channelId);
+  }
+
+  leavingChannel(client: Socket, channelId: number) {
+    client.leave(this._makeId(channelId, eIdType.Channel));
+  }
+
+  async banUser(client: Socket, userId: number, channelId: number) {
+    const channel = await this.channelService.findOne(channelId);
+    this.server
+      .to(this._makeId(userId, eIdType.User))
+      .emit(eEvent.BanUser, channel.name);
+    this.server
+      .to(this._makeId(channelId, eIdType.Channel))
+      .emit(eEvent.UpdateOneChannel, channelId);
+    this.server
+      .to(this._makeId(userId, eIdType.User))
+      .emit(eEvent.LeaveChannel, channelId);
+    this.logger.debug(`Banning user ${userId} on channel ${channel.name}`);
+    setTimeout(async () => {
+      // delete user because they are no longer banned and thus can join the channel again
+      // need to emit an event to the user to update all channels and its own channels
+      // in the two setTimeout I need to check for the existance of the channel.
+      // if they don't exist I don't need to send an event
+      // I can do that by checking delete user. Try {delete| update} user
+      // catch e === channel doesnt existe
+      try {
+        const deleteUser = await this.channelService.deleteUserOnChannel(
+          channelId,
+          userId,
+        );
+        this.server
+          .to(this._makeId(channelId, eIdType.Channel))
+          .emit(eEvent.UpdateOneChannel, channelId);
+      } catch (e) {
+        this.logger.error(`tried to delete a user on an empty channel`);
+      }
     }, 1000 * 60);
   }
 
@@ -63,12 +129,12 @@ export class ChatService {
     await this.joinChannel(client, channelId);
     client.emit(eEvent.UpdateOneChannel, channelId);
     this.server
-      .to(channelId.toString())
+      .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateUserOnChannel, channelId);
   }
 
   async joinChannel(client: Socket, channelId: number) {
-    client.join(channelId.toString());
+    client.join(this._makeId(channelId, eIdType.Channel));
     const messages = await this._getMessage(channelId.toString());
     client.emit(eEvent.GetMessages, { channelId, messages });
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
@@ -76,14 +142,17 @@ export class ChatService {
 
   updateOneChannel(client: Socket, channelId: number) {
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
-    client.to(channelId.toString()).emit(eEvent.UpdateUserOnChannel, channelId);
+    client
+      .to(this._makeId(channelId, eIdType.Channel))
+      .emit(eEvent.UpdateUserOnChannel, channelId);
   }
 
   async initConnection(client: Socket, channelIds: string[]) {
-    client.join(client.handshake.auth.id.toString());
+    const id = client.handshake.auth.id;
+    client.join(this._makeId(id, eIdType.User));
     for (const channel of channelIds) {
       this.logger.debug(`Client join channel ${channel}`);
-      client.join(channel);
+      client.join(this._makeId(channel, eIdType.Channel));
     }
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
       channelIds,
@@ -111,7 +180,7 @@ export class ChatService {
   }
 
   async createChannel(client: Socket, channelId) {
-    this.addToRoom(client, channelId);
+    client.join(this._makeId(channelId, eIdType.Channel));
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
@@ -206,6 +275,21 @@ export class ChatService {
     const res2 = await this.redis.json.get(
       '5d7dc013-a32e-45ea-8767-d65954214f9b',
       { path: '.users[?(@.id=="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]' },
+    );
+  }
+
+  private _makeId(id: number | string, idType: eIdType): string {
+    let strId;
+    if (typeof id === 'string') strId = id;
+    else strId = id.toString();
+    return (
+      (idType === eIdType.User
+        ? 'user'
+        : idType === eIdType.Channel
+        ? 'channel'
+        : idType === eIdType.Message
+        ? 'channel'
+        : 'unkown') + strId
     );
   }
 
