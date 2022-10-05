@@ -39,6 +39,7 @@ const RootModals = () => {
   // Modal states (from useState or useContext)
   const [showGameChallenge, setShowGameChallenge] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
+  const [showGameChallengeBtns, setShowGameChallengeBtns] = useState(true);
   const [showFirstConnection, setShowFirstConnection] =
     useContext(RootModalsContext);
 
@@ -85,6 +86,7 @@ const RootModals = () => {
       ...gameChallengeData,
       message: `You accepted the challenge :) ! Game will start in few seconds`,
     });
+    setShowGameChallengeBtns(false);
     // move to lobby
     navigate('/lobby');
     // close modal
@@ -125,6 +127,7 @@ const RootModals = () => {
           btn2Handler: handleAccept,
         });
       }
+      setShowGameChallengeBtns(true);
       handleShowGameChallenge();
     },
     [eChallengeWho.CHALLENGER, handleAccept, handleCancel, handleRefuse],
@@ -133,16 +136,19 @@ const RootModals = () => {
   const handleGameChallengeReply = useCallback(
     (data: any) => {
       if (data.status === eChallengeStatus.CANCEL) {
+        setShowGameChallengeBtns(false);
         setGameChallengeData({
           ...gameChallengeData,
           message: `${gameChallengeData.opponent.name} canceled his request :(`,
         });
       } else if (data.status === eChallengeStatus.REFUSED) {
+        setShowGameChallengeBtns(false);
         setGameChallengeData({
           ...gameChallengeData,
           message: `${gameChallengeData.opponent.name} refused your challenge :(`,
         });
       } else if (data.status === eChallengeStatus.ACCEPTED) {
+        setShowGameChallengeBtns(false);
         setGameChallengeData({
           ...gameChallengeData,
           message: `${gameChallengeData.opponent.name} accepted your challenge ! Game will start in few seconds`,
@@ -207,6 +213,7 @@ const RootModals = () => {
         handleBtn2={gameChallengeData.btn2Handler}
         closeButton={false}
         backdrop="static"
+        showButtons={showGameChallengeBtns}
       >
         <GameChallenge message={gameChallengeData.message} />
       </PongModal>
