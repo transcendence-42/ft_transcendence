@@ -242,6 +242,7 @@ body
 .input-field-chat {
   /* min-height: 60px; */
   min-height: 40px;
+  padding-left: 10px;
   color: black;
   outline: none;
   color: white;
