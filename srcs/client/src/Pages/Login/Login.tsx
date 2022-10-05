@@ -8,7 +8,7 @@ function Login ()  {
 ** that user has clicked on 42Auth
 */
   const fortyTwoLogin = () => {
-    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
 		window.open(`${apiUrl}/auth/42/register`, "_self");
     localStorage.setItem("fromAuth", JSON.stringify(true));
 	}

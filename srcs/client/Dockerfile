@@ -2,7 +2,7 @@
 
 # stage 1. build the react application for production
 FROM    node:alpine as build
-
+ARG REACT_APP_API_URL=REACT_APP_API_URL
 # copy files into /app
 WORKDIR /app
 COPY    .   /app/

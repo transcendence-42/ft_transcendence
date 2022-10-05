@@ -4,7 +4,12 @@ services:
   
   client:
     image: client:${TAG}
-    build: ./client
+    build:
+      context: ./client
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL}  
+        - REACT_APP_GAME_SOCKET_URL=${REACT_APP_GAME_SOCKET_URL}
+        - REACT_APP_CHAT_SOCKET_URL=${REACT_APP_CHAT_SOCKET_URL}
     container_name: client
     restart: always
     ports: ['${CLIENT_PORT}:443']
@@ -23,7 +28,36 @@ services:
 
   server:
     image: server:${TAG}
-    build: ./server
+    build: 
+      context: ./server
+      args:
+        - RUNNING_ENV=${RUNNING_ENV}
+        - SERVER_PORT=${SERVER_PORT}
+        - CLIENT_PORT=${CLIENT_PORT}
+        - DBADMIN_PORT=${DBADMIN_PORT}
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+        - PGDATA=${PGDATA}
+        - POSTGRES_PORT=${POSTGRES_PORT}
+        - API_PORT=${API_PORT}
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
+        - GAME_WS_PORT=${GAME_WS_PORT}
+        - REACT_APP_GAME_SOCKET_URL=${REACT_APP_GAME_SOCKET_URL}
+        - CHAT_WS_PORT=${CHAT_WS_PORT}
+        - REACT_APP_CHAT_SOCKET_URL=${REACT_APP_CHAT_SOCKET_URL}
+        - CLIENT_ID=${CLIENT_ID}
+        - CLIENT_SECRET=${CLIENT_SECRET}
+        - CALLBACK_URL=${CALLBACK_URL}
+        - SESSION_SECRET=${SESSION_SECRET}
+        - REDIS_URL=${REDIS_URL}
+        - REDIS_PORT=${REDIS_PORT}
+        - REDIS_INSIGHT_PORT=${REDIS_INSIGHT_PORT}
+        - DATABASE_URL=${DATABASE_URL}
+        - WEBSITE_URL=${WEBSITE_URL}
+        - HOME_PAGE=${HOME_PAGE}
+        - LOGIN_PAGE=${LOGIN_PAGE}
+        - TWO_FA_APP_NAME=${TWO_FA_APP_NAME}
     container_name: server
     restart: always
     depends_on:

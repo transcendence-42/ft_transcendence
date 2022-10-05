@@ -12,7 +12,7 @@ const FriendshipRejected = (props: any) => {
   }
 
   function onClickAccepted() {
-    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
     updateFriendship({
       url: `${apiUrl}/friendship`,
       addresseeId: props.addresseeId,

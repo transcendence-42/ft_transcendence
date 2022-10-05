@@ -107,7 +107,7 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
     if (userId) {
       let request = `${apiUrl}/users/` + userId;
       const user_json = getFetch({ url: request });

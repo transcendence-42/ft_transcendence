@@ -5,7 +5,7 @@ export async function getFetchSuccess(){
    * Check if the session cookie is valid and
    * give back information with some user informations
    */
-  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
 	const response = await
 	fetch(`${apiUrl}/auth/success`, {
   method: "GET",

@@ -3,7 +3,7 @@ export async function postDoubleAuthActivate(props : any){
    /**
    * Sending information of the 2fa Status to DB
    */
-  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
 	const response = await
 		fetch(`${apiUrl}/auth/2fa/activate`, {
 	  method: "POST",

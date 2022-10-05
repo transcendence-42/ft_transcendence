@@ -5,7 +5,7 @@ const TwoFactorLogin = () => {
   const [code, setCode] = useState("");
   const navigate = useNavigate();
 
-  const apiUrl: string = process.env.REACT_APP_GAME_SOCKET_URL;
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
   const postTwoFactorCode = async (e: any) => {
     e.preventDefault();
     fetch(`${apiUrl}/auth/2fa/authenticate/`, {
