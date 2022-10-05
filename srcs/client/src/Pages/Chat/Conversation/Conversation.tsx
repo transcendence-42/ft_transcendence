@@ -82,16 +82,16 @@ export default function Conversation({
               ""
             ) : (
               <>
-                <button
+                {/* <button
                   onClick={(e) => handlePasswordOperation()}
                   className="col-3 btn btn-leave me-2"
                 >
                   Change channel password
-                </button>
-                <input
+                </button> */}
+                {/* <input
                   onChange={(e) => setNewChannelPassword(e.target.value)}
                   placeholder="channel Pass"
-                ></input>
+                ></input> */}
               </>
             )}
             {/* <div className="pinkText ">leave</div> */}
@@ -100,12 +100,12 @@ export default function Conversation({
             <div className="messages-div h-50">
               <div className="row">
                 <div className="col-1">
-                  <button
+                  {/* <button
                     className="message-button float-end rounded-4 "
                     onClick={handleShowAddToChannel}
                   >
                     add a friend
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
