@@ -35,9 +35,10 @@ export default function Conversation({
           <div className="row mt-2">
             <div className="col">
               <p
-                className="badge bg-primary bg-darken-xl"
-                style={{ fontSize: "12px" }}
+                className="blue-titles"
+                style={{ fontSize: "15px" }}
               >
+                @
                 {currentChannel.type !== eChannelType.DIRECT
                   ? currentChannel.name
                   : `Direct with ` +

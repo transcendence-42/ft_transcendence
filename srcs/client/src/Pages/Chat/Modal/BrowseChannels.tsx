@@ -24,6 +24,7 @@ export default function BrowseChannels({
     handleCloseBrowseChannel();
   };
   const handleJoinChannel = (e: any, channel: Channel) => {
+    return;
     e.preventDefault();
     if (
       channel["type"] === eChannelType.PROTECTED &&
@@ -128,46 +129,31 @@ export default function BrowseChannels({
           {filtered.map((channel: Channel) => (
             <div className="channels" key={channel.id}>
               <div className="col">
-                {userChannels?.find(
-                  (usrOnChan: UserOnChannel) =>
-                    channel.id === usrOnChan.channelId
-                ) ? (
-                  <button
-                    className="btn rounded-4 btn-pink btn-switch"
-                    onClick={(e) => handleSwitchChannel(e, channel.id)}
-                  >
-                    switch
-                  </button>
-                ) : (
                   <table className="table">
                     <tbody>
                       <tr>
-                        channel.type === eChannelType.PROTECTED ?
-                        (<td
+                        
+                        <td
                           className="channel"
+                          aria-expanded="false"
                           data-bs-toggle="collapse"
-                          data-bs-target="#collapseProtected"
-                          aria-controls="collapseProtected"
+                          data-bs-target={"#collapseProtected" + channel.id.toString()}
+                          aria-controls={"collapseProtected" + channel.id.toString()}
                           onClick={(e) => handleJoinChannel(e, channel)}>
                           {channel.name}
-                          <div className="collapse" id="collapseProtected">
-                            <input
-                               type="name"
-                               className="form-control"
-                               placeholder="Password">
-                            </input>
-                          </div>) : 
-                          (<td
-                            className="channel"
-                            onClick={(e) => handleJoinChannel(e, channel)}>
-                            {channel.name}
-                            </td>)
-                          
+                          {channel.type !== eChannelType.PROTECTED ? '' : 
+                            <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
+                              <input
+                                 type="name"
+                                 className="form-control"
+                                 placeholder="Password">
+                              </input>
+                            </div>    
+                          }
                         </td>
                       </tr>
                     </tbody>
                   </table>
-                )}
               </div>
             </div>
           ))}{" "}
