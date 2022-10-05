@@ -59,23 +59,24 @@ const RootModals = () => {
 
   const handleCancel = useCallback(() => {
     handleCloseGameChallenge();
-    const opponent = gameChallengeData.opponent;
+    if (gameChallengeData.opponent === undefined) return;
     socket.emit('updateChallenge', {
-      id: opponent.userId.toString(),
+      id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.CANCEL,
     });
   }, [eChallengeStatus.CANCEL, gameChallengeData, socket]);
 
   const handleRefuse = useCallback(() => {
     handleCloseGameChallenge();
-    const opponent = gameChallengeData.opponent;
+    if (gameChallengeData.opponent === undefined) return;
     socket.emit('updateChallenge', {
-      id: opponent.userId.toString(),
+      id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.REFUSED,
     });
   }, [eChallengeStatus.REFUSED, gameChallengeData, socket]);
 
   const handleAccept = useCallback(() => {
+    if (gameChallengeData.opponent === undefined) return;
     socket.emit('updateChallenge', {
       id: gameChallengeData.opponent.userId.toString(),
       status: eChallengeStatus.ACCEPTED,
@@ -99,7 +100,6 @@ const RootModals = () => {
   // Socket events handlers
   const handleGameChallenge = useCallback(
     (data: any) => {
-      handleShowGameChallenge();
       // Show a different modal depending on if you are challenger or challengee
       if (data.who === eChallengeWho.CHALLENGER) {
         setGameChallengeData({
@@ -125,6 +125,7 @@ const RootModals = () => {
           btn2Handler: handleAccept,
         });
       }
+      handleShowGameChallenge();
     },
     [eChallengeWho.CHALLENGER, handleAccept, handleCancel, handleRefuse],
   );
