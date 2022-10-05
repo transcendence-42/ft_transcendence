@@ -1584,6 +1584,7 @@ export class GameService {
   /** *********************************************************************** */
 
   async createChallenge(client: Socket, id: string) {
+    console.log(`id : ${id}`);
     // get both players
     const userId: string = client.handshake.query.userId.toString();
     const challenger = this.clients.find((c) => c.userId === userId);
@@ -1641,6 +1642,8 @@ export class GameService {
 
   async handleUpdateChallenge(client: Socket, id: string, status: number) {
     // get the user and the opponent
+    console.log(`id : ${id}`);
+    console.log(`status : ${status}`);
     const userId: string = client.handshake.query.userId.toString();
     const opponent = this.clients.find((c) => c.userId === id);
     let resultingStatus: ePlayerStatus = ePlayerStatus.ONLINE;

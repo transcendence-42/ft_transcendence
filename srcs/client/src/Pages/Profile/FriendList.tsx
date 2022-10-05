@@ -9,6 +9,17 @@ import FriendshipAccepted from './Button/FriendshipAccepted';
 import { Link } from 'react-router-dom';
 
 const FriendList = (props: any) => {
+  /**
+   * @props friendList            : List of friends to display
+            friendRequestList     : List of friend requests to display
+            id                    : Id of the player whom we want to display 
+                                    friends
+            originalId            : Id of the current authenticated user
+            up                    : Update toggle function
+            players               : All players list with status
+            handleChallengePlayer : Handler to trigger the challenge modal
+   */
+
   /** *********************************************************************** */
   /** ENUMS                                                                   */
   /** *********************************************************************** */
@@ -33,8 +44,12 @@ const FriendList = (props: any) => {
   /** *********************************************************************** */
 
   const getPlayerFromId = (id: number) => {
-    if (props.players !== undefined)
-      return props.players.find((p: any) => p.id === id.toString());
+    if (props.players !== undefined) {
+      let result = props.players.find((p: any) => p.id === id.toString());
+      if (result === undefined)
+        result = { status: 0 };
+      return result;
+    }
     return { status: 0 };
   };
 
@@ -135,6 +150,8 @@ const FriendList = (props: any) => {
                       <td></td>
                       {props.players &&
                         getPlayerFromId(friend.id).status ===
+                          ePlayerStatus.ONLINE && 
+                          getPlayerFromId(props.originalId).status ===
                           ePlayerStatus.ONLINE && (
                           <td>
                             <button
@@ -146,13 +163,15 @@ const FriendList = (props: any) => {
                                 )
                               }
                             >
-                              challenge
+                              Challenge
                             </button>
                           </td>
                         )}
                       {props.players &&
                         getPlayerFromId(friend.id).status ===
-                          ePlayerStatus.PLAYING && (
+                          ePlayerStatus.PLAYING &&
+                          getPlayerFromId(props.originalId).status ===
+                          ePlayerStatus.ONLINE && (
                           <td>
                             <Link
                               to="/lobby"
@@ -173,7 +192,9 @@ const FriendList = (props: any) => {
                         )}
                       {props.players &&
                         getPlayerFromId(friend.id).status ===
-                          ePlayerStatus.WAITING && (
+                          ePlayerStatus.WAITING && 
+                          getPlayerFromId(props.originalId).status ===
+                          ePlayerStatus.ONLINE && (
                           <>
                             <td>
                               <Link

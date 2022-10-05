@@ -11,6 +11,7 @@ import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
 
 const RootModals = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [socket, ...rest ] = useContext(SocketContext);
   const navigate = useNavigate();
 
