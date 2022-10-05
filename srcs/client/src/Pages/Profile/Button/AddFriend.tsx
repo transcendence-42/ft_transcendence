@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import '../../../Components/Tools/Text.css';
 import '../../../Components/Tools/Box.css';
 import '../profile.css';
 import { requestFriendship } from '../Fetch/requestFriendship';
 import GroupIcon from '@mui/icons-material/Group';
+import { RootModalsContext } from '../../RootModals/RootModalsProvider';
 
 const AddFriend = (props: any) => {
   /**
@@ -24,13 +25,12 @@ const AddFriend = (props: any) => {
 
   const [isFriend, setIsFriend] = useState(false);
   const [btnMessage, setBtnMessage] = useState('Add friend');
-
+  
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
   useEffect(() => {
-    console.log(props.friendList);
     if (
       props.friendList.find((f: any) => f.id === props.originalId) !== undefined
     ) {

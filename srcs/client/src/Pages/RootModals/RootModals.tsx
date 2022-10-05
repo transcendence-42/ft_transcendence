@@ -9,10 +9,11 @@ import { SocketContext } from '../Game/socket/socket';
 import '../../Styles';
 import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
+import { RootModalsContext } from './RootModalsProvider';
 
 const RootModals = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [socket, ...rest ] = useContext(SocketContext);
+  const [socket, ...rest] = useContext(SocketContext);
   const navigate = useNavigate();
 
   /** *********************************************************************** */
@@ -38,6 +39,8 @@ const RootModals = () => {
   // Modal states (from useState or useContext)
   const [showGameChallenge, setShowGameChallenge] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
+  const [showFirstConnection, setShowFirstConnection] =
+    useContext(RootModalsContext);
 
   // Modal param states
   const [gameChallengeData, setGameChallengeData] = useState({} as any);
@@ -47,6 +50,11 @@ const RootModals = () => {
   const handleShowGameChallenge = () => setShowGameChallenge(true);
   const handleCloseMatchMaking = () => setShowMatchMaking(false);
   const handleShowMatchMaking = () => setShowMatchMaking(true);
+  const handleCloseFirstConnection = () => {
+    setShowFirstConnection(false);
+    setTimeout(() => handleCloseFirstConnection(), 2000);
+  }
+  const handleShowFirstConnection = () => setShowFirstConnection(true);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -95,6 +103,7 @@ const RootModals = () => {
   const handleGameChallenge = useCallback(
     (data: any) => {
       handleShowGameChallenge();
+      console.log(data);
       // Show a different modal depending on if you are challenger or challengee
       if (data.who === eChallengeWho.CHALLENGER) {
         setGameChallengeData({
@@ -210,6 +219,15 @@ const RootModals = () => {
         title="Matchmaking"
         closeHandler={handleCloseMatchMaking}
         show={showMatchMaking}
+      >
+        <MatchMaking />
+      </PongModal>
+
+      {/* First connection */}
+      <PongModal
+        title="Welcomme"
+        closeHandler={handleCloseFirstConnection}
+        show={showFirstConnection}
       >
         <MatchMaking />
       </PongModal>

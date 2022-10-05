@@ -6,11 +6,12 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  WsException,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
-import { OnModuleInit, UseFilters } from '@nestjs/common';
+import { Catch, OnModuleInit, UseFilters } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
@@ -18,6 +19,7 @@ import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @UseFilters(new WsExceptionsFilter())
+@Catch(WsException)
 @WebSocketGateway()
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit

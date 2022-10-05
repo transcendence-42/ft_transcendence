@@ -707,6 +707,7 @@ export class GameService {
   /** Initialize game */
   private _initGame(game: Game, side: number) {
     if (game.status === Status.CREATED) {
+      console.log('kikou');
       this._initGameGrid(game);
       this._initGamePhysics(game);
     } else {
