@@ -21,16 +21,16 @@ export default function BrowseChannels({
   const [selectedChannel, setSelectedChannel] = useState({} as Channel);
   const [joinChannelPassword, setJoinChannelPassword] = useState("");
 
-  const handleJoinChannel = (e: any, channel: Channel) => {
+  const handleJoinChannel = (e: any, channel: Channel, password?: string) => {
     e.preventDefault();
     if (!channel || isEmpty(channel)) {
       return alert(`You must select a channel!`);
     }
-    if (
-      channel["type"] === eChannelType.PROTECTED &&
-      joinChannelPassword === ""
-    ) {
-      return alert("You must provide a Password!");
+    if (channel["type"] === eChannelType.PROTECTED) {
+      if (joinChannelPassword === "") {
+        return alert("You must provide a Password!");
+      } else if (joinChannelPassword !== channel.password)
+        return alert("Bad password!");
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -124,7 +124,9 @@ export default function BrowseChannels({
         <>
           <form
             id="joinChannelForm"
-            onSubmit={(e) => handleJoinChannel(e, selectedChannel)}
+            onSubmit={(e) =>
+              handleJoinChannel(e, selectedChannel, joinChannelPassword)
+            }
           >
             {filtered.map((channel: Channel) => (
               <div className="channels" key={channel.id}>
