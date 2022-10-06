@@ -43,7 +43,9 @@ export class ChatService {
     const channelId = msg.toChannelOrUserId.toString();
     console.log('emiting message to channel id', channelId);
     await this.redis.lPush(channelId, JSON.stringify(msg));
-    this.server.to(channelId).emit(eEvent.UpdateOneMessage, msg);
+    this.server
+      .to(this._makeId(channelId, eIdType.Channel))
+      .emit(eEvent.UpdateOneMessage, msg);
   }
 
   async muteUser(client: Socket, userId: number, channelId: number) {
