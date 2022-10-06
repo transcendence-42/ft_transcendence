@@ -9,6 +9,7 @@ import {
   PlayerNotFoundException,
   gameIsPausedException,
   gameRegistrationException,
+  TooMuchPlayersException,
 } from './exceptions/';
 import { MatchService } from 'src/match/match.service';
 import { CreateMatchDto } from 'src/match/dto/create-match.dto';
@@ -16,6 +17,8 @@ import { Match } from 'src/match/entities/match.entity';
 import { nickName } from './extra/surnames';
 import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
+import { UpdatePlayerDto } from './dto/update-player.dto';
+import { User } from 'src/user/entities/user.entity';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -93,8 +96,8 @@ const Params = Object.freeze({
   LOBBY: 'lobby',
   CANVASW: 900,
   CANVASH: 500,
-  BALLSPEED: 6,
-  PLAYERSPEED: 10,
+  BALLSPEED: 3,
+  PLAYERSPEED: 8,
   BARWIDTH: 12,
   BARHEIGHT: 54,
   WALLSIZE: 15,
@@ -138,6 +141,10 @@ export class GameService {
   clients: Client[];
   ballIntervals: BallIntervall[];
   gameLoops: GameLoop[];
+
+  /** *********************************************************************** */
+  /** ERROR MANAGEMENT                                                        */
+  /** *********************************************************************** */
 
   /** *********************************************************************** */
   /** USER INFOS                                                              */
@@ -252,8 +259,21 @@ export class GameService {
     }
   }
 
-  /** Go offline */
-  async handleSwitchStatus(client: Socket) {
+  /** Get player infos from redis */
+  private async _getPlayerInfos(id: string): Promise<any> {
+    const data: any = (
+      await this.redis
+        .multi()
+        .select(DB.PLAYERSINFOS)
+        .call('JSON.GET', eKeys.PLAYERSINFOS, `$.players[?(@.id=="${id}")]`)
+        .exec()
+    )[1][1];
+    if (data) return JSON.parse(data)[0];
+    return null;
+  }
+
+  /** Go offline / online */
+  async switchStatus(client: Socket) {
     const userId = client.handshake.query.userId.toString();
     // Save or update client as a player for players info
     let status: any = (
@@ -269,9 +289,16 @@ export class GameService {
     )[1][1];
     status = JSON.parse(status)[0];
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
-    if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
+    else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
     await this._savePlayerInfos(userId, { status: status });
     this._sendPlayersInfo();
+  }
+
+  /** Update username and/or picture */
+  async updatePlayer(client: Socket, updatePlayerDto: UpdatePlayerDto) {
+    const userId = client.handshake.query.userId.toString();
+    await this._savePlayerInfos(userId, updatePlayerDto);
+    await this._sendPlayersInfo();
   }
 
   /** *********************************************************************** */
@@ -281,14 +308,27 @@ export class GameService {
   /** add client to list */
   private async _addOrUpdateClient(client: Socket) {
     const userId = client.handshake.query.userId.toString();
+    const pic = client.handshake.query.pic.toString();
+    const name = client.handshake.query.name.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
-    else this.clients.push(new Client(client, userId));
+    else this.clients.push(new Client(client, userId, name, pic));
+    // Check if player is registered in a game for status
+    let status: ePlayerStatus = ePlayerStatus.ONLINE;
+    let matchmaking: ePlayerMatchMakingStatus =
+      ePlayerMatchMakingStatus.NOT_IN_QUEUE;
+    const playerInfos = await this._getPlayerInfos(userId);
+    if (playerInfos) {
+      status = playerInfos.status;
+      matchmaking = playerInfos.matchmaking;
+    }
     // Save or update client as a player for players info
     await this._savePlayerInfos(userId, {
       id: userId,
-      status: ePlayerStatus.ONLINE,
-      matchmaking: 0,
+      status: status,
+      matchmaking: matchmaking,
+      pic: pic,
+      name: name,
     });
     this._sendPlayersInfo();
   }
@@ -334,9 +374,13 @@ export class GameService {
     }
     // add client to the server list
     await this._addOrUpdateClient(client);
+    // switch client status to online
+    await this._savePlayerInfos(userId, { status: ePlayerStatus.ONLINE });
+    await this._sendPlayersInfo();
     // if the user id is in a game, reconnect the client to the game
-    await this.redis.select(DB.PLAYERS);
-    const gameId: any = await this.redis.hget('players', userId);
+    const gameId: any = (
+      await this.redis.multi().select(DB.PLAYERS).hget('players', userId).exec()
+    )[1][1];
     if (gameId) {
       client.join(gameId);
       client.emit('reconnect', gameId);
@@ -361,14 +405,40 @@ export class GameService {
     this.server.to(Params.LOBBY).emit('info', {
       message: `${userName} left the lobby`,
     });
-    // Warn the room if the player is in game
-    await this.redis.select(DB.PLAYERS);
-    const gameId: any = await this.redis.get(userId);
-    if (gameId && this.server)
+    // Update players info with status offline
+    await this._savePlayerInfos(userId, { status: ePlayerStatus.OFFLINE });
+    await this._sendPlayersInfo();
+    // If the user is in a game
+    const gameId: any = (
+      await this.redis.multi().select(DB.PLAYERS).get(userId).exec()
+    )[1][1];
+    if (gameId && this.server) {
       this.server.to(gameId).emit('info', {
         message: `${userName} has left.`,
         data: { userId: userId },
       });
+      // Check if there is active users on the game, if not, the game is canceled
+      let players: any = (
+        await this.redis
+          .multi()
+          .select(DB.GAMES)
+          .call('JSON.GET', gameId, '$.players')
+          .exec()
+      )[1][1];
+      players = JSON.parse(players)[0];
+      let nbOffline = 0;
+      for (let i = 0; i < players.length; ++i) {
+        if (
+          (await this._checkPlayerInfo(
+            players[i].userId,
+            'status',
+            ePlayerStatus.OFFLINE,
+          )) === true
+        )
+          ++nbOffline;
+      }
+      if (nbOffline === 2) this._cancelGame(gameId, true);
+    }
   }
 
   /** disconnect old sockets */
@@ -411,6 +481,8 @@ export class GameService {
     game: Game,
     pipeline: ChainableCommander,
   ) {
+    // Check the number of players in the game. Max is 2
+    if (game.players.length > 1) throw new TooMuchPlayersException();
     // Add it to the game room and leave lobby
     //player.socket.leave(Params.LOBBY);
     player.socket.join(game.id);
@@ -437,12 +509,32 @@ export class GameService {
       game: game.id,
     });
     this._sendPlayersInfo();
+    // Remove player from other game if he is a viewer
+    const isViewer: any = (
+      await this.redis.multi().select(DB.VIEWERS).get(player.userId).exec()
+    )[1][1];
+    if (isViewer !== null) {
+      player.socket.leave(isViewer);
+    }
   }
 
   /** Check if a player is already in a game */
   private async _isPlayerInGame(userId: string): Promise<boolean> {
     const res = await this.redis.multi().select(DB.PLAYERS).get(userId).exec();
     return res[1][1] !== null;
+  }
+
+  /** Check if player is in a specific game */
+  private async _isPlayerInThisGame(
+    userId: string,
+    gameId: string,
+  ): Promise<boolean> {
+    const isGame = (
+      await this.redis.multi().select(DB.PLAYERS).get(userId).exec()
+    )[1][1];
+    if (isGame === null) return false;
+    else if (isGame === gameId) return true;
+    return false;
   }
 
   /** Get the side of a player in a game from his id */
@@ -493,6 +585,9 @@ export class GameService {
   /** Remove game from storage */
   private async _removeGame(gameId: string) {
     const game: Game = await this._getGame(gameId);
+    // clear interval if there is one
+    const gameLoop: GameLoop = this.gameLoops.find((i) => i.id === gameId);
+    if (gameLoop) clearInterval(gameLoop.interval);
     // create a pipeline for redis commands
     const pipeline = this.redis.pipeline();
     // remove players
@@ -532,18 +627,37 @@ export class GameService {
   }
 
   /** Cancel game */
-  private async _cancelGame(gameId: string) {
+  private async _cancelGame(gameId: string, safe?: boolean) {
+    // emit a game end info to all players / viewers so they go back to lobby
+    this.server.to(gameId).emit('gameEnd', Motive.CANCEL);
     //this.server.in(gameId).socketsJoin(Params.LOBBY);
     this.server.in(gameId).socketsLeave(gameId);
     // update and send player info
-    const userId = (await this._getGame(gameId)).players[0].userId;
+    let userId: string;
+    if (safe === false || safe === undefined) {
+      userId = (await this._getGame(gameId)).players[0].userId;
+    } else {
+      try {
+        userId = (await this._getGame(gameId)).players[0].userId;
+      } catch (e) {
+        return;
+      }
+    }
     await this._savePlayerInfos(userId, {
       status: ePlayerStatus.ONLINE,
       game: '',
       matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
     this._sendPlayersInfo();
-    await this._removeGame(gameId);
+    if (safe === false || safe === undefined) {
+      await this._removeGame(gameId);
+    } else {
+      try {
+        await this._removeGame(gameId);
+      } catch (e) {
+        return;
+      }
+    }
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -551,17 +665,16 @@ export class GameService {
 
   /** End a game */
   private async _endGame(
-    gameId: string,
+    game: Game,
     motive: number,
     loserId?: string,
   ): Promise<Match> {
     // emit a game end info to all players / viewers so they go back to lobby
-    this.server.to(gameId).emit('gameEnd', motive);
+    this.server.to(game.id).emit('gameEnd', motive);
     // disconnect players / viewers from game room and connect them to lobby
-    this.server.in(gameId).socketsJoin(Params.LOBBY);
-    this.server.in(gameId).socketsLeave(gameId);
+    this.server.in(game.id).socketsJoin(Params.LOBBY);
+    this.server.in(game.id).socketsLeave(game.id);
     // save game result in database
-    const game: Game = await this._getGame(gameId);
     const createMatchDto: CreateMatchDto = {
       players: game.players.map((p: any) => ({
         playerId: +p.userId,
@@ -571,7 +684,7 @@ export class GameService {
       })),
     };
     // remove the game from the list
-    await this._removeGame(gameId);
+    await this._removeGame(game.id);
     // send a fresh gamelist to the lobby
     const gameList = await this._createGameList();
     this.server.to(Params.LOBBY).emit('gameList', gameList);
@@ -621,7 +734,7 @@ export class GameService {
       // check scores and end the game if one player scores 9
       const loserId = this._weHaveALoser(game);
       if (loserId !== '') {
-        this._endGame(game.id, Motive.WIN, loserId);
+        this._endGame(game, Motive.WIN, loserId);
         clearInterval(interval);
         return;
       }
@@ -641,7 +754,30 @@ export class GameService {
             '$.gamePhysics.ball',
             JSON.stringify(game.gamePhysics.ball),
           )
-          .call('JSON.SET', game.id, '$.players', JSON.stringify(game.players))
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].score',
+            JSON.stringify(game.players[0].score),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[1].score',
+            JSON.stringify(game.players[1].score),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].updating',
+            JSON.stringify(game.players[0].updating),
+          )
+          .call(
+            'JSON.SET',
+            game.id,
+            '$.players[0].updating',
+            JSON.stringify(game.players[0].updating),
+          )
           .exec();
       }
     }
@@ -650,7 +786,9 @@ export class GameService {
   /** Start a game */
   private async _startGame(id: string) {
     let game: Game = await this._getGame(id);
+    if (!game) return;
     // Update players info
+    if (game.players[1] === undefined) throw new PlayerNotFoundException('');
     for (let i = 0; i < 2; ++i) {
       await this._savePlayerInfos(game.players[i].userId, {
         status: ePlayerStatus.PLAYING,
@@ -670,10 +808,21 @@ export class GameService {
       .exec();
     // game loop
     const gameInterval = setInterval(async () => {
-      await this._gameLoop(game, gameInterval);
-      game = await this._getGame(game.id);
-    }, 30);
+      try {
+        await this._gameLoop(game, gameInterval);
+        game = await this._getGame(game.id);
+      } catch (e) {}
+    }, 15);
     this.gameLoops.push({ id: id, interval: gameInterval });
+  }
+
+  /** Create with one */
+  async createWithOne(client: Socket) {
+    const userId: string = client.handshake.query.userId.toString();
+    const playerInfos: any = await this._getPlayerInfos(userId);
+    const players: Player[] = [];
+    players.push(new Player(client, userId, playerInfos.name, playerInfos.pic));
+    await this.create(players);
   }
 
   /** Create a new game */
@@ -757,12 +906,15 @@ export class GameService {
   async abandonGame(client: Socket, id: string): Promise<Match> {
     const game: Game = await this._getGame(id);
     const userId: string = client.handshake.query.userId.toString();
-    // clear the game loop if exists
-    const interval = this._getInterval(id);
-    if (interval) clearInterval(interval);
-    if (game.players.length > 1)
-      return await this._endGame(id, Motive.ABANDON, userId);
-    else await this._cancelGame(id);
+    // Check if the user is in the game
+    if (await this._isPlayerInThisGame(userId, id)) {
+      // clear the game loop if exists
+      const interval = this._getInterval(id);
+      if (interval) clearInterval(interval);
+      if (game.players.length > 1)
+        return await this._endGame(game, Motive.ABANDON, userId);
+      else await this._cancelGame(id);
+    } else return null;
   }
 
   /** pause a game */
@@ -771,40 +923,46 @@ export class GameService {
     const game: Game = await this._getGame(id);
     const userId: string = client.handshake.query.userId.toString();
     const player: Player = game.players.find((p) => p.userId === userId);
-    // check if game is already paused
-    if (game.status === Status.PAUSED)
-      throw new CannotPauseGameException('the game is already paused');
-    // check if user can pause the game
-    if (player.pauseCount === 0) {
-      throw new CannotPauseGameException('you have used all your pauses');
-    }
-    // Pause the game and unpause it after a delay with a callback
-    game.players.map((p) =>
-      p.userId === userId ? { ...p, pauseCount: --p.pauseCount } : p,
-    );
-    const ballSpeed = game.gamePhysics.ball.speed;
-    // update redis
-    await this.redis
-      .multi()
-      .select(DB.GAMES)
-      .call('JSON.SET', id, '$.players', JSON.stringify(game.players))
-      .call('JSON.SET', id, '$.status', Status.PAUSED)
-      .exec();
-    this.server.to(id).emit('pause', +Params.PAUSE_TIME);
-    // UnPause after a delay
-    setTimeout(async () => {
-      const isGame = (
-        await this.redis.multi().select(DB.GAMES).exists(id).exec()
-      )[1][1];
-      if (isGame) {
-        await this.redis
-          .multi()
-          .select(DB.GAMES)
-          .call('JSON.SET', id, '$.status', Status.STARTED)
-          .call('JSON.SET', id, '$.gamePhysics.ball.speed', ballSpeed)
-          .exec();
+    // Check if the user is in the game
+    if (await this._isPlayerInThisGame(userId, id)) {
+      // check if game is already paused
+      if (game.status === Status.PAUSED)
+        throw new CannotPauseGameException('the game is already paused');
+      // check if user can pause the game
+      if (player && player.pauseCount === 0) {
+        throw new CannotPauseGameException('you have used all your pauses');
       }
-    }, Params.PAUSE_TIME * 1000);
+      // Pause the game and unpause it after a delay with a callback
+      const i: number = game.players.findIndex((p) => p.userId === userId);
+      const ballSpeed = game.gamePhysics.ball.speed;
+      // update redis with updated pause count
+      await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call(
+          'JSON.SET',
+          id,
+          `$.players[${i}].pauseCount`,
+          JSON.stringify(--game.players[i].pauseCount),
+        )
+        .call('JSON.SET', id, '$.status', Status.PAUSED)
+        .exec();
+      this.server.to(id).emit('pause', +Params.PAUSE_TIME);
+      // UnPause after a delay
+      setTimeout(async () => {
+        const isGame = (
+          await this.redis.multi().select(DB.GAMES).exists(id).exec()
+        )[1][1];
+        if (isGame) {
+          await this.redis
+            .multi()
+            .select(DB.GAMES)
+            .call('JSON.SET', id, '$.status', Status.STARTED)
+            .call('JSON.SET', id, '$.gamePhysics.ball.speed', ballSpeed)
+            .exec();
+        }
+      }, Params.PAUSE_TIME * 1000);
+    }
   }
 
   /** join a game (player) */
@@ -813,8 +971,10 @@ export class GameService {
     const game: Game = await this._getGame(id);
     // get pipeline
     const pipeline = this.redis.pipeline();
-    // remove user from matchmaking
+    // get user id
     const userId: string = client.handshake.query.userId.toString();
+    // get player infos
+    const playerInfos = await this._getPlayerInfos(userId);
     const isMatchMaking = (
       await this.redis
         .multi()
@@ -828,20 +988,22 @@ export class GameService {
         .select(DB.MATCHMAKING)
         .srem('users', userId)
         .exec();
-    // add new player to the game and emit new grid
-    this._addPlayerToGame(
-      new Player(client, userId),
-      Side.RIGHT,
-      game,
-      pipeline,
-    );
-    // update redis
-    await pipeline.exec();
-    // Start game
-    await this._startGame(id);
-    // update the lobby with the new player
-    const gameList = await this._createGameList();
-    this.server.to(Params.LOBBY).emit('gameList', gameList);
+    // it this is not a re join, add new player to the game and emit new grid
+    if (!(await this._isPlayerInThisGame(userId, id))) {
+      this._addPlayerToGame(
+        new Player(client, userId, playerInfos.name, playerInfos.pic),
+        Side.RIGHT,
+        game,
+        pipeline,
+      );
+      // update redis
+      await pipeline.exec();
+      // Start game
+      await this._startGame(id);
+      // update the lobby with the new player
+      const gameList = await this._createGameList();
+      this.server.to(Params.LOBBY).emit('gameList', gameList);
+    }
   }
 
   /** view a game (viewer) */
@@ -882,23 +1044,31 @@ export class GameService {
 
   /** continue a game after a server reboot */
   async continue(client: Socket, id: string) {
-    // check if there is a game loop for this game already
-    if (!this.gameLoops.find((gl) => gl.id === id)) {
-      let game: Game = await this._getGame(id);
-      // force status to Started (in case the game is paused)
-      await this.redis
-        .multi()
-        .select(DB.GAMES)
-        .call('JSON.SET', id, `$.status`, Status.STARTED)
-        .exec();
-      // reinit grid and physics to restore ball interval
-      this._initGame(game, Side.RIGHT);
-      // new game loop
-      const gameInterval = setInterval(async () => {
-        await this._gameLoop(game, gameInterval);
-        game = await this._getGame(game.id);
-      }, 30);
-      this.gameLoops.push({ id: id, interval: gameInterval });
+    const userId: string = client.handshake.query.userId.toString();
+    // Check if the user is in the game
+    if (await this._isPlayerInThisGame(userId, id)) {
+      // check if there is a game loop for this game already
+      if (!this.gameLoops.find((gl) => gl.id === id)) {
+        let game: Game = await this._getGame(id);
+        // force status to Started (in case the game is paused)
+        await this.redis
+          .multi()
+          .select(DB.GAMES)
+          .call('JSON.SET', id, `$.status`, Status.STARTED)
+          .exec();
+        // reinit grid and physics to restore ball interval
+        this._initGame(game, Side.RIGHT);
+        // move again the two players in the game room
+        for (const p of game.players) this._getSocket(p.userId)?.join(id);
+        // new game loop
+        const gameInterval = setInterval(async () => {
+          try {
+            await this._gameLoop(game, gameInterval);
+            game = await this._getGame(game.id);
+          } catch (e) {}
+        }, 15);
+        this.gameLoops.push({ id: id, interval: gameInterval });
+      }
     }
   }
 
@@ -908,7 +1078,6 @@ export class GameService {
 
   /** handle player joining or leaving matchmaking */
   async handleMatchMaking(client: Socket, value: boolean) {
-    console.log(value);
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // add or remove the player
@@ -945,11 +1114,17 @@ export class GameService {
         .exec();
       const p1 = users[1][1];
       const p2 = users[2][1];
-      const playersToMatch = [];
+      const p1Infos = await this._getPlayerInfos(p1);
+      const p2Infos = await this._getPlayerInfos(p2);
+      const playersToMatch: Player[] = [];
       await this._savePlayerInfos(p1, { matchmaking: 2 });
       await this._savePlayerInfos(p2, { matchmaking: 2 });
-      playersToMatch.push({ userId: p1, socket: this._getSocket(p1) });
-      playersToMatch.push({ userId: p2, socket: this._getSocket(p2) });
+      playersToMatch.push(
+        new Player(this._getSocket(p1), p1, p1Infos.name, p1Infos.pic),
+      );
+      playersToMatch.push(
+        new Player(this._getSocket(p2), p2, p2Infos.name, p2Infos.pic),
+      );
       playersToMatch.forEach((p) => {
         this._getSocket(p.userId).emit('opponentFound');
       });
@@ -1022,6 +1197,7 @@ export class GameService {
     const scores = game.players.map((player) => ({
       side: player.side,
       score: player.score,
+      name: player.name,
     }));
     return scores;
   }
@@ -1240,11 +1416,24 @@ export class GameService {
       input === Move.UP ? Params.PLAYERSPEED * -1 : Params.PLAYERSPEED;
     // handle possible collision
     let updatedPaddle: Physic = this._getUpdatedObject(paddle, move);
-    if (
-      this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.TOP]) ||
+    if (this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.TOP])) {
+      updatedPaddle = {
+        ...paddle,
+        coordinates: {
+          x: paddle.coordinates.x,
+          y: Params.WALLSIZE + 1,
+        },
+      };
+    } else if (
       this._isCollision(updatedPaddle, game.gamePhysics.walls[Wall.BOTTOM])
     ) {
-      updatedPaddle = this._bounce(paddle);
+      updatedPaddle = {
+        ...paddle,
+        coordinates: {
+          x: paddle.coordinates.x,
+          y: Params.CANVASH - Params.WALLSIZE - 1 - Params.BARHEIGHT,
+        },
+      };
     }
     game.gamePhysics.players[playerIndex] = updatedPaddle;
   }
@@ -1339,25 +1528,30 @@ export class GameService {
 
   /** update a game (moves) */
   async update(client: Socket, id: string, move: number) {
-    // read from redis
-    const game: Game = await this._getGame(id);
-    // Update player position if game started
-    if (game.status === Status.STARTED) {
-      // Update move
-      const userId: string = client.handshake.query.userId.toString();
-      const side: number = this._getSideOfPlayer(game, userId);
-      this._movePaddleFromInput(game, side, move);
-      // write in redis
-      await this.redis
-        .multi()
-        .select(DB.GAMES)
-        .call(
-          'JSON.SET',
-          id,
-          `$.gamePhysics.players[?(@.side==${side})]`,
-          JSON.stringify(game.gamePhysics.players.find((p) => p.side === side)),
-        )
-        .exec();
+    const userId: string = client.handshake.query.userId.toString();
+    // Check if the user is in the game
+    if (await this._isPlayerInThisGame(userId, id)) {
+      // read from redis
+      const game: Game = await this._getGame(id);
+      // Update player position if game started
+      if (game.status === Status.STARTED) {
+        // Update move
+        const side: number = this._getSideOfPlayer(game, userId);
+        this._movePaddleFromInput(game, side, move);
+        // write in redis
+        await this.redis
+          .multi()
+          .select(DB.GAMES)
+          .call(
+            'JSON.SET',
+            id,
+            `$.gamePhysics.players[?(@.side==${side})]`,
+            JSON.stringify(
+              game.gamePhysics.players.find((p) => p.side === side),
+            ),
+          )
+          .exec();
+      }
     }
   }
 
@@ -1367,6 +1561,21 @@ export class GameService {
 
   /** returns player info to requester */
   async handlePlayersInfos(client: Socket) {
+    // Complete data in redis if needed with missing infos
+    try {
+      const users: User[] = await this.userService.findAll({} as any);
+      for (const user of users) {
+        if ((await this._getPlayerInfos(user.id.toString())) === null)
+          await this._savePlayerInfos(user.id.toString(), {
+            id: user.id.toString(),
+            status: ePlayerStatus.OFFLINE,
+            matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
+            pic: user.profilePicture,
+            name: user.username,
+          });
+      }
+    } catch (e) {} // no user in database
+    // extract data from redis and send it
     const data: any = (
       await this.redis
         .multi()
@@ -1381,7 +1590,7 @@ export class GameService {
   /** CHALLENGE                                                               */
   /** *********************************************************************** */
 
-  async handleCreateChallenge(client: Socket, id: string) {
+  async createChallenge(client: Socket, id: string) {
     // get both players
     const userId: string = client.handshake.query.userId.toString();
     const challenger = this.clients.find((c) => c.userId === userId);
@@ -1462,12 +1671,21 @@ export class GameService {
         status: eChallengeStatus.ACCEPTED,
       });
       // create a match and launch it
-      const playersToMatch = [];
+      const playersToMatch: Player[] = [];
+      const player1Infos = await this._getPlayerInfos(userId);
+      const player2Infos = await this._getPlayerInfos(opponent.userId);
       playersToMatch.push({
         userId: opponent.userId,
         socket: this._getSocket(opponent.userId),
+        name: player1Infos ? player1Infos.name : '',
+        pic: player1Infos ? player1Infos.pic : '',
       });
-      playersToMatch.push({ userId: userId, socket: client });
+      playersToMatch.push({
+        userId: userId,
+        socket: client,
+        name: player2Infos ? player2Infos.name : '',
+        pic: player2Infos ? player2Infos.pic : '',
+      });
       setTimeout(() => {
         this.create(playersToMatch);
       }, 2000);

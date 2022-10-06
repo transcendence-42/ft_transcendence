@@ -5,11 +5,11 @@ export const RootModalsContext = React.createContext([] as any);
 
 const RootModalsProvider = (props: any) => {
   // Modal states to share to other components (this one is an example)
-  const [showGameChallenge, setShowGameChallenge] = useState(false);
+  const [showFirstConnection, setShowFirstConnection] = useState(false);
 
   return (
     <RootModalsContext.Provider
-      value={[showGameChallenge, setShowGameChallenge]}
+      value={[showFirstConnection, setShowFirstConnection]}
     >
       {props.children}
     </RootModalsContext.Provider>

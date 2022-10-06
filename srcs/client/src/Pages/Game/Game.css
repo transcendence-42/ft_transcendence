@@ -1,3 +1,8 @@
+@font-face {
+  font-family: 'sharpin';
+  src: url('../../fonts/SHARPIN.otf');
+}
+
 /* Game list */
 .game-list tr td:nth-child(1) { 
   width: 30%;

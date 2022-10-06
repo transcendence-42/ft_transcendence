@@ -1,5 +1,5 @@
-export async function patchFetchPseudo(props : any){
-	await
+export async function patchFetchPseudo(props : any): Promise<boolean> {
+	return await
 		fetch(props.url, {
 	  method: "PATCH",
 	  credentials: "include",
@@ -9,11 +9,9 @@ export async function patchFetchPseudo(props : any){
 		"Access-Control-Allow-Credentials": "true",
 	  },
 	  body: JSON.stringify({ username: props.name})
-	}).then((response) =>{
+	}).then((response) => {
 		console.log(response);
-		if (response.status !== 200)
-		{
-			// check response for Bad Request (Feature Incoming)
-		}
+		if (response.status !== 200) return false;
+    else return true;	
 	})
 }

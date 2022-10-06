@@ -9,14 +9,11 @@ import '../../Components/Tools/Box.css';
 import '../../Styles/';
 // Components
 import AddFriend from './Button/AddFriend';
-import BlockFriend from './Button/BlockFriend';
 import PhotoProfil from '../../Components/Tools/Button/PhotoProfil';
 import OnlineOffline from './OnlineOffline';
 import ChangePicture from './Button/ChangePicture';
 import DoubleAuth from './Button/DoubleAuth';
 import Ladder from './Ladder';
-import MatchHistory from './MatchHistory';
-import FriendList from './FriendList';
 import ChangeUsername from './Button/ChangeUsername';
 // Utils
 import { getFetch } from './Fetch/getFetch';
@@ -24,6 +21,8 @@ import { getFetchMatch } from './Fetch/getFetchMatch';
 import { getFetchFriends } from './Fetch/getFetchFriends';
 // Context
 import { SocketContext } from '../Game/socket/socket';
+import PaginatedMatchHistory from './PaginatedMatchHistory';
+import PaginatedFriendList from './PaginatedFriendList';
 
 const Profile = () => {
   /**
@@ -34,20 +33,24 @@ const Profile = () => {
   /** GLOBAL                                                                  */
   /** *********************************************************************** */
 
+  // Get game socket
   const [socket, originalId] = useContext(SocketContext);
+  // Get user id from params
   let { id } = useParams();
+  // Handle id errors
   let userId: number;
-  if (id) userId = +id;
-  else userId = +originalId;
+  if (id) {
+    userId = +id;
+  } else userId = 0;
 
   /** *********************************************************************** */
   /** STATES                                                                  */
   /** *********************************************************************** */
 
   const [user, setUser] = useState({} as any);
-  const [doubleFactor, setDoubleFactor] : any = useState(false);
+  const [doubleFactor, setDoubleFactor]: any = useState(false);
   const [player, setPlayer] = useState({} as any);
-  const [players, setPlayers] = useState({} as any);
+  const [players, setPlayers] = useState([] as any);
   const [friendList, setFriendList] = useState([] as any);
   const [friendRequestList, setFriendRequestList] = useState([] as any);
   const [matchesList, setMatchesList] = useState([] as any);
@@ -65,10 +68,10 @@ const Profile = () => {
       ? data.players.find((p: any) => p.id === userId.toString())
       : {};
     setPlayer(player);
-    if (player.updated === 1) {
+    if (player && player.updated === 1) {
       setUpdate(1);
     }
-  }, []);
+  }, [userId]);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -94,17 +97,13 @@ const Profile = () => {
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
-  const init = async () => {
-    socket.emit('getPlayersInfos');
-  };
-
   useEffect(() => {
-    init();
+    socket.emit('getPlayersInfos');
     socket.on('playersInfos', handlePlayersInfo);
     return () => {
       socket.off('playersInfos', handlePlayersInfo);
     };
-  }, []);
+  }, [handlePlayersInfo, id, socket]);
 
   useEffect(() => {
     const apiUrl: string = process.env.REACT_APP_API_URL as string;
@@ -137,7 +136,8 @@ const Profile = () => {
             setDoubleFactor(true);
         }
       });
-    }}, [userId, update]);
+    } else setUser(null);
+  }, [userId, update]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -145,13 +145,12 @@ const Profile = () => {
 
   if (user) {
     return (
-      <div className='row'>
-        <div className='col-xl-1'></div>
-        <div className='col-xs-12 col-xl-10'>
-
+      <div className="row">
+        <div className="col-xl-1"></div>
+        <div className="col-xs-12 col-xl-10">
           {/* Profil picture + action buttons + stats */}
           <div className="row mt-5 mb-5" data-testid="tracker">
-            <div className="col-xs-8 col-md-1 col-xl-2">
+            <div className="col-xs-8 col-md-2 col-xl-2">
               <PhotoProfil
                 url={user.profilePicture}
                 width={'100px'}
@@ -165,39 +164,54 @@ const Profile = () => {
               >
                 {user.username}
               </div>
-              <OnlineOffline status={+player.status} size={'1.2em'} />
+              <OnlineOffline
+                status={+player?.status}
+                size={'1.2em'}
+                userId={userId}
+                currentId={originalId}
+                switchHandler={handleSwitchStatus}
+                displaySwitch={true}
+              />
             </div>
             <div className="col-xs-8 col-md-3 col-xl-2 mb-2">
               {userId === +originalId ? (
                 <>
-                  <ChangeUsername id={userId} up={toggleUpdate}/>
-                  <ChangePicture id={userId} up={toggleUpdate}/>
-                  <DoubleAuth id={userId} up={toggleUpdate} authUp={setDoubleFactor} activated={doubleFactor}/>
+                  <ChangeUsername id={userId} up={toggleUpdate} />
+                  <ChangePicture id={userId} up={toggleUpdate} />
+                  <DoubleAuth
+                    id={userId}
+                    up={toggleUpdate}
+                    authUp={setDoubleFactor}
+                    activated={doubleFactor}
+                  />
                 </>
               ) : (
-                <>
-                  <AddFriend id={userId} originalId={+originalId} />
-                  <BlockFriend id={userId} originalId={+originalId} />
-                </>
+                <AddFriend
+                  id={userId}
+                  originalId={+originalId}
+                  friendList={friendList}
+                />
               )}
             </div>
-            <div className="col-xs-12 col-md-6 col-xl-6">
+            <div className="col-xs-12 col-md-5 col-xl-6">
               <Ladder stats={user.stats} elo={user.eloRating} />
             </div>
           </div>
 
           {/* Match history + friends */}
           <div className="row">
-            <div className="col-xs-12 col-xl-6">
-              <MatchHistory
-                matchesList={matchesList}
-                id={+userId}
+            <div className="col-xs-12 col-xl-6 d-flex flex-column">
+              <PaginatedMatchHistory
+                items={matchesList}
+                itemsPerPage={5}
+                userId={userId}
               />
             </div>
             <div className="col-xs-12 col-xl-6">
-              <FriendList
-                friendList={friendList}
+              <PaginatedFriendList
+                items={friendList}
                 friendRequestList={friendRequestList}
+                itemsPerPage={5}
                 id={userId}
                 originalId={+originalId}
                 up={toggleUpdate}
@@ -207,11 +221,16 @@ const Profile = () => {
             </div>
           </div>
         </div>
-        <div className='col-xl-1'></div>
+        <div className="col-xl-1"></div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="row text-center">
+        <div className="col text-pink fs-2">User #{id} not found</div>
       </div>
     );
   }
-  return <></>;
 };
 
 export default Profile;

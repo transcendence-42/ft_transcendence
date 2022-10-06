@@ -19,27 +19,27 @@ import '../../Styles';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 
 const GameLobby: FC = () => {
-  /** 
+  /**
    * @locationState origin.name:  Name of the previous page
    *                origin.loc:   Location of the previous page to go back
    *                origin.state: State of the origin to restore it when go back
    *                gameId?:      Id of the game on which apply the action. Can
    *                              be '' if not needed.
    *                action?:      0: Do nothing | 1: Join | 2: Spectacte
-   * 
+   *
    * @props         userId:       id of the current user
    */
 
   /** *********************************************************************** */
   /** ENUMS                                                                   */
   /** *********************************************************************** */
-  
+
   enum eAction {
     NOTHING = 0,
     JOIN,
     SPECTATE,
   }
-  
+
   enum eEvents {
     GO_LOBBY = 0,
     VIEW_GAME,
@@ -57,29 +57,30 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
   /** GLOBAL                                                                  */
   /** *********************************************************************** */
- 
+
   const navigate = useNavigate();
   const [socket, userId] = useContext(SocketContext);
 
   /** *********************************************************************** */
   /** STATES                                                                  */
   /** *********************************************************************** */
-  
+
   // Get a state from location provider
   const location: any = useLocation();
-  let origin: { loc: string, name: string, state: any };
-  let gameId: string; 
+  let origin: { loc: string; name: string; state: any };
+  let gameId: string;
   let action: number;
   if (location.state) {
     ({ origin, gameId, action } = location.state);
   } else {
     origin = { loc: '/lobby', name: 'lobby', state: null };
     gameId = '';
-    action = 0;
+    action = eAction.NOTHING;
   }
-  
+
   // States
   const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [player, setPlayer] = useState({} as any);
   const [message, setMessage] = useState({} as any);
   const [gameList, setGameList] = useState([] as any);
@@ -89,7 +90,7 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
   /** MODAL                                                                   */
   /** *********************************************************************** */
-  
+
   // Modal states
   const [showGoBack, setShowGoBack] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
@@ -106,25 +107,28 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
-  
+
   // Socket events handlers
   const handleGameList = useCallback((gameList: any) => {
     setGameList(gameList);
   }, []);
 
-  const handleScoreUpdate = useCallback((scoreData: any) => {
-    const updatedGameList = gameList.map((g: any) => {
-      if (g.id === scoreData.id) {
-        return ({
-          ...g,
-          players: scoreData.players,
-        })
-      } else {
-        return g;
-      }
-    })
-    setGameList(updatedGameList);
-  }, [gameList]);
+  const handleScoreUpdate = useCallback(
+    (scoreData: any) => {
+      const updatedGameList = gameList.map((g: any) => {
+        if (g.id === scoreData.id) {
+          return {
+            ...g,
+            players: scoreData.players,
+          };
+        } else {
+          return g;
+        }
+      });
+      setGameList(updatedGameList);
+    },
+    [gameList],
+  );
 
   const handleGameId = useCallback(
     (data: any) => {
@@ -142,9 +146,12 @@ const GameLobby: FC = () => {
     [eEvents.RECO_GAME],
   );
 
-  const handleMatchMaking = useCallback((value: eMatchMaking) => {
-    socket.emit('matchMaking', { value: value });
-  }, [socket]);
+  const handleMatchMaking = useCallback(
+    (value: eMatchMaking) => {
+      socket.emit('matchMaking', { value: value });
+    },
+    [socket],
+  );
 
   const handleOpponentFound = useCallback(() => {
     if (game.action === eEvents.VIEW_GAME) {
@@ -171,17 +178,26 @@ const GameLobby: FC = () => {
       setMatchMaking(player.matchmaking);
       setPlayer(player);
       // reconnect game if needed
-      if (player.game && game.id === 'lobby')
-        setGame({ id: player.game, action: eEvents.JOIN_GAME });
+      if (player.game && game.id === 'lobby') {
+        if (
+          gameList &&
+          gameList.some((g: any) => g.id === player.game) === true
+        )
+          setGame({ id: player.game, action: eEvents.JOIN_GAME });
+      }
     }
-  }, []);
+  }, [eEvents.JOIN_GAME, game.id, gameList, userId]);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
-  
+
   const handleNewGame = () => {
     socket.emit('createGame');
+  };
+
+  const handleSetGame = (data: any) => {
+    setGame(data);
   };
 
   const backToOrigin = () => {
@@ -204,10 +220,15 @@ const GameLobby: FC = () => {
     }
     // Player : cancel if 1 player / abandon if match started
     if (game.action !== eEvents.VIEW_GAME) {
+      let wait: boolean = true;
+      const isGame: any = gameList.find((g: any) => g.id === game.id);
+      if (isGame && isGame.players && isGame.players.length === 1) wait = false;
       socket.emit('playerAbandons', { id: game.id });
-      setTimeout(() => {
-        backToOrigin();
-      }, 2000);
+      if (wait) {
+        setTimeout(() => {
+          backToOrigin();
+        }, 2000);
+      } else backToOrigin();
     }
   };
 
@@ -215,54 +236,75 @@ const GameLobby: FC = () => {
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
 
-  const init = () => {
+  const init = useCallback(() => {
     // Check state action
     if (action === eAction.JOIN && gameId !== null) {
       setGame({ id: gameId, action: eEvents.JOIN_GAME });
-    }
-    else if (action === eAction.SPECTATE && gameId !== null) {
+    } else if (action === eAction.SPECTATE && gameId !== null) {
       setGame({ id: gameId, action: eEvents.VIEW_GAME });
-    }
-    else {
+    } else {
       setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
       socket.emit('findAllGame');
     }
-  };
+    // Get players infos
+    socket.emit('getPlayersInfos');
+  }, [
+    action,
+    gameId,
+    eAction.JOIN,
+    eAction.SPECTATE,
+    eEvents.GO_LOBBY,
+    eEvents.JOIN_GAME,
+    eEvents.VIEW_GAME,
+    socket,
+  ]);
 
   useEffect(() => {
     socket.on('opponentFound', handleOpponentFound);
-     return () => {
+    return () => {
       socket.off('opponentFound', handleOpponentFound);
-    }
-  }, [handleOpponentFound]);
+    };
+  }, [handleOpponentFound, socket]);
 
   useEffect(() => {
     socket.on('scoreUpdate', handleScoreUpdate);
     return () => {
       socket.off('scoreUpdate', handleScoreUpdate);
     };
-  }, [gameList]);
+  }, [gameList, handleScoreUpdate, socket]);
+
+  useEffect(() => {
+    socket.on('playersInfos', handlePlayersInfos);
+    return () => {
+      socket.off('playersInfos', handlePlayersInfos);
+    };
+  }, [handlePlayersInfos, socket]);
 
   useEffect(() => {
     init();
+  }, [init]);
+
+  useEffect(() => {
     // Socket listeners
     socket.on('gameList', handleGameList);
     socket.on('reconnect', handleReconnect);
     socket.on('gameId', handleGameId);
     socket.on('exception', handleInfo);
     socket.on('info', handleInfo);
-    socket.on('playersInfos', handlePlayersInfos);
-    // get all games
-    socket.emit('findAllGame');
     return () => {
       socket.off('gameList', handleGameList);
       socket.off('reconnect', handleReconnect);
       socket.off('gameId', handleGameId);
       socket.off('exception', handleInfo);
       socket.off('info', handleInfo);
-      socket.off('playersInfos', handlePlayersInfos);
     };
-  }, []);
+  }, [
+    handleGameId,
+    handleGameList,
+    handleInfo,
+    handleReconnect,
+    socket,
+  ]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -334,7 +376,7 @@ const GameLobby: FC = () => {
               className="btn btn-blue text-blue me-2 mb-4"
               onClick={handleShowGoBack}
             >
-              Go back to {origin.name} 
+              Go back to {origin.name}
             </button>
           )}
           {matchMaking === eMatchMaking.NOT_IN_QUEUE ? (
@@ -372,10 +414,11 @@ const GameLobby: FC = () => {
           <div className="col-xs-10 col-md-8">
             <GameList
               gameList={gameList}
-              setGame={setGame}
+              setGame={handleSetGame}
               handleNewGame={handleNewGame}
               event={eEvents}
               userId={userId.toString()}
+              handleInfo={handleInfo}
             />
           </div>
         )}
