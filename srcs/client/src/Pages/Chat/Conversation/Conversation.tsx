@@ -27,13 +27,12 @@ export default function Conversation({
   ...props
 }: any) {
 
-  const self = user.channels.find(
-    (userOnChan: UserOnChannel) => userOnChan.channelId === currentChannel.id
+  const self = user?.channels?.find(
+    (userOnChan: UserOnChannel) => userOnChan?.channelId === currentChannel.id
   );
-
   // console.log("HERE ==> ",self);
-  console.log(user);
-  console.log("HERE",currentChannel);
+  // console.log(user);
+  // console.log("HERE",currentChannel);
   console.log("ROLE = ",self?.role);
   return (
     <div
@@ -50,11 +49,11 @@ export default function Conversation({
             <div className="col-5">
               <p
                 className="blue-titles"
-                style={{ fontSize: "15px" }}
+                style={{ fontSize: "13px" }}
               >
-                @
                 {currentChannel.type !== eChannelType.DIRECT
-                  ? currentChannel.name
+                  ?
+                  <div className="blue-titles">@{currentChannel.name}</div>
                   : `Direct with ` +
                       otherUser(
                         currentChannel.id,
@@ -64,8 +63,15 @@ export default function Conversation({
                         allUsers
                       )?.username || "loading"}
               </p>
+              { self?.role === "ADMIN" || self?.role === "OWNER" ?
+              <div className="yellow-titles"
+              style={{ fontSize: "13px" }}>{self?.role}</div>
+              :
+              <div className="blue-titles"
+              style={{ fontSize: "13px" }}>{self?.role}</div>
+              }
             </div>
-            <div className="col-7 d-flex justify-content-end">
+            <div className="col-7 d-flex justify-content-end align-items-center">
             <button
               className="btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
@@ -74,10 +80,8 @@ export default function Conversation({
             <div className="textPink d-flex justify-content-center">Leave</div>
             </button>
             <div>
-            {
-              currentChannel.type === eChannelType.DIRECT ?
-              <> </>
-              :
+            { (self?.role === "OWNER" &&
+              currentChannel.type !== eChannelType.DIRECT) ?
               <button
               className="btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
@@ -85,6 +89,8 @@ export default function Conversation({
               >
               <div className="textPink d-flex justify-content-center">Password</div>
               </button>
+              :
+              <> </>
             }
             </div>
             </div>

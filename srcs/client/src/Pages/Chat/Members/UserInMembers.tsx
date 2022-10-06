@@ -33,7 +33,7 @@ export default function UserInMembers({
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ></button>
-              <ul className="dropdown-menu channel-menu text-center">
+              <ul className="dropdown-menu channel-menu text-start">
                 {member.role === eUserRole.OWNER ||
                 (self.role === eUserRole.ADMIN &&
                   member.role === eUserRole.ADMIN) ||
@@ -77,6 +77,9 @@ export default function UserInMembers({
                       Block
                     </li>
                   )}
+                <Link to={`/profile/${member.userId}`}>
+                  <li className="dropdown-item"> View Profile </li>
+                </Link>
                 </>
               </ul>
             </div>

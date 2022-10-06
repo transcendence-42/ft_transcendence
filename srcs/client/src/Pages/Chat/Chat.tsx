@@ -680,11 +680,12 @@ export default function Chat(props: any) {
     socket.on(eEvent.LeaveChannel, handleLeaveChannelEvent);
 
     socket.on(eEvent.BanUser, (message) => {
-      return alert(message);
+      return alert(`You have been banned from channel ${message}`);
     });
 
     console.groupEnd();
     return () => {
+      socket.off(eEvent.BanUser);
       socket.off(eEvent.UpdateMessages);
       socket.off(eEvent.GetMessages);
       socket.off(eEvent.UpdateOneMessage);
@@ -694,6 +695,7 @@ export default function Chat(props: any) {
       socket.off(eEvent.UpdateUserOnChannel);
       socket.off(eEvent.JoinChannelResponse);
       socket.off(eEvent.MuteUser);
+      socket.off(eEvent.LeaveChannel);
       socket.off(eEvent.LeavingChannel);
     };
   }, [

@@ -17,7 +17,7 @@ export default function ChannelsList({
             <table >
               <tbody>
                 {user?.channels?.map((usrOnChan: UserOnChannel) =>
-                  usrOnChan.channel.type === eChannelType.DIRECT ? (
+                  usrOnChan.channel.type === eChannelType.DIRECT || usrOnChan.hasLeftChannel ? (
                     ""
                   ) : (
                     <tr key={usrOnChan.channelId}>
