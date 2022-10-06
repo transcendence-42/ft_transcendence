@@ -11,6 +11,11 @@ export class TwoFactorGuard implements CanActivate {
     );
 
     if (result) console.debug('TwoFactorGuard accepted user!');
+    console.log("heres the path ", request.path)
+    if (request.path === '/auth/2fa/authenticate') {
+      console.debug('TwoFactorGuard accepted user!');
+      return true;
+    }
     else console.debug('Guard TwoFactorGuard Rejected user!');
     return result;
   }

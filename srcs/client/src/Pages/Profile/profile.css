@@ -1,91 +1,42 @@
-.profilAndLadder{
-    width: auto;
-    height: 40%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
+/* Match history */
+.match-history tr td:nth-child(1) { 
+  width: 10%;
+}
+.match-history tr td:nth-child(2) { 
+  width: 30%;
+}
+.match-history tr td:nth-child(3) { 
+  width: 5%;
+}
+.match-history tr td:nth-child(4) { 
+  width: 10%;
+}
+.match-history tr td:nth-child(5) { 
+  width: 5%;
+}
+.match-history tr td:nth-child(6) { 
+  width: 30%;
+}
+.match-history tr td:nth-child(7) { 
+  width: 10%;
 }
 
-.profil{
-    width: 65%;
-    height: auto;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
+/* Friends list */
+.friends-list tr td:nth-child(1) { 
+  width: 10%;
 }
-
-.picture{
-    width: 30%;
-    height: auto;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
-    min-width: 20%;
-    object-fit: cover;
+.friends-list tr td:nth-child(2) { 
+  width: 30%;
 }
-
-
-
-.status{
-    width: auto;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    flex-direction: column;
-    /* max-width: 15vw; */
-    /* overflow: hidden; */
+.friends-list tr td:nth-child(3) { 
+  width: 30%;
 }
-
-.changeProfil{
-    width: auto;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    margin: 1vw;
-    margin-left: 3vw;
+.friends-list tr td:nth-child(4) { 
+  width: 10%;
 }
-
-.ladder{
-    width: auto;
-    height: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    margin-right: 5vw;
+.friends-list tr td:nth-child(5) { 
+  width: 10%;
 }
-
-.matchFriend{
-    width: auto;
-    height: auto;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-direction: row;
+.friends-list tr td:nth-child(6) { 
+  width: 10%;
 }
-
-
-  .match{
-    width: 50%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-}
-
-.friend{
-    width: 42%;
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-}
-

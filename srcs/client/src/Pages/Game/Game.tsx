@@ -1,51 +1,76 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Canvas from '../../Components/Canvas/Canvas';
 
-const Game = (props: any) => {
-  // Enum
-  enum movement {
+const Game = ({
+  socket,
+  id,
+  action,
+  event,
+  origin,
+  backToOrigin,
+  setMatchMaking,
+  matchMakingVal,
+  map,
+}: any) => {
+  /**
+   * @props socket          : the game socket of the current player
+            id              : game id
+            action          : action regarding the game id (join, create, ...)
+            event           : event enum regarding the game
+            origin          : object with origin information
+            backToOrigin    : handler to go back to origin location
+            setMatchMaking  : handler to set matchmaking to true or false
+            matchMakingVal  : enum for matchmaking statuses
+            map             : selected map
+   */
+
+  /** *********************************************************************** */
+  /** ENUMS                                                                   */
+  /** *********************************************************************** */
+
+  enum eMovement {
     UP = 0,
     DOWN,
   }
 
-  const enum Motive {
+  enum eMotive {
     WIN = 0,
     LOSE,
     ABANDON,
     CANCEL,
   }
 
-  const socket = props.socket;
-  // States
+  /** *********************************************************************** */
+  /** STATES                                                                  */
+  /** *********************************************************************** */
+
   const [grid, setGrid] = useState({} as any);
   const [scores, setScores] = useState([]);
   const [message, setMessage] = useState('');
   const timer = useRef({} as NodeJS.Timer);
 
-  // Init
-  const initGame = () => {
-    if (props.action === props.actionVal.JOIN_GAME) {
-      socket.emit('joinGame', { id: props.id });
-      props.setMatchMaking(props.matchMakingVal.IN_GAME);
-    } else if (props.action === props.actionVal.VIEW_GAME)
-      socket.emit('viewGame', { id: props.id });
-    else if (props.action === props.actionVal.RECO_GAME)
-      socket.emit('reconnectGame', { id: props.id });
-    socket.emit('getGameGrid', { id: props.id });
-  };
+  /** *********************************************************************** */
+  /** COMPONENT EVENT HANDLERS                                                */
+  /** *********************************************************************** */
 
-  // Handlers
-  const handleMove = (event: any) => {
-    if (event.key === 'w' || event.key === 'W') {
-      socket.emit('updateGame', { move: movement.UP, id: props.id });
-    }
-    else if (event.key === 's' || event.key === 'S') {
-      socket.emit('updateGame', { move: movement.DOWN, id: props.id });
-    }
-    else if (event.key === 'p' || event.key === 'P') {
-      socket.emit('pause', { id: props.id });
-    }
-  };
+  const handleMove = useCallback(
+    (event: any) => {
+      if (event.key === 'w' || event.key === 'W') {
+        socket.emit('updateGame', { move: eMovement.UP, id: id });
+      } else if (event.key === 's' || event.key === 'S') {
+        socket.emit('updateGame', { move: eMovement.DOWN, id: id });
+      } else if (event.key === 'p' || event.key === 'P') {
+        socket.emit('pause', { id: id });
+      } else if (event.key === 'c' || event.key === 'C') {
+        socket.emit('continue', { id: id });
+      }
+    },
+    [eMovement.DOWN, eMovement.UP, id, socket],
+  );
+
+  /** *********************************************************************** */
+  /** SOCKET EVENTS HANDLERS                                                  */
+  /** *********************************************************************** */
 
   const handleGridUpdate = useCallback((gridUpdate: any) => {
     setGrid(gridUpdate);
@@ -63,17 +88,17 @@ const Game = (props: any) => {
       if (timer.current) {
         clearInterval(timer.current);
       }
-      if (motive === Motive.WIN)
-        setMessage('The game is over. Moving back to lobby');
-      else if (motive === Motive.ABANDON)
-        setMessage('One player abandoned. Moving back to lobby');
-      else if (motive === Motive.CANCEL)
-        setMessage('Player canceled the game. Moving back to lobby');
+      if (motive === eMotive.WIN)
+        setMessage(`The game is over. Moving back to ${origin}`);
+      else if (motive === eMotive.ABANDON)
+        setMessage(`One player abandoned. Moving back to ${origin}`);
+      else if (motive === eMotive.CANCEL)
+        setMessage(`Game canceled. Moving back to ${origin}`);
       setTimeout(() => {
-        props.backTo({ id: 'lobby', action: props.actionVal.GO_LOBBY });
+        backToOrigin();
       }, 4000);
     },
-    [props, Motive.WIN, Motive.ABANDON, Motive.CANCEL, timer],
+    [eMotive.WIN, eMotive.ABANDON, eMotive.CANCEL, origin, backToOrigin],
   );
 
   const handlePause = useCallback(
@@ -86,30 +111,68 @@ const Game = (props: any) => {
           clearInterval(timer.current);
           setMessage('');
         }
-      }, 1000)
-    }, [timer]
+      }, 1000);
+    },
+    [timer],
   );
+
+  /** *********************************************************************** */
+  /** INITIALIZATION                                                          */
+  /** *********************************************************************** */
+
+  const initGame = useCallback(() => {
+    if (action === event.JOIN_GAME) {
+      socket.emit('joinGame', { id: id });
+      setMatchMaking(matchMakingVal.IN_GAME);
+    } else if (action === event.VIEW_GAME) socket.emit('viewGame', { id: id });
+    socket.emit('getGameGrid', { id: id });
+  }, [
+    action,
+    event.JOIN_GAME,
+    event.VIEW_GAME,
+    id,
+    matchMakingVal.IN_GAME,
+    setMatchMaking,
+    socket,
+  ]);
 
   useEffect(() => {
     initGame();
+  }, [initGame]);
+
+  useEffect(() => {
     socket.on('updateGrid', handleGridUpdate);
     socket.on('updateScores', handleScoresUpdate);
     socket.on('gameEnd', handleGameEnd);
     socket.on('pause', handlePause);
-    if (props.action !== props.actionVal.VIEW_GAME)
-      document.addEventListener('keydown', handleMove);
     return () => {
       socket.off('updateGrid', handleGridUpdate);
       socket.off('updateScores', handleScoresUpdate);
       socket.off('gameEnd', handleGameEnd);
       socket.off('pause', handlePause);
-      document.removeEventListener('keydown', handleMove);
     };
-  }, [props.action]);
+  }, [
+    handleGameEnd,
+    handleGridUpdate,
+    handlePause,
+    handleScoresUpdate,
+    socket,
+  ]);
 
-  return (
-    <Canvas grid={grid} scores={scores} message={message} map={props.map} />
-  );
+  useEffect(() => {
+    if (action !== event.VIEW_GAME) {
+      document.addEventListener('keydown', handleMove);
+      return () => {
+        document.removeEventListener('keydown', handleMove);
+      };
+    }
+  }, [handleMove, action, event.VIEW_GAME]);
+
+  /** *********************************************************************** */
+  /** RENDER                                                                  */
+  /** *********************************************************************** */
+
+  return <Canvas grid={grid} scores={scores} message={message} map={map} />;
 };
 
 export default Game;

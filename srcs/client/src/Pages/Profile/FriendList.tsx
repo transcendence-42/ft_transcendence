@@ -1,194 +1,251 @@
-import React from 'react'
-import "../../Components/Tools/Text.css"
-import "../../Components/Tools/Box.css"
-import "./profile.css"
-import PhotoProfilDropdown from '../../Components/Tools/Button/PhotoProfilDropdown'
-import OnlineOffline from './OnlineOffline'
-import FriendshipRejected from './Button/FriendshipRejected'
-import FriendshipAccepted from './Button/FriendshipAccepted'
+import React from 'react';
+import '../../Components/Tools/Text.css';
+import '../../Components/Tools/Box.css';
+import './profile.css';
+import PhotoProfilDropdown from '../../Components/Tools/Button/PhotoProfilDropdown';
+import OnlineOffline from './OnlineOffline';
+import FriendshipRejected from './Button/FriendshipRejected';
+import FriendshipAccepted from './Button/FriendshipAccepted';
+import { Link } from 'react-router-dom';
 
+const FriendList = (props: any) => {
+  /**
+   * @props friendList            : List of friends to display
+            friendRequestList     : List of friend requests to display
+            id                    : Id of the player whom we want to display 
+                                    friends
+            originalId            : Id of the current authenticated user
+            up                    : Update toggle function
+            players               : All players list with status
+            handleChallengePlayer : Handler to trigger the challenge modal
+   */
 
-export default function FriendList(props : any) {
+  /** *********************************************************************** */
+  /** ENUMS                                                                   */
+  /** *********************************************************************** */
 
-	// OFFLINE TEST
+  enum ePlayerStatus {
+    OFFLINE = 0,
+    ONLINE,
+    WAITING,
+    PLAYING,
+    SPECTATING,
+    CHALLENGE,
+  }
 
-	let test_friends = [
-		{
-		  "id": 2,
-		  "username": "Flmastor",
-		  "profilePicture": "https://cdn.intra.42.fr/users/flmastor.jpg",
-		  "currentStatus": 0,
-		  "eloRating": 0},
-		{
-		  "id": 3,
-		  "username": "Flal",
-		  "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-		  "currentStatus": 1,
-		  "eloRating": 0},
-		  {
-			"id": 1,
-			"username": "Johny",
-			"profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-			"currentStatus": 0,
-			"eloRating": 0}
-	  ];
+  enum eAction {
+    NOTHING = 0,
+    JOIN,
+    SPECTATE,
+  }
 
-	let test_requested = [
-		{
-		  "id": 2,
-		  "username": "Flmastor",
-		  "profilePicture": "https://cdn.intra.42.fr/users/flmastor.jpg",
-		  "currentStatus": 0,
-		  "eloRating": 0},
-		{
-		  "id": 3,
-		  "username": "Flal",
-		  "profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-		  "currentStatus": 1,
-		  "eloRating": 0},
-		  {
-			"id": 1,
-			"username": "Johny",
-			"profilePicture": "https://cdn.intra.42.fr/users/fmonbeig.jpg",
-			"currentStatus": 0,
-			"eloRating": 0}
-	  ];
+  /** *********************************************************************** */
+  /** COMPONENT EVENT HANDLERS                                                */
+  /** *********************************************************************** */
 
+  const getPlayerFromId = (id: number) => {
+    if (props.players !== undefined) {
+      let result = props.players.find((p: any) => p.id === id.toString());
+      if (result === undefined)
+        result = { status: 0 };
+      return result;
+    }
+    return { status: 0 };
+  };
 
-	return (
-		<div className="blueBoxFriend"
-		style={{
-		 width: "100%",
-		 height: "100%",
-		}}>
-			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
-				{<table className="table scroll m-1 align-middle  ">
-					<tbody>
-						{ test_requested &&
-						test_requested.map((friends: any, index: number) =>(
-						<tr key={index} style={{fontSize: "2vw"}}>
-							{
-							<>
-								<td className="pinkText"> New  </td>
-								<td> <PhotoProfilDropdown
-										url={friends.profilePicture}
-										id={friends.id}
-										originalId={props.originalId}
-										width={"4vw"}
-										height={"4vw"}/>
-								</td>
-								<td> {friends.username} </td>
-								<td colSpan={2} >
-								<table>
-									<tbody>
-										<tr>
-											<td> <FriendshipAccepted
-													id={friends.id}
-													originalId={props.originalId}
-													up ={props.up}/>
-											</td>
-										</tr>
-										<tr>
-											<td> <FriendshipRejected
-													id={friends.id}
-													originalId={props.originalId}
-													up={props.up}/>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-						</td>
-							</>
-							}
-						</tr>
-						))}
-						{ test_friends ?
-						test_friends.map((friends: any, index: number) =>(
-						<tr key={index} style={{fontSize: "2vw"}}>
-							{
-							<>
-								<td> <PhotoProfilDropdown
-										url={friends.profilePicture}
-										id={friends.id}
-										originalId={props.originalId}
-										width={"4vw"}
-										height={"4vw"}/>
-								</td>
-								<td> {friends.username} </td>
-								<td> <OnlineOffline
-										status={friends.currentStatus}
-										size={"2vw"}/>
-								</td>
-							</>
-							}
-						</tr>
-						))
-						:<tr>
-							<td className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}>
-								New Friends awaits you
-							</td>
-						</tr>
-						}
-					</tbody>
-				</table>
-				}
-		</div>
- 		);
-}
+  /** *********************************************************************** */
+  /** RENDER                                                                  */
+  /** *********************************************************************** */
 
-// FriendList bis avec les requested friend avec les meme elements que friend
-// On va creer une liste en dessous avec les Friends qui sont requested
-// + Bouton pour accepter la demande
+  return (
+    <div
+      style={{
+        width: '100%',
+      }}
+    >
+      <h3 className="text-pink text-start">Friends</h3>
+      {
+        <table className="table table-borderless scroll m-1 align-middle friends-list">
+          <tbody>
 
-// 	return (
-// 		<div className="blueBoxFriend"
-// 		style={{
-// 		 width: "100%",
-// 		 height: "100%",
-// 		}}>
-// 			<div className="yellowText" style={{fontSize: "3vw"}}> Friends </div>
-// 				{ props.friends ?
-// 				<table className="scrollBox" style={{alignItems: "flex-start"}} >
-// 					<tbody>
-// 						{props.friendList.map((friends: any, index: number) =>(
-// 						<tr key={index} className="blueTextMatch" style={{fontSize: "2vw"}}>
-// 							{
-// 							<>
-// 							<td> <PhotoProfil url={friends.profilePicture} width={"4vw"} height={"4vw"}/></td>
-// 							<td style={{marginRight: "2vw" }}> {friends.username} </td>
-// 							<td style={{marginRight: "2vw"}}> <OnlineOffline status={friends.currentStatus} size={"2vw"}/> </td>
-// 							</>
-// 							}
-// 						</tr>
-// 						))}
-// 					</tbody>
-// 				</table>
-					// :
-					// <div className="blueTextMatch" style={{fontSize: "2vw", marginTop:"3vh"}}> New Friends awaits you</div>
-// 					}
-// 		</div>
-//  		);
-// }
+            {/* Friend requests */}
+            {props.friendRequestList.length > 0 &&
+              props.id === props.originalId &&
+              props.friendRequestList.map((friendship: any, index: number) => (
+                <tr
+                  className="border-blue"
+                  key={index}
+                  style={{ fontSize: '1.2em' }}
+                >
+                  {
+                    <>
+                      <td>
+                        <PhotoProfilDropdown
+                          url={friendship.requester.profilePicture}
+                          id={friendship.requesterId}
+                          originalId={props.originalId}
+                          width={'50px'}
+                          height={'50px'}
+                        />
+                      </td>
+                      <td className="text-pink">
+                        {friendship.requester.username}
+                      </td>
+                      <td>
+                        <span className="badge badge-gold">New request</span>
+                      </td>
+                      <td></td>
+                      <td>
+                        <FriendshipAccepted
+                          addresseeId={friendship.addresseeId}
+                          requesterId={friendship.requesterId}
+                          up={props.up}
+                        />
+                      </td>
+                      <td>
+                        <FriendshipRejected
+                          addresseeId={friendship.addresseeId}
+                          requesterId={friendship.requesterId}
+                          up={props.up}
+                        />
+                      </td>
+                    </>
+                  }
+                </tr>
+              ))
+            }
 
+            {/* Friends */}
+            {props.friendList.length > 0 &&
+              props.friendList.map((friend: any, index: number) => (
+                <tr
+                  className="border-blue"
+                  key={index}
+                  style={{ fontSize: '1.2em' }}
+                >
+                  {
+                    <>
+                      <td>
+                        <PhotoProfilDropdown
+                          url={friend.profilePicture}
+                          id={friend.id}
+                          originalId={props.originalId}
+                          width={'50px'}
+                          height={'50px'}
+                        />
+                      </td>
+                      <td className="text-pink">{friend.username}</td>
+                      <td>
+                        <OnlineOffline
+                          status={
+                            props.players
+                              ? getPlayerFromId(friend.id).status
+                              : 0
+                          }
+                          size={'1em'}
+                          displaySwitch={false}
+                        />
+                      </td>
+                      <td></td>
+                      <td></td>
+                      {props.players &&
+                        getPlayerFromId(friend.id).status ===
+                          ePlayerStatus.ONLINE && 
+                          getPlayerFromId(props.originalId).status ===
+                          ePlayerStatus.ONLINE && (
+                          <td>
+                            <button
+                              type="button"
+                              className="btn btn-pink text-pink"
+                              onClick={() =>
+                                props.handleChallengePlayer(
+                                  friend.id.toString(),
+                                )
+                              }
+                            >
+                              Challenge
+                            </button>
+                          </td>
+                        )}
+                      {props.players &&
+                        getPlayerFromId(friend.id).status ===
+                          ePlayerStatus.PLAYING &&
+                          getPlayerFromId(props.originalId).status ===
+                          ePlayerStatus.ONLINE && (
+                          <td>
+                            <Link
+                              to="/lobby"
+                              state={{
+                                origin: {
+                                  name: 'profile',
+                                  loc: `/profile/${props.id}`,
+                                  state: null,
+                                },
+                                gameId: getPlayerFromId(friend.id).game,
+                                action: eAction.SPECTATE,
+                              }}
+                              className="btn btn-pink text-pink"
+                            >
+                              Spectate
+                            </Link>
+                          </td>
+                        )}
+                      {props.players &&
+                        getPlayerFromId(friend.id).status ===
+                          ePlayerStatus.WAITING && 
+                          getPlayerFromId(props.originalId).status ===
+                          ePlayerStatus.ONLINE && (
+                          <>
+                            <td>
+                              <Link
+                                to="/lobby"
+                                state={{
+                                  origin: {
+                                    name: 'profile',
+                                    loc: `/profile/${props.id}`,
+                                    state: null,
+                                  },
+                                  gameId: getPlayerFromId(friend.id).game,
+                                  action: eAction.JOIN,
+                                }}
+                                className="btn btn-pink text-pink"
+                              >
+                                Join
+                              </Link>
+                            </td>
+                            <td></td>
+                          </>
+                        )}
+                      <td></td>
+                      <td></td>
+                    </>
+                  }
+                </tr>
+              ))}
+            
+            {/* No friends */}
+            {props.friendList.length === 0 &&
+              (props.friendRequestList.length === 0 ||
+                props.id !== props.originalId) && (
+                <tr className="border-blue">
+                  <td
+                    className="text-blue mt-3"
+                    style={{ fontSize: '1.2em', width: '100%' }}
+                  >
+                    New Friends awaits you ...
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              )}
+          </tbody>
+        </table>
+      }
+    </div>
+  );
+};
 
-
-// let test = [
-// 	{
-// 	  "id": 0,
-// 	  "username": "string",
-// 	  "email": "string",
-// 	  "createdAt": "2022-09-19T10:07:38.313Z",
-// 	  "profilePicture": "https://cdn.intra.42.fr/users/flmastor.jpg",
-// 	  "currentStatus": 0,
-// 	  "eloRating": 0,
-// 	  "credentials": {
-// 		"id": 0,
-// 		"email": "string",
-// 		"username": "string",
-// 		"password": "string",
-// 		"user": "string",
-// 		"userId": 0,
-// 		"twoFactorActivated": true,
-// 		"twoFactorSecret": "string"
-// 	  }}
-//   ];
+export default FriendList;

@@ -1,5 +1,9 @@
 
 export async function getFetchFriends(props : any){
+   /**
+   * @props url: url for the request with userID inside
+   * Get the Friends informations of an user
+   */
 		const response = await
 		fetch(props.url, {
 	  method: "GET",
@@ -11,7 +15,7 @@ export async function getFetchFriends(props : any){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
-				return;
+				return ([] as any);
 			}
 			return (response.json());
 		})

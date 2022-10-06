@@ -2,12 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
 } from 'class-validator';
 
 export class CreateUserDto {
+  // to delete
+  @IsNumber()
+  @ApiProperty({ description: 'id of the user', example: '42' })
+  readonly id?: number;
+
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: 'player name of the user', example: 'homer' })

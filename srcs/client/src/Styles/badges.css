@@ -1,0 +1,35 @@
+/* Badges */
+.badge-black {
+  color: #fff;
+  background-color: #000000;
+}
+
+.badge-green {
+	color: #fff;
+  background-color: #09a711;
+}
+
+.badge-blue {
+  color: #fff;
+  background-color: #3f34d4;
+}
+
+.badge-pink {
+  color: #fff;
+  background-color: #f05acf;
+}
+
+.badge-orange {
+  color: #fff;
+  background-color: #c96a1d;
+}
+
+.badge-red {
+  color: #fff;
+  background-color: #88061b;
+}
+
+.badge-gold {
+  color: #fff;
+  background-color: #ad9f1c;
+}

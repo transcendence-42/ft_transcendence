@@ -298,6 +298,33 @@ export class UserService {
     return result;
   }
 
+  /** Find all friendship request for a user */
+  async findUserFriendshipRequests(
+    id: number,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<Friendship[]> {
+    // check if user exists
+    const isUser: User | null = await this.prisma.user.findUnique({
+      where: { id: id },
+    });
+    if (isUser == null) throw new UserNotFoundException(id);
+    // query friends
+    const { limit, offset } = paginationQuery;
+    const pagination = {
+      ...(limit && { take: +limit }),
+      ...(offset && { skip: +offset }),
+    };
+    const result: Friendship[] = await this.prisma.friendship.findMany({
+      ...pagination,
+      include: this.includedFriendshipRelations,
+      where: {
+        AND: [{ addresseeId: id }, { status: this.friendshipStatus.REQUESTED }],
+      },
+    });
+    if (result.length == 0) throw new NoUsersInDatabaseException();
+    return result;
+  }
+
   // RANK OPERATIONS -----------------------------------------------------------
   /** Find all user ranks through history */
   async findUserRatings(

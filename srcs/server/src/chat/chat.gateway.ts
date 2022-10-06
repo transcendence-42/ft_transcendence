@@ -14,7 +14,7 @@ import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
 import { channel } from 'diagnostics_channel';
 
-@WebSocketGateway({
+@WebSocketGateway(4444, {
   cors: {
     credentials: true,
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],

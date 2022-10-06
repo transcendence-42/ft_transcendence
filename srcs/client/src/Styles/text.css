@@ -1,5 +1,6 @@
 /* Text */
 .text-pink {
+  --bs-link-hover-color: #fca1f3;
   --weight: 400;
   font-family: 'Montserrat', normal;
   font-style: sans-serif;
@@ -11,6 +12,7 @@
 }
 
 .text-blue{
+  --bs-link-hover-color: #adffff;
   --weight: 400;
   font-family: 'Montserrat', sans-serif;
   font-style: sans-serif;

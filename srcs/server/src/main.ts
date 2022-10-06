@@ -11,9 +11,10 @@ import helmet from 'helmet';
 import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
-  // console.debug = function () {
-  // return '';
-  // }; // used to silence console.debugs
+  console.debug = function () {
+    return;
+  }; // used to silence console.debugs
+  // Create app
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
@@ -43,7 +44,7 @@ async function bootstrap() {
   app.use(helmet());
 
   // Custom webSocket with port depending on environment file
-  app.useWebSocketAdapter(new SocketIoAdapter(app, config));
+  //app.useWebSocketAdapter(new SocketIoAdapter(app, config));
 
   // For Swagger UI
   const options = new DocumentBuilder()

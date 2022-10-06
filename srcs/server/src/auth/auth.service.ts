@@ -11,6 +11,7 @@ import {
   BadCredentialsException,
   CredentialsTakenException,
 } from './exceptions';
+import { UserNotFoundException } from 'src/user/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toFileStream } from 'qrcode';
@@ -32,10 +33,7 @@ export class AuthService {
   /******************************* 42 Oauth2 Flow ******************************/
 
   handleFtRedirect(user: RequestUser, res: Response) {
-    // this.logger.debug(`redirecting to 2fa`);
-    // return res.send({message: {"require 2FA authentication"})
-    // res.redirect('http://127.0.0.1:3042/2fa');
-    this.logger.debug(`redirecting to home`);
+    console.debug(`redirecting to Home`);
     return res.redirect(this.HOME_PAGE);
   }
 
@@ -49,15 +47,16 @@ export class AuthService {
   async validateFtUser(userInfo: FtRegisterUserDto): Promise<RequestUser> {
     const credentialsByEmail: Credentials =
       await this.userService.getUserCredentialsByEmail(userInfo.email);
-    if (credentialsByEmail !== null && credentialsByEmail.password !== null)
-      throw new CredentialsTakenException();
+    if (credentialsByEmail !== null && credentialsByEmail.password)
+      throw new CredentialsTakenException(
+        'Found a user with the same email in database',
+      );
     const credentialsByUsername: Credentials =
       await this.userService.getUserCredentialsByUsername(userInfo.username);
-    if (
-      credentialsByUsername !== null &&
-      credentialsByUsername.password !== null
-    )
-      throw new CredentialsTakenException();
+    if (credentialsByUsername !== null && credentialsByUsername.password)
+      throw new CredentialsTakenException(
+        `found username ${credentialsByUsername.username} with a password in database`,
+      );
 
     /* this means that the user doesn't have an account
      * (we checked if the email and username exist and we didn't find any)
@@ -103,7 +102,7 @@ export class AuthService {
       throw new UserAlreadyExistsException(userInfo.username);
 
     /* the strenght of the hashing algorithm */
-    const saltRounds: number = 10;
+    const saltRounds = 10;
     const salt: string = await Bcrypt.genSalt(saltRounds);
     const hash: string = await Bcrypt.hash(userInfo.password, salt);
 
@@ -154,11 +153,15 @@ export class AuthService {
   async handleSuccessLogin(
     requestUser: RequestUser,
   ): Promise<{ message: string; user: User }> {
+    /* this function is called upon successful login and deletes
+     * the authMessage property which contains either:
+     * "User Logged-in" or "User Registered" type message.
+     */
     if (
       requestUser.isTwoFactorActivated === true &&
       requestUser.isTwoFactorAuthenticated === false
     ) {
-      return { message: 'User require 2fa', user: undefined };
+      return { message: 'require 2fa', user: undefined };
     }
     const message: string = requestUser.authentication;
     delete requestUser.authentication;
@@ -206,6 +209,9 @@ export class AuthService {
     user: RequestUser,
     twoFactorCode: string,
   ): Promise<{ message: string }> {
+    /* In order to turn on Two Factor Authentication, we need to validate
+     * the user's code against our own to see if the secret matches
+     */
     const isCodeValid = await this.verifyTwoFactorCode(twoFactorCode, user);
     if (isCodeValid) {
       await this.userService.setTwoFactorAuthentification(user.id, true);
@@ -234,10 +240,20 @@ export class AuthService {
       twoFactorCode,
       user,
     );
+    console.log('validating code');
     if (!isCodeValid) throw new UnauthorizedException('Bad 2FA Code!');
-
     user.isTwoFactorAuthenticated = true;
     return { message: 'Logged in with Two factor successfully!' };
+  }
+
+  async isTwoFaActivated(id: number): Promise<boolean> {
+    const userDb = await this.userService.findOne(id);
+    if (!userDb) throw new UserNotFoundException(id);
+    const credentials = await this.userService.getUserCredentialsByEmail(
+      userDb.email,
+    );
+    if (credentials && credentials.twoFactorActivated) return true;
+    return false;
   }
   /********************************** Helpers ********************************/
 
