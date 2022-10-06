@@ -37,7 +37,8 @@ const ChatModal = (props: any) => {
           </button>
         )}
         <button
-          form="createChannelForm"
+          // form="createChannelForm"
+          form={props.formId}
           type="submit"
           className="btn btn-pink text-pink"
         >
