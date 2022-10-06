@@ -11,7 +11,7 @@ export class LoggedInGuard implements CanActivate {
       `This is user in LoggedInGuard ${JSON.stringify(request.user, null, 4)}`,
     );
     if (!result) {
-      console.debug('Guard Rejected user because of isAutehnticated()!');
+      console.debug('Guard Rejected user because of isAuthenticated()!');
       return result;
     }
     console.debug('Guard Accepeted user!');

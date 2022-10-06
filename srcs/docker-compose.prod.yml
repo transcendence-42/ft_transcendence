@@ -99,12 +99,12 @@ services:
       database:
         condition: service_healthy
 
-  redis-insight:
-    image: redislabs/redisinsight:latest
-    container_name: redisinsight
-    restart: always
-    networks: ['transcendence']
-    ports: ['8001:8001']
+  # redis-insight:
+  #   image: redislabs/redisinsight:latest
+  #   container_name: redisinsight
+  #   restart: always
+  #   networks: ['transcendence']
+  #   ports: ['8001:8001']
 
   controller:
     image: busybox

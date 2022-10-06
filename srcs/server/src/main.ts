@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe} from '@nestjs/common';
 import helmet from 'helmet';
 import { SocketIoAdapter } from './adapter/socket.adapter';
 
@@ -16,6 +16,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
+  // Global prefix
+  app.setGlobalPrefix('api');
+
+  console.log('BLUUUU' + config.get('CALLBACK_URL'));
   // Redis store
   const redisClient = Redis.createClient({
     url: config.get('REDIS_URL'),

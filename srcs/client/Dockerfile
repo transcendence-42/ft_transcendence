@@ -2,7 +2,12 @@
 
 # stage 1. build the react application for production
 FROM    node:alpine as build
-ARG REACT_APP_API_URL=REACT_APP_API_URL
+
+# environment variables for build
+ARG     REACT_APP_API_URL=${REACT_APP_API_URL}
+ARG     REACT_APP_GAME_SOCKET_URL=${REACT_APP_GAME_SOCKET_URL}
+ARG     REACT_APP_CHAT_SOCKET_URL=${REACT_APP_CHAT_SOCKET_URL}
+
 # copy files into /app
 WORKDIR /app
 COPY    .   /app/
