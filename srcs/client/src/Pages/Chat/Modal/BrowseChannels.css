@@ -4,7 +4,12 @@
     padding-right: 0.5em;
 }
 
-.channel-name-color {
-    color: #FF80F2;
+.input-browse-channels {
+    box-shadow:none;
+    border:0 none;
+    outline:0;
+}
 
+.input-password-browse {
+    margin-top: -6px;
 }

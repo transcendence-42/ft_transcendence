@@ -115,6 +115,7 @@ export default function BrowseChannels({
   return (
     <div className="row row-color">
       <input
+        className="rounded-3 mb-3 input-browse-channels"
         style={{ color: "black" }}
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}
@@ -156,12 +157,14 @@ export default function BrowseChannels({
 
                         <td>
                           <label
-                            className="form-check-label channel-name-color"
+                            className="form-check-label textPink"
                             htmlFor="Radios1"
                           >
                             {channel.name}
                           </label>
-
+                        </td> 
+                        
+                        <td className="col-md-4">
                           {channel.type !== eChannelType.PROTECTED ? (
                             ""
                           ) : (
@@ -171,7 +174,7 @@ export default function BrowseChannels({
                             >
                               <input
                                 type="name"
-                                className="form-control"
+                                className="form-control input-password-browse"
                                 placeholder="Password"
                                 onChange={(e) =>
                                   setJoinChannelPassword(e.target.value)
