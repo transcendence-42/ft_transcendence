@@ -336,7 +336,7 @@ export default function Chat(props: any) {
     })();
   };
 
-  const updateOwnUserOnChannel = (userOnChannel: UserOnChannel) => {
+  const updateOwnUserOnChannel = useCallback((userOnChannel: UserOnChannel) => {
     console.group(`updateOwnUserOnChannel`);
     setUser((prevUser: User) => {
       console.log(
@@ -359,7 +359,7 @@ export default function Chat(props: any) {
       return { ...prevUser, channels: updatedChannels };
     });
     console.groupEnd();
-  };
+  }, []);
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
@@ -676,12 +676,12 @@ export default function Chat(props: any) {
       socket.off(eEvent.LeavingChannel);
     };
   }, [
-    isUserFetched,
     handleUpdateOneChannel,
     socket,
     handleGetMessages,
     user,
-    handleLeaveChannelEvent
+    handleLeaveChannelEvent,
+    updateOwnUserOnChannel
   ]);
 
   return (

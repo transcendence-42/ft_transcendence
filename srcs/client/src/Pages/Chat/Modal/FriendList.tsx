@@ -8,28 +8,30 @@ export default function FriendList({
   userId,
   friends,
   createDirect,
+  userChannels,
   ...props
 }: any) {
-  console.log(`These are friends`);
-  friends.map((friend: User) =>
-    console.log(`${JSON.stringify(friend, null, 4)}`)
-  );
-
-  // let test = {
-
-  // }
-
   return (
     <div className="col">
       <>
-        {friends.map((friend) => {
+        {friends.map((friend: User) => {
+          if (
+            userChannels?.find(
+              (usrOnChan) =>
+                usrOnChan.channel.name ===
+                  userId.toString() + "_" + friend.id.toString() ||
+                usrOnChan.channel.name ===
+                  friend.id.toString() + "_" + userId.toString()
+            )
+          )
+            return "";
           return (
             <div
               onClick={(e) => createDirect(e, friend.id)}
               key={friend.id}
               className="btn rounded-4 btn-pink btn-switch textPink m-1"
             >
-              {friend.username}
+              <div className="col">{friend.username}</div>
             </div>
           );
         })}
@@ -37,4 +39,3 @@ export default function FriendList({
     </div>
   );
 }
-//   {console.log(`Thi sis friend name ${friend.name}`)}
