@@ -29,6 +29,10 @@ export default function Members({
           >
             MEMBERS
           </p>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
           <>
             {!isEmpty(currentChannel) &&
               getChannel(currentChannel.id, allChannels)?.users?.map(
@@ -52,9 +56,6 @@ export default function Members({
               )}
           </>
         </div>
-      </div>
-      <div className="row">
-        <div className="col overflow-auto"></div>
       </div>
     </div>
   );

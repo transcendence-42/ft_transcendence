@@ -24,12 +24,16 @@ export default function BrowseChannels({
     handleCloseBrowseChannel();
   };
   const handleJoinChannel = (e: any, channel: Channel) => {
+    return;
     e.preventDefault();
     if (
       channel["type"] === eChannelType.PROTECTED &&
       joinChannelPassword === ""
     ) {
-      return alert("You must provide a Password!");
+      // return alert("You must provide a Password!");
+      return (
+        <div></div>
+      );
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -55,7 +59,7 @@ export default function BrowseChannels({
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id
+          channelId: channel.id,
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel`,
@@ -125,27 +129,32 @@ export default function BrowseChannels({
           {filtered.map((channel: Channel) => (
             <div className="channels" key={channel.id}>
               <div className="col">
-                <p>{channel.name}</p>
-              </div>
-              <div className="col">
-                {userChannels?.find(
-                  (usrOnChan: UserOnChannel) =>
-                    channel.id === usrOnChan.channelId
-                ) ? (
-                  <button
-                    className="btn rounded-4 btn-pink btn-switch"
-                    onClick={(e) => handleSwitchChannel(e, channel.id)}
-                  >
-                    switch
-                  </button>
-                ) : (
-                  <button
-                    className="btn rounded-4 btn-pink btn-join"
-                    onClick={(e) => handleJoinChannel(e, channel)}
-                  >
-                    Join
-                  </button>
-                )}
+                  <table className="table">
+                    <tbody>
+                      <tr>
+
+                        <td
+                          className="channel"
+                          aria-expanded="false"
+                          data-bs-toggle="collapse"
+                          data-bs-target={"#collapseProtected" + channel.id.toString()}
+                          aria-controls={"collapseProtected" + channel.id.toString()}
+                          onClick={(e) => handleJoinChannel(e, channel)}>
+                          {channel.name}
+                          {channel.type !== eChannelType.PROTECTED ? '' :
+                            <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
+                              <input
+                                 type="name"
+                                 className="form-control"
+                                 placeholder="Password">
+                              </input>
+                            </div>
+                          }
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
               </div>
             </div>
           ))}{" "}

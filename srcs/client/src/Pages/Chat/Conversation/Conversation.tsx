@@ -54,9 +54,10 @@ export default function Conversation({
           <div className="row mt-2">
             <div className="col">
               <p
-                className="badge bg-primary bg-darken-xl"
-                style={{ fontSize: "12px" }}
+                className="blue-titles"
+                style={{ fontSize: "15px" }}
               >
+                @
                 {currentChannel.type !== eChannelType.DIRECT
                   ? currentChannel.name
                   : `Direct with ` +
@@ -73,9 +74,8 @@ export default function Conversation({
               className="col-3 btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
               onClick={(e) => leaveChannel(currentChannel.id)}
-              // className="rounded-4 btn btn-chat btn-pink"
             >
-              leave
+            <div className="textPink ">Leave</div>
             </button>
 
             {currentChannel.type === eChannelType.DIRECT ? (
@@ -97,18 +97,6 @@ export default function Conversation({
             {/* <div className="pinkText ">leave</div> */}
             {/* </div> */}
 
-            <div className="messages-div h-50">
-              <div className="row">
-                <div className="col-1">
-                  {/* <button
-                    className="message-button float-end rounded-4 "
-                    onClick={handleShowAddToChannel}
-                  >
-                    add a friend
-                  </button> */}
-                </div>
-              </div>
-            </div>
           </div>
           {/* // Div with all list of messages */}
           <Dialogue

@@ -1,4 +1,7 @@
 import React from "react";
+import { UserOnChannel } from "../entities/user.entity";
+// import { findChannel, isEmpty } from "../utils";
+import { Link } from "react-router-dom";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import { eUserRole } from "../constants";
@@ -23,8 +26,10 @@ export default function UserInMembers({
               {memberName}
             </td>
             <td>
+            <div className="btn-group dropleft">
               <button
-                className="rounded-4 dropdown-toggle color-dropdown channel-button "
+                className="rounded-4 dropdown-toggle
+                color-dropdown channel-button "
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               ></button>
@@ -74,6 +79,7 @@ export default function UserInMembers({
                   )}
                 </>
               </ul>
+            </div>
             </td>
           </tr>
         </tbody>

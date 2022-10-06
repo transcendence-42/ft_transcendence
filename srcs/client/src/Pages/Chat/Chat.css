@@ -19,10 +19,9 @@ body
   color: #80ffff;
 }
 .chat-sidebar-left {
-  max-width: 125px;
-  min-width: 125px;
-  /* -ms-flex: 0 0 125px;
-  flex: 0 0 125px; */
+  max-width: 150px;
+  min-width: 150px;
+
 }
 
 .chat-sidebar-middle {
@@ -30,20 +29,17 @@ body
   min-width: 300px;
 }
 .chat-sidebar-right {
-  max-width: 125px;
-  min-width: 125px;
-  /* -ms-flex: 0 0 125px;
-  flex: 0 0 125px;
-  margin-right: auto */
+  max-width: 150px;
+  min-width: 150px;
 }
 
-@media (max-width: 485px) {
+@media (max-width: 510px) {
   .chat-sidebar-left
    {
     display: none;
   }
 }
-@media (max-width: 615px) {
+@media (max-width: 690px) {
   .chat-sidebar-right
    {
     display: none;
@@ -82,8 +78,6 @@ body
   font-weight: 500;
   color: #ffe710;
   text-shadow: 0px 0px 7.49518px #ff6ade, 0px 0px 14.9904px #ea3dee, 0px 0px 25.6977px #ca18a3;
-
-
 
 }
 
@@ -174,7 +168,6 @@ body
 }
 
 .scroll-bar-messages {
-  height: 100px;
   overflow: hidden;
 	overflow: scroll;
 }
@@ -204,7 +197,6 @@ body
 }
 
 
-
 ::-webkit-scrollbar {
   margin-left: 1em;
   width: 5px;
@@ -219,7 +211,11 @@ body
   background:#80ffff;
   border-radius: 20px;
   box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.521);
+  background:#80ffff;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.521);
 }
+
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(5, 2, 30);
@@ -246,6 +242,7 @@ body
 .input-field-chat {
   /* min-height: 60px; */
   min-height: 40px;
+  padding-left: 10px;
   color: black;
   outline: none;
   color: white;
@@ -255,4 +252,22 @@ body
              inset 0px 0px 5px #FF6ADE,
              0px 0px 6px #852388,
              inset 0px 0px 6px #852388;
+}
+
+.channel{
+  font-family: 'Montserrat', normal;
+  font-style: sans-serif;
+  font-weight: var(--weight);
+  line-height: var(--height);
+  /* identical to box height */
+
+  text-align: center;
+  color: #FF80F2;
+  text-shadow:	0px 0px 7.49518px #FF6ADE,
+  				0px 0px 14.9904px #EA3DEE,
+				0px 0px 25.6977px #CA18A3;
+}
+.channel:hover{
+  cursor:pointer;
+  color: #ff4bed;
 }

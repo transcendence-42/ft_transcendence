@@ -10,7 +10,7 @@ export default function ChannelsDropDown({
   return (
     <>
       <button
-        className="float-end rounded-4  color-dropdown channel-button"
+        className="float-end rounded-4 color-dropdown channel-button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
