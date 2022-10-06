@@ -87,7 +87,7 @@ export default function Conversation({
                   onClick={(e) => handlePasswordOperation()}
                   className="col-3 btn btn-leave me-2"
                 >
-                  Change channel password
+                  <div className="textPink ">Set Password</div>
                 </button>
                 <input
                   onChange={(e) => setNewChannelPassword(e.target.value)}
