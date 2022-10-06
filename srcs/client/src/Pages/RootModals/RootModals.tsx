@@ -11,7 +11,7 @@ import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
 import { RootModalsContext } from './RootModalsProvider';
 
-const RootModals = () => {
+const RootModals = ({ id }: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [socket, ...rest] = useContext(SocketContext);
   const navigate = useNavigate();
@@ -58,6 +58,7 @@ const RootModals = () => {
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
+  // Challenge modal
   const handleCancel = useCallback(() => {
     handleCloseGameChallenge();
     if (gameChallengeData.opponent === undefined) return;
@@ -94,6 +95,11 @@ const RootModals = () => {
       handleCloseGameChallenge();
     }, 2000);
   }, [eChallengeStatus.ACCEPTED, gameChallengeData, navigate, socket]);
+
+  // First connection
+  const handleGoToProfile = useCallback(() => {
+    navigate(`/profile/${id}`);
+  }, [])
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -233,8 +239,10 @@ const RootModals = () => {
         title="Welcome, ponger !"
         closeHandler={handleCloseFirstConnection}
         show={showFirstConnection}
-        textBtn1='Got it !'
+        textBtn1='Go to my profile !'
         handleBtn1={handleCloseFirstConnection}
+        textBtn2="Nah I'm good"
+        handleBtn2={handleGoToProfile}
         closeButton={false}
         backdrop="static"
       >
