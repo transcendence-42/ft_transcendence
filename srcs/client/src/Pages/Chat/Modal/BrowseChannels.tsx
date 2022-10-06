@@ -6,6 +6,7 @@ import { fetchUrl } from "../utils";
 import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
 import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
 import { isEmpty } from "../utils";
+import ChatModal from "../../../Components/Modal/ChatModals";
 
 export default function BrowseChannels({
   allChannels,
@@ -30,7 +31,7 @@ export default function BrowseChannels({
       if (joinChannelPassword === "") {
         return alert("You must provide a Password!");
       } else if (joinChannelPassword !== channel.password)
-        return alert("Bad password!");
+          return alert("Bad password!");
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -115,6 +116,7 @@ export default function BrowseChannels({
   return (
     <div className="row row-color">
       <input
+        className="rounded-3 mb-3 input-browse-channels"
         style={{ color: "black" }}
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}
@@ -158,12 +160,14 @@ export default function BrowseChannels({
 
                         <td>
                           <label
-                            className="form-check-label channel-name-color"
+                            className="form-check-label textPink"
                             htmlFor="Radios1"
                           >
                             {channel.name}
                           </label>
-
+                        </td> 
+                        
+                        <td className="col-md-4">
                           {channel.type !== eChannelType.PROTECTED ? (
                             ""
                           ) : (
@@ -173,7 +177,7 @@ export default function BrowseChannels({
                             >
                               <input
                                 type="name"
-                                className="form-control"
+                                className="form-control input-password-browse"
                                 placeholder="Password"
                                 onChange={(e) =>
                                   setJoinChannelPassword(e.target.value)
