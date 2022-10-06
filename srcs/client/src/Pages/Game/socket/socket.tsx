@@ -8,13 +8,14 @@ function getRandomInt(max: number) {
 }
 
 const userId = getRandomInt(40);
-
 const socket = io(process.env.REACT_APP_GAME_SOCKET_URL as string, {
   query: {
     userId: userId,
     pic: mockUsers[userId].pic,
     name: mockUsers[userId].name,
   },
+  path: '/api/gamews/socket.io',
+  transports: ["websocket", "polling"]
 });
 
 export const SocketContext = React.createContext([socket, userId] as any);

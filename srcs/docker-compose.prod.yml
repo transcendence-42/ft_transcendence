@@ -89,15 +89,15 @@ services:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
     env_file: ['.env.dev']
 
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: always
-    ports: ['${DBADMIN_PORT}:8080']
-    networks: ['transcendence']
-    depends_on:
-      database:
-        condition: service_healthy
+  # adminer:
+  #   image: adminer
+  #   container_name: adminer
+  #   restart: always
+  #   ports: ['${DBADMIN_PORT}:8080']
+  #   networks: ['transcendence']
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
 
   # redis-insight:
   #   image: redislabs/redisinsight:latest

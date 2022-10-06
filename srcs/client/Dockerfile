@@ -13,7 +13,7 @@ WORKDIR /app
 COPY    .   /app/
 
 # get packages and build
-RUN     npm i -g npm@8.18.0 \
+RUN     npm i -g npm@8.19.2 \
  &&     npm i --silent \
  &&     npm run build
 

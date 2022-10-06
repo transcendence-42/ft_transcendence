@@ -17,7 +17,7 @@ export async function getFetchSuccess(){
   }
 }).then((response) =>{
 		if (response.status !== 200){
-			return;
+			return (response.json());
 		}
 		return (response.json());
 	})

@@ -37,7 +37,7 @@ WORKDIR /app
 COPY    .   /app/
 
 # install dependencies
-RUN     npm i -g npm@8.18.0 \
+RUN     npm i -g npm@8.19.2 \
  &&     npm i
 
 CMD     ["sh"]
