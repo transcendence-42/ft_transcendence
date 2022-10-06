@@ -84,6 +84,7 @@ export default function ModalChat({
           userId={user?.id}
           friends={friends}
           createDirect={createDirect}
+          userChannels={user?.channels}
         />
       </BrowseModal>
       {/* ADD FRIEND */}
