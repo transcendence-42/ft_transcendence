@@ -5,6 +5,7 @@ import {patchFetchPicture} from "../Fetch/patchFetchPicture"
 import "./ModalChangeContent.css"
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
+import { postFetchPicture } from "../Fetch/postFetchPicture";
 
 export default function ModalChangePicture({ isShowing, hide, id, up, title } : any) {
 
@@ -13,16 +14,20 @@ export default function ModalChangePicture({ isShowing, hide, id, up, title } : 
 
 	function handleChange(event : any) {
 		setcontent(event.target.value);
-		setUrl("http://127.0.0.1:4200/users/" + id);
+		setUrl(`http://127.0.0.1:4200/users/${id}/picture`);
 	};
 
-	function patchAndClose(e : any)
+	function postAndClose(e : any)
 	{
 		e.preventDefault();
-		const test = patchFetchPicture({url: url, picture: content});
+    const files = e.target.files
+    const formData = new FormData()
+    formData.append('picture', files[0])
+
+		const test = postFetchPicture({url: url, formData: formData});
 		test.then((responseObject)=> {
-			if (responseObject.status === 400)
-			{ alert("Bad URL for the picture"); }
+			if (responseObject.status >= 400)
+			{ alert("Bad request"); }
 		})
 		hide();
 		up();
@@ -45,12 +50,8 @@ export default function ModalChangePicture({ isShowing, hide, id, up, title } : 
 						<span>&times;</span>
 					  </button>
 					</div>
-					<form onSubmit={patchAndClose}>
-						<input
-							type="text"
-							id="name"
-							name="name"
-							value={content}
+					<form onSubmit={postAndClose}>
+            <input id='picture' name='picture' type="file" value={content}
 							onChange={handleChange}
 							className="inputContent"/>
 						<input type="submit" value="Ok" className="inputSubmit"/>

@@ -9,6 +9,7 @@ import { RatingModule } from './rating/rating.module';
 import { GameModule } from './game/game.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -20,6 +21,9 @@ import { RedisModule } from './redis/redis.module';
       store: redisStore,
       host: 'redis',
       port: 6379,
+    }),
+    MulterModule.register({
+      dest: './uploads/',
     }),
     AuthModule,
     PrismaModule,

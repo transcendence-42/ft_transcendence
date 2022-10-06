@@ -1,16 +1,24 @@
 import Modal from 'react-bootstrap/Modal';
-import "../../../Components/Tools/Text.css"
-import "../../../Components/Tools/Box.css"
-import "./ModalChangeContent.css"
-import {patchFetchPicture} from "../Fetch/patchFetchPicture"
-import FailAndSuccessPicture from './FailAndSuccessPicture'
-import React, {useContext, useEffect, useState} from "react";
+import '../../../Components/Tools/Text.css';
+import '../../../Components/Tools/Box.css';
+import './ModalChangeContent.css';
+import FailAndSuccessPicture from './FailAndSuccessPicture';
+import React, { useContext, useEffect, useState } from 'react';
 import { SocketContext } from '../../Game/socket/socket';
+import { postFetchPicture } from '../Fetch/postFetchPicture';
+import { useForm } from 'react-hook-form';
 
-const ModalPicture =
-({ title, closeHandler, show, textBtn1,
-  handleBtn1, textBtn2, handleBtn2, up, id } : any)=> {
-
+const ModalPicture = ({
+  title,
+  closeHandler,
+  show,
+  textBtn1,
+  handleBtn1,
+  textBtn2,
+  handleBtn2,
+  up,
+  id,
+}: any) => {
   /**
    * @props title:        Title of the modal
    *        closeHandler: Function used to close the modal
@@ -21,71 +29,73 @@ const ModalPicture =
    *        handleBtn2:   Function associated with the second button
    */
 
-   const [content, setcontent] = useState('');
-   const [url, setUrl] = useState('');
-   const [status, setStatus] = useState(2);
-   const [socket, originalId] = useContext(SocketContext);
+  const [url, setUrl] = useState('');
+  const [status, setStatus] = useState(2);
+  const [socket, originalId] = useContext(SocketContext);
 
-   function handleChange(event : any) {
-     setcontent(event.target.value);
-     setUrl("http://127.0.0.1:4200/users/" + id);
-   };
+  // React hook form
+  const { register, handleSubmit } = useForm();
 
-   function patchAndClose(e : any)
-   {
-     e.preventDefault();
-     const status = patchFetchPicture({url: url, picture: content});
-     status.then((responseObject)=> {
-       if (responseObject.status === 400)
-       {
+  const onSubmit = (data: any) => {
+    const formData = new FormData();
+    formData.append('picture', data.picture[0]);
+    const status = postFetchPicture({ url: url, data: formData });
+    status.then((responseObject) => {
+      if (responseObject.status === 400) {
         setStatus(0);
         return;
-       }
-       socket.emit('updatePlayer', { name: content });
-       setStatus(1);
-       up();
-       setTimeout(() => {
-         closeHandler();
-       }, 500);
-      })
-   }
+      }
+      socket.emit('updatePlayer', { pic: 'updated' });
+      setStatus(1);
+      up();
+      setTimeout(() => {
+        closeHandler();
+      }, 500);
+    });
+  };
 
-   useEffect(() => {
+  useEffect(() => {
     setStatus(2);
-   },[])
+    setUrl(`http://127.0.0.1:4200/users/${id}/picture`);
+  }, []);
 
   return (
-    <Modal show={show} onHide={closeHandler} >
+    <Modal show={show} onHide={closeHandler}>
       <Modal.Header closeButton>
         <Modal.Title className="text-blue">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-pink text-center ">
-        <form onSubmit={patchAndClose}>
-						<input
-							type="text"
-							value={content}
-							onChange={handleChange}
-							className="inputContent"/>
+        <form onSubmit={handleSubmit(onSubmit)} id="uploadPictureForm">
+          <input
+            {...register('picture')}
+            required
+            type="file"
+            className="inputContent"
+          />
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-      {<FailAndSuccessPicture status={status}/>}
-        {handleBtn1 &&
+        {<FailAndSuccessPicture status={status} />}
+        {handleBtn1 && (
           <button
             type="button"
             className="btn btn-blue text-blue"
-            onClick={handleBtn1}>{textBtn1}
+            onClick={handleBtn1}
+          >
+            {textBtn1}
           </button>
-        }
-        {handleBtn2 &&
-          <button
+        )}
+        {handleBtn2 && (
+          <input
+            type="submit"
             className="btn btn-pink text-pink"
-            onClick={patchAndClose}>{textBtn2}
-          </button>
-        }
+            form="uploadPictureForm"
+            name={textBtn2}
+          />
+        )}
       </Modal.Footer>
     </Modal>
-  )
-}
+  );
+};
 
 export default ModalPicture;
