@@ -185,6 +185,12 @@ export class ChatService {
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
 
+  async addUser(client: Socket, channelId, userId) {
+    client
+      .to(this._makeId(userId, eIdType.User))
+      .emit(eEvent.AddUser, channelId);
+  }
+
   async getAllAsHashtable<T>(dataBase: eRedisDb): Promise<Hashtable<T>> {
     await this.redis.select(dataBase);
     const allKeys = await this.redis.keys('*');

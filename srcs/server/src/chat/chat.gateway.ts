@@ -96,9 +96,7 @@ export class ChatGateway
     this.logger.debug(
       `Recieved AddedUser with data ${JSON.stringify(payload)}`,
     );
-    client
-      .to(payload.userId.toString())
-      .emit(eEvent.AddUser, payload.channelId);
+    return this.chatService.addUser(client, payload.channelId, payload.userId);
   }
 
   @SubscribeMessage(eEvent.LeaveChannel)
@@ -117,6 +115,9 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.CreateChannel)
   handleCreateChannel(client: Socket, channelId: number) {
+    this.logger.debug(
+      `Recieved event createChannel for channel Id ${channelId}`,
+    );
     return this.chatService.createChannel(client, channelId);
   }
 

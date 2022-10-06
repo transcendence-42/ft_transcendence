@@ -5,8 +5,6 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  Param,
-  ParseIntPipe,
   Post,
   Request,
   Response,
@@ -47,14 +45,15 @@ export class AuthController {
 
   /******************************* 42 OAuth Flow ******************************/
 
-  @UseGuards(FtAuthGuard)
   @UseFilters(FtExceptionFilter)
+  @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   @ApiExcludeEndpoint()
   ftRedirec(@Request() req, @Response() res) {
     return this.authService.handleFtRedirect(req.user, res);
   }
 
+  @UseFilters(FtExceptionFilter)
   @UseGuards(FtAuthGuard)
   @Get('42/register')
   @ApiOAuth2(['username', 'email', 'profile picture'], '42 Oauth2')
