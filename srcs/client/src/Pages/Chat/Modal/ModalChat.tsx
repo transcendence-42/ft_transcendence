@@ -8,6 +8,7 @@ import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import BrowseModal from "../../../Components/Modal/browseModal";
 import AddFriendToChannel from "./AddFriendToChannel";
+import SetPasswordChannel from "./SetPasswordChannel";
 
 export default function ModalChat({
   user,
@@ -30,6 +31,13 @@ export default function ModalChat({
   showAddToChannel,
   createNonDirectChannel,
   currentChannel,
+  changeChannelPassword,
+  setChannelPassword,
+  showPassworChannel,
+  handleClosePassworChannel,
+  handlePasswordOperation,
+  newChannelPassword,
+  setNewChannelPassword,
   ...props
 }: any) {
   return (
@@ -102,6 +110,29 @@ export default function ModalChat({
           />
         </BrowseModal>
       )}
+      {/* SET PASSWORD */}
+        <PongAdvancedModal
+          title="Set a Password for this Channel" //add someone to a channel
+          show={showPassworChannel}
+          closeHandler={handleCloseAddToChannel}
+          textBtn1="Cancel"
+          handleBtn1={handleClosePassworChannel}
+          textBtn2="Validate"
+          handleBtn2={handlePasswordOperation}
+      >
+        <SetPasswordChannel
+            friends = {friends}
+            channel = {currentChannel}
+            addToChannel = {addToChannel}
+            allChannels = {allChannels}
+            currentChannel = {currentChannel}
+            changeChannelPassword = {changeChannelPassword}
+            setChannelPassword = {setChannelPassword}
+            handlePasswordOperation = {handlePasswordOperation}
+            newChannelPassword = {newChannelPassword}
+            setNewChannelPassword = {setNewChannelPassword}
+          />
+      </PongAdvancedModal>
     </>
   );
 }

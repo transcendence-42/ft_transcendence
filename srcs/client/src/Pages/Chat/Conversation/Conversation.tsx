@@ -22,6 +22,7 @@ export default function Conversation({
   handleShowAddToChannel,
   changeChannelPassword,
   setChannelPassword,
+  handleShowPassworChannel,
   ...props
 }: any) {
 
@@ -62,16 +63,21 @@ export default function Conversation({
             >
             <div className="textPink ">Leave</div>
             </button>
-
-            {/* {currentChannel.type === eChannelType.DIRECT ? (
-              ""
-            ) : (
-              <>
-              Change Password Setup Password
-                <p>Password Modal<p/>
-              </>
-            )} */}
-
+            </div>
+            <div>
+            {
+              currentChannel.type === eChannelType.DIRECT ?
+              <> </>
+              :
+              <button
+              className="col btn btn-leave me-2 "
+              style={{ fontSize: "12px" }}
+              onClick={() => handleShowPassworChannel()}
+              >
+              <div className="textPink ">Password</div>
+              </button>
+            }
+            </div>
           {/* // Div with all list of messages */}
           <Dialogue
             currentChannel={currentChannel}

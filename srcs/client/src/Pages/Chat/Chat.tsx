@@ -37,6 +37,8 @@ export default function Chat(props: any) {
   const [showCreateChannel, setshowCreateChannel] = useState(false);
   const [showFriendList, setshowFriendList] = useState(false);
   const [showAddToChannel, setShowAddToChannel] = useState(false);
+  const [showPassworChannel, setShowPassworChannel] = useState(false);
+  const [newChannelPassword, setNewChannelPassword] = useState("");
 
   // handlers
   const handleCloseCreateChannel = () => setshowCreateChannel(false);
@@ -51,11 +53,30 @@ export default function Chat(props: any) {
   const handleCloseAddToChannel = () => setShowAddToChannel(false);
   const handleShowAddToChannel = () => setShowAddToChannel(true);
 
+  const handleClosePassworChannel = () => setShowPassworChannel(false);
+  const handleShowPassworChannel = () => setShowPassworChannel(true);
+
   console.group(`Outside useEffects`);
   console.log(`Current channel init is ${JSON.stringify(currentChannel)}`);
   console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
   console.log(`Current all channels ${JSON.stringify(allChannels)}`);
   console.groupEnd();
+
+
+  const handlePasswordOperation = () => {
+    console.log(
+      `Changing password for channel ${currentChannel.id} with password ${newChannelPassword}`
+    );
+    if (!newChannelPassword) {
+      return alert("Password cant be empty!");
+    }
+    if (currentChannel.type === eChannelType.DIRECT) {
+      changeChannelPassword(currentChannel.id, newChannelPassword);
+    } else {
+      setChannelPassword(currentChannel.id, newChannelPassword);
+    }
+    setNewChannelPassword("");
+  };
 
   const handleGetMessages = useCallback(
     (channelId: number, messages: Message[]) => {
@@ -709,6 +730,7 @@ export default function Chat(props: any) {
                 handleSendMessage={handleSendMessage}
                 handleShowAddToChannel={handleShowAddToChannel}
                 handleCloseAddToChannel={handleCloseAddToChannel}
+                handleShowPassworChannel = {handleShowPassworChannel}
                 setChannelPassword={setChannelPassword}
                 changeChannelPassword={changeChannelPassword}
                 blockedUsers={blockedUsers}
@@ -751,7 +773,17 @@ export default function Chat(props: any) {
         handleShowAddToChannel={handleShowAddToChannel}
         showAddToChannel={showAddToChannel}
         currentChannel={currentChannel}
+        changeChannelPassword = {changeChannelPassword}
+        setChannelPassword = {setChannelPassword}
+        showPassworChannel = {showPassworChannel}
+        handleClosePassworChannel = {handleClosePassworChannel}
+        handlePasswordOperation = {handlePasswordOperation}
+        newChannelPassword = {newChannelPassword}
+        setNewChannelPassword = {setNewChannelPassword}
       />
     </>
   );
 }
+
+
+
