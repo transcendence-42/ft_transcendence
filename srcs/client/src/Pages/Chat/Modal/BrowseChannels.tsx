@@ -140,20 +140,98 @@ export default function BrowseChannels({
                           data-bs-target={"#collapseProtected" + channel.id.toString()}
                           aria-controls={"collapseProtected" + channel.id.toString()}
                           onClick={(e) => handleJoinChannel(e, channel)}>
-                          {channel.name}
-                          {channel.type !== eChannelType.PROTECTED ? '' :
-                            <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
-                              <input
-                                 type="name"
-                                 className="form-control"
-                                 placeholder="Password">
-                              </input>
-                            </div>
-                          }
-                        </td>
+
+                            <input
+                              className="form-check-input"
+                              type="radio"
+                              name="RadiosBrowseChannels"
+                              id="Radios1"
+                              value="option1">
+                            </input>
+                          </td>
+
+                          <td>
+                            <label className="form-check-label channel-name-color" htmlFor="Radios1">
+                              {channel.name}
+                            </label>
+
+                            {channel.type !== eChannelType.PROTECTED ? '' :
+                              <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
+                                <input
+                                   type="name"
+                                   className="form-control"
+                                   placeholder="Password">
+                                </input>
+                              </div>
+                            }
+                          </td>
                       </tr>
                     </tbody>
                   </table>
+
+                  {/* <div>
+                        <form
+                          id="createChannelForm"
+                          className="form-label"
+                        >
+                          <div className="form-check">
+                            <input
+                              className="form-check-input radio-custom"
+                              defaultChecked
+                              type="radio"
+                              name="channelRadios"
+                              id="channelRadio1"
+                              value="option1"
+                              onClick={() => {
+                                const bsCollapse = document.getElementById("collapseProtected");
+                                bsCollapse?.classList.remove("show");
+                              }}
+                            ></input>
+                            <label className="form-check-label" htmlFor="channelRadios1">
+                              Public
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input radio-custom"
+                              type="radio"
+                              name="channelRadios"
+                              id="channelRadio2"
+                              value="option2"
+                              onClick={() => {
+                                const bsCollapse = document.getElementById("collapseProtected");
+                                bsCollapse?.classList.remove("show");
+                              }}
+                            ></input>
+                            <label className="form-check-label" htmlFor="channelRadios2">
+                              Private
+                            </label>
+                          </div>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input radio-custom"
+                              type="radio"
+                              name="channelRadios"
+                              id="channelRadio3"
+                              value="option3"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#collapseProtected"
+                              aria-controls="collapseProtected"
+                            ></input>
+                            <label className="form-check-label" htmlFor="channelRadios3">
+                              Protected
+                            </label>
+                            <div className="collapse collapse-margin" id="collapseProtected">
+                              <input
+                                type="name"
+                                className="form-control form-control-margin"
+                                placeholder="Password"
+                              ></input>
+                            </div>
+                          </div>
+                        </form>
+                    </div> */}
+
               </div>
             </div>
           ))}{" "}
