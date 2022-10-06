@@ -26,14 +26,14 @@ body
 
 .chat-sidebar-middle {
   max-width: 900px;
-  min-width: 300px;
+  min-width: 320px;
 }
 .chat-sidebar-right {
   max-width: 150px;
   min-width: 150px;
 }
 
-@media (max-width: 510px) {
+@media (max-width: 525px) {
   .chat-sidebar-left
    {
     display: none;

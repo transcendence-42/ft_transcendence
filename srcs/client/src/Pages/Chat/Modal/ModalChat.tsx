@@ -43,14 +43,15 @@ export default function ModalChat({
   return (
     <>
       {/* BROWSE CHANNEL */}
-      <PongAdvancedModal
+      <ChatModal
         title="Browse channels"
         show={showBrowseChannel}
         closeHandler={handleCloseBrowseChannel}
         textBtn1="Cancel"
         handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
+        textBtn2="Join"
         handleBtn2={handleCloseBrowseChannel}
+        formId={"joinChannelForm"}
       >
         <BrowseChannels
           allChannels={allChannels}
@@ -61,7 +62,7 @@ export default function ModalChat({
           switchChannel={switchChannel}
           handleCloseBrowseChannel={handleCloseBrowseChannel}
         />
-      </PongAdvancedModal>
+      </ChatModal>
       {/* CREATE CHANNEL */}
       <ChatModal
         title="Create a channel"
@@ -71,6 +72,7 @@ export default function ModalChat({
         handleBtn1={handleCloseCreateChannel}
         textBtn2="Create"
         handleBtn2={createNonDirectChannel}
+        formId={"createChannelForm"}
       >
         <CreateChannel
           userId={user.id}

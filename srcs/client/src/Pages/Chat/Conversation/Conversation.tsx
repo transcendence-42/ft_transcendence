@@ -87,11 +87,6 @@ export default function Conversation({
             message={message}
             blockedUsers={blockedUsers}
           />
-          {console.log(
-            `inside conv ${JSON.stringify(
-              getUserOnChannel(user.id, user.channels)
-            )}`
-          )}
           <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">

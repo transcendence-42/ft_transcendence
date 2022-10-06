@@ -62,11 +62,11 @@ export default function UserInMembers({
                   </>
                 )}
                 <>
-                  {console.log(
+                  {/* {console.log(
                     `This is list of blocked users ${JSON.stringify(
                       blockedUsers
                     )}`
-                  )}
+                  )} */}
                   {blockedUsers[member.userId] ? (
                     ""
                   ) : (

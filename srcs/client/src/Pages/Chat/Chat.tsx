@@ -56,11 +56,11 @@ export default function Chat(props: any) {
   const handleClosePassworChannel = () => setShowPassworChannel(false);
   const handleShowPassworChannel = () => setShowPassworChannel(true);
 
-  console.group(`Outside useEffects`);
-  console.log(`Current channel init is ${JSON.stringify(currentChannel)}`);
-  console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
-  console.log(`Current all channels ${JSON.stringify(allChannels)}`);
-  console.groupEnd();
+  // console.group(`Outside useEffects`);
+  // console.log(`Current channel init is ${JSON.stringify(currentChannel)}`);
+  // console.log(`Current user on channels ${JSON.stringify(user.channels)}`);
+  // console.log(`Current all channels ${JSON.stringify(allChannels)}`);
+  // console.groupEnd();
 
 
   const handlePasswordOperation = () => {
@@ -80,9 +80,9 @@ export default function Chat(props: any) {
 
   const handleGetMessages = useCallback(
     (channelId: number, messages: Message[]) => {
-      console.log(
-        `GEtting all messages channelid: ${channelId} and messages ${messages}`
-      );
+      // console.log(
+      //   `GEtting all messages channelid: ${channelId} and messages ${messages}`
+      // );
       const newAllMessages = allMessages;
       newAllMessages[channelId] = messages;
       setAllMessages({ ...newAllMessages });
@@ -142,6 +142,26 @@ export default function Chat(props: any) {
     [currentChannel, socket, switchChannel]
   );
 
+  const updateChannel = useCallback(
+    (channel: Channel) => {
+      let channelAlreadyExists = false;
+      console.group(`UpdateChannels`);
+      console.log(`These are all my channels ${JSON.stringify(allChannels)}`);
+      const newState = allChannels.map((chan) => {
+        if (chan.id === channel.id) {
+          channelAlreadyExists = true;
+          return channel;
+        }
+        return chan;
+      });
+      if (!channelAlreadyExists) {
+        newState.push(channel);
+      }
+      setAllChannels(newState);
+      console.groupEnd();
+    },
+    [allChannels]
+  );
   const handleUpdateOneChannel = useCallback(
     (channelId: number) => {
       console.group("UpdateChannelEvent");
@@ -152,8 +172,10 @@ export default function Chat(props: any) {
         console.log(`All my channels are ${JSON.stringify(allChannels)}`);
         const url = "http://127.0.0.1:4200/channels/" + channelId;
         const channel: Channel = await fetchUrl(url);
+        console.log(
+          `This is the channel im updating ${JSON.stringify(channel)}`
+        );
         updateChannel(channel);
-        // if (channel.type === eChannelType.PRIVATE) {
         const isInOwnChannel = channel.users.find(
           (usr) => usr.userId === user.id
         );
@@ -169,7 +191,7 @@ export default function Chat(props: any) {
         console.groupEnd();
       })();
     },
-    [allChannels, user, allUsers]
+    [allChannels, user, allUsers, updateChannel]
   );
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
@@ -360,26 +382,6 @@ export default function Chat(props: any) {
     console.groupEnd();
   };
 
-  const updateChannel = (channel: Channel) => {
-    let channelAlreadyExists = false;
-    console.group(`UpdateChannels`);
-    setAllChannels((prevState) => {
-      console.log(`These are all my channels ${JSON.stringify(prevState)}`);
-      const newState = prevState.map((chan) => {
-        if (chan.id === channel.id) {
-          channelAlreadyExists = true;
-          return channel;
-        }
-        return chan;
-      });
-      if (channelAlreadyExists) {
-        newState.push(channel);
-      }
-      return newState;
-    });
-    console.groupEnd();
-  };
-
   const handleSendMessage = (e: any) => {
     e.preventDefault();
     if (message === "") return;
@@ -403,14 +405,14 @@ export default function Chat(props: any) {
     );
     if (currChanInLocalStorage) {
       const channelObject: Channel = JSON.parse(currChanInLocalStorage);
-      console.log(`This is channelObj ${JSON.stringify(channelObject)}`);
-      console.log(
-        `Did i find ${JSON.stringify(
-          userChannels.find(
-            (userOnChan) => channelObject.id === userOnChan.channelId
-          )
-        )}`
-      );
+      // console.log(`This is channelObj ${JSON.stringify(channelObject)}`);
+      // console.log(
+      //   `Did i find ${JSON.stringify(
+      //     userChannels.find(
+      //       (userOnChan) => channelObject.id === userOnChan.channelId
+      //     )
+      //   )}`
+      // );
       const channelInMyChannels = userChannels?.find(
         (usrOnChan) => channelObject.id === usrOnChan.channelId
       );
@@ -591,7 +593,7 @@ export default function Chat(props: any) {
   }, []);
 
   useEffect(() => {
-    if (!isUserFetched) return;
+    // if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
     console.log("Second useEffect");
     socket.on("connect", () => {
@@ -599,9 +601,9 @@ export default function Chat(props: any) {
       console.log(`This is user Id ${user.id}`);
       if (user.channels) {
         for (const chan of user.channels) {
-          console.log(
-            `this is channel id from user channels ${chan.channelId}`
-          );
+          // console.log(
+          //   `this is channel id from user channels ${chan.channelId}`
+          // );
           channelIds.push(chan.channelId.toString());
         }
         console.log(`This is channel Ids Im pushing ${channelIds}`);
@@ -610,23 +612,19 @@ export default function Chat(props: any) {
       console.log("Connected to server successfully");
     });
 
+    return () => {
+      socket.off("connect");
+    };
+  }, [isUserFetched]);
+
+  useEffect(() => {
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {
-      console.log(`Updatign all messages with ${JSON.stringify(messages)}`);
+      // console.log(`Updatign all messages with ${JSON.stringify(messages)}`);
       setAllMessages(messages);
     });
 
     socket.on(eEvent.GetMessages, handleGetMessages);
 
-    // socket.on(eEvent.GetMessages, ({ channelId, messages }) => {
-    //   console.log(
-    //     `GEtting all messages channelid: ${channelId} and messages ${messages}`
-    //   );
-    //   setAllMessages((prevAllMessages) => {
-    //     const newAllMessages = prevAllMessages;
-    //     newAllMessages[channelId] = messages;
-    //     return { ...newAllMessages };
-    //   });
-    // });
     socket.on(eEvent.UpdateOneMessage, (message: Message) => {
       console.log(`Updating one message ${JSON.stringify(message)}`);
       setAllMessages((prevAllMessages) => {
@@ -680,7 +678,6 @@ export default function Chat(props: any) {
     });
 
     socket.on(eEvent.LeaveChannel, handleLeaveChannelEvent);
-    // socket.emit(eEvent.LeavingChannel, channelId);
 
     socket.on(eEvent.BanUser, (message) => {
       return alert(message);
@@ -688,7 +685,6 @@ export default function Chat(props: any) {
 
     console.groupEnd();
     return () => {
-      socket.off("connect");
       socket.off(eEvent.UpdateMessages);
       socket.off(eEvent.GetMessages);
       socket.off(eEvent.UpdateOneMessage);
@@ -700,7 +696,14 @@ export default function Chat(props: any) {
       socket.off(eEvent.MuteUser);
       socket.off(eEvent.LeavingChannel);
     };
-  }, [isUserFetched]);
+  }, [
+    isUserFetched,
+    handleUpdateOneChannel,
+    socket,
+    handleGetMessages,
+    user,
+    handleLeaveChannelEvent
+  ]);
 
   return (
     <>
@@ -745,7 +748,7 @@ export default function Chat(props: any) {
                   banUser={banUser}
                   blockUser={blockUser}
                   blockedUsers={blockedUsers}
-                  handleShowAddToChannel ={handleShowAddToChannel}
+                  handleShowAddToChannel={handleShowAddToChannel}
                 />
               )}
             </>

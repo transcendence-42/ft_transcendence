@@ -5,6 +5,7 @@ import { eChannelType, eEvent, eUserRole } from "../constants";
 import { fetchUrl } from "../utils";
 import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
 import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
+import { isEmpty } from "../utils";
 
 export default function BrowseChannels({
   allChannels,
@@ -17,23 +18,19 @@ export default function BrowseChannels({
   ...props
 }: any) {
   const [channelSearch, setChannelSearch] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState({} as Channel);
   const [joinChannelPassword, setJoinChannelPassword] = useState("");
-  const handleSwitchChannel = (e: any, channelId: number) => {
-    e.preventDefault();
-    switchChannel(channelId);
-    handleCloseBrowseChannel();
-  };
+
   const handleJoinChannel = (e: any, channel: Channel) => {
-    return;
     e.preventDefault();
+    if (!channel || isEmpty(channel)) {
+      return alert(`You must select a channel!`);
+    }
     if (
       channel["type"] === eChannelType.PROTECTED &&
       joinChannelPassword === ""
     ) {
-      // return alert("You must provide a Password!");
-      return (
-        <div></div>
-      );
+      return alert("You must provide a Password!");
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -59,7 +56,7 @@ export default function BrowseChannels({
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id,
+          channelId: channel.id
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel`,
@@ -81,8 +78,6 @@ export default function BrowseChannels({
       switchChannel(channel.id);
       handleCloseBrowseChannel();
     })();
-
-    // add logic for handleJoinChannel
   };
 
   const availableChannels = allChannels?.filter((channel: Channel) => {
@@ -126,37 +121,72 @@ export default function BrowseChannels({
       ></input>
       {filtered ? (
         <>
-          {filtered.map((channel: Channel) => (
-            <div className="channels" key={channel.id}>
-              <div className="col">
+          <form
+            id="joinChannelForm"
+            onSubmit={(e) => handleJoinChannel(e, selectedChannel)}
+          >
+            {filtered.map((channel: Channel) => (
+              <div className="channels" key={channel.id}>
+                <div className="col">
                   <table className="table">
                     <tbody>
                       <tr>
-
                         <td
                           className="channel"
                           aria-expanded="false"
                           data-bs-toggle="collapse"
-                          data-bs-target={"#collapseProtected" + channel.id.toString()}
-                          aria-controls={"collapseProtected" + channel.id.toString()}
-                          onClick={(e) => handleJoinChannel(e, channel)}>
-                          {channel.name}
-                          {channel.type !== eChannelType.PROTECTED ? '' :
-                            <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
-                              <input
-                                 type="name"
-                                 className="form-control"
-                                 placeholder="Password">
-                              </input>
-                            </div>
+                          data-bs-target={
+                            "#collapseProtected" + channel.id.toString()
                           }
+                          aria-controls={
+                            "collapseProtected" + channel.id.toString()
+                          }
+                        >
+                          <input
+                            className="form-check-input"
+                            type="radio"
+                            name="RadiosBrowseChannels"
+                            id="Radios1"
+                            value="option1"
+                            onClick={(e) => {
+                              setSelectedChannel(channel);
+                            }}
+                          ></input>
+                        </td>
+
+                        <td>
+                          <label
+                            className="form-check-label channel-name-color"
+                            htmlFor="Radios1"
+                          >
+                            {channel.name}
+                          </label>
+
+                          {channel.type !== eChannelType.PROTECTED ? (
+                            ""
+                          ) : (
+                            <div
+                              className="collapse"
+                              id={"collapseProtected" + channel.id.toString()}
+                            >
+                              <input
+                                type="name"
+                                className="form-control"
+                                placeholder="Password"
+                                onChange={(e) =>
+                                  setJoinChannelPassword(e.target.value)
+                                }
+                              ></input>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     </tbody>
                   </table>
+                </div>
               </div>
-            </div>
-          ))}{" "}
+            ))}{" "}
+          </form>
         </>
       ) : (
         ""

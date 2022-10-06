@@ -1,7 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { WebSocketServer } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { ChannelType, UserRole } from '@prisma/client';
 import Redis from 'redis';
 import * as Cookie from 'cookie';
 import { Message } from './entities';
@@ -184,11 +183,6 @@ export class ChatService {
   async createChannel(client: Socket, channelId) {
     client.join(this._makeId(channelId, eIdType.Channel));
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
-  }
-
-  async addToRoom(client: Socket, channelId: number) {
-    console.log('adding client to room', channelId);
-    client.join(channelId.toString());
   }
 
   async getAllAsHashtable<T>(dataBase: eRedisDb): Promise<Hashtable<T>> {

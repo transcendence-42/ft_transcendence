@@ -20,11 +20,11 @@ export default function Dialogue({
         <div className="col scroll-bar-messages h-100 px-4 ">
           <div>
             <>
-              {console.log(
+              {/* {console.log(
                 `AllsMessges of current channelid ${JSON.stringify(
                   allMessages[currentChannel.id]
                 )}`
-              )}
+              )} */}
               {allMessages &&
                 allMessages[currentChannel.id]?.map((message: Message) =>
                   blockedUsers[message.fromUserId] ? (
