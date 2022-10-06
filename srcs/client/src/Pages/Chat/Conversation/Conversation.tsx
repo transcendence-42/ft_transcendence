@@ -24,22 +24,7 @@ export default function Conversation({
   setChannelPassword,
   ...props
 }: any) {
-  const [newChannelPassword, setNewChannelPassword] = useState("");
 
-  const handlePasswordOperation = () => {
-    console.log(
-      `Changing password for channel ${currentChannel.id} with password ${newChannelPassword}`
-    );
-    if (!newChannelPassword) {
-      return alert("Password cant be empty!");
-    }
-    if (currentChannel.type === eChannelType.DIRECT) {
-      changeChannelPassword(currentChannel.id, newChannelPassword);
-    } else {
-      setChannelPassword(currentChannel.id, newChannelPassword);
-    }
-    setNewChannelPassword("");
-  };
   return (
     <div
       className="col-6 chat-sidebar-middle
@@ -51,8 +36,8 @@ export default function Conversation({
         </div>
       ) : (
         <>
-          <div className="row mt-2">
-            <div className="col">
+          <div className="row mt-2 d-flex justify-content-start">
+            <div className="col-5">
               <p
                 className="blue-titles"
                 style={{ fontSize: "15px" }}
@@ -71,34 +56,22 @@ export default function Conversation({
               </p>
             </div>
             <button
-              className="col-3 btn btn-leave me-2 "
+              className="col btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
               onClick={(e) => leaveChannel(currentChannel.id)}
             >
             <div className="textPink ">Leave</div>
             </button>
 
-            {currentChannel.type === eChannelType.DIRECT ? (
+            {/* {currentChannel.type === eChannelType.DIRECT ? (
               ""
             ) : (
               <>
-              {/* Change Password Setup Password */}
-                <button
-                  onClick={(e) => handlePasswordOperation()}
-                  className="col-3 btn btn-leave me-2"
-                >
-                  <div className="textPink ">Set Password</div>
-                </button>
-                <input
-                  onChange={(e) => setNewChannelPassword(e.target.value)}
-                  placeholder="channel Pass"
-                ></input>
+              Change Password Setup Password
+                <p>Password Modal<p/>
               </>
-            )}
-            {/* <div className="pinkText ">leave</div> */}
-            {/* </div> */}
+            )} */}
 
-          </div>
           {/* // Div with all list of messages */}
           <Dialogue
             currentChannel={currentChannel}
