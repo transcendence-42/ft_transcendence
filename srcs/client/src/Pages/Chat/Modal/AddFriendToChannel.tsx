@@ -53,7 +53,7 @@ export default function addFriendToChannel({
             <div
               onClick={(e) => addToChannel(friend.id, channel.id)}
               key={friend.id}
-              className="btn rounded-4 btn-pink btn-switch"
+              className="btn rounded-4 btn-pink btn-switch textPink m-1"
             >
               {friend.username}
             </div>

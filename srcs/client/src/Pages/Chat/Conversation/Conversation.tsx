@@ -82,16 +82,17 @@ export default function Conversation({
               ""
             ) : (
               <>
-                {/* <button
+              {/* Change Password Setup Password */}
+                <button
                   onClick={(e) => handlePasswordOperation()}
                   className="col-3 btn btn-leave me-2"
                 >
                   Change channel password
-                </button> */}
-                {/* <input
+                </button>
+                <input
                   onChange={(e) => setNewChannelPassword(e.target.value)}
                   placeholder="channel Pass"
-                ></input> */}
+                ></input>
               </>
             )}
             {/* <div className="pinkText ">leave</div> */}

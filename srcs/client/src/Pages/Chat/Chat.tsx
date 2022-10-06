@@ -723,6 +723,7 @@ export default function Chat(props: any) {
                   banUser={banUser}
                   blockUser={blockUser}
                   blockedUsers={blockedUsers}
+                  handleShowAddToChannel ={handleShowAddToChannel}
                 />
               )}
             </>

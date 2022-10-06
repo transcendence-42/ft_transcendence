@@ -84,6 +84,7 @@ export default function ModalChat({
           createDirect={createDirect}
         />
       </BrowseModal>
+      {/* ADD FRIEND */}
       {currentChannel && (
         <BrowseModal
           title="Add a Friend" //add someone to a channel

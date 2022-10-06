@@ -96,7 +96,7 @@ export class Channel {
   id: number;
   name: string;
   type: eChannelType;
-  users?: UserOnChannel[];
+  users: UserOnChannel[];
   messages?: Message[];
   password?: string;
 }

@@ -14,6 +14,7 @@ export default function Members({
   muteUser,
   banUser,
   blockedUsers,
+  handleShowAddToChannel,
   ...props
 }: any) {
   const self = user.channels.find(
@@ -29,6 +30,16 @@ export default function Members({
           >
             MEMBERS
           </p>
+        </div>
+      </div>
+      <div className="row" style={{ fontSize: "14px" }}>
+        <div className="col d-flex justify-content-center">
+          <button
+            className="message-button rounded-4 "
+            onClick={handleShowAddToChannel}
+          >
+            Add Friend
+          </button>
         </div>
       </div>
       <div className="row">
