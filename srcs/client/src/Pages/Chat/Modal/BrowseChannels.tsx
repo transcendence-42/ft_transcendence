@@ -6,6 +6,7 @@ import { fetchUrl } from "../utils";
 import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
 import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
 import { isEmpty } from "../utils";
+import ChatModal from "../../../Components/Modal/ChatModals";
 
 export default function BrowseChannels({
   allChannels,
@@ -30,7 +31,7 @@ export default function BrowseChannels({
       if (joinChannelPassword === "") {
         return alert("You must provide a Password!");
       } else if (joinChannelPassword !== channel.password)
-        return alert("Bad password!");
+          return alert("Bad password!");
     }
     (async () => {
       const userOnChannel = userChannels?.find(
