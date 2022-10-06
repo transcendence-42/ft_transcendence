@@ -21,7 +21,7 @@ export default function SetPasswordChannel({
 {
   return (
       <>
-      <input
+      <input className="rounded-3 input-field-chat w-75 "
         onChange={(e) => setNewChannelPassword(e.target.value)}
         placeholder="Channel Password"
       ></input>

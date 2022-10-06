@@ -720,7 +720,7 @@ export default function Chat(props: any) {
                 friends={friends}
                 switchChannel={switchChannel}
                 handleShowFriendList={handleShowFriendList}
-              />
+              /> {user?.channels &&
               <Conversation
                 allChannels={allChannels}
                 currentChannel={currentChannel}
@@ -738,6 +738,7 @@ export default function Chat(props: any) {
                 changeChannelPassword={changeChannelPassword}
                 blockedUsers={blockedUsers}
               />
+            }
               {user && user.channels && (
                 <Members
                   currentChannel={currentChannel}

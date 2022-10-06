@@ -1,5 +1,6 @@
 .btn-leave {
-	max-width: 80px;
+	max-width: 70px;
+	max-height: 35px;
 	--bs-btn-hover-color: #FF80F2;
 	--bs-btn-hover-bg: #49073b;
 	--bs-btn-hover-border-color: #eb89d6;

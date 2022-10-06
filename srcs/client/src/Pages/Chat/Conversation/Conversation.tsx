@@ -5,6 +5,7 @@ import "../../../Components/Tools/Box.css";
 import Dialogue from "./Dialogue";
 import { isEmpty, otherUser, getUserOnChannel } from "../utils";
 import { eChannelType } from "../constants";
+import {UserOnChannel} from "../entities/user.entity"
 
 export default function Conversation({
   currentChannel,
@@ -26,6 +27,14 @@ export default function Conversation({
   ...props
 }: any) {
 
+  const self = user.channels.find(
+    (userOnChan: UserOnChannel) => userOnChan.channelId === currentChannel.id
+  );
+
+  // console.log("HERE ==> ",self);
+  console.log(user);
+  console.log("HERE",currentChannel);
+  console.log("ROLE = ",self?.role);
   return (
     <div
       className="col-6 chat-sidebar-middle
@@ -56,27 +65,29 @@ export default function Conversation({
                       )?.username || "loading"}
               </p>
             </div>
+            <div className="col-7 d-flex justify-content-end">
             <button
-              className="col btn btn-leave me-2 "
+              className="btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
               onClick={(e) => leaveChannel(currentChannel.id)}
             >
-            <div className="textPink ">Leave</div>
+            <div className="textPink d-flex justify-content-center">Leave</div>
             </button>
-            </div>
             <div>
             {
               currentChannel.type === eChannelType.DIRECT ?
               <> </>
               :
               <button
-              className="col btn btn-leave me-2 "
+              className="btn btn-leave me-2 "
               style={{ fontSize: "12px" }}
               onClick={() => handleShowPassworChannel()}
               >
-              <div className="textPink ">Password</div>
+              <div className="textPink d-flex justify-content-center">Password</div>
               </button>
             }
+            </div>
+            </div>
             </div>
           {/* // Div with all list of messages */}
           <Dialogue
