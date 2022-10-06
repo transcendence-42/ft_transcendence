@@ -41,7 +41,7 @@ export default function ModalChat({
         closeHandler={handleCloseBrowseChannel}
         textBtn1="Cancel"
         handleBtn1={handleCloseBrowseChannel}
-        textBtn2="Validate"
+        textBtn2="Join"
         handleBtn2={handleCloseBrowseChannel}
       >
         <BrowseChannels

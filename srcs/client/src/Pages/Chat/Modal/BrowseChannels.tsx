@@ -121,40 +121,45 @@ export default function BrowseChannels({
           {filtered.map((channel: Channel) => (
             <div className="channels" key={channel.id}>
               <div className="col">
-                <table className="table">
-                  <tbody>
-                    <tr>
-                      <td
-                        className="channel"
-                        aria-expanded="false"
-                        data-bs-toggle="collapse"
-                        data-bs-target={
-                          "#collapseProtected" + channel.id.toString()
-                        }
-                        aria-controls={
-                          "collapseProtected" + channel.id.toString()
-                        }
-                        onClick={(e) => handleJoinChannel(e, channel)}
-                      >
-                        {channel.name}
-                        {channel.type !== eChannelType.PROTECTED ? (
-                          ""
-                        ) : (
-                          <div
-                            className="collapse"
-                            id={"collapseProtected" + channel.id.toString()}
-                          >
+                  <table className="table">
+                    <tbody>
+                      <tr>
+
+                        <td
+                          className="channel"
+                          aria-expanded="false"
+                          data-bs-toggle="collapse"
+                          data-bs-target={"#collapseProtected" + channel.id.toString()}
+                          aria-controls={"collapseProtected" + channel.id.toString()}
+                          onClick={(e) => handleJoinChannel(e, channel)}>
+
                             <input
-                              type="name"
-                              className="form-control"
-                              placeholder="Password"
-                            ></input>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                              className="form-check-input"
+                              type="radio"
+                              name="RadiosBrowseChannels"
+                              id="Radios1"
+                              value="option1">
+                            </input>
+                          </td>
+
+                          <td>
+                            <label className="form-check-label channel-name-color" htmlFor="Radios1">
+                              {channel.name}
+                            </label>
+
+                            {channel.type !== eChannelType.PROTECTED ? '' :
+                              <div className="collapse" id={"collapseProtected"+ (channel.id).toString()}>
+                                <input
+                                   type="name"
+                                   className="form-control"
+                                   placeholder="Password">
+                                </input>
+                              </div>
+                            }
+                          </td>
+                      </tr>
+                    </tbody>
+                  </table>
               </div>
             </div>
           ))}{" "}
