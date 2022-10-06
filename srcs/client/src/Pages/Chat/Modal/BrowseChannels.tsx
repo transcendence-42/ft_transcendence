@@ -31,7 +31,7 @@ export default function BrowseChannels({
       if (joinChannelPassword === "") {
         return alert("You must provide a Password!");
       } else if (joinChannelPassword !== channel.password)
-          return alert("Bad password!");
+        return alert("Bad password!");
     }
     (async () => {
       const userOnChannel = userChannels?.find(
@@ -40,7 +40,7 @@ export default function BrowseChannels({
       let res;
       if (userOnChannel) {
         const payload: UpdateUserOnChannelDto = {
-          hasLeftChannel: false
+          hasLeftChannel: false,
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${userId}`,
@@ -57,7 +57,7 @@ export default function BrowseChannels({
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id
+          channelId: channel.id,
         };
         res = await fetchUrl(
           `http://127.0.0.1:4200/channels/${channel.id}/useronchannel`,
@@ -165,8 +165,8 @@ export default function BrowseChannels({
                           >
                             {channel.name}
                           </label>
-                        </td> 
-                        
+                        </td>
+
                         <td className="col-md-4">
                           {channel.type !== eChannelType.PROTECTED ? (
                             ""

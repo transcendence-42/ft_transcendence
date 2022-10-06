@@ -114,27 +114,27 @@ export default function ModalChat({
         </BrowseModal>
       )}
       {/* SET PASSWORD */}
-        <PongAdvancedModal
-          title="Set a Password for this Channel" //add someone to a channel
-          show={showPassworChannel}
-          closeHandler={handleCloseAddToChannel}
-          textBtn1="Cancel"
-          handleBtn1={handleClosePassworChannel}
-          textBtn2="Validate"
-          handleBtn2={handlePasswordOperation}
+      <PongAdvancedModal
+        title="Set a Password for this Channel" //add someone to a channel
+        show={showPassworChannel}
+        closeHandler={handleCloseAddToChannel}
+        textBtn1="Cancel"
+        handleBtn1={handleClosePassworChannel}
+        textBtn2="Validate"
+        handleBtn2={handlePasswordOperation}
       >
         <SetPasswordChannel
-            friends = {friends}
-            channel = {currentChannel}
-            addToChannel = {addToChannel}
-            allChannels = {allChannels}
-            currentChannel = {currentChannel}
-            changeChannelPassword = {changeChannelPassword}
-            setChannelPassword = {setChannelPassword}
-            handlePasswordOperation = {handlePasswordOperation}
-            newChannelPassword = {newChannelPassword}
-            setNewChannelPassword = {setNewChannelPassword}
-          />
+          friends={friends}
+          channel={currentChannel}
+          addToChannel={addToChannel}
+          allChannels={allChannels}
+          currentChannel={currentChannel}
+          changeChannelPassword={changeChannelPassword}
+          setChannelPassword={setChannelPassword}
+          handlePasswordOperation={handlePasswordOperation}
+          newChannelPassword={newChannelPassword}
+          setNewChannelPassword={setNewChannelPassword}
+        />
       </PongAdvancedModal>
     </>
   );

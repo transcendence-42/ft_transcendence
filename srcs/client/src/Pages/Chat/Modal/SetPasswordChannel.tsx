@@ -6,7 +6,6 @@ import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import "./FriendList.css";
 
-
 export default function SetPasswordChannel({
   friends,
   channel,
@@ -17,14 +16,14 @@ export default function SetPasswordChannel({
   setChannelPassword,
   setNewChannelPassword,
   ...props
-}: any)
-{
+}: any) {
   return (
-      <>
-      <input className="rounded-3 input-field-chat w-75 "
+    <>
+      <input
+        className="rounded-3 input-field-chat w-75 "
         onChange={(e) => setNewChannelPassword(e.target.value)}
         placeholder="Channel Password"
       ></input>
-      </>
+    </>
   );
 }
