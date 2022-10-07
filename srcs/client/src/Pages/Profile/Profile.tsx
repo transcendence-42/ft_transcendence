@@ -20,9 +20,11 @@ import { getFetch } from './Fetch/getFetch';
 import { getFetchMatch } from './Fetch/getFetchMatch';
 import { getFetchFriends } from './Fetch/getFetchFriends';
 // Context
-import { SocketContext } from '../Game/socket/socket';
+import { GameSocketContext } from '../Game/socket/socket';
 import PaginatedMatchHistory from './PaginatedMatchHistory';
 import PaginatedFriendList from './PaginatedFriendList';
+// User Context
+import { UserContext } from '../../Context/UserContext';
 
 const Profile = () => {
   /**
@@ -34,7 +36,12 @@ const Profile = () => {
   /** *********************************************************************** */
 
   // Get game socket
-  const [socket, originalId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{ user: { id: number } }>(
+    UserContext,
+  );
+  const originalId = currentUser.id;
   // Get user id from params
   let { id } = useParams();
   // Handle id errors
@@ -60,18 +67,21 @@ const Profile = () => {
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
 
-  const handlePlayersInfo = useCallback((data: any) => {
-    // all players
-    setPlayers(data.players);
-    // current player status
-    const player = data.players
-      ? data.players.find((p: any) => p.id === userId.toString())
-      : {};
-    setPlayer(player);
-    if (player && player.updated === 1) {
-      setUpdate(1);
-    }
-  }, [userId]);
+  const handlePlayersInfo = useCallback(
+    (data: any) => {
+      // all players
+      setPlayers(data.players);
+      // current player status
+      const player = data.players
+        ? data.players.find((p: any) => p.id === userId.toString())
+        : {};
+      setPlayer(player);
+      if (player && player.updated === 1) {
+        setUpdate(1);
+      }
+    },
+    [userId],
+  );
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -111,29 +121,33 @@ const Profile = () => {
       let request = `${apiUrl}/users/` + userId;
       const user_json = getFetch({ url: request });
       user_json.then((responseObject) => {
-        setUser(responseObject);
-      });
-      request = `${apiUrl}/users/` + userId + '/friends';
-      const friend_json = getFetchFriends({ url: request });
-      friend_json.then((responseObject) => {
-        setFriendList(responseObject);
-      });
-      request = `${apiUrl}/users/` + userId + '/friendrequests';
-      const friendRequests_json = getFetchFriends({ url: request });
-      friendRequests_json.then((responseObject) => {
-        setFriendRequestList(responseObject);
-      });
-      request = `${apiUrl}/users/` + userId + '/matches';
-      const matches_json = getFetchMatch({ url: request });
-      matches_json.then((responseObject) => {
-        setMatchesList(responseObject);
-      });
-      request = `${apiUrl}/auth/2fa/state/` + userId;
-      const double_json = getFetch({url : request});
-      double_json.then((responseObject)=> {
-        if(responseObject)
-        {
-            setDoubleFactor(true);
+        if (responseObject.statusCode && responseObject.statusCode === 404) {
+          setUser(null);
+        } else {
+          setUser(responseObject);
+          request = `${apiUrl}/users/` + userId + '/friends';
+          const friend_json = getFetchFriends({ url: request });
+          friend_json.then((responseObject) => {
+            setFriendList(responseObject);
+          });
+          request = `${apiUrl}/users/` + userId + '/friendrequests';
+          const friendRequests_json = getFetchFriends({ url: request });
+          friendRequests_json.then((responseObject) => {
+            setFriendRequestList(responseObject);
+          });
+          request = `${apiUrl}/users/` + userId + '/matches';
+          const matches_json = getFetchMatch({ url: request });
+          matches_json.then((responseObject) => {
+            setMatchesList(responseObject);
+          });
+          request = `${apiUrl}/auth/2fa/state/` + userId;
+          const double_json = getFetch({ url: request });
+          double_json.then((responseObject) => {
+            console.log(`${JSON.stringify(responseObject)}`);
+            if (responseObject.message === true) {
+              setDoubleFactor(true);
+            }
+          });
         }
       });
     } else setUser(null);

@@ -5,7 +5,7 @@ import "./ModalChangeContent.css"
 import {patchFetchUsername} from "../Fetch/patchFetchUsername"
 import FailAndSuccessUsername from './FailAndSuccessUsername'
 import React, {useContext, useEffect, useState} from "react";
-import { SocketContext } from '../../Game/socket/socket';
+import { GameSocketContext } from '../../Game/socket/socket';
 
 const ModalUsername =
 ({ title, closeHandler, show, textBtn1,
@@ -24,7 +24,7 @@ const ModalUsername =
   const [content, setcontent] = useState('');
   const [url, setUrl] = useState('');
   const [status, setStatus] = useState(2);
-  const [socket, originalId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
 
    function handleChange(event : any) {
      setcontent(event.target.value);

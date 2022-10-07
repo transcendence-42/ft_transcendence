@@ -169,6 +169,10 @@ a {
 	transition: 1s;
 	transition-delay: 0.75s;
   }
+.navbar-toggler-icon {
+	border: 5px solid #80FFFF;
+	margin-top:4px;
+}
 
   .logout {
 	background-color: transparent;

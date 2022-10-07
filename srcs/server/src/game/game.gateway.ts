@@ -11,7 +11,7 @@ import {
 import { GameService } from './game.service';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Socket, Server } from 'socket.io';
-import { Catch, OnModuleInit, UseFilters } from '@nestjs/common';
+import { Catch, OnModuleInit, UseFilters, Logger } from '@nestjs/common';
 import { WsExceptionsFilter } from './exceptions/game.exception.filter';
 import { MatchMakingDto } from './dto/matchMaking.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
@@ -20,11 +20,18 @@ import { UpdatePlayerDto } from './dto/update-player.dto';
 
 @UseFilters(new WsExceptionsFilter())
 @Catch(WsException)
-@WebSocketGateway()
+@WebSocketGateway(4343, {
+  cors: true,
+  namespace: '/api/gamews',
+  path: '/api/gamews/socket.io',
+  credentials: true,
+})
 export class GameGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
 {
   constructor(private readonly gameService: GameService) {}
+  private readonly logger = new Logger(GameGateway.name);
+
   @WebSocketServer()
   server: Server;
 
@@ -33,7 +40,8 @@ export class GameGateway
     this.gameService.server = this.server;
     this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
-    console.log(`Game WS server is up on port ${process.env.GAME_WS_PORT} ...`);
+    this.logger.log(`Module chat is up`);
+    // console.log = function () {};
   }
 
   /** Handle new clients connection to the game */

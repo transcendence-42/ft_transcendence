@@ -1,24 +1,19 @@
-.frameOfAnimation
-{
-   margin-left: 47%;
-   margin-top: 10%;
-}
+
 
 .loading
 {
-    width: 60px;
     height: 60px;
     position: relative;
 
 }
 .circle
 {
-    width: 24%;
-    height: 24%;
+    width: 5%;
+    height: 15%;
     border-radius: 50%;
     background: #EA3DEE;
     position: absolute;
-    right: 60%;
+    right: 95%;
     animation: bounce 0.3s linear infinite alternate;
 
 }
@@ -30,9 +25,9 @@
     background:  #FF6ADE;
     position: absolute;
     border-radius: 25%;
-    box-shadow:	0px 0px 7.49518px #FF6ADE,
+    box-shadow: 0px 0px 7.49518px #FF6ADE,
     0px 0px 14.9904px #EA3DEE,
-  0px 0px 25.6977px #CA18A3;
+    0px 0px 25.6977px #CA18A3;
 }
 
 .left
@@ -51,7 +46,7 @@
         transform: scale(1.40, 1);
     }
     50%{
-        transform: translate(15px) scale(1);
+        transform: translate(230px) scale(1);
     }
     100%{
         transform: translate(25px) scale(1.20);

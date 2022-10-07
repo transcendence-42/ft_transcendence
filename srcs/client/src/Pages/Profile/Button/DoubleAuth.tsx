@@ -18,8 +18,10 @@ export default function DoubleAuth(props : any) {
    */
 
 	const [isShowing, setIsShowing] = useState(false);
+  const [showResponse, setShowResponse] = useState(0);
 
 	function toggle() {
+    setShowResponse(0);
 		setIsShowing(!isShowing);
 	}
 
@@ -62,6 +64,8 @@ export default function DoubleAuth(props : any) {
 				textBtn2="Submit"
 				handleBtn2={toggle}
 				title="Double Authentication"
+        showResponse={showResponse}
+        setShowResponse={setShowResponse}
 			/>
 		</>
 		}

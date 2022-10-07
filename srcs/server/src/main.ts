@@ -6,9 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import * as Redis from 'redis';
 import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe} from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
   console.debug = function () {
@@ -21,7 +20,6 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
 
-  console.log('BLUUUU' + config.get('CALLBACK_URL'));
   // Redis store
   const redisClient = Redis.createClient({
     url: config.get('REDIS_URL'),
@@ -48,7 +46,7 @@ async function bootstrap() {
   app.use(helmet());
 
   // Custom webSocket with port depending on environment file
-  app.useWebSocketAdapter(new SocketIoAdapter(app, config));
+  //app.useWebSocketAdapter(new SocketIoAdapter(app, config));
 
   // For Swagger UI
   const options = new DocumentBuilder()

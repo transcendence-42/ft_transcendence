@@ -1,22 +1,24 @@
 // React
-import { FC, useCallback, useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { FC, useCallback, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 // Socket
-import { SocketContext } from './socket/socket';
+import { GameSocketContext } from "./socket/socket";
+// User Context
+import { UserContext } from "../../Context/UserContext";
 // Game
-import Game from './Game';
-import GameList from './GameList';
-import PongModal from '../../Components/Modal/PongModal';
-import { mapNeon } from './conf/maps';
+import Game from "./Game";
+import GameList from "./GameList";
+import PongModal from "../../Components/Modal/PongModal";
+import { mapNeon } from "./conf/maps";
 // Modals
-import Matchmaking from './modals/MatchMaking';
-import MapSelect from './modals/MapSelect';
-import GoBack from './modals/GoBack';
+import Matchmaking from "./modals/MatchMaking";
+import MapSelect from "./modals/MapSelect";
+import GoBack from "./modals/GoBack";
 // Styles
-import './Game.css';
-import '../../Styles';
-import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
+import "./Game.css";
+import "../../Styles";
+import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
 
 const GameLobby: FC = () => {
   /**
@@ -59,7 +61,10 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
 
   const navigate = useNavigate();
-  const [socket, userId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const userId = currentUser.id;
 
   /** *********************************************************************** */
   /** STATES                                                                  */
@@ -73,13 +78,13 @@ const GameLobby: FC = () => {
   if (location.state) {
     ({ origin, gameId, action } = location.state);
   } else {
-    origin = { loc: '/lobby', name: 'lobby', state: null };
-    gameId = '';
+    origin = { loc: "/lobby", name: "lobby", state: null };
+    gameId = "";
     action = eAction.NOTHING;
   }
 
   // States
-  const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: 'lobby' });
+  const [game, setGame] = useState({ action: eEvents.GO_LOBBY, id: "lobby" });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [player, setPlayer] = useState({} as any);
   const [message, setMessage] = useState({} as any);
@@ -127,7 +132,7 @@ const GameLobby: FC = () => {
       });
       setGameList(updatedGameList);
     },
-    [gameList],
+    [gameList]
   );
 
   const handleGameId = useCallback(
@@ -135,7 +140,7 @@ const GameLobby: FC = () => {
       setMessage({});
       setGame({ id: data.id, action: eEvents.CREATE_GAME });
     },
-    [eEvents.CREATE_GAME],
+    [eEvents.CREATE_GAME]
   );
 
   const handleReconnect = useCallback(
@@ -143,19 +148,19 @@ const GameLobby: FC = () => {
       setMessage({});
       setGame({ id: gameId, action: eEvents.RECO_GAME });
     },
-    [eEvents.RECO_GAME],
+    [eEvents.RECO_GAME]
   );
 
   const handleMatchMaking = useCallback(
     (value: eMatchMaking) => {
-      socket.emit('matchMaking', { value: value });
+      socket.emit("matchMaking", { value: value });
     },
-    [socket],
+    [socket]
   );
 
   const handleOpponentFound = useCallback(() => {
     if (game.action === eEvents.VIEW_GAME) {
-      socket.emit('viewerLeaves', { id: game.id });
+      socket.emit("viewerLeaves", { id: game.id });
     }
     handleShowMatchMaking();
     setTimeout(() => {
@@ -170,30 +175,33 @@ const GameLobby: FC = () => {
     }, 4000);
   }, []);
 
-  const handlePlayersInfos = useCallback((data: any) => {
-    const player = data.players
-      ? data.players.find((p: any) => p.id === userId.toString())
-      : {};
-    if (player) {
-      setMatchMaking(player.matchmaking);
-      setPlayer(player);
-      // reconnect game if needed
-      if (player.game && game.id === 'lobby') {
-        if (
-          gameList &&
-          gameList.some((g: any) => g.id === player.game) === true
-        )
-          setGame({ id: player.game, action: eEvents.JOIN_GAME });
+  const handlePlayersInfos = useCallback(
+    (data: any) => {
+      const player = data.players
+        ? data.players.find((p: any) => p.id === userId.toString())
+        : {};
+      if (player) {
+        setMatchMaking(player.matchmaking);
+        setPlayer(player);
+        // reconnect game if needed
+        if (player.game && game.id === "lobby") {
+          if (
+            gameList &&
+            gameList.some((g: any) => g.id === player.game) === true
+          )
+            setGame({ id: player.game, action: eEvents.JOIN_GAME });
+        }
       }
-    }
-  }, [eEvents.JOIN_GAME, game.id, gameList, userId]);
+    },
+    [eEvents.JOIN_GAME, game.id, gameList, userId]
+  );
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
   const handleNewGame = () => {
-    socket.emit('createGame');
+    socket.emit("createGame");
   };
 
   const handleSetGame = (data: any) => {
@@ -201,11 +209,11 @@ const GameLobby: FC = () => {
   };
 
   const backToOrigin = () => {
-    if (origin.name === 'lobby') {
-      socket.emit('findAllGame');
+    if (origin.name === "lobby") {
+      socket.emit("findAllGame");
       setMessage({});
       setMatchMaking(eMatchMaking.NOT_IN_QUEUE);
-      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
+      setGame({ id: "lobby", action: eEvents.GO_LOBBY });
     } else {
       navigate(origin.loc, { state: origin.state });
     }
@@ -215,7 +223,7 @@ const GameLobby: FC = () => {
     handleCloseGoBack();
     // Viewer : remove the viewer and change its room in the server
     if (game.action === eEvents.VIEW_GAME) {
-      socket.emit('viewerLeaves', { id: game.id });
+      socket.emit("viewerLeaves", { id: game.id });
       backToOrigin();
     }
     // Player : cancel if 1 player / abandon if match started
@@ -223,7 +231,7 @@ const GameLobby: FC = () => {
       let wait: boolean = true;
       const isGame: any = gameList.find((g: any) => g.id === game.id);
       if (isGame && isGame.players && isGame.players.length === 1) wait = false;
-      socket.emit('playerAbandons', { id: game.id });
+      socket.emit("playerAbandons", { id: game.id });
       if (wait) {
         setTimeout(() => {
           backToOrigin();
@@ -243,11 +251,11 @@ const GameLobby: FC = () => {
     } else if (action === eAction.SPECTATE && gameId !== null) {
       setGame({ id: gameId, action: eEvents.VIEW_GAME });
     } else {
-      setGame({ id: 'lobby', action: eEvents.GO_LOBBY });
-      socket.emit('findAllGame');
+      setGame({ id: "lobby", action: eEvents.GO_LOBBY });
+      socket.emit("findAllGame");
     }
     // Get players infos
-    socket.emit('getPlayersInfos');
+    socket.emit("getPlayersInfos");
   }, [
     action,
     gameId,
@@ -260,23 +268,23 @@ const GameLobby: FC = () => {
   ]);
 
   useEffect(() => {
-    socket.on('opponentFound', handleOpponentFound);
+    socket.on("opponentFound", handleOpponentFound);
     return () => {
-      socket.off('opponentFound', handleOpponentFound);
+      socket.off("opponentFound", handleOpponentFound);
     };
   }, [handleOpponentFound, socket]);
 
   useEffect(() => {
-    socket.on('scoreUpdate', handleScoreUpdate);
+    socket.on("scoreUpdate", handleScoreUpdate);
     return () => {
-      socket.off('scoreUpdate', handleScoreUpdate);
+      socket.off("scoreUpdate", handleScoreUpdate);
     };
   }, [gameList, handleScoreUpdate, socket]);
 
   useEffect(() => {
-    socket.on('playersInfos', handlePlayersInfos);
+    socket.on("playersInfos", handlePlayersInfos);
     return () => {
-      socket.off('playersInfos', handlePlayersInfos);
+      socket.off("playersInfos", handlePlayersInfos);
     };
   }, [handlePlayersInfos, socket]);
 
@@ -286,25 +294,19 @@ const GameLobby: FC = () => {
 
   useEffect(() => {
     // Socket listeners
-    socket.on('gameList', handleGameList);
-    socket.on('reconnect', handleReconnect);
-    socket.on('gameId', handleGameId);
-    socket.on('exception', handleInfo);
-    socket.on('info', handleInfo);
+    socket.on("gameList", handleGameList);
+    socket.on("reconnect", handleReconnect);
+    socket.on("gameId", handleGameId);
+    socket.on("exception", handleInfo);
+    socket.on("info", handleInfo);
     return () => {
-      socket.off('gameList', handleGameList);
-      socket.off('reconnect', handleReconnect);
-      socket.off('gameId', handleGameId);
-      socket.off('exception', handleInfo);
-      socket.off('info', handleInfo);
+      socket.off("gameList", handleGameList);
+      socket.off("reconnect", handleReconnect);
+      socket.off("gameId", handleGameId);
+      socket.off("exception", handleInfo);
+      socket.off("info", handleInfo);
     };
-  }, [
-    handleGameId,
-    handleGameList,
-    handleInfo,
-    handleReconnect,
-    socket,
-  ]);
+  }, [handleGameId, handleGameList, handleInfo, handleReconnect, socket]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -382,7 +384,7 @@ const GameLobby: FC = () => {
           {matchMaking === eMatchMaking.NOT_IN_QUEUE ? (
             <button
               className="btn btn-pink text-pink mb-4"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={() => handleMatchMaking(eMatchMaking.IN_QUEUE)}
             >
               Join queue
@@ -391,7 +393,7 @@ const GameLobby: FC = () => {
             matchMaking === eMatchMaking.IN_QUEUE && (
               <button
                 className="btn btn-pink text-pink mb-4"
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 onClick={() => handleMatchMaking(eMatchMaking.NOT_IN_QUEUE)}
               >
                 <span
@@ -417,7 +419,7 @@ const GameLobby: FC = () => {
               setGame={handleSetGame}
               handleNewGame={handleNewGame}
               event={eEvents}
-              userId={userId.toString()}
+              userId={ userId ? userId.toString() : undefined}
               handleInfo={handleInfo}
             />
           </div>
@@ -445,7 +447,7 @@ const GameLobby: FC = () => {
       <div id="game-messages" className="row">
         <div className="col-xs-6 col-md-3"></div>
         <div className="col-xs-6 col-md-6">
-          {message && message !== '' && (
+          {message && message !== "" && (
             <div className="blueText">{message.message}</div>
           )}
         </div>

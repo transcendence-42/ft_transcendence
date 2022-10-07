@@ -9,6 +9,9 @@ import { RatingModule } from './rating/rating.module';
 import { GameModule } from './game/game.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
+import { LoggerModule } from 'nestjs-pino';
+import { ChannelModule } from './channels/channel.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -29,8 +32,21 @@ import { RedisModule } from './redis/redis.module';
     RatingModule,
     GameModule,
     RedisModule,
+    ChannelModule,
+    ChatModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            ignore: 'req.headers,res.headers',
+            levelFirst: true,
+          },
+        },
+      },
+    }),
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}
