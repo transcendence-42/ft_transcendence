@@ -15,6 +15,7 @@ export default function UserInMembers({
   banUser,
   blockUser,
   blockedUsers,
+  changeRole,
   ...props
 }: any) {
   return (
@@ -70,26 +71,29 @@ export default function UserInMembers({
                     )}`
                   )} */}
                   {/* NEED NOUFEL'S FUNCTIONS HERE */}
-                  {member.role === eUserRole.OWNER ? (
+                  {self.role !== eUserRole.OWNER ? (
                       ""
                     ) : (
                       <>
+                  {member.role === eUserRole.ADMIN ?
                         <li
                           onClick={(e) =>
-                            muteUser(member.userId, member.channelId)
+                            changeRole(member.userId, member.channelId, eUserRole.USER)
                           }
                           className="dropdown-item"
                         >
-                          GIVE ADMIN RIGHT
+                          Give User role
                         </li>
+                          :
                         <li
                           onClick={(e) =>
-                            muteUser(member.userId, member.channelId)
+                            changeRole(member.userId, member.channelId, eUserRole.ADMIN)
                           }
                           className="dropdown-item"
                         >
-                          GIVE USER RIGHT
+                          Give Admin role
                         </li>
+                        }
                       </>
                     )}
                     {blockedUsers[member.userId] ? (

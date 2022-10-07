@@ -206,8 +206,8 @@ export class AuthController {
 
   @UseGuards(TwoFactorDto)
   @Get('2fa/state/:id')
-  isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {
-    if (this.authService.isTwoFaActivated(id)) {
+  async isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {
+    if (await this.authService.isTwoFaActivated(id)) {
       return { message: 'on' };
     }
     return { message: 'off' };

@@ -67,6 +67,7 @@ export default function Home({ updateID, userID }: any) {
       })
       .then((responseObject) => {
         if (responseObject.message) {
+          console.log(responseObject.message);
           if (responseObject.message === "require 2fa") {
             toggle();
             return;

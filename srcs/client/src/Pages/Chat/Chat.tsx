@@ -126,7 +126,30 @@ export default function Chat(props: any) {
     },
     [allChannels]
   );
-
+  const updateOwnUserOnChannel = useCallback((userOnChannel: UserOnChannel) => {
+    console.group(`updateOwnUserOnChannel`);
+    setUser((prevUser: User) => {
+      console.log(
+        `Updating own channel. Before all my channels where ${JSON.stringify(
+          prevUser.channels
+        )}`
+      );
+      let inOwnChannels = false;
+      let updatedChannels: UserOnChannel[] = [];
+      updatedChannels = prevUser.channels.map((usrOnChan) => {
+        if (usrOnChan.channelId === userOnChannel.channelId) {
+          inOwnChannels = true;
+          return userOnChannel;
+        }
+        return usrOnChan;
+      });
+      if (!inOwnChannels) {
+        updatedChannels.push(userOnChannel);
+      }
+      return { ...prevUser, channels: updatedChannels };
+    });
+    console.groupEnd();
+  }, []);
   const handleLeaveChannelEvent = useCallback(
     (channelId: number) => {
       console.log(
@@ -191,7 +214,7 @@ export default function Chat(props: any) {
         console.groupEnd();
       })();
     },
-    [allChannels, user, allUsers, updateChannel]
+    [allChannels, user, allUsers, updateChannel, updateOwnUserOnChannel]
   );
   const createDirect = async (e: any, friendId: number) => {
     console.log(`This is friedn id ${friendId}`);
@@ -357,30 +380,7 @@ export default function Chat(props: any) {
     })();
   };
 
-  const updateOwnUserOnChannel = useCallback((userOnChannel: UserOnChannel) => {
-    console.group(`updateOwnUserOnChannel`);
-    setUser((prevUser: User) => {
-      console.log(
-        `Updating own channel. Before all my channels where ${JSON.stringify(
-          prevUser.channels
-        )}`
-      );
-      let inOwnChannels = false;
-      let updatedChannels: UserOnChannel[] = [];
-      updatedChannels = prevUser.channels.map((usrOnChan) => {
-        if (usrOnChan.channelId === userOnChannel.channelId) {
-          inOwnChannels = true;
-          return userOnChannel;
-        }
-        return usrOnChan;
-      });
-      if (!inOwnChannels) {
-        updatedChannels.push(userOnChannel);
-      }
-      return { ...prevUser, channels: updatedChannels };
-    });
-    console.groupEnd();
-  }, []);
+
 
   const handleSendMessage = (e: any) => {
     e.preventDefault();
@@ -464,7 +464,24 @@ export default function Chat(props: any) {
       socket.emit(eEvent.BanUser, { userId, channelId });
       console.groupEnd();
     })();
-  }, []);
+  }, [socket]);
+
+  const changeRole = useCallback((userId: number, channelId: number, role: eUserRole) => {
+    (async () => {
+
+      const url = `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userId}`;
+      const updatedUser = await fetchUrl(url, "PATCH", {
+        role,
+      } as UpdateUserOnChannelDto);
+      if (updatedUser) {
+        const url = `http://127.0.0.1:4200/channels/${channelId}`
+        console.log(`This is the updated ${JSON.stringify(updatedUser)}`);
+        socket.emit(eEvent.UpdateOneChannel, channelId);
+        const updatedChannel = await fetchUrl(url);
+        updateChannel(updatedChannel);
+      }
+    })();
+  },[updateChannel, socket]);
 
   const muteUser = (userId: number, channelId: number) => {
     (async () => {
@@ -752,6 +769,7 @@ export default function Chat(props: any) {
                   blockUser={blockUser}
                   blockedUsers={blockedUsers}
                   handleShowAddToChannel={handleShowAddToChannel}
+                  changeRole={changeRole}
                 />
               )}
             </>
