@@ -51,7 +51,7 @@ export class PictureController {
         validators: [
           new MaxFileSizeValidator({ maxSize: 100000 }),
           new FileTypeValidator({
-            fileType: new RegExp('/jpg|jpeg|png|gif/', 'g'),
+            fileType: new RegExp('/jpg|jpeg|png|gif/', 'ig'),
           }),
         ],
       }),
