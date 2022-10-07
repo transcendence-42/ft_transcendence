@@ -419,7 +419,7 @@ const GameLobby: FC = () => {
               setGame={handleSetGame}
               handleNewGame={handleNewGame}
               event={eEvents}
-              userId={userId.toString()}
+              userId={ userId ? userId.toString() : undefined}
               handleInfo={handleInfo}
             />
           </div>

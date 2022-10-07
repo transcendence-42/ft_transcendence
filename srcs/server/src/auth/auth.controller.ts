@@ -13,7 +13,7 @@ import {
   UseFilters,
   UseGuards,
   Param,
-  ParseIntPipe
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
