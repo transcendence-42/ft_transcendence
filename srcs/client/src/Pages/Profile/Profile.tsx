@@ -139,7 +139,8 @@ const Profile = () => {
           request = 'http://127.0.0.1:4200/auth/2fa/state/' + userId;
           const double_json = getFetch({ url: request });
           double_json.then((responseObject) => {
-            if (responseObject) {
+            console.log(`${JSON.stringify(responseObject)}`)
+            if (responseObject.message === true) {
               setDoubleFactor(true);
             }
           });

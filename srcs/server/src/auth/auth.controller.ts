@@ -201,15 +201,18 @@ export class AuthController {
     type: AuthResponse,
   })
   validateTwoAuthAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
-    console.log('in validate auth')
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
+
   @UseGuards(TwoFactorDto)
-  @Get('2fa/state')
-  isTwoFaActivated(@Request() req) {
-    if (req.user && req.user.isTwoFactorActivated) return { message: 'on' };
+  @Get('2fa/state/:id')
+  isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {
+    if (this.authService.isTwoFaActivated(id)) {
+      return { message: 'on' };
+    }
     return { message: 'off' };
   }
+
   /**************************** Helpers for Dev *******************************/
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
   @UseGuards(LoggedInGuard)

@@ -217,7 +217,7 @@ export class AuthService {
       await this.userService.setTwoFactorAuthentification(user.id, true);
       return { message: '2FA activated!' };
     }
-    throw new UnauthorizedException('Bad 2FA Code');
+    return { message: 'Bad 2FA Code' };
   }
 
   /* returns a Generated Qr Code as a stream for Two Factor Auth */
@@ -252,7 +252,8 @@ export class AuthService {
     const credentials = await this.userService.getUserCredentialsByEmail(
       userDb.email,
     );
-    if (credentials && credentials.twoFactorActivated) return true;
+    console.log(`-----------------------${JSON.stringify(credentials)}`);
+    if (credentials && credentials.twoFactorActivated) {return true};
     return false;
   }
   /********************************** Helpers ********************************/

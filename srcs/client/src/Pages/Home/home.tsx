@@ -9,6 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ModalAuthentification from "./Modal/ModalAuthentification";
 import { GameSocketContext } from "../Game/socket/socket";
 import { UserContext } from "../../Context/UserContext";
+import { RootModalsContext } from "../RootModals/RootModalsProvider";
 
 export default function Home({ updateID, userID }: any) {
   /*
@@ -20,6 +21,10 @@ export default function Home({ updateID, userID }: any) {
   const [update, setUpdate] = useState(2);
   const socket = useContext(GameSocketContext);
   const { login } = useContext(UserContext);
+
+  // First connection modal
+  const [showFirstConnection, setShowFirstConnection] =
+    useContext(RootModalsContext);
 
   function toggleUpdate() {
     setTimeout(() => {
@@ -75,6 +80,9 @@ export default function Home({ updateID, userID }: any) {
           console.log(responseObject);
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
+          // First connection modal
+          if (responseObject.message === 'Registered')
+            setShowFirstConnection(true);
           // Game socket connection
           socket.auth = { 
             userId: responseObject.user.id,

@@ -10,10 +10,15 @@ import '../../Styles';
 import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
 import { RootModalsContext } from './RootModalsProvider';
+import FirstConnection from './modals/FirstConnection';
+import { UserContext } from '../../Context/UserContext';
 
-const RootModals = () => {
+const RootModals = ({ id }: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const userId = currentUser.id;
   const navigate = useNavigate();
 
   /** *********************************************************************** */
@@ -58,6 +63,7 @@ const RootModals = () => {
   /** COMPONENT EVENT HANDLERS                                                */
   /** *********************************************************************** */
 
+  // Challenge modal
   const handleCancel = useCallback(() => {
     handleCloseGameChallenge();
     if (gameChallengeData.opponent === undefined) return;
@@ -94,6 +100,12 @@ const RootModals = () => {
       handleCloseGameChallenge();
     }, 2000);
   }, [eChallengeStatus.ACCEPTED, gameChallengeData, navigate, socket]);
+
+  // First connection
+  const handleGoToProfile = useCallback(() => {
+    handleCloseFirstConnection();
+    navigate(`/profile/${userId}`);
+  }, [navigate, userId])
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -233,12 +245,14 @@ const RootModals = () => {
         title="Welcome, ponger !"
         closeHandler={handleCloseFirstConnection}
         show={showFirstConnection}
-        textBtn1='Got it !'
+        textBtn1="Nah I'm good"
         handleBtn1={handleCloseFirstConnection}
+        textBtn2='Go to my profile !'
+        handleBtn2={handleGoToProfile}
         closeButton={false}
         backdrop="static"
       >
-        <MatchMaking />
+        <FirstConnection />
       </PongModal>
     </>
   );
