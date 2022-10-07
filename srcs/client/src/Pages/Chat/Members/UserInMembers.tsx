@@ -69,6 +69,29 @@ export default function UserInMembers({
                       blockedUsers
                     )}`
                   )} */}
+                  {/* NEED NOUFEL'S FUNCTIONS HERE */}
+                  {member.role === eUserRole.OWNER ? (
+                      ""
+                    ) : (
+                      <>
+                        <li
+                          onClick={(e) =>
+                            muteUser(member.userId, member.channelId)
+                          }
+                          className="dropdown-item"
+                        >
+                          GIVE ADMIN RIGHT
+                        </li>
+                        <li
+                          onClick={(e) =>
+                            muteUser(member.userId, member.channelId)
+                          }
+                          className="dropdown-item"
+                        >
+                          GIVE USER RIGHT
+                        </li>
+                      </>
+                    )}
                     {blockedUsers[member.userId] ? (
                       ""
                     ) : (
