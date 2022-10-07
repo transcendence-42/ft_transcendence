@@ -16,18 +16,21 @@ const ModalDoubleAuth = (props: any) => {
    *        handleBtn1:   Function associated with the first button
    *        textBtn2:     Text of the second button (right one)
    *        handleBtn2:   Function associated with the second button
+   *        showResponse: Boolean to show or hide the response of action
    */
 
   const [qrCode, setQrCode]: any = useState([]);
-  const [content, setcontent] = useState('');
   const [status, setStatus] = useState(2);
+  const [content, setContent] = useState('');
 
   function handleChange(event: any) {
-    setcontent(event.target.value);
+    setContent(event.target.value);
   }
 
   function submitKey(e: any) {
     e.preventDefault();
+    if (content.length !== 6)
+      return;
     const status = postDoubleAuthActivate({ keyGen: content });
     status
       .then((response) => {
@@ -44,6 +47,7 @@ const ModalDoubleAuth = (props: any) => {
           return;
         }
         setStatus(0);
+        props.setShowResponse(1);
       });
   }
 
@@ -115,7 +119,7 @@ const ModalDoubleAuth = (props: any) => {
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-        {<FailAndSuccess status={status} />}
+        {props.showResponse !== 1 ? '' : <FailAndSuccess status={status} />}
         {props.handleBtn1 && (
           <button
             type="button"

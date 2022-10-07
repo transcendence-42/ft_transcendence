@@ -49,4 +49,5 @@ export const fakeUser: User = {
   createdAt: null,
   currentStatus: 0,
   eloRating: 1000,
+  blockedUsersIds: [],
 };

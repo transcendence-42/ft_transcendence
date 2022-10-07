@@ -1,4 +1,4 @@
-import { User } from './user.entity'
+import { User } from './user.entity';
 
 export class Credentials {
   id: number;
@@ -7,6 +7,6 @@ export class Credentials {
   password: string | null;
   user?: User;
   userId: number;
-  twoFactorActivated: boolean ;
-  twoFactorSecret: string | null;
+  isTwoFactorActivated: boolean;
+  isTwoFactorSecret: string | null;
 }

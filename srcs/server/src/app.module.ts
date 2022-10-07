@@ -11,6 +11,9 @@ import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { PictureModule } from './picture/picture.module';
+import { LoggerModule } from 'nestjs-pino';
+import { ChannelModule } from './channels/channel.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -35,8 +38,21 @@ import { PictureModule } from './picture/picture.module';
     GameModule,
     RedisModule,
     PictureModule,
+    ChannelModule,
+    ChatModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            ignore: 'req.headers,res.headers',
+            levelFirst: true,
+          },
+        },
+      },
+    }),
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

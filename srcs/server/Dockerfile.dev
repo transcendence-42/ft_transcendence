@@ -6,7 +6,6 @@ WORKDIR /app
 COPY    . /app/
 
 # install dependencies
-RUN     npm i -g npm@8.18.0 \
- &&     npm i
+RUN     npm i -g npm
 
 CMD     ["sh"]

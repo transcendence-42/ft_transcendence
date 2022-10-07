@@ -4,16 +4,21 @@ import { useNavigate } from 'react-router-dom';
 // Components
 import PongModal from '../../Components/Modal/PongModal';
 // Socket
-import { SocketContext } from '../Game/socket/socket';
+import { GameSocketContext } from '../Game/socket/socket';
 // Styles
 import '../../Styles';
 import GameChallenge from './modals/GameChallenge';
 import MatchMaking from './modals/MatchMaking';
 import { RootModalsContext } from './RootModalsProvider';
+import FirstConnection from './modals/FirstConnection';
+import { UserContext } from '../../Context/UserContext';
 
 const RootModals = ({ id }: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [socket, ...rest] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const userId = currentUser.id;
   const navigate = useNavigate();
 
   /** *********************************************************************** */
@@ -98,8 +103,9 @@ const RootModals = ({ id }: any) => {
 
   // First connection
   const handleGoToProfile = useCallback(() => {
-    navigate(`/profile/${id}`);
-  }, [])
+    handleCloseFirstConnection();
+    navigate(`/profile/${userId}`);
+  }, [navigate, userId])
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -239,14 +245,14 @@ const RootModals = ({ id }: any) => {
         title="Welcome, ponger !"
         closeHandler={handleCloseFirstConnection}
         show={showFirstConnection}
-        textBtn1='Go to my profile !'
+        textBtn1="Nah I'm good"
         handleBtn1={handleCloseFirstConnection}
-        textBtn2="Nah I'm good"
+        textBtn2='Go to my profile !'
         handleBtn2={handleGoToProfile}
         closeButton={false}
         backdrop="static"
       >
-        <MatchMaking />
+        <FirstConnection />
       </PongModal>
     </>
   );

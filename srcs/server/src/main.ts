@@ -44,7 +44,7 @@ async function bootstrap() {
   app.use(helmet());
 
   // Custom webSocket with port depending on environment file
-  app.useWebSocketAdapter(new SocketIoAdapter(app, config));
+  //app.useWebSocketAdapter(new SocketIoAdapter(app, config));
 
   // For Swagger UI
   const options = new DocumentBuilder()

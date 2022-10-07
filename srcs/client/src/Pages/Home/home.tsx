@@ -1,12 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Context from '../../Context/Context';
-import './home.css';
-import '../../Components/Tools/Box.css';
-import '../../Components/Tools/Text.css';
-import '../../Components/Tools/VirtualPong/virtualPong.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import ModalAuthentification from './Modal/ModalAuthentification';
+import React, { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Context from "../../Context/Context";
+import "./home.css";
+import "../../Components/Tools/Box.css";
+import "../../Components/Tools/Text.css";
+import "../../Components/Tools/VirtualPong/virtualPong.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import ModalAuthentification from "./Modal/ModalAuthentification";
+import { GameSocketContext } from "../Game/socket/socket";
+import { UserContext } from "../../Context/UserContext";
+import { RootModalsContext } from "../RootModals/RootModalsProvider";
 
 export default function Home({ updateID, userID }: any) {
   /*
@@ -16,6 +19,12 @@ export default function Home({ updateID, userID }: any) {
   const [fromAuth, setFromAuth] = useState(false);
   const [isShowing, setIsShowing] = useState(false);
   const [update, setUpdate] = useState(2);
+  const socket = useContext(GameSocketContext);
+  const { login } = useContext(UserContext);
+
+  // First connection modal
+  const [showFirstConnection, setShowFirstConnection] =
+    useContext(RootModalsContext);
 
   function toggleUpdate() {
     setTimeout(() => {
@@ -33,45 +42,57 @@ export default function Home({ updateID, userID }: any) {
    ** First function to Auth the user from our app -> 42Auth -> back -> front
    */
   const getUser = async () => {
-    await fetch('http://127.0.0.1:4200/auth/success', {
-      method: 'GET',
-      credentials: 'include',
+    await fetch("http://127.0.0.1:4200/auth/success", {
+      method: "GET",
+      credentials: "include",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true',
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": "true",
       },
     })
       .then((response) => {
         if (!response.ok) {
-          console.log('!response');
-          throw new Error('Fail parsing 42auth you probably denied auth42');
+          console.log("!response");
+          throw new Error("Fail parsing 42auth you probably denied auth42");
         }
         if (response.status === 200) {
-          console.log('response 200');
+          console.log("response 200");
           return response.json();
         } else if (response.status === 403) {
-          console.log('response 403');
+          console.log("response 403");
           return Promise.reject();
         }
-        throw console.log('Fail parsing 42auth');
+        throw console.log("Fail parsing 42auth");
       })
       .then((responseObject) => {
         if (responseObject.message) {
-          if (responseObject.message === 'require 2fa') {
+          if (responseObject.message === "require 2fa") {
             toggle();
             return;
           }
           if (!userID) {
             updateID(responseObject.user.id);
           }
-          console.log('Success parsing 42auth');
+          // Update user context
+          login(responseObject.user.id);
+          console.log("Success parsing 42auth");
           console.log(responseObject);
-          localStorage.setItem('pathIsFree', JSON.stringify(true));
+          localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
+          // First connection modal
+          if (responseObject.message === 'Registered')
+            setShowFirstConnection(true);
+          // Game socket connection
+          socket.auth = { 
+            userId: responseObject.user.id,
+            pic: responseObject.user.profilePicture,
+            name: responseObject.user.username,
+          };
+          socket.connect();
           return;
         }
-        throw new Error('Something went wrong');
+        throw new Error("Something went wrong");
       })
       .catch((err) => console.log(err));
   };
@@ -81,11 +102,11 @@ export default function Home({ updateID, userID }: any) {
    ** to be sure we are from login page
    */
   useEffect(() => {
-    const data = localStorage.getItem('fromAuth');
+    const data = localStorage.getItem("fromAuth");
     if (data) {
       getUser();
       setFromAuth(false);
-      window.localStorage.removeItem('fromAuth');
+      window.localStorage.removeItem("fromAuth");
     }
   }, [update]);
 

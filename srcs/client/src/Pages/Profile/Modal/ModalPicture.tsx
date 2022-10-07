@@ -4,9 +4,10 @@ import '../../../Components/Tools/Box.css';
 import './ModalChangeContent.css';
 import FailAndSuccessPicture from './FailAndSuccessPicture';
 import React, { useContext, useEffect, useState } from 'react';
-import { SocketContext } from '../../Game/socket/socket';
 import { postFetchPicture } from '../Fetch/postFetchPicture';
 import { useForm } from 'react-hook-form';
+import { GameSocketContext } from '../../Game/socket/socket';
+import { UserContext } from '../../../Context/UserContext';
 
 const ModalPicture = ({
   title,
@@ -29,9 +30,12 @@ const ModalPicture = ({
    *        handleBtn2:   Function associated with the second button
    */
 
-  const [url, setUrl] = useState('');
-  const [status, setStatus] = useState(2);
-  const [socket, originalId] = useContext(SocketContext);
+   const [url, setUrl] = useState('');
+   const [status, setStatus] = useState(2);
+   const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const originalId = currentUser.id;
 
   // React hook form
   const { register, handleSubmit } = useForm();
@@ -39,7 +43,7 @@ const ModalPicture = ({
   const onSubmit = (data: any) => {
     const formData = new FormData();
     formData.append('picture', data.picture[0]);
-    formData.append('user', originalId);
+    formData.append('user', originalId.toString());
     const status = postFetchPicture({ url: url, data: formData });
     status.then((responseObject) => {
       if (responseObject.status === 400) {
