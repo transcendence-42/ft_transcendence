@@ -29,10 +29,6 @@ export default function Conversation({
   const self = user?.channels?.find(
     (userOnChan: UserOnChannel) => userOnChan?.channelId === currentChannel.id
   );
-  // console.log("HERE ==> ",self);
-  // console.log(user);
-  // console.log("HERE",currentChannel);
-  console.log("ROLE = ", self?.role);
   return (
     <div
       className="col-6 chat-sidebar-middle
@@ -48,7 +44,7 @@ export default function Conversation({
             <div className="col-5">
               <p className="blue-titles" style={{ fontSize: "13px" }}>
                 {currentChannel.type !== eChannelType.DIRECT ? (
-                  <div className="blue-titles">@{currentChannel.name}</div>
+                  "@" + currentChannel.name
                 ) : (
                   `Direct with ` +
                     otherUser(

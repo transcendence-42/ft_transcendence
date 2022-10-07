@@ -15,6 +15,7 @@ import GameLobby from './Pages/Game/GameLobby';
 import RootModals from './Pages/RootModals/RootModals';
 import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
 import GameSocketProvider from './Pages/Game/socket/socket';
+import { ChatSocket } from "./Socket";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -88,7 +89,7 @@ function App() {
               <Route path="/" element={<AuthenticatedRoute res />}>
                 <Route path="/about" element={<About />} />
                 <Route path="/lobby" element={<GameLobby />} />
-                <Route path="/chat" element={<Chat userID={userID} />} />
+                <Route path="/chat" element={<Chat userID={userID} socket={ChatSocket} />} />
                 <Route path="/profile/:id" element={<Profile />} />
               </Route>
             </Routes>
