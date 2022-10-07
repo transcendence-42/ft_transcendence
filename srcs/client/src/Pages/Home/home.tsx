@@ -58,10 +58,8 @@ export default function Home({ updateID, userID }: any) {
           throw new Error("Fail parsing 42auth you probably denied auth42");
         }
         if (response.status === 200) {
-          console.log("response 200");
           return response.json();
         } else if (response.status === 403) {
-          console.log("response 403");
           return Promise.reject();
         }
         throw console.log("Fail parsing 42auth");
@@ -77,8 +75,6 @@ export default function Home({ updateID, userID }: any) {
           }
           // Update user context
           login(responseObject.user.id);
-          console.log("Success parsing 42auth");
-          console.log(responseObject);
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           // First connection modal

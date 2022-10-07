@@ -13,10 +13,17 @@ import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
 
 @WebSocketGateway(4444, {
-  cors: true,
+  cors: {
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://localhost:3000',
+      'https://127.0.0.1:3000',
+    ],
+    //credentials: true,
+  },
   namespace: '/api/chatws',
   path: '/api/chatws/socket.io',
-  credentials: true,
 })
 export class ChatGateway
   implements
