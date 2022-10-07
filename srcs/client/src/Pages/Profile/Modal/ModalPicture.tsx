@@ -19,6 +19,8 @@ const ModalPicture = ({
   handleBtn2,
   up,
   id,
+  showResponse,
+  setShowResponse,
 }: any) => {
   /**
    * @props title:        Title of the modal
@@ -28,13 +30,16 @@ const ModalPicture = ({
    *        handleBtn1:   Function associated with the first button
    *        textBtn2:     Text of the second button (right one)
    *        handleBtn2:   Function associated with the second button
+   *        ShowResponse: Boolean to show or hide the response of action
    */
 
-   const [url, setUrl] = useState('');
-   const [status, setStatus] = useState(2);
-   const socket = useContext(GameSocketContext);
+  const [url, setUrl] = useState('');
+  const [status, setStatus] = useState(2);
+  const socket = useContext(GameSocketContext);
   // Get current user
-  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const { user: currentUser } = useContext<{ user: { id: number } }>(
+    UserContext,
+  );
   const originalId = currentUser.id;
 
   // React hook form
@@ -48,10 +53,12 @@ const ModalPicture = ({
     status.then((responseObject) => {
       if (responseObject.status === 400) {
         setStatus(0);
+        setShowResponse(1);
         return;
       }
       socket.emit('updatePlayer', { pic: 'updated' });
       setStatus(1);
+      setShowResponse(1);
       up();
       setTimeout(() => {
         closeHandler();
@@ -61,7 +68,8 @@ const ModalPicture = ({
 
   useEffect(() => {
     setStatus(2);
-    setUrl(`http://127.0.0.1:4200/pictures/`);
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+    setUrl(`${apiUrl}/pictures/`);
   }, []);
 
   return (
@@ -70,17 +78,24 @@ const ModalPicture = ({
         <Modal.Title className="text-blue">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-pink text-center ">
-        <form onSubmit={handleSubmit(onSubmit)} id="uploadPictureForm">
+        <p className="text-pink">
+          Your picture must be JPG / JPEG / PNG / GIF and must be less than 3MB
+        </p>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          id="uploadPictureForm"
+          className="d-flex justify-content-center"
+        >
           <input
             {...register('picture')}
             required
             type="file"
-            className="inputContent"
+            className="form-control"
           />
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-        {<FailAndSuccessPicture status={status} />}
+        {showResponse !== 1 ? '' : <FailAndSuccessPicture status={status} />}
         {handleBtn1 && (
           <button
             type="button"

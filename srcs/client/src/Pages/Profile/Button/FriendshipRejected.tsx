@@ -12,8 +12,9 @@ const FriendshipRejected = (props: any) => {
   }
 
   function onClickAccepted() {
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
     updateFriendship({
-      url: 'http://127.0.0.1:4200/friendship',
+      url: `${apiUrl}/friendship`,
       addresseeId: props.addresseeId,
       requesterId: props.requesterId,
       status: eFriendshipStatus.REJECTED,

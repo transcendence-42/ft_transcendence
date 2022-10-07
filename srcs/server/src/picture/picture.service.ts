@@ -12,8 +12,9 @@ export class PictureService {
 
   async create(id: number, picture: string): Promise<User> {
     const serverPath = this.configService.get('REACT_APP_API_URL');
+    console.log(serverPath + picture);
     return await this.userService.update(id, {
-      profilePicture: `${serverPath}${picture}`,
+      profilePicture: `${serverPath}/pictures/${picture}`,
     });
   }
 }

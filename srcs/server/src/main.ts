@@ -17,6 +17,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
 
+  // Global prefix
+  app.setGlobalPrefix('api');
+
   // Redis store
   const redisClient = Redis.createClient({
     url: config.get('REDIS_URL'),
@@ -40,7 +43,11 @@ async function bootstrap() {
   );
 
   // Secure HTTP Headers
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 
   // Custom webSocket with port depending on environment file
   //app.useWebSocketAdapter(new SocketIoAdapter(app, config));

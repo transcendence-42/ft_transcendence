@@ -5,14 +5,16 @@ import { fetchUrl } from "../utils";
 const createChannelOnDb = async (
   createChannelDto: CreateChannelDto
 ): Promise<[Channel, UserOnChannel] | void> => {
+  // API URL
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
   const channel = await fetchUrl(
-    "http://127.0.0.1:4200/channels/",
+    `${apiUrl}/channels/`,
     "PUT",
     createChannelDto
   );
   if (channel["id"]) {
     const userOnChannel = await fetchUrl(
-      `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${channel.ownerId}`,
+      `${apiUrl}/channels/${channel.id}/useronchannel/${channel.ownerId}`,
       "GET"
     );
     return [channel, userOnChannel];

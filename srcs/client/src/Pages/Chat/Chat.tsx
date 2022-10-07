@@ -20,6 +20,9 @@ import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 
 export default function Chat(props: any) {
+  // API URL
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
+
   const socket: Socket = props.socket;
   // const myUserId: number = props.userId;
   const [user, setUser] = useState({} as User);
@@ -170,7 +173,7 @@ export default function Chat(props: any) {
       (async () => {
         console.log("recieved event udpateOneChannel");
         console.log(`All my channels are ${JSON.stringify(allChannels)}`);
-        const url = "http://127.0.0.1:4200/channels/" + channelId;
+        const url = `${apiUrl}/channels/${channelId}`;
         const channel: Channel = await fetchUrl(url);
         console.log(
           `This is the channel im updating ${JSON.stringify(channel)}`
@@ -181,7 +184,7 @@ export default function Chat(props: any) {
         );
         if (isInOwnChannel) {
           const userOnChan = await fetchUrl(
-            `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${user.id}`
+            `${apiUrl}/channels/${channel.id}/useronchannel/${user.id}`
           );
           console.log(
             `Upadting ownChannels because the user is in the channel ${userOnChan}`
@@ -249,7 +252,7 @@ export default function Chat(props: any) {
     (async () => {
       const userOnChannel = await addToChannel(userId, channelId);
       const channel = await fetchUrl(
-        `http://127.0.0.1:4200/channels/${channelId}`
+        `${apiUrl}/channels/${channelId}`
       );
       updateChannel(channel);
       updateOwnUserOnChannel(userOnChannel);
@@ -265,7 +268,7 @@ export default function Chat(props: any) {
     };
     // api returns the userOnChannel if hasleftTheChannel ?
     const newUser = await fetchUrl(
-      `http://127.0.0.1:4200/channels/${channelId}/useronchannel/`,
+      `${apiUrl}/channels/${channelId}/useronchannel/`,
       "PUT",
       createUserOnChannelDto
     );
@@ -296,7 +299,7 @@ export default function Chat(props: any) {
           hasLeftChannel: true
         };
         const updatedUsrOnChan = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
+          `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "PATCH",
           dto
         );
@@ -309,7 +312,7 @@ export default function Chat(props: any) {
         updateOwnUserOnChannel(updatedUsrOnChan);
       } else {
         const deleteUser = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
+          `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "delete"
         );
         if (!deleteUser) {
@@ -431,7 +434,7 @@ export default function Chat(props: any) {
       (async () => {
         console.group("block user");
         console.log(`Blocking user ${userId}`);
-        const url = `http://127.0.0.1:4200/users/${userId}`;
+        const url = `${apiUrl}/users/${userId}`;
         const dto: UpdateUserDto = { blockedUsersIds: user.blockedUsersIds };
         dto.blockedUsersIds.push(userId);
         console.log(`this is the dto im sending ${JSON.stringify(dto)}`);
@@ -456,7 +459,7 @@ export default function Chat(props: any) {
     (async () => {
       console.group(`Ban User`);
       console.log(`Now banning poor user ${userId} from channel ${channelId}`);
-      const url = `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userId}`;
+      const url = `${apiUrl}/channels/${channelId}/useronchannel/${userId}`;
       const updatedUser = await fetchUrl(url, "PATCH", {
         isBanned: true,
         hasLeftChannel: true
@@ -472,7 +475,7 @@ export default function Chat(props: any) {
         `On mute user all mu channels are ${JSON.stringify(allChannels)}`
       );
       console.log(`On mute user all mu users are ${JSON.stringify(allUsers)}`);
-      const url = `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${userId}`;
+      const url = `${apiUrl}/channels/${channelId}/useronchannel/${userId}`;
       const mutedUser = await fetchUrl(url, "PATCH", {
         isMuted: true
       } as UpdateUserOnChannelDto);
@@ -493,7 +496,7 @@ export default function Chat(props: any) {
 
   const changeChannelPassword = (channelId: number, newPassword: string) => {
     (async () => {
-      const url = `http://127.0.0.1:4200/channels/${channelId}`;
+      const url = `${apiUrl}/channels/${channelId}`;
       const dto: UpdateChannelDto = {
         password: newPassword
       };
@@ -505,7 +508,7 @@ export default function Chat(props: any) {
 
   const setChannelPassword = (channelId: number, password: string) => {
     (async () => {
-      const url = `http://127.0.0.1:4200/channels/${channelId}`;
+      const url = `${apiUrl}/channels/${channelId}`;
       const dto: UpdateChannelDto = {
         password,
         type: eChannelType.PROTECTED
@@ -520,12 +523,12 @@ export default function Chat(props: any) {
     console.group("Use Effect #1: initChatUser");
     (async () => {
       console.log("fetching auth/success");
-      let response = await fetchUrl("http://127.0.0.1:4200/auth/success/");
+      let response = await fetchUrl(`${apiUrl}/auth/success/`);
       console.log(`Fetched /auth/sucess`);
       let { user } = response;
       if (!user) {
         console.log("Gettign another user");
-        response = await fetchUrl("http://127.0.0.1:4200/users/2");
+        response = await fetchUrl(`${apiUrl}/users/2`);
         user = response;
       }
       console.log("Setting user");
@@ -546,7 +549,7 @@ export default function Chat(props: any) {
       if (user && user.id) {
         console.log("fetching friends");
         const friends = await fetchUrl(
-          `http://127.0.0.1:4200/users/${user.id}/friends`
+          `${apiUrl}/users/${user.id}/friends`
         );
         if (friends && friends.length !== 0) {
           console.log("setting friends");
@@ -560,7 +563,7 @@ export default function Chat(props: any) {
         );
       }
       console.log("Fetching channels");
-      const channels = await fetchUrl(`http://127.0.0.1:4200/channels`);
+      const channels = await fetchUrl(`${apiUrl}/channels`);
       console.log("Fetched channels");
 
       if (channels) {
@@ -569,9 +572,9 @@ export default function Chat(props: any) {
         console.log("set all channels");
         setDefaultChannel(channels, user.channels);
       }
-      // const users = await fetchUrl(`http://127.0.0.1:4200/users/`, "GET");
+      // const users = await fetchUrl(`${apiUrl}/users/`, "GET");
       console.log("Fetching all users");
-      const users = await fetchUrl(`http://127.0.0.1:4200/users/`);
+      const users = await fetchUrl(`${apiUrl}/users/`);
       if (users) {
         const userHashTable: Hashtable<User> = {};
         console.log("Fetched  all users");
@@ -640,7 +643,7 @@ export default function Chat(props: any) {
 
     socket.on(eEvent.UpdateOneUser, (userId: number) => {
       (async () => {
-        const user = await fetchUrl(`http://127.0.0.1:4200/users/${userId}`);
+        const user = await fetchUrl(`${apiUrl}/users/${userId}`);
         setAllUsers((prevState) => {
           const newAllUsers: Hashtable<User> = prevState;
           newAllUsers[userId] = user;
@@ -659,7 +662,7 @@ export default function Chat(props: any) {
     socket.on(eEvent.UpdateUserOnChannel, (channelId) => {
       (async () => {
         const usrOnChan = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channelId}/useronchannel/${user.id}`
+          `${apiUrl}/channels/${channelId}/useronchannel/${user.id}`
         );
         console.log(`Updating user on channel ${JSON.stringify(usrOnChan)}`);
         updateOwnUserOnChannel(usrOnChan);

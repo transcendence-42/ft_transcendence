@@ -42,9 +42,10 @@ export default function Home({ updateID, userID }: any) {
    ** First function to Auth the user from our app -> 42Auth -> back -> front
    */
   const getUser = async () => {
-    await fetch("http://127.0.0.1:4200/auth/success", {
-      method: "GET",
-      credentials: "include",
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+    await fetch(`${apiUrl}/auth/success`, {
+      method: 'GET',
+      credentials: 'include',
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -57,10 +58,8 @@ export default function Home({ updateID, userID }: any) {
           throw new Error("Fail parsing 42auth you probably denied auth42");
         }
         if (response.status === 200) {
-          console.log("response 200");
           return response.json();
         } else if (response.status === 403) {
-          console.log("response 403");
           return Promise.reject();
         }
         throw console.log("Fail parsing 42auth");
@@ -76,8 +75,6 @@ export default function Home({ updateID, userID }: any) {
           }
           // Update user context
           login(responseObject.user.id);
-          console.log("Success parsing 42auth");
-          console.log(responseObject);
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           // First connection modal

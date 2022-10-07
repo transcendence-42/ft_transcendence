@@ -49,7 +49,7 @@ export class PictureController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 100000 }),
+          new MaxFileSizeValidator({ maxSize: 3000000 }),
           new FileTypeValidator({
             fileType: new RegExp('/jpg|jpeg|png|gif/', 'ig'),
           }),
@@ -60,7 +60,7 @@ export class PictureController {
     @Request() req,
   ): Promise<User> {
     const userId: number = req.user.id;
-    return await this.pictureService.create(userId, file.path);
+    return await this.pictureService.create(userId, file.filename);
   }
 
   @ApiTags('Pictures')

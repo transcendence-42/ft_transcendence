@@ -13,11 +13,8 @@ const AddFriend = (props: any) => {
    *          friendList  : friend list of the user we are looking at
    */
 
-  /** *********************************************************************** */
-  /** GLOBAL                                                                  */
-  /** *********************************************************************** */
-
-  const url = `http://127.0.0.1:4200/users/${props.originalId}/friends`;
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
+	const url = `${apiUrl}/users/${props.originalId}/friends`;
 
   /** *********************************************************************** */
   /** STATES                                                                  */

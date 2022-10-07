@@ -2,7 +2,9 @@ import React from 'react';
 import { io, Socket } from 'socket.io-client';
 
 const socket = io(process.env.REACT_APP_GAME_SOCKET_URL as string, {
-  autoConnect: false
+  autoConnect: false,
+  path: '/api/gamews/socket.io',
+  transports: ["websocket", "polling"]
 });
 
 export const GameSocketContext = React.createContext(socket as Socket);
