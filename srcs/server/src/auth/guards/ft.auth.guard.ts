@@ -1,17 +1,30 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { InternalAuthException } from '../exceptions';
 
 @Injectable()
 export class FtAuthGuard extends AuthGuard('42') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    console.debug('\x1b[32m%s\x1b[0m', `FtAuthGuard activated.`);
     const result = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
     await super.logIn(request);
-    console.debug(
-      '\x1b[32m%s\x1b[0m',
-      `This is reponse of the FtAuthGuard ${result}`,
-    );
     return result;
+  }
+  handleRequest<TUser = any>(
+    err: any,
+    user: any,
+    info: any,
+    context: ExecutionContext,
+    status?: any,
+  ): TUser {
+    if (err || !user) {
+      throw new InternalAuthException(
+        'there was a problem with oauth2 authentication',
+      );
+    }
+    return user;
   }
 }

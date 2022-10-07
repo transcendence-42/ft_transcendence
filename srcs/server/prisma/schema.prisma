@@ -10,6 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ChannelType {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+  DIRECT
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  USER
+}
+
 model User {
   id                  Int               @id @default(autoincrement())
   username            String            @unique
@@ -18,6 +31,7 @@ model User {
   profilePicture      String?
   currentStatus       Int               @default(1)
   eloRating           Int               @default(1000)
+  blockedUsersIds     Int[]
   credentials         Credentials?
   stats               Stats?
   ratingHistory       Rating[]
@@ -42,13 +56,27 @@ model Achievement {
 }
 
 model Channel {
-  id          Int             @id @default(autoincrement())
-  name        String          @unique
-  channelMode Int             @default(0)
-  password    String?
-  owner       User            @relation(fields: [ownerId], references: [id])
-  ownerId     Int
-  users       UserOnChannel[]
+  id       Int             @id @default(autoincrement())
+  name     String
+  type     ChannelType
+  password String?
+  owner    User            @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  users    UserOnChannel[]
+}
+
+model UserOnChannel {
+  channelId  Int
+  userId     Int
+  role       UserRole
+  hasLeftChannel Boolean @default(false)
+  isMuted     Boolean @default(false)
+  isBanned    Boolean @default(false)
+  joinedAt   DateTime @default(now()) @db.Timestamp()
+  channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([channelId, userId])
 }
 
 model Credentials {
@@ -71,21 +99,11 @@ model Stats {
 }
 
 model Rating {
-  id       Int      @id @default(autoincrement())
-  date     DateTime @default(now())
-  rating   Int
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   Int 
-}
-
-model UserOnChannel {
-  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId Int
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  mode      Int     @default(0)
-
-  @@id([channelId, userId])
+  id     Int      @id @default(autoincrement())
+  date   DateTime @default(now())
+  rating Int
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 }
 
 model PlayerOnMatch {

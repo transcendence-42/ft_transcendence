@@ -29,8 +29,9 @@ export class UserService {
   readonly includedUserRelations: object = {
     stats: true,
     ratingHistory: true,
-    ownedChannels: true,
-    channels: true,
+    channels: {
+      include: { channel: true },
+    },
     friendshipRequested: true,
     friendshipAddressed: true,
     matches: true,
@@ -62,6 +63,7 @@ export class UserService {
         ratingHistory: {
           create: { rating: 1000 },
         },
+        blockedUsersIds: [] as number[],
       },
     });
     return user;
@@ -93,10 +95,14 @@ export class UserService {
   /** Update one user */
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      console.log(
+        `Updating user ${id} with dto ${JSON.stringify(updateUserDto)}`,
+      );
       const result: User = await this.prisma.user.update({
         where: { id: id },
         data: { ...updateUserDto },
       });
+      console.log(`The new user is ${JSON.stringify(result)}`);
       return result;
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {

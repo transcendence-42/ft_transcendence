@@ -7,7 +7,7 @@ import Notfound from './Pages/NotFound/notFound';
 import Login from './Pages/Login/Login';
 import About from './Pages/About/about';
 import Leaderboard from './Pages/Leaderboard/leaderboard';
-import Chat from './Pages/Chat/chat';
+import Chat from './Pages/Chat/Chat';
 import NavBar from './Components/Tools/NavBar/NavBar';
 import AuthenticatedRoute from './Components/services/authenticatedRoute';
 import Context from './Context/Context';
@@ -15,6 +15,8 @@ import GameLobby from './Pages/Game/GameLobby';
 import RootModals from './Pages/RootModals/RootModals';
 import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
 import GameSocketProvider from './Pages/Game/socket/socket';
+import { ChatSocket } from "./Socket";
+import UserContextProvider from './Context/UserContext';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -33,7 +35,7 @@ function App() {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
-        update(responseObject.user.id);
+        update(responseObject.user?.id);
       });
     }
   }
@@ -68,6 +70,7 @@ function App() {
 
   return (
     <Context.Provider value={contextValue}>
+      <UserContextProvider>
       <GameSocketProvider>
         <RootModalsProvider>
           <BrowserRouter>
@@ -88,13 +91,14 @@ function App() {
               <Route path="/" element={<AuthenticatedRoute res />}>
                 <Route path="/about" element={<About />} />
                 <Route path="/lobby" element={<GameLobby />} />
-                <Route path="/chat" element={<Chat userID={userID} />} />
+                <Route path="/chat" element={<Chat userID={userID} socket={ChatSocket} />} />
                 <Route path="/profile/:id" element={<Profile />} />
               </Route>
             </Routes>
           </BrowserRouter>
         </RootModalsProvider>
       </GameSocketProvider>
+      </UserContextProvider>
     </Context.Provider>
   );
 }

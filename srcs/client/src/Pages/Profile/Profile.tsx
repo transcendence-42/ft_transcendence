@@ -20,9 +20,11 @@ import { getFetch } from './Fetch/getFetch';
 import { getFetchMatch } from './Fetch/getFetchMatch';
 import { getFetchFriends } from './Fetch/getFetchFriends';
 // Context
-import { SocketContext } from '../Game/socket/socket';
+import { GameSocketContext } from '../Game/socket/socket';
 import PaginatedMatchHistory from './PaginatedMatchHistory';
 import PaginatedFriendList from './PaginatedFriendList';
+// User Context
+import { UserContext } from "../../Context/UserContext";
 
 const Profile = () => {
   /**
@@ -34,7 +36,10 @@ const Profile = () => {
   /** *********************************************************************** */
 
   // Get game socket
-  const [socket, originalId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const originalId = currentUser.id;
   // Get user id from params
   let { id } = useParams();
   // Handle id errors
@@ -134,7 +139,8 @@ const Profile = () => {
           request = 'http://127.0.0.1:4200/auth/2fa/state/' + userId;
           const double_json = getFetch({ url: request });
           double_json.then((responseObject) => {
-            if (responseObject) {
+            console.log(`${JSON.stringify(responseObject)}`)
+            if (responseObject.message === true) {
               setDoubleFactor(true);
             }
           });

@@ -13,7 +13,7 @@ import {
   UseFilters,
   UseGuards,
   Param,
-  ParseIntPipe
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
@@ -47,14 +47,15 @@ export class AuthController {
 
   /******************************* 42 OAuth Flow ******************************/
 
-  @UseGuards(FtAuthGuard)
   @UseFilters(FtExceptionFilter)
+  @UseGuards(FtAuthGuard)
   @Get('42/redirect')
   @ApiExcludeEndpoint()
   ftRedirec(@Request() req, @Response() res) {
     return this.authService.handleFtRedirect(req.user, res);
   }
 
+  @UseFilters(FtExceptionFilter)
   @UseGuards(FtAuthGuard)
   @Get('42/register')
   @ApiOAuth2(['username', 'email', 'profile picture'], '42 Oauth2')
@@ -200,24 +201,20 @@ export class AuthController {
     type: AuthResponse,
   })
   validateTwoAuthAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
-    console.log('in validate auth')
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
-  @ApiOperation({
-    summary: 'Checks if the user has enabled 2fa',
-  })
-  @ApiOkResponse({
-    description: 'true',
-    type: AuthResponse,
-  })
+
   @UseGuards(TwoFactorDto)
   @Get('2fa/state/:id')
   isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {
-    return this.authService.isTwoFaActivated(id);
-     }
+    if (this.authService.isTwoFaActivated(id)) {
+      return { message: 'on' };
+    }
+    return { message: 'off' };
+  }
+
   /**************************** Helpers for Dev *******************************/
   /*** Helper function for dev only. Helps to see if the user is logged in.*/
-
   @UseGuards(LoggedInGuard)
   @Get('status')
   @ApiExcludeEndpoint()

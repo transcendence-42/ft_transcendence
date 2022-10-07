@@ -1,0 +1,32 @@
+.item-custom {
+    --bs-list-group-color: white; 
+    background-color: rgb(5, 2, 30);
+}
+
+.form-control-margin {
+    margin-bottom: 2em;
+}
+
+.collapse-margin {
+    margin-left: -1.5em;
+    margin-top: 1em;
+    margin-bottom: -1rem;
+}
+
+.password-margin {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.form-check-input[type=radio] {
+    border-radius: 40%;
+}
+
+.form-check-input:checked {
+    background-color: #80ffff;
+    border-color: #80ffff;
+}
+
+.form-check-input:checked[type=radio] {
+    background-image: none;
+}

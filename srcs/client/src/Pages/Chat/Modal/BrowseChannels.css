@@ -1,0 +1,16 @@
+.btn-join {
+    color: #FF80F2;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.input-browse-channels {
+    box-shadow:none;
+    border:0 none;
+    outline:0;
+}
+
+/* potentiellement supprimer input-password-browse */
+.input-password-browse {
+    margin-top: -6px;
+}
