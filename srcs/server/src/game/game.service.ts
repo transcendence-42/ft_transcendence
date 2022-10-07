@@ -274,7 +274,7 @@ export class GameService {
 
   /** Go offline / online */
   async switchStatus(client: Socket) {
-    const userId = client.handshake.query.userId.toString();
+    const userId = client.handshake.auth.userId.toString();
     // Save or update client as a player for players info
     let status: any = (
       await this.redis
@@ -296,7 +296,7 @@ export class GameService {
 
   /** Update username and/or picture */
   async updatePlayer(client: Socket, updatePlayerDto: UpdatePlayerDto) {
-    const userId = client.handshake.query.userId.toString();
+    const userId = client.handshake.auth.userId.toString();
     await this._savePlayerInfos(userId, updatePlayerDto);
     await this._sendPlayersInfo();
   }
@@ -307,9 +307,9 @@ export class GameService {
 
   /** add client to list */
   private async _addOrUpdateClient(client: Socket) {
-    const userId = client.handshake.query.userId.toString();
-    const pic = client.handshake.query.pic.toString();
-    const name = client.handshake.query.name.toString();
+    const userId = client.handshake.auth.userId.toString();
+    const pic = client.handshake.auth.pic.toString();
+    const name = client.handshake.auth.name.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
     if (isClient) isClient.socket == client;
     else this.clients.push(new Client(client, userId, name, pic));
@@ -335,7 +335,7 @@ export class GameService {
 
   /** remove client from list */
   private async _removeClient(client: Socket) {
-    const userId = client.handshake.query.userId.toString();
+    const userId = client.handshake.auth.userId.toString();
     this.clients = this.clients.filter((c) => c.socket.id !== client.id);
     // Save or update client as a player for players info
     await this._savePlayerInfos(userId, {
@@ -357,9 +357,9 @@ export class GameService {
   /** client connection */
   async clientConnection(client: Socket) {
     // get query information
-    const userId: string = client.handshake.query.userId.toString();
-    const userPic: string = client.handshake.query.pic.toString();
-    const userName: string = client.handshake.query.name.toString();
+    const userId: string = client.handshake.auth.userId.toString();
+    const userPic: string = client.handshake.auth.pic.toString();
+    const userName: string = client.handshake.auth.name.toString();
     console.log(`user number : ${userId} (${client.id}) connected !`);
     // // Create user in database *************** TO DELETE AFTER TESTS
     // try {
@@ -397,8 +397,8 @@ export class GameService {
   /** client disconnection */
   async clientDisconnection(client: Socket) {
     // get query information
-    const userId: string = client.handshake.query.userId.toString();
-    const userName: string = client.handshake.query.name.toString();
+    const userId: string = client.handshake.auth.userId.toString();
+    const userName: string = client.handshake.auth.name.toString();
     console.log(`user : ${userName} disconnected`);
     // Remove client from server
     await this._removeClient(client);
@@ -819,7 +819,7 @@ export class GameService {
 
   /** Create with one */
   async createWithOne(client: Socket) {
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     const playerInfos: any = await this._getPlayerInfos(userId);
     const players: Player[] = [];
     players.push(new Player(client, userId, playerInfos.name, playerInfos.pic));
@@ -881,7 +881,7 @@ export class GameService {
   /** one viewer leave the game */
   async viewerLeaves(client: Socket, id: string) {
     // remove the viewer
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     await this.redis
       .multi()
       .select(DB.GAMES)
@@ -906,7 +906,7 @@ export class GameService {
   /** one player abandons the game */
   async abandonGame(client: Socket, id: string): Promise<Match> {
     const game: Game = await this._getGame(id);
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     // Check if the user is in the game
     if (await this._isPlayerInThisGame(userId, id)) {
       // clear the game loop if exists
@@ -922,7 +922,7 @@ export class GameService {
   async pause(client: Socket, id: string) {
     // Get game and player
     const game: Game = await this._getGame(id);
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     const player: Player = game.players.find((p) => p.userId === userId);
     // Check if the user is in the game
     if (await this._isPlayerInThisGame(userId, id)) {
@@ -973,7 +973,7 @@ export class GameService {
     // get pipeline
     const pipeline = this.redis.pipeline();
     // get user id
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     // get player infos
     const playerInfos = await this._getPlayerInfos(userId);
     const isMatchMaking = (
@@ -1009,7 +1009,7 @@ export class GameService {
 
   /** view a game (viewer) */
   async view(client: Socket, id: string) {
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // Add the user as a viewer
@@ -1045,7 +1045,7 @@ export class GameService {
 
   /** continue a game after a server reboot */
   async continue(client: Socket, id: string) {
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     // Check if the user is in the game
     if (await this._isPlayerInThisGame(userId, id)) {
       // check if there is a game loop for this game already
@@ -1082,7 +1082,7 @@ export class GameService {
     // create a temp pipeline to group commands
     const pipeline = this.redis.pipeline();
     // add or remove the player
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     pipeline.select(DB.MATCHMAKING);
     if (value) {
       pipeline.sadd('users', userId);
@@ -1529,7 +1529,7 @@ export class GameService {
 
   /** update a game (moves) */
   async update(client: Socket, id: string, move: number) {
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     // Check if the user is in the game
     if (await this._isPlayerInThisGame(userId, id)) {
       // read from redis
@@ -1593,7 +1593,7 @@ export class GameService {
 
   async createChallenge(client: Socket, id: string) {
     // get both players
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     const challenger = this.clients.find((c) => c.userId === userId);
     if (!challenger) throw new PlayerNotFoundException(userId);
     const challengee = this.clients.find((c) => c.userId === id);
@@ -1649,7 +1649,7 @@ export class GameService {
 
   async handleUpdateChallenge(client: Socket, id: string, status: number) {
     // get the user and the opponent
-    const userId: string = client.handshake.query.userId.toString();
+    const userId: string = client.handshake.auth.userId.toString();
     const opponent = this.clients.find((c) => c.userId === id);
     let resultingStatus: ePlayerStatus = ePlayerStatus.ONLINE;
     if (!opponent) throw new PlayerNotFoundException(userId);

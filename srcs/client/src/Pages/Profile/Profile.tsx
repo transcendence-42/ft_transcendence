@@ -38,7 +38,8 @@ const Profile = () => {
   // Get game socket
   const socket = useContext(GameSocketContext);
   // Get current user
-  const { user: originalId } = useContext(UserContext);
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const originalId = currentUser.id;
   // Get user id from params
   let { id } = useParams();
   // Handle id errors

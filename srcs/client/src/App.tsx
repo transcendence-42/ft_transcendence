@@ -35,7 +35,7 @@ function App() {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
-        update(responseObject.user.id);
+        update(responseObject.user?.id);
       });
     }
   }

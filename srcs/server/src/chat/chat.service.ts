@@ -1,7 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { WebSocketServer } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import Redis from 'redis';
+// import Redis from 'redis';
+import Redis from 'ioredis';
 import * as Cookie from 'cookie';
 import { Message } from './entities';
 import { eRedisDb, eEvent, eIdType } from './constants';
@@ -13,7 +14,7 @@ import { UpdateUserOnChannelDto } from 'src/channels/dto';
 export class ChatService {
   constructor(
     @Inject('REDIS_CLIENT')
-    private readonly redis: Redis.RedisClientType,
+    private readonly redis: Redis,
     private readonly channelService: ChannelService,
   ) {}
 
@@ -41,7 +42,7 @@ export class ChatService {
     };
     const channelId = msg.toChannelOrUserId.toString();
     console.log('emiting message to channel id', channelId);
-    await this.redis.lPush(channelId, JSON.stringify(msg));
+    await this.redis.lpush(channelId, JSON.stringify(msg));
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneMessage, msg);
@@ -163,8 +164,8 @@ export class ChatService {
   }
 
   private async _getMessage(id: string) {
-    const msg = await this.redis.lRange(id, 0, -1);
-    let parsedMessage = [];
+    const msg = await this.redis.lrange(id, 0, -1);
+    const parsedMessage = [];
     for (const message in msg) {
       parsedMessage.push(JSON.parse(msg[message]));
     }
@@ -173,7 +174,7 @@ export class ChatService {
 
   private async _getAllMessages(channelIds: string[]) {
     if (!channelIds || channelIds.length === 0) return;
-    let messages: Hashtable<Message[]> = {};
+    const messages: Hashtable<Message[]> = {};
     for (const id of channelIds) {
       messages[id] = await this._getMessage(id);
     }
@@ -208,7 +209,7 @@ export class ChatService {
   async handleGetAllMessages(client: Socket, channelIds: string[]) {
     let allMessages: Hashtable<Message[]>;
     for (const id in channelIds) {
-      const message = await this.getMessage(id);
+      const message = await this._getMessage(id);
       allMessages.id = message;
     }
     client.emit(eEvent.UpdateMessages, allMessages);
@@ -232,23 +233,6 @@ export class ChatService {
     return allValues;
   }
 
-  async setObject<T>(key: string, value: T, dataBase: number) {
-    // await this.redis.json.set(key, '.', JSON.parse(JSON.stringify(value)));
-    this.logger.debug(`This is key to set object in redis ${key}`);
-    await this.redis.json.arrAppend(
-      key,
-      '.',
-      JSON.parse(JSON.stringify(value)),
-    );
-  }
-
-  async getMessage(key: string) {
-    const message = (await this.redis.json.get(key, {
-      path: '.',
-    })) as any;
-    return message;
-  }
-
   async getObject<T>(key: string, dataBase: eRedisDb): Promise<T> {
     const stringObj = await this.redis.get(key);
     const obj = JSON.parse(stringObj);
@@ -269,19 +253,8 @@ export class ChatService {
     return null;
   }
 
-  async getJson() {
-    await this.redis.select(2);
-    const res = await this.redis.json.get(
-      '$.users[?(@.id==="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]',
-    );
-    const res2 = await this.redis.json.get(
-      '5d7dc013-a32e-45ea-8767-d65954214f9b',
-      { path: '.users[?(@.id=="4c28308d-37c8-4c7e-ba38-169ca7d43cd9")]' },
-    );
-  }
-
   private _makeId(id: number | string, idType: eIdType): string {
-    let strId;
+    let strId: any;
     if (typeof id === 'string') strId = id;
     else strId = id.toString();
     return (
@@ -293,24 +266,5 @@ export class ChatService {
         ? 'channel'
         : 'unkown') + strId
     );
-  }
-
-  private async _joinedChannelBot(
-    userId: number,
-    // username: string,
-    channelId: number,
-    channelName: string,
-  ) {
-    const date = Date.now();
-    const message: Message = {
-      content: `User has joined ${channelName}`,
-      id:
-        userId.toString() + date.toString() + (Math.random() * 100).toString(),
-      sentDate: date,
-      toChannelOrUserId: channelId,
-      fromUserId: this.messageBotId,
-    };
-    this.server.to(channelId.toString()).emit(eEvent.UpdateOneMessage, message);
-    this.setObject(message.id.toString(), message, eRedisDb.Messages);
   }
 }

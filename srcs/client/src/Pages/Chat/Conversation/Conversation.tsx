@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Conversation.css";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
@@ -29,6 +29,13 @@ export default function Conversation({
   const self = user?.channels?.find(
     (userOnChan: UserOnChannel) => userOnChan?.channelId === currentChannel.id
   );
+
+  const onPressEnter = (e: any) => {
+    if(e.key === 'Enter') {
+      handleSendMessage(e);
+    }
+  }
+
   return (
     <div
       className="col-6 chat-sidebar-middle
@@ -113,6 +120,7 @@ export default function Conversation({
                   <input
                     className="rounded-3 input-field-chat w-75 "
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={onPressEnter}
                     value={message}
                     type="text"
                     maxLength={50}

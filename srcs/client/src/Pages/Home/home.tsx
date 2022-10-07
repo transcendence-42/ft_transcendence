@@ -76,8 +76,8 @@ export default function Home({ updateID, userID }: any) {
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           // Game socket connection
-          socket.query = {
-            userId: responseObject.user.id.toString(),
+          socket.auth = { 
+            userId: responseObject.user.id,
             pic: responseObject.user.profilePicture,
             name: responseObject.user.username,
           };

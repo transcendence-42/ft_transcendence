@@ -62,7 +62,9 @@ const GameLobby: FC = () => {
 
   const navigate = useNavigate();
   const socket = useContext(GameSocketContext);
-  const { user: userId } = useContext(UserContext);
+  // Get current user
+  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const userId = currentUser.id;
 
   /** *********************************************************************** */
   /** STATES                                                                  */
