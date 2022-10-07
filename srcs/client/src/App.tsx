@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
@@ -16,7 +16,7 @@ import RootModals from './Pages/RootModals/RootModals';
 import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
 import GameSocketProvider from './Pages/Game/socket/socket';
 import { ChatSocket } from "./Socket";
-import UserContextProvider from './Context/UserContext';
+import { UserContext } from "./Context/UserContext";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -30,11 +30,12 @@ function App() {
   /*
    ** Update the UserID when the page is refresh
    */
-
+  const { login } = useContext(UserContext);
   if (!userID) {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
+        login(responseObject.user?.id);
         update(responseObject.user?.id);
       });
     }
@@ -70,7 +71,6 @@ function App() {
 
   return (
     <Context.Provider value={contextValue}>
-      <UserContextProvider>
       <GameSocketProvider>
         <RootModalsProvider>
           <BrowserRouter>
@@ -98,7 +98,6 @@ function App() {
           </BrowserRouter>
         </RootModalsProvider>
       </GameSocketProvider>
-      </UserContextProvider>
     </Context.Provider>
   );
 }

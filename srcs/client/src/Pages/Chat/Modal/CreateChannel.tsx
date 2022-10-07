@@ -27,17 +27,18 @@ export default function CreateChannel({
           )
         }
       >
-        <label className="form-label">Name</label>
+        <label className="form-label text-blue">Name</label>
+        <br/>
         <input
           type="name"
-          className="form-control form-control-margin"
+          className="rounded-3 input-field-chat w-75 form-control-margin"
           placeholder="# channel-name"
           onChange={(e) => setChannelName(e.target.value)}
           value={channelName}
           maxLength={6}
 
         ></input>
-        <div className="form-check">
+        <div className="form-check text-blue">
           <input
             className="form-check-input radio-custom"
             defaultChecked
@@ -55,7 +56,7 @@ export default function CreateChannel({
             Public
           </label>
         </div>
-        <div className="form-check">
+        <div className="form-check text-blue">
           <input
             className="form-check-input radio-custom"
             type="radio"
@@ -68,11 +69,11 @@ export default function CreateChannel({
               bsCollapse?.classList.remove("show");
             }}
           ></input>
-          <label className="form-check-label" htmlFor="channelRadios2">
+          <label className="form-check-label " htmlFor="channelRadios2">
             Private
           </label>
         </div>
-        <div className="form-check">
+        <div className="form-check text-blue">
           <input
             className="form-check-input radio-custom"
             type="radio"
@@ -90,7 +91,7 @@ export default function CreateChannel({
           <div className="collapse collapse-margin" id="collapseProtected">
             <input
               type="name"
-              className="form-control form-control-margin"
+              className="rounded-3 input-field-chat w-75 form-control-margin"
               placeholder="Password"
               onChange={(e) => setChannelPassword(e.target.value)}
             ></input>

@@ -1,16 +1,23 @@
-import Modal from 'react-bootstrap/Modal';
-import "../../../Components/Tools/Text.css"
-import "../../../Components/Tools/Box.css"
-import "./ModalChangeContent.css"
-import {patchFetchPicture} from "../Fetch/patchFetchPicture"
-import FailAndSuccessPicture from './FailAndSuccessPicture'
-import React, {useContext, useEffect, useState} from "react";
-import { GameSocketContext } from '../../Game/socket/socket';
+import Modal from "react-bootstrap/Modal";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
+import "./ModalChangeContent.css";
+import { patchFetchPicture } from "../Fetch/patchFetchPicture";
+import FailAndSuccessPicture from "./FailAndSuccessPicture";
+import React, { useContext, useEffect, useState } from "react";
+import { GameSocketContext } from "../../Game/socket/socket";
 
-const ModalPicture =
-({ title, closeHandler, show, textBtn1,
-  handleBtn1, textBtn2, handleBtn2, up, id } : any)=> {
-
+const ModalPicture = ({
+  title,
+  closeHandler,
+  show,
+  textBtn1,
+  handleBtn1,
+  textBtn2,
+  handleBtn2,
+  up,
+  id,
+}: any) => {
   /**
    * @props title:        Title of the modal
    *        closeHandler: Function used to close the modal
@@ -21,71 +28,96 @@ const ModalPicture =
    *        handleBtn2:   Function associated with the second button
    */
 
-   const [content, setcontent] = useState('');
-   const [url, setUrl] = useState('');
-   const [status, setStatus] = useState(2);
-   const socket = useContext(GameSocketContext);
+  const [content, setcontent] = useState("");
+  const [url, setUrl] = useState("");
+  const [status, setStatus] = useState(2);
+  const socket = useContext(GameSocketContext);
 
-   function handleChange(event : any) {
-     setcontent(event.target.value);
-     setUrl("http://127.0.0.1:4200/users/" + id);
-   };
+  function handleChange(event: any) {
+    setcontent(event.target.value);
+    setUrl("http://127.0.0.1:4200/users/" + id);
+  }
 
-   function patchAndClose(e : any)
-   {
-     e.preventDefault();
-     const status = patchFetchPicture({url: url, picture: content});
-     status.then((responseObject)=> {
-       if (responseObject.status === 400)
-       {
+  const isValidUrl = () => {
+    try {
+      return Boolean(new URL(content));
+    } catch (e) {
+      return false;
+    }
+  };
+  const isValidFormat = () => {
+    if (
+      content.endsWith(".jpg") ||
+      content.endsWith(".jpeg") ||
+      content.endsWith(".gif") ||
+      content.endsWith(".webp")
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  function patchAndClose(e: any) {
+    e.preventDefault();
+
+    if (!isValidUrl() || !isValidFormat()) {
+      setStatus(0);
+      return;
+    }
+    const status = patchFetchPicture({ url: url, picture: content });
+    status.then((responseObject) => {
+      if (responseObject.status === 400) {
         setStatus(0);
         return;
-       }
-       socket.emit('updatePlayer', { name: content });
-       setStatus(1);
-       up();
-       setTimeout(() => {
-         closeHandler();
-       }, 500);
-      })
-   }
+      }
+      socket.emit("updatePlayer", { name: content });
+      setStatus(1);
+      up();
+      setTimeout(() => {
+        closeHandler();
+      }, 500);
+    });
+  }
 
-   useEffect(() => {
+  useEffect(() => {
     setStatus(2);
-   },[])
+  }, []);
 
   return (
-    <Modal show={show} onHide={closeHandler} >
+    <Modal show={show} onHide={closeHandler}>
       <Modal.Header closeButton>
         <Modal.Title className="text-blue">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-pink text-center ">
         <form onSubmit={patchAndClose}>
-						<input
-							type="text"
-							value={content}
-							onChange={handleChange}
-							className="inputContent"/>
+          <input
+            type="text"
+            value={content}
+            onChange={handleChange}
+            placeholder="New Picture"
+            className="rounded-3 input-field-chat w-75 "
+          />
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-      {<FailAndSuccessPicture status={status}/>}
-        {handleBtn1 &&
+        {<FailAndSuccessPicture status={status} />}
+        {handleBtn1 && (
           <button
             type="button"
             className="btn btn-blue text-blue"
-            onClick={handleBtn1}>{textBtn1}
+            onClick={handleBtn1}
+          >
+            {textBtn1}
           </button>
-        }
-        {handleBtn2 &&
-          <button
-            className="btn btn-pink text-pink"
-            onClick={patchAndClose}>{textBtn2}
+        )}
+        {handleBtn2 && (
+          <button className="btn btn-pink text-pink" onClick={patchAndClose}>
+            {textBtn2}
           </button>
-        }
+        )}
       </Modal.Footer>
     </Modal>
-  )
-}
+  );
+};
 
 export default ModalPicture;

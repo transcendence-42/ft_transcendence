@@ -68,7 +68,8 @@ const ModalUsername =
 							type="text"
 							value={content}
 							onChange={handleChange}
-							className="inputContent"/>
+              placeholder="New Pseudo"
+							className="rounded-3 input-field-chat w-75 "/>
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
