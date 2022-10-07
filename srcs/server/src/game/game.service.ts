@@ -361,18 +361,18 @@ export class GameService {
     const userPic: string = client.handshake.query.pic.toString();
     const userName: string = client.handshake.query.name.toString();
     console.log(`user number : ${userId} (${client.id}) connected !`);
-    // Create user in database *************** TO DELETE AFTER TESTS
-    try {
-      await this.userService.findOne(+userId);
-    } catch (e) {
-      console.log(userId);
-      await this.userService.create({
-        id: +userId,
-        username: userName,
-        email: `${userName}@student.42.fr`,
-        profilePicture: userPic,
-      });
-    }
+    // // Create user in database *************** TO DELETE AFTER TESTS
+    // try {
+    //   await this.userService.findOne(+userId);
+    // } catch (e) {
+    //   console.log(userId);
+    //   await this.userService.create({
+    //     id: +userId,
+    //     username: userName,
+    //     email: `${userName}@student.42.fr`,
+    //     profilePicture: userPic,
+    //   });
+    // }
     // add client to the server list
     await this._addOrUpdateClient(client);
     // switch client status to online

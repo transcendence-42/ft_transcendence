@@ -20,9 +20,11 @@ import { getFetch } from './Fetch/getFetch';
 import { getFetchMatch } from './Fetch/getFetchMatch';
 import { getFetchFriends } from './Fetch/getFetchFriends';
 // Context
-import { SocketContext } from '../Game/socket/socket';
+import { GameSocketContext } from '../Game/socket/socket';
 import PaginatedMatchHistory from './PaginatedMatchHistory';
 import PaginatedFriendList from './PaginatedFriendList';
+// User Context
+import { UserContext } from "../../Context/UserContext";
 
 const Profile = () => {
   /**
@@ -34,7 +36,9 @@ const Profile = () => {
   /** *********************************************************************** */
 
   // Get game socket
-  const [socket, originalId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  // Get current user
+  const { user: originalId } = useContext(UserContext);
   // Get user id from params
   let { id } = useParams();
   // Handle id errors

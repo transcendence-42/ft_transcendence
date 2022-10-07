@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 // Components
 import PongModal from '../../Components/Modal/PongModal';
 // Socket
-import { SocketContext } from '../Game/socket/socket';
+import { GameSocketContext } from '../Game/socket/socket';
 // Styles
 import '../../Styles';
 import GameChallenge from './modals/GameChallenge';
@@ -13,7 +13,7 @@ import { RootModalsContext } from './RootModalsProvider';
 
 const RootModals = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [socket, ...rest] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
   const navigate = useNavigate();
 
   /** *********************************************************************** */

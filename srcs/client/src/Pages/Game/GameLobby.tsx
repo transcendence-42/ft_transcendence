@@ -3,7 +3,9 @@ import { FC, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 // Socket
-import { SocketContext } from "./socket/socket";
+import { GameSocketContext } from "./socket/socket";
+// User Context
+import { UserContext } from "../../Context/UserContext";
 // Game
 import Game from "./Game";
 import GameList from "./GameList";
@@ -59,7 +61,8 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
 
   const navigate = useNavigate();
-  const [socket, userId] = useContext(SocketContext);
+  const socket = useContext(GameSocketContext);
+  const { user: userId } = useContext(UserContext);
 
   /** *********************************************************************** */
   /** STATES                                                                  */
