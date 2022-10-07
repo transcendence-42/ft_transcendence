@@ -39,6 +39,7 @@ const ModalPicture = ({
   const onSubmit = (data: any) => {
     const formData = new FormData();
     formData.append('picture', data.picture[0]);
+    formData.append('user', originalId);
     const status = postFetchPicture({ url: url, data: formData });
     status.then((responseObject) => {
       if (responseObject.status === 400) {
@@ -56,7 +57,7 @@ const ModalPicture = ({
 
   useEffect(() => {
     setStatus(2);
-    setUrl(`http://127.0.0.1:4200/users/${id}/picture`);
+    setUrl(`http://127.0.0.1:4200/pictures/`);
   }, []);
 
   return (

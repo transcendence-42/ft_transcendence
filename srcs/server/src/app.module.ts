@@ -10,6 +10,7 @@ import { GameModule } from './game/game.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { PictureModule } from './picture/picture.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MulterModule } from '@nestjs/platform-express';
     RatingModule,
     GameModule,
     RedisModule,
+    PictureModule,
   ],
   controllers: [],
   providers: [],

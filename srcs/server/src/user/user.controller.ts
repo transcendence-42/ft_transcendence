@@ -9,11 +9,6 @@ import {
   Query,
   Put,
   ParseIntPipe,
-  UseInterceptors,
-  UploadedFile,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -36,8 +31,6 @@ import { Friendship } from 'src/friendship/entities/friendship.entity';
 import { RequestFriendshipDto } from './dto/request-friendship.dto';
 import { Rating } from './entities/rating.entity';
 import { Match } from 'src/match/entities/match.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 
 @Controller('users')
 export class UserController {
@@ -263,36 +256,5 @@ export class UserController {
   ) {
     const res = await this.userService.findUserMatches(id, paginationQuery);
     return res;
-  }
-
-  // PICTURE UPDATE ------------------------------------------------------------
-  /** Upload a new picture for a user */
-  @ApiTags('Picture')
-  @ApiOperation({ summary: 'Upload a new picture for a user' })
-  @Post(':id/picture')
-  @UseInterceptors(
-    FileInterceptor('picture', {
-      storage: diskStorage({
-        destination: './files',
-        filename: (req, file, callback) => {
-          callback(null, file.originalname);
-        },
-      }),
-    }),
-  )
-  uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 100000 }),
-          new FileTypeValidator({
-            fileType: new RegExp('/jpg|jpeg|png|gif/', 'g'),
-          }),
-        ],
-      }),
-    )
-    file: Express.Multer.File,
-  ) {
-    console.log(file);
   }
 }
