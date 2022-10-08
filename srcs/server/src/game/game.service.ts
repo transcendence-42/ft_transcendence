@@ -1308,7 +1308,7 @@ export class GameService {
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = {
       x: startingSide === 0 ? 1 : -1,
-      y: Math.random(),
+      y: Math.random() * (1 - -1) + -1,
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
@@ -1344,7 +1344,7 @@ export class GameService {
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = {
       x: side === Side.RIGHT ? 1 : -1,
-      y: Math.random(),
+      y: Math.random() * (1 - -1) + -1,
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
@@ -1400,6 +1400,7 @@ export class GameService {
       if (surface.speed) {
         if (game.effects === true) newDir.y += surface.direction.y;
         else newDir.y += surface.direction.y / 4;
+        while (newDir.y > 1.5) newDir.y -= 0.5; // ball speed limiter
       }
       updatedObject = {
         ...object,

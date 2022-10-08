@@ -8,10 +8,10 @@ const SelectOptions = (props: any) => {
         <tbody>
           <tr className="text-center">
             <td>
-              <h3 className="text-pink">Little effects</h3>
+              <h3 className="text-pink">Normal effects</h3>
             </td>
             <td>
-              <h3 className="text-pink">Super effects</h3>
+              <h3 className="text-pink">Super effects !</h3>
             </td>
           </tr>
           <tr>
