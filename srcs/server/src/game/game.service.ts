@@ -722,8 +722,8 @@ export class GameService {
 
   /** We have a winner */
   private _weHaveALoser(game: Game): string {
-    const winner = game.players.find((p) => p.score === 9);
-    const loser = game.players.find((p) => p.score < 9);
+    const winner = game.players.find((p) => p.score === 11);
+    const loser = game.players.find((p) => p.score < 11);
     if (winner && loser) return loser.userId;
     return '';
   }
@@ -732,7 +732,7 @@ export class GameService {
   private async _gameLoop(game: Game, interval: NodeJS.Timer) {
     if (game.status === Status.STARTED) {
       this._moveWorldForward(game);
-      // check scores and end the game if one player scores 9
+      // check scores and end the game if one player scores 11
       const loserId = this._weHaveALoser(game);
       if (loserId !== '') {
         this._endGame(game, Motive.WIN, loserId);
