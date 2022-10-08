@@ -81,7 +81,7 @@ const ModalUsername =({
 							type="text"
 							value={content}
 							onChange={handleChange}
-              placeholder="New Pseudo"
+              placeholder="New Username"
 							className="rounded-3 input-field-chat w-75 "/>
         </form>
       </Modal.Body>
