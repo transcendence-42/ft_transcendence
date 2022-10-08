@@ -20,9 +20,8 @@ import { RequestUser } from 'src/common/entities';
       'https://localhost:3000',
       'https://127.0.0.1:3000',
     ],
-    //credentials: true,
+    credentials: true,
   },
-  namespace: '/api/chatws',
   path: '/api/chatws/socket.io',
 })
 export class ChatGateway

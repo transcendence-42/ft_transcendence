@@ -28,9 +28,8 @@ import { UpdatePlayerDto } from './dto/update-player.dto';
       'https://localhost:3000',
       'https://127.0.0.1:3000',
     ],
-    //credentials: true,
+    credentials: true,
   },
-  namespace: '/api/gamews',
   path: '/api/gamews/socket.io',
 })
 export class GameGateway
