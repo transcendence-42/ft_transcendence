@@ -76,7 +76,7 @@ function App() {
         <RootModalsProvider>
           <BrowserRouter>
             <NavBar userID={userID} />
-            <RootModals />
+            <RootModals id={userID} />
             <Routes>
               <Route path="*" element={<Notfound />} />
               <Route

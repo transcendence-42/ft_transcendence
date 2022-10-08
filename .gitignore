@@ -7,6 +7,8 @@
 ## Other
 .DS_Store
 .done
+/srcs/server/files/*
+/node_molules
 
 # Debug files
 *.dSYM/

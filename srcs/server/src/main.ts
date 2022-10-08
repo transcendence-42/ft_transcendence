@@ -43,7 +43,11 @@ async function bootstrap() {
   );
 
   // Secure HTTP Headers
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 
   // Custom webSocket with port depending on environment file
   //app.useWebSocketAdapter(new SocketIoAdapter(app, config));

@@ -13,8 +13,10 @@ export default function ChangePicture(props: any) {
    */
 
   const [isShowing, setIsShowing] = useState(false);
+  const [showResponse, setShowResponse] = useState(0);
 
   function toggle() {
+    setShowResponse(0);
     setIsShowing(!isShowing);
   }
   return (
@@ -38,9 +40,11 @@ export default function ChangePicture(props: any) {
         handleBtn1={toggle}
         textBtn2="Submit"
         handleBtn2={toggle}
-        title="Put an URL of your NEW Picture"
+        title="Upload your NEW Picture"
         id={props.id}
         up={props.up}
+        showResponse={showResponse}
+        setShowResponse={setShowResponse}
       />
     </>
   );
