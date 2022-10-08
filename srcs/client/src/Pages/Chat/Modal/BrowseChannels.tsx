@@ -22,6 +22,9 @@ export default function BrowseChannels({
   const [selectedChannel, setSelectedChannel] = useState({} as Channel);
   const [joinChannelPassword, setJoinChannelPassword] = useState("");
 
+  // API URL
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
+
   const handleJoinChannel = (e: any, channel: Channel, password?: string) => {
     e.preventDefault();
     if (!channel || isEmpty(channel)) {
@@ -43,7 +46,7 @@ export default function BrowseChannels({
           hasLeftChannel: false,
         };
         res = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channel.id}/useronchannel/${userId}`,
+          `${apiUrl}/channels/${channel.id}/useronchannel/${userId}`,
           "PATCH",
           payload
         );
@@ -60,7 +63,7 @@ export default function BrowseChannels({
           channelId: channel.id,
         };
         res = await fetchUrl(
-          `http://127.0.0.1:4200/channels/${channel.id}/useronchannel`,
+          `${apiUrl}/channels/${channel.id}/useronchannel`,
           "PUT",
           payload
         );

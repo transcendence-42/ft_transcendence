@@ -14,6 +14,7 @@ import {
   UseGuards,
   Param,
   ParseIntPipe,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FtAuthGuard, LoggedInGuard, LocalAuthGuard } from './guards';
@@ -44,6 +45,7 @@ import { FtExceptionFilter } from './filters/ftAuthException.filter';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+  private readonly logger = new Logger(AuthController.name);
 
   /******************************* 42 OAuth Flow ******************************/
 
@@ -52,6 +54,7 @@ export class AuthController {
   @Get('42/redirect')
   @ApiExcludeEndpoint()
   ftRedirec(@Request() req, @Response() res) {
+    this.logger.debug(`This is request Originalurl ${req.originalUrl} and req url ${req.url}`)
     return this.authService.handleFtRedirect(req.user, res);
   }
 

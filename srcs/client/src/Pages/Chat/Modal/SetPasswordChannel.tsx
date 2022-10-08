@@ -7,13 +7,6 @@ import "../../../Components/Tools/Box.css";
 import "./FriendList.css";
 
 export default function SetPasswordChannel({
-  friends,
-  channel,
-  addToChannel,
-  allChannels,
-  currentChannel,
-  changeChannelPassword,
-  setChannelPassword,
   setNewChannelPassword,
   ...props
 }: any) {
@@ -22,6 +15,7 @@ export default function SetPasswordChannel({
       <input
         className="rounded-3 input-field-chat w-75 "
         onChange={(e) => setNewChannelPassword(e.target.value)}
+        maxLength={15}
         placeholder="Channel Password"
       ></input>
     </>

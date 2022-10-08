@@ -9,6 +9,8 @@ import { RatingModule } from './rating/rating.module';
 import { GameModule } from './game/game.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisModule } from './redis/redis.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { PictureModule } from './picture/picture.module';
 import { LoggerModule } from 'nestjs-pino';
 import { ChannelModule } from './channels/channel.module';
 import { ChatModule } from './chat/chat.module';
@@ -24,6 +26,9 @@ import { ChatModule } from './chat/chat.module';
       host: 'redis',
       port: 6379,
     }),
+    MulterModule.register({
+      dest: './uploads/',
+    }),
     AuthModule,
     PrismaModule,
     UserModule,
@@ -32,6 +37,7 @@ import { ChatModule } from './chat/chat.module';
     RatingModule,
     GameModule,
     RedisModule,
+    PictureModule,
     ChannelModule,
     ChatModule,
     LoggerModule.forRoot({

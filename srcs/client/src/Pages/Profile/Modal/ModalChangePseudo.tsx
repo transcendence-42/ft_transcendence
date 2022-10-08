@@ -1,29 +1,28 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {useState} from 'react'
-import {patchFetchPicture} from "../Fetch/patchFetchPicture"
+import {patchFetchPseudo} from "../Fetch/patchFetchPseudo"
 import "./ModalChangeContent.css"
 import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
 
-export default function ModalChangePicture({ isShowing, hide, id, up, title } : any) {
+export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 
 	const [content, setcontent] = useState('');
 	const [url, setUrl] = useState('');
 
 	function handleChange(event : any) {
 		setcontent(event.target.value);
-		setUrl("http://127.0.0.1:4200/users/" + id);
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+		setUrl(`${apiUrl}/users/` + id);
 	};
 
 	function patchAndClose(e : any)
 	{
 		e.preventDefault();
-		const test = patchFetchPicture({url: url, picture: content});
-		test.then((responseObject)=> {
-			if (responseObject.status === 400)
-			{ alert("Bad URL for the picture"); }
-		})
+		console.log(content);
+		console.log(url);
+		patchFetchPseudo({url: url, name: content});
 		hide();
 		up();
 	}
@@ -36,7 +35,7 @@ export default function ModalChangePicture({ isShowing, hide, id, up, title } : 
 				<div className="modal-wrapper">
 				  <div className="modal2">
 					<div className="modal-header">
-					<div className="yellowText" style={{fontSize: "1.22em"}}> {title}</div>
+					<div className="yellowText" style={{fontSize: "1.5em"}}> New Pseudo </div>
 					  <button
 						type="button"
 						className="modal-close-button"
@@ -50,6 +49,7 @@ export default function ModalChangePicture({ isShowing, hide, id, up, title } : 
 							type="text"
 							id="name"
 							name="name"
+							maxLength={18}
 							value={content}
 							onChange={handleChange}
 							className="inputContent"/>

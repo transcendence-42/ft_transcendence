@@ -12,7 +12,7 @@ export default function FailAndSuccessPicture(props : any) {
 		<>
 			{ props.status === 1 ?
 				<div className="greenText" style={{fontSize: props.size}}> SUCCESS </div> :
-				<div className="redText" style={{fontSize: props.size}}> URL not valid ! </div>
+				<div className="redText" style={{fontSize: props.size}}> The file is not valid ! </div>
 			 }
 		</>
  		);

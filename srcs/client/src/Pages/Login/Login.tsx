@@ -8,7 +8,8 @@ function Login ()  {
 ** that user has clicked on 42Auth
 */
   const fortyTwoLogin = () => {
-		window.open("http://127.0.0.1:4200/auth/42/register", "_self");
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+		window.open(`${apiUrl}/auth/42/register`, "_self");
     localStorage.setItem("fromAuth", JSON.stringify(true));
 	}
 

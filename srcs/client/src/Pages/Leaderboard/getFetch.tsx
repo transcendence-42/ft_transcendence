@@ -13,6 +13,8 @@ export async function getFetch(props){
 	  }
 	}).then((response) =>{
 			if (response.status !== 200){
+        if (response.status === 204)
+          return ([]);
 				throw new Error("Error");
 			}
 			return (response.json());

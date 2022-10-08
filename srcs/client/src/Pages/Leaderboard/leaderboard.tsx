@@ -11,11 +11,12 @@ export default function Leaderboard() {
    */
   let location = useLocation();
   const { userID }: any = location.state || {}; //Destructuring
-  const [users, setUsers]: any = useState(null);
+  const [users, setUsers]: any = useState([]);
   let i = 1;
 
   useEffect(() => {
-    let request = 'http://127.0.0.1:4200/users';
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+    let request = `${apiUrl}/users`;
     const json = getFetch({ url: request });
     json.then((responseObject) => {
       setUsers(responseObject);
@@ -24,13 +25,14 @@ export default function Leaderboard() {
   /*
    **  Simple display, map is going to sort the elo Ratings
    */
-  if (users) {
-    return (
+
+   return (
       <>
-        <h1 className="pinkText " style={{ fontSize: '4vw' }}>
+        <h1 className="pinkText " style={{ fontSize: '2em' }}>
           LEADERBOARD
         </h1>
-        <div className="container1 scroll" data-testid="tracker">
+        <div className="row">
+        <div className="container1 scroll col-10 col-sm-8 col-md-7 col-lg-6 col-xl-5" data-testid="tracker">
           <table className="table">
             <thead>
               <tr className='leaderboard-tr text-center'>
@@ -41,7 +43,7 @@ export default function Leaderboard() {
               </tr>
             </thead>
             <tbody>
-              {users &&
+              {users && users.length > 0 &&
                 users
                   .sort((a: { eloRating: any }, b: { eloRating: any }) =>
                     a.eloRating < b.eloRating ? 1 : -1,
@@ -56,19 +58,19 @@ export default function Leaderboard() {
                         {userID === user.id ? (
                           <>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {i++}
                             </td>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {user.username}
                             </td>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {user.eloRating}
@@ -76,24 +78,32 @@ export default function Leaderboard() {
                           </>
                         ) : (
                           <>
-                            <td style={{ fontSize: '2vw' }}>{i++}</td>
-                            <td style={{ fontSize: '2vw' }}>{user.username}</td>
-                            <td style={{ fontSize: '2vw' }}>
+                            <td style={{ fontSize: '1.2em' }}>{i++}</td>
+                            <td style={{ fontSize: '1.2em' }}>{user.username}</td>
+                            <td style={{ fontSize: '1.2em' }}>
                               {user.eloRating}
                             </td>
                           </>
                         )}
                         <td>
-                          <League elo={user.eloRating} size={'2vw'} />
+                          <League elo={user.eloRating} size={'1.2em'} />
                         </td>
                       </tr>
                     ),
                   )}
+                  {
+                    users && users.length === 0 &&
+                    <tr className='text-center'>
+                      <td style={{ fontSize: '1.2em' }} className="pinkText" colSpan={4}>
+                        No user yet on the leaderboard :(
+                      </td>
+                    </tr>
+                  }
             </tbody>
           </table>
         </div>
+        </div>
+
       </>
     );
-  }
-  return <></>;
 }

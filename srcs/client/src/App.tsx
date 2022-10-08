@@ -14,7 +14,7 @@ import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import RootModals from './Pages/RootModals/RootModals';
 import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
-import GameSocketProvider from './Pages/Game/socket/socket';
+import GameSocketProvider, { GameSocketContext } from './Pages/Game/socket/socket';
 import { ChatSocket } from "./Socket";
 import { UserContext } from "./Context/UserContext";
 
@@ -22,6 +22,7 @@ function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [isFromAuth, setIsFromAuth] = useState(false);
   const [userID, setUserID]: any = useState();
+  const socket = useContext(GameSocketContext);
 
   function update(id: number) {
     setUserID(id);
@@ -35,8 +36,16 @@ function App() {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
-        login(responseObject.user?.id);
-        update(responseObject.user?.id);
+          // refresh user context
+          login(responseObject.user?.id);
+          // refresh game websocket
+          socket.auth = {
+            userId: responseObject.user?.id,
+            pic: responseObject.user?.profilePicture,
+            name: responseObject.user?.username,
+          };
+          socket.connect();
+          update(responseObject.user?.id);
       });
     }
   }
@@ -71,11 +80,10 @@ function App() {
 
   return (
     <Context.Provider value={contextValue}>
-      <GameSocketProvider>
         <RootModalsProvider>
           <BrowserRouter>
             <NavBar userID={userID} />
-            <RootModals />
+            <RootModals id={userID} />
             <Routes>
               <Route path="*" element={<Notfound />} />
               <Route
@@ -97,7 +105,6 @@ function App() {
             </Routes>
           </BrowserRouter>
         </RootModalsProvider>
-      </GameSocketProvider>
     </Context.Provider>
   );
 }

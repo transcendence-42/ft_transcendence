@@ -8,7 +8,6 @@ import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
   console.debug = function () {
@@ -17,6 +16,9 @@ async function bootstrap() {
   // Create app
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+
+  // Global prefix
+  app.setGlobalPrefix('api');
 
   // Redis store
   const redisClient = Redis.createClient({
@@ -41,7 +43,11 @@ async function bootstrap() {
   );
 
   // Secure HTTP Headers
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
 
   // Custom webSocket with port depending on environment file
   //app.useWebSocketAdapter(new SocketIoAdapter(app, config));

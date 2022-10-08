@@ -4,8 +4,9 @@ export async function getFetchDoubleAuth(){
    * Generate a QR code for 2fa
    */
 
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
 	const response = await
-	fetch("http://127.0.0.1:4200/auth/2fa/generate", {
+	fetch(`${apiUrl}/auth/2fa/generate`, {
   method: "GET",
   credentials: "include",
   headers: {
