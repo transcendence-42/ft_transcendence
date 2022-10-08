@@ -65,6 +65,8 @@ const RootModals = ({ id }: any) => {
 
   // Challenge modal
   const handleCancel = useCallback(() => {
+    console.log('data from handle cancel');
+    console.log(gameChallengeData);
     handleCloseGameChallenge();
     if (gameChallengeData.opponent === undefined) return;
     socket.emit('updateChallenge', {
@@ -206,7 +208,7 @@ const RootModals = ({ id }: any) => {
       socket.off('gameChallenge', handleGameChallenge);
       socket.off('gameChallengeReply', handleGameChallengeReply);
     };
-  }, [handleGameChallenge, handleGameChallengeReply, socket]);
+  }, [handleGameChallenge, handleGameChallengeReply, socket, handleAccept, handleCancel, handleRefuse]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */

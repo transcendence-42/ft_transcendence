@@ -19,6 +19,7 @@ import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { User } from 'src/user/entities/user.entity';
+import { UpdateOptionsDto } from './dto/update-options.dto';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -1377,7 +1378,7 @@ export class GameService {
   }
 
   /** Bounce a physic object by changing its vector */
-  private _bounce(object: Physic, surface?: Physic): Physic {
+  private _bounce(object: Physic, surface?: Physic, game?: Game): Physic {
     let updatedObject: Physic;
 
     if (object.type === Body.PADDLE) {
@@ -1396,7 +1397,10 @@ export class GameService {
       // vs Paddle
       if (surface.direction.x === 0) newDir.x = newDir.x * -1;
       // Acceleration by contact
-      if (surface.speed) newDir.y += surface.direction.y / 5;
+      if (surface.speed) {
+        if (game.effects === true) newDir.y += surface.direction.y;
+        else newDir.y += surface.direction.y / 4;
+      }
       updatedObject = {
         ...object,
         direction: newDir,
@@ -1509,9 +1513,9 @@ export class GameService {
     else if (this._isCollision(updatedBall, world.walls[Wall.BOTTOM]))
       updatedBall = this._bounce(ball, world.walls[Wall.BOTTOM]);
     else if (this._isCollision(updatedBall, world.players[Side.LEFT]))
-      updatedBall = this._bounce(ball, world.players[Side.LEFT]);
+      updatedBall = this._bounce(ball, world.players[Side.LEFT], game);
     else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
-      updatedBall = this._bounce(ball, world.players[Side.RIGHT]);
+      updatedBall = this._bounce(ball, world.players[Side.RIGHT], game);
     return updatedBall;
   }
 
@@ -1699,5 +1703,23 @@ export class GameService {
       status: resultingStatus,
     });
     await this._sendPlayersInfo();
+  }
+
+  /** *********************************************************************** */
+  /** GAME OPTIONS                                                            */
+  /** *********************************************************************** */
+
+  /** update game options */
+  async updateOptions(id: string, updateOptionsDto: UpdateOptionsDto) {
+    // check if game exists
+    const game: Game = await this._getGame(id);
+    // update effects
+    if (updateOptionsDto.effects === true) {
+      await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call('JSON.SET', id, '$.effects', JSON.stringify(true))
+        .exec();
+    }
   }
 }

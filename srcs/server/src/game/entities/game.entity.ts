@@ -11,6 +11,7 @@ export class Game {
     this.viewers = [];
     this.id = id;
     this.status = 0;
+    this.effects = false;
   }
 
   id: string;
@@ -19,4 +20,5 @@ export class Game {
   viewers?: Client[];
   gameGrid?: GameGrid;
   gamePhysics?: GamePhysics;
+  effects: boolean;
 }
