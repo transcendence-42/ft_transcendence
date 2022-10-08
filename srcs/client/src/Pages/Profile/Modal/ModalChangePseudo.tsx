@@ -13,7 +13,8 @@ export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 
 	function handleChange(event : any) {
 		setcontent(event.target.value);
-		setUrl("http://127.0.0.1:4200/users/" + id);
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+		setUrl(`${apiUrl}/users/` + id);
 	};
 
 	function patchAndClose(e : any)

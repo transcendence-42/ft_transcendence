@@ -15,14 +15,11 @@ export class SocketIoAdapter extends IoAdapter {
   }
 
   createIOServer(port: number) {
-    port = this.configService.get<number>(this.servers[this.nbOfConnections]);
-    console.log('Adapter logged', this.servers[this.nbOfConnections]);
-    this.nbOfConnections++;
+    port = this.configService.get<number>('GAME_WS_PORT');
     const server = super.createIOServer(port, {
-      cors: {
-        origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-        credentials: true,
-      },
+      cors: true,
+      namespace: '/api/gamews',
+      path: '/api/gamews/socket.io',
     });
     return server;
   }

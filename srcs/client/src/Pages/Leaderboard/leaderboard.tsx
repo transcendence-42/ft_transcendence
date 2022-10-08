@@ -11,11 +11,12 @@ export default function Leaderboard() {
    */
   let location = useLocation();
   const { userID }: any = location.state || {}; //Destructuring
-  const [users, setUsers]: any = useState(null);
+  const [users, setUsers]: any = useState([]);
   let i = 1;
 
   useEffect(() => {
-    let request = 'http://127.0.0.1:4200/users';
+    const apiUrl: string = process.env.REACT_APP_API_URL as string;
+    let request = `${apiUrl}/users`;
     const json = getFetch({ url: request });
     json.then((responseObject) => {
       setUsers(responseObject);
@@ -24,8 +25,8 @@ export default function Leaderboard() {
   /*
    **  Simple display, map is going to sort the elo Ratings
    */
-  if (users) {
-    return (
+    
+   return (
       <>
         <h1 className="pinkText " style={{ fontSize: '4vw' }}>
           LEADERBOARD
@@ -41,7 +42,7 @@ export default function Leaderboard() {
               </tr>
             </thead>
             <tbody>
-              {users &&
+              {users && users.length > 0 &&
                 users
                   .sort((a: { eloRating: any }, b: { eloRating: any }) =>
                     a.eloRating < b.eloRating ? 1 : -1,
@@ -89,11 +90,17 @@ export default function Leaderboard() {
                       </tr>
                     ),
                   )}
+                  {
+                    users && users.length === 0 &&
+                    <tr className='text-center'>
+                      <td style={{ fontSize: '2vw' }} className="pinkText" colSpan={4}>
+                        No user yet on the leaderboard :(
+                      </td>
+                    </tr>
+                  }
             </tbody>
           </table>
         </div>
       </>
     );
-  }
-  return <></>;
 }

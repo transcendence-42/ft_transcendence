@@ -8,7 +8,6 @@ import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { SocketIoAdapter } from './adapter/socket.adapter';
 
 async function bootstrap() {
   console.debug = function () {
@@ -17,6 +16,9 @@ async function bootstrap() {
   // Create app
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+
+  // Global prefix
+  app.setGlobalPrefix('api');
 
   // Redis store
   const redisClient = Redis.createClient({

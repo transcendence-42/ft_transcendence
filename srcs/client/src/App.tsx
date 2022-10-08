@@ -35,7 +35,8 @@ function App() {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
-        update(responseObject.user?.id);
+        if (responseObject.statusCode >= 200 && responseObject.statusCode < 300)
+          update(responseObject.user?.id);
       });
     }
   }

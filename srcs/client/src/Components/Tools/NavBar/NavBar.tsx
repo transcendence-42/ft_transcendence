@@ -14,8 +14,9 @@ export default function NavBar(props: any) {
   /*
    ** Fetching data for logout
    */
+  const apiUrl: string = process.env.REACT_APP_API_URL as string;
   const deco = () => {
-    fetch('http://127.0.0.1:4200/auth/logout', {
+    fetch(`${apiUrl}/auth/logout`, {
       method: 'GET',
       credentials: 'include',
       headers: {

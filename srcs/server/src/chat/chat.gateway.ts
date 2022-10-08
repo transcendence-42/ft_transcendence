@@ -7,18 +7,22 @@ import {
   OnGatewayDisconnect,
   OnGatewayInit,
 } from '@nestjs/websockets';
-import { ChannelType } from '@prisma/client';
 import { ChatService } from './chat.service';
-import { MessageDto, JoinChannelDto } from './dto';
+import { MessageDto } from './dto';
 import { eRedisDb, eEvent } from './constants';
 import { RequestUser } from 'src/common/entities';
-import { channel } from 'diagnostics_channel';
 
 @WebSocketGateway(4444, {
   cors: {
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://localhost:3000',
+      'https://127.0.0.1:3000',
+    ],
     credentials: true,
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   },
+  path: '/api/chatws/socket.io',
 })
 export class ChatGateway
   implements
@@ -40,6 +44,7 @@ export class ChatGateway
     this.chatService.initRedis();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async handleConnection(client: Socket, ...args: any[]) {
     const user = client.handshake.auth.id;
     client.join(user.id);
@@ -53,6 +58,7 @@ export class ChatGateway
       client.handshake.headers.cookie,
     );
     if (sessionCookie) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const user = await this.chatService.getObject<RequestUser>(
         sessionCookie,
         eRedisDb.Sessions,
@@ -105,6 +111,7 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.LeavingChannel)
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
   leavingChannel(client: Socket, channelId) {}
 
   @SubscribeMessage(eEvent.UpdateOneChannel)
