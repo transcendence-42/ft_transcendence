@@ -10,7 +10,7 @@ import { GameSocketContext } from '../../../Pages/Game/socket/socket';
 
 export default function NavBar(props: any) {
   const contextValue = useContext(Context);
-
+  const gameSocket = useContext(GameSocketContext);
   /*
    ** Fetching data for logout
    */
@@ -34,6 +34,7 @@ export default function NavBar(props: any) {
           console.log('Disconnect from our services');
           localStorage.removeItem('pathIsFree');
           contextValue.updateIsConnected(false);
+          gameSocket.close();
           return;
         }
       })
