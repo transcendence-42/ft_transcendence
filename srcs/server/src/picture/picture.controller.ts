@@ -10,6 +10,7 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   Request,
+  UseFilters,
 } from '@nestjs/common';
 import { PictureService } from './picture.service';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -18,7 +19,9 @@ import { diskStorage } from 'multer';
 import { v4 } from 'uuid';
 import path = require('path');
 import { User } from 'src/user/entities/user.entity';
+import { HttpExceptionsFilter } from './exceptions/picture.exception.filter';
 
+@UseFilters(new HttpExceptionsFilter())
 @Controller('pictures')
 export class PictureController {
   constructor(private readonly pictureService: PictureService) {}
@@ -29,6 +32,9 @@ export class PictureController {
   @Post()
   @UseInterceptors(
     FileInterceptor('picture', {
+      limits: {
+        fileSize: 3 * 1000 * 1000,
+      },
       storage: diskStorage({
         destination: './files',
         filename: (req, file, callback) => {
