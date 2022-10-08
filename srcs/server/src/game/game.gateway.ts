@@ -41,10 +41,10 @@ export class GameGateway
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
+  async onModuleInit() {
     //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
-    this.gameService.disconnectOldSockets();
+    await this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
     this.logger.log(`Module chat is up`);
     // console.log = function () {};

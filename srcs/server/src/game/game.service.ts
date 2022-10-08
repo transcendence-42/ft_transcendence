@@ -291,7 +291,7 @@ export class GameService {
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
     else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
     await this._savePlayerInfos(userId, { status: status });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** Update username and/or picture */
@@ -330,7 +330,7 @@ export class GameService {
       pic: pic,
       name: name,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** remove client from list */
@@ -342,7 +342,7 @@ export class GameService {
       id: userId,
       status: ePlayerStatus.OFFLINE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** get socket from id */
@@ -438,7 +438,7 @@ export class GameService {
         )
           ++nbOffline;
       }
-      if (nbOffline === 2) this._cancelGame(gameId, true);
+      if (nbOffline === 2) await this._cancelGame(gameId, true);
     }
   }
 
@@ -509,7 +509,7 @@ export class GameService {
       matchmaking: ePlayerMatchMakingStatus.IN_GAME,
       game: game.id,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // Remove player from other game if he is a viewer
     const isViewer: any = (
       await this.redis.multi().select(DB.VIEWERS).get(player.userId).exec()
@@ -622,7 +622,7 @@ export class GameService {
       });
     }
     // send players info
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // remove the game from the list in storage
     await pipeline.select(DB.GAMES).del(gameId).exec();
   }
@@ -649,7 +649,7 @@ export class GameService {
       game: '',
       matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     if (safe === false || safe === undefined) {
       await this._removeGame(gameId);
     } else {
@@ -735,7 +735,7 @@ export class GameService {
       // check scores and end the game if one player scores 11
       const loserId = this._weHaveALoser(game);
       if (loserId !== '') {
-        this._endGame(game, Motive.WIN, loserId);
+        await this._endGame(game, Motive.WIN, loserId);
         clearInterval(interval);
         return;
       }
@@ -796,7 +796,7 @@ export class GameService {
         game: id,
       });
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // game initialization (grid + physics)
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
@@ -846,7 +846,7 @@ export class GameService {
           .srem('users', players[i].userId)
           .exec();
         await this._savePlayerInfos(players[i].userId, { matchmaking: 0 });
-        this._sendPlayersInfo();
+        await this._sendPlayersInfo();
       }
     }
     // create a new game
@@ -900,7 +900,7 @@ export class GameService {
       status: ePlayerStatus.ONLINE,
       game: '',
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** one player abandons the game */
@@ -991,7 +991,7 @@ export class GameService {
         .exec();
     // it this is not a re join, add new player to the game and emit new grid
     if (!(await this._isPlayerInThisGame(userId, id))) {
-      this._addPlayerToGame(
+      await this._addPlayerToGame(
         new Player(client, userId, playerInfos.name, playerInfos.pic),
         Side.RIGHT,
         game,
@@ -1040,7 +1040,7 @@ export class GameService {
       status: ePlayerStatus.SPECTATING,
       game: id,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** continue a game after a server reboot */
@@ -1096,7 +1096,7 @@ export class GameService {
       } else return;
       await this._savePlayerInfos(userId, { matchmaking: 0 });
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     await pipeline.exec();
     // MaaaaatchMakiiiing
     let result: any = await this.redis
@@ -1129,11 +1129,11 @@ export class GameService {
       playersToMatch.forEach((p) => {
         this._getSocket(p.userId).emit('opponentFound');
       });
-      setTimeout(() => {
-        this.create(playersToMatch);
+      setTimeout(async () => {
+        await this.create(playersToMatch);
       }, 2000);
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** *********************************************************************** */
@@ -1605,7 +1605,7 @@ export class GameService {
     await this._savePlayerInfos(challengee.userId, {
       status: ePlayerStatus.CHALLENGE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // switch back to online if status is still challenge after challenge timer
     setTimeout(async () => {
       for (const player of [challenger, challengee])
@@ -1619,7 +1619,7 @@ export class GameService {
           await this._savePlayerInfos(player.userId, {
             status: ePlayerStatus.ONLINE,
           });
-          this._sendPlayersInfo();
+          await this._sendPlayersInfo();
         }
     }, Params.CHALLENGE_TIMER * 1000);
     // send back information to both through socket to inform them
@@ -1687,8 +1687,8 @@ export class GameService {
         name: player2Infos ? player2Infos.name : '',
         pic: player2Infos ? player2Infos.pic : '',
       });
-      setTimeout(() => {
-        this.create(playersToMatch);
+      setTimeout(async () => {
+        await this.create(playersToMatch);
       }, 2000);
     }
     // update players status and broadcast it
@@ -1698,6 +1698,6 @@ export class GameService {
     await this._savePlayerInfos(userId, {
       status: resultingStatus,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 }
