@@ -14,7 +14,7 @@ import Members from "./Members/Members";
 import ModalChat from "./Modal/ModalChat";
 import ChannelsAndDirect from "./ChannelsAndDirect/ChannelsAndDirect";
 import { eEvent, eChannelType, eUserRole } from "./constants";
-import { fetchUrl, isEmpty } from "./utils";
+import { fetchUrl, getChannel, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 import { UpdateUserDto } from "./dtos/update-user.dto";
@@ -84,25 +84,26 @@ export default function Chat(props: any) {
 
   const handleGetMessages = useCallback(
     (channelId: number, messages: Message[]) => {
-      // console.log(
-      //   `GEtting all messages channelid: ${channelId} and messages ${messages}`
-      // );
       const newAllMessages = allMessages;
       newAllMessages[channelId] = messages;
       setAllMessages({ ...newAllMessages });
-      // setAllMessages((prevAllMessages) => {
-      //   const newAllMessages = prevAllMessages;
-      //   newAllMessages[channelId] = messages;
-      //   return { ...newAllMessages };
-      // });
     },
     [allMessages]
   );
 
+  const handleUpdateChannels = useCallback(() => {
+    (async() => {
+      const channels: Channel[] = await fetchUrl(`${apiUrl}/channels/`);
+      setAllChannels([...channels]);
+    })();
+  }, [allChannels])
+
+  const updateCurrentChannel = useCallback((channel: Channel) => {
+    setCurrentChannel((prevState) => ({...channel}));
+  }, [currentChannel, allChannels, user.channels])
   // maybe use a useCallback here is better? using allChannels state
   const switchChannel = useCallback(
     (channelId: number | null, channel?: Channel) => {
-      console.group("SwitchChannel");
       if (!channelId) {
         console.log(`Switching to empty channel`);
         setCurrentChannel({} as Channel);
@@ -112,9 +113,6 @@ export default function Chat(props: any) {
       if (!channel) {
         switchToChannel = allChannels.find(
           (chan: Channel) => chan.id === channelId
-        );
-        console.log(
-          `trying to switch to channel id ${channelId} and found ${switchToChannel?.id}`
         );
       } else {
         switchToChannel = channel;
@@ -126,20 +124,23 @@ export default function Chat(props: any) {
           JSON.stringify(switchToChannel)
         );
       }
-      console.groupEnd();
     },
     [allChannels]
   );
-  const updateOwnUserOnChannel = useCallback((userOnChannel: UserOnChannel) => {
+  const updateOwnUserOnChannel = useCallback((userOnChannel: UserOnChannel, toDelete?: boolean) => {
     console.group(`updateOwnUserOnChannel`);
     setUser((prevUser: User) => {
       console.log(
-        `Updating own channel. Before all my channels where ${JSON.stringify(
-          prevUser.channels
+        `Updating own channel. with channel  ${JSON.stringify(
+          userOnChannel
         )}`
       );
       let inOwnChannels = false;
       let updatedChannels: UserOnChannel[] = [];
+      if (toDelete === true) {
+        updatedChannels = prevUser.channels.filter((usrOnChan) =>
+        (usrOnChan.channelId !== usrOnChan.channelId))
+      }
       updatedChannels = prevUser.channels.map((usrOnChan) => {
         if (usrOnChan.channelId === userOnChannel.channelId) {
           inOwnChannels = true;
@@ -150,23 +151,23 @@ export default function Chat(props: any) {
       if (!inOwnChannels) {
         updatedChannels.push(userOnChannel);
       }
-      return { ...prevUser, channels: updatedChannels };
+      return { ...prevUser, channels: [...updatedChannels] };
     });
     console.groupEnd();
-  }, []);
+  }, [user.channels]);
   const handleLeaveChannelEvent = useCallback(
     (channelId: number) => {
-      console.log(
-        `Recieved event leave channel with channel id ${channelId} current channel id is ${
-          currentChannel.id
-        } ${JSON.stringify(currentChannel)}`
-      );
-      if (isEmpty(currentChannel) || currentChannel.id === channelId) {
-        switchChannel(null);
-      }
       socket.emit(eEvent.LeavingChannel, channelId);
+      // console.log(
+      //   `Recieved event leave channel with channel id ${channelId} current channel id is ${
+      //     currentChannel.id
+      //   } ${JSON.stringify(currentChannel)}`
+      // );
+      // if (isEmpty(currentChannel) || currentChannel.id === channelId) {
+      //   switchChannel(null);
+      // }
     },
-    [currentChannel, socket, switchChannel]
+    [socket]
   );
 
   const updateChannel = useCallback(
@@ -184,7 +185,7 @@ export default function Chat(props: any) {
       if (!channelAlreadyExists) {
         newState.push(channel);
       }
-      setAllChannels(newState);
+      setAllChannels([...newState]);
       console.groupEnd();
     },
     [allChannels]
@@ -192,17 +193,17 @@ export default function Chat(props: any) {
   const handleUpdateOneChannel = useCallback(
     (channelId: number) => {
       console.group("UpdateChannelEvent");
-      console.log(`All my channels are ${JSON.stringify(allChannels)}`);
-      console.log(`all my users in are ${JSON.stringify(allUsers)}`);
       (async () => {
-        console.log("recieved event udpateOneChannel");
-        console.log(`All my channels are ${JSON.stringify(allChannels)}`);
         const url = `${apiUrl}/channels/${channelId}`;
         const channel: Channel = await fetchUrl(url);
         console.log(
           `This is the channel im updating ${JSON.stringify(channel)}`
         );
         updateChannel(channel);
+        if (channel.id === currentChannel.id) {
+          console.error(`updating current channel`)
+          updateCurrentChannel(channel);
+        }
         const isInOwnChannel = channel.users.find(
           (usr) => usr.userId === user.id
         );
@@ -211,7 +212,7 @@ export default function Chat(props: any) {
             `${apiUrl}/channels/${channel.id}/useronchannel/${user.id}`
           );
           console.log(
-            `Upadting ownChannels because the user is in the channel ${userOnChan}`
+            `Upadting ownChannels because the user is in the channel ${JSON.stringify(userOnChan)}`
           );
           updateOwnUserOnChannel(userOnChan);
         }
@@ -259,7 +260,6 @@ export default function Chat(props: any) {
         updateOwnUserOnChannel,
         password
       );
-      console.log(`heres channel created`, channel);
       if (channel) {
         sessionStorage.setItem("currentChannel", JSON.stringify(channel));
         setCurrentChannel(channel);
@@ -304,10 +304,18 @@ export default function Chat(props: any) {
     } else {
       //to be changed for a better way of handling error
       return alert(
-        `Error while adding user to channel ${JSON.stringify(newUser, null, 4)}`
+        `can't add user to channel ${JSON.stringify(newUser, null, 4)}`
       );
     }
   };
+
+  const isLastUser = (users: UserOnChannel[], userId): boolean => {
+    for (const usr of users) {
+      if (usr.hasLeftChannel === false && usr.userId !== userId)
+        return false;
+    }
+    return true;
+  }
 
   const leaveChannel = (channelId: number) => {
     // need to leave socket when leaving channel
@@ -318,60 +326,41 @@ export default function Chat(props: any) {
       const userOnChannel = user.channels.find(
         (usrOnChan: UserOnChannel) => usrOnChan.channelId === channelId
       );
+      const chan: Channel = getChannel(channelId, allChannels);
+      const isLastOnChannel = isLastUser(chan?.users, userOnChannel.userId) ? true: false
       if (userOnChannel.isBanned || userOnChannel.isMuted) {
         const dto: UpdateUserOnChannelDto = {
           hasLeftChannel: true
         };
+        socket.emit(eEvent.LeaveChannel, { userId: user.id, channelId });
         const updatedUsrOnChan = await fetchUrl(
           `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "PATCH",
           dto
         );
         if (!updatedUsrOnChan) {
-          console.error(
-            `Couldn't update channel ${channelId} in leave channel!`
-          );
           return;
         }
-        updateOwnUserOnChannel(updatedUsrOnChan);
+        updateOwnUserOnChannel(updatedUsrOnChan, true);
       } else {
         const deleteUser = await fetchUrl(
           `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "delete"
         );
-        if (!deleteUser) {
-          console.log(
-            `Failed to delete user ${JSON.stringify(
-              userOnChannel
-            )}from channel in leave channel`
-          );
-        }
-        console.log(
-          `These are my new OwnChannels before mapping ${JSON.stringify(
-            user.channels
-          )}`
-        );
         setUser((prevUser) => {
           const updatedChannels = prevUser.channels.filter(
             (usrOnChan) => usrOnChan.channelId !== channelId
-          );
-          console.log(
-            `These are my new OwnChannels ${JSON.stringify(updatedChannels)}`
           );
           return { ...prevUser, channels: updatedChannels };
         });
       }
       if (currentChannel.id === channelId) {
-        console.log(
-          `Trying to find a channel to be in length of channels ${user.channels.length}`
-        );
         if (user.channels.length >= 2) {
           const newChan = user.channels.find(
             (usrOnChan: UserOnChannel) =>
               usrOnChan.channelId !== channelId &&
-              usrOnChan.hasLeftChannel === false
+              usrOnChan.hasLeftChannel === false && usrOnChan.channel.type !== eChannelType.DIRECT
           );
-          console.log(`this is newChan ${newChan}`);
           if (newChan) {
             switchChannel(newChan.channelId);
           }
@@ -379,8 +368,13 @@ export default function Chat(props: any) {
           switchChannel(null);
         }
       }
-      socket.emit(eEvent.UpdateOneChannel, channelId);
-      socket.emit(eEvent.LeaveChannel, { userId: user.id, channelId });
+      if (!isLastOnChannel)
+      {
+        socket.emit(eEvent.UpdateOneChannel, channelId);
+      }
+      else {
+        socket.emit(eEvent.UpdateChannels);
+      }
     })();
   };
 
@@ -614,7 +608,7 @@ export default function Chat(props: any) {
   }, []);
 
   useEffect(() => {
-    // if (!isUserFetched) return;
+    if (!isUserFetched) return;
     console.group("Use Effect #2 Events");
     console.log("Second useEffect");
     socket.on("connect", () => {
@@ -634,6 +628,7 @@ export default function Chat(props: any) {
     });
 
     return () => {
+      socket.disconnect();
       socket.off("connect");
     };
   }, [isUserFetched]);
@@ -687,6 +682,8 @@ export default function Chat(props: any) {
       })();
     });
 
+    socket.on(eEvent.UpdateChannels, handleUpdateChannels);
+
     socket.on(eEvent.JoinChannelResponse, ({ message, userOnChannel }) => {
       if (!userOnChannel) {
         return alert(`failed to join channel ${message}`);
@@ -718,6 +715,7 @@ export default function Chat(props: any) {
       socket.off(eEvent.MuteUser);
       socket.off(eEvent.LeaveChannel);
       socket.off(eEvent.LeavingChannel);
+      socket.off(eEvent.UpdateChannels);
     };
   }, [
     handleUpdateOneChannel,

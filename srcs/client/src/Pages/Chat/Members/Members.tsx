@@ -37,12 +37,16 @@ export default function Members({
       </div>
       <div className="row" style={{ fontSize: "14px" }}>
         <div className="col d-flex justify-content-center">
+          { !isEmpty(currentChannel) ?
           <button
             className="message-button rounded-4 "
             onClick={handleShowAddToChannel}
           >
             Add Friend
           </button>
+          :
+          <></>
+          }
         </div>
       </div>
       <div className="row">

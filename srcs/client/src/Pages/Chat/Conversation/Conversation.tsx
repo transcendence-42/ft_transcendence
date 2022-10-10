@@ -74,6 +74,7 @@ export default function Conversation({
               )}
             </div>
             <div className="col-7 d-flex justify-content-end align-items-center">
+            {currentChannel.type !== eChannelType.DIRECT ?
               <button
                 className="btn btn-leave me-2 "
                 style={{ fontSize: "12px" }}
@@ -83,6 +84,9 @@ export default function Conversation({
                   Leave
                 </div>
               </button>
+              :
+              <></>
+            }
               <div>
                 {self?.role === "OWNER" &&
                 currentChannel.type !== eChannelType.DIRECT ? (

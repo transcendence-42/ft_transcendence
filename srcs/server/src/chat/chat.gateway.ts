@@ -57,14 +57,7 @@ export class ChatGateway
     const sessionCookie = this.chatService.parseIdCookie(
       client.handshake.headers.cookie,
     );
-    if (sessionCookie) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const user = await this.chatService.getObject<RequestUser>(
-        sessionCookie,
-        eRedisDb.Sessions,
-      );
-      this.logger.debug(`client ${client.id} disconnected`);
-    }
+    this.logger.debug(`User is disconnecting`)
   }
 
   @SubscribeMessage(eEvent.InitConnection)
@@ -105,19 +98,25 @@ export class ChatGateway
     return this.chatService.addUser(client, payload.channelId, payload.userId);
   }
 
+  @SubscribeMessage(eEvent.UpdateOneChannel)
+  updateOneChannel(client: Socket, id: number) {
+    this.logger.debug(`gateway ${id} `);
+    return this.chatService.updateOneChannel(client, id);
+  }
+
   @SubscribeMessage(eEvent.LeaveChannel)
   leaveChannel(client: Socket, { userId, channelId }) {
     this.chatService.leaveChannel(client, userId, channelId);
   }
 
   @SubscribeMessage(eEvent.LeavingChannel)
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-  leavingChannel(client: Socket, channelId) {}
+  leavingChannel(client: Socket, channelId) {
+    this.chatService.leavingChannel(client, channelId);
+  }
 
-  @SubscribeMessage(eEvent.UpdateOneChannel)
-  updateOneChannel(client: Socket, id: number) {
-    this.logger.debug(`gateway ${id} `);
-    return this.chatService.updateOneChannel(client, id);
+  @SubscribeMessage(eEvent.UpdateChannels)
+  updateChannels(client: Socket) {
+    return this.chatService.updateChannels(client);
   }
 
   @SubscribeMessage(eEvent.CreateChannel)
