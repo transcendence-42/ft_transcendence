@@ -19,6 +19,7 @@ import Redis, { ChainableCommander } from 'ioredis';
 import { UserService } from 'src/user/user.service';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { User } from 'src/user/entities/user.entity';
+import { UpdateOptionsDto } from './dto/update-options.dto';
 
 /** ************************************************************************* */
 /** ENUMS                                                                     */
@@ -291,7 +292,7 @@ export class GameService {
     if (status === ePlayerStatus.OFFLINE) status = ePlayerStatus.ONLINE;
     else if (status === ePlayerStatus.ONLINE) status = ePlayerStatus.OFFLINE;
     await this._savePlayerInfos(userId, { status: status });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** Update username and/or picture */
@@ -311,7 +312,7 @@ export class GameService {
     const pic = client.handshake.auth.pic.toString();
     const name = client.handshake.auth.name.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
-    if (isClient) isClient.socket == client;
+    if (isClient) isClient.socket?.id === client.id;
     else this.clients.push(new Client(client, userId, name, pic));
     // Check if player is registered in a game for status
     let status: ePlayerStatus = ePlayerStatus.ONLINE;
@@ -330,7 +331,7 @@ export class GameService {
       pic: pic,
       name: name,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** remove client from list */
@@ -342,7 +343,7 @@ export class GameService {
       id: userId,
       status: ePlayerStatus.OFFLINE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** get socket from id */
@@ -358,21 +359,8 @@ export class GameService {
   async clientConnection(client: Socket) {
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
-    const userPic: string = client.handshake.auth.pic.toString();
     const userName: string = client.handshake.auth.name.toString();
-    console.log(`user number : ${userId} (${client.id}) connected !`);
-    // // Create user in database *************** TO DELETE AFTER TESTS
-    // try {
-    //   await this.userService.findOne(+userId);
-    // } catch (e) {
-    //   console.log(userId);
-    //   await this.userService.create({
-    //     id: +userId,
-    //     username: userName,
-    //     email: `${userName}@student.42.fr`,
-    //     profilePicture: userPic,
-    //   });
-    // }
+    console.log(`user number : ${userName} (${userId}) connected !`);
     // add client to the server list
     await this._addOrUpdateClient(client);
     // switch client status to online
@@ -399,7 +387,7 @@ export class GameService {
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
     const userName: string = client.handshake.auth.name.toString();
-    console.log(`user : ${userName} disconnected`);
+    console.log(`user : ${userName} (${userId}) disconnected`);
     // Remove client from server
     await this._removeClient(client);
     // Broadcast that user left the lobby
@@ -438,7 +426,7 @@ export class GameService {
         )
           ++nbOffline;
       }
-      if (nbOffline === 2) this._cancelGame(gameId, true);
+      if (nbOffline === 2) await this._cancelGame(gameId, true);
     }
   }
 
@@ -509,7 +497,7 @@ export class GameService {
       matchmaking: ePlayerMatchMakingStatus.IN_GAME,
       game: game.id,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // Remove player from other game if he is a viewer
     const isViewer: any = (
       await this.redis.multi().select(DB.VIEWERS).get(player.userId).exec()
@@ -622,7 +610,7 @@ export class GameService {
       });
     }
     // send players info
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // remove the game from the list in storage
     await pipeline.select(DB.GAMES).del(gameId).exec();
   }
@@ -649,7 +637,7 @@ export class GameService {
       game: '',
       matchmaking: ePlayerMatchMakingStatus.NOT_IN_QUEUE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     if (safe === false || safe === undefined) {
       await this._removeGame(gameId);
     } else {
@@ -722,8 +710,8 @@ export class GameService {
 
   /** We have a winner */
   private _weHaveALoser(game: Game): string {
-    const winner = game.players.find((p) => p.score === 9);
-    const loser = game.players.find((p) => p.score < 9);
+    const winner = game.players.find((p) => p.score === 11);
+    const loser = game.players.find((p) => p.score < 11);
     if (winner && loser) return loser.userId;
     return '';
   }
@@ -732,10 +720,10 @@ export class GameService {
   private async _gameLoop(game: Game, interval: NodeJS.Timer) {
     if (game.status === Status.STARTED) {
       this._moveWorldForward(game);
-      // check scores and end the game if one player scores 9
+      // check scores and end the game if one player scores 11
       const loserId = this._weHaveALoser(game);
       if (loserId !== '') {
-        this._endGame(game, Motive.WIN, loserId);
+        await this._endGame(game, Motive.WIN, loserId);
         clearInterval(interval);
         return;
       }
@@ -796,7 +784,7 @@ export class GameService {
         game: id,
       });
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // game initialization (grid + physics)
     this._initGame(game, Side.RIGHT);
     game.status = Status.STARTED;
@@ -846,7 +834,7 @@ export class GameService {
           .srem('users', players[i].userId)
           .exec();
         await this._savePlayerInfos(players[i].userId, { matchmaking: 0 });
-        this._sendPlayersInfo();
+        await this._sendPlayersInfo();
       }
     }
     // create a new game
@@ -900,7 +888,7 @@ export class GameService {
       status: ePlayerStatus.ONLINE,
       game: '',
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** one player abandons the game */
@@ -991,7 +979,7 @@ export class GameService {
         .exec();
     // it this is not a re join, add new player to the game and emit new grid
     if (!(await this._isPlayerInThisGame(userId, id))) {
-      this._addPlayerToGame(
+      await this._addPlayerToGame(
         new Player(client, userId, playerInfos.name, playerInfos.pic),
         Side.RIGHT,
         game,
@@ -1040,7 +1028,7 @@ export class GameService {
       status: ePlayerStatus.SPECTATING,
       game: id,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** continue a game after a server reboot */
@@ -1096,7 +1084,7 @@ export class GameService {
       } else return;
       await this._savePlayerInfos(userId, { matchmaking: 0 });
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     await pipeline.exec();
     // MaaaaatchMakiiiing
     let result: any = await this.redis
@@ -1129,11 +1117,11 @@ export class GameService {
       playersToMatch.forEach((p) => {
         this._getSocket(p.userId).emit('opponentFound');
       });
-      setTimeout(() => {
-        this.create(playersToMatch);
+      setTimeout(async () => {
+        await this.create(playersToMatch);
       }, 2000);
     }
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
   }
 
   /** *********************************************************************** */
@@ -1307,7 +1295,7 @@ export class GameService {
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = {
       x: startingSide === 0 ? 1 : -1,
-      y: Math.random(),
+      y: Math.random() * (1 - -1) + -1,
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
@@ -1343,7 +1331,7 @@ export class GameService {
     // Ball initial direction and speed
     game.gamePhysics.ball.direction = {
       x: side === Side.RIGHT ? 1 : -1,
-      y: Math.random(),
+      y: Math.random() * (1 - -1) + -1,
     };
     game.gamePhysics.ball.speed = Params.BALLSPEED;
     // Accelerate the ball every xx seconds
@@ -1377,7 +1365,7 @@ export class GameService {
   }
 
   /** Bounce a physic object by changing its vector */
-  private _bounce(object: Physic, surface?: Physic): Physic {
+  private _bounce(object: Physic, surface?: Physic, game?: Game): Physic {
     let updatedObject: Physic;
 
     if (object.type === Body.PADDLE) {
@@ -1396,7 +1384,11 @@ export class GameService {
       // vs Paddle
       if (surface.direction.x === 0) newDir.x = newDir.x * -1;
       // Acceleration by contact
-      if (surface.speed) newDir.y += surface.direction.y / 5;
+      if (surface.speed) {
+        if (game.effects === true) newDir.y += surface.direction.y;
+        else newDir.y += surface.direction.y / 4;
+        while (newDir.y > 1.5) newDir.y -= 0.5; // ball speed limiter
+      }
       updatedObject = {
         ...object,
         direction: newDir,
@@ -1509,9 +1501,9 @@ export class GameService {
     else if (this._isCollision(updatedBall, world.walls[Wall.BOTTOM]))
       updatedBall = this._bounce(ball, world.walls[Wall.BOTTOM]);
     else if (this._isCollision(updatedBall, world.players[Side.LEFT]))
-      updatedBall = this._bounce(ball, world.players[Side.LEFT]);
+      updatedBall = this._bounce(ball, world.players[Side.LEFT], game);
     else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
-      updatedBall = this._bounce(ball, world.players[Side.RIGHT]);
+      updatedBall = this._bounce(ball, world.players[Side.RIGHT], game);
     return updatedBall;
   }
 
@@ -1605,7 +1597,7 @@ export class GameService {
     await this._savePlayerInfos(challengee.userId, {
       status: ePlayerStatus.CHALLENGE,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
     // switch back to online if status is still challenge after challenge timer
     setTimeout(async () => {
       for (const player of [challenger, challengee])
@@ -1619,7 +1611,7 @@ export class GameService {
           await this._savePlayerInfos(player.userId, {
             status: ePlayerStatus.ONLINE,
           });
-          this._sendPlayersInfo();
+          await this._sendPlayersInfo();
         }
     }, Params.CHALLENGE_TIMER * 1000);
     // send back information to both through socket to inform them
@@ -1638,12 +1630,12 @@ export class GameService {
       status: eChallengeStatus.OPEN,
     };
     challenger.socket.emit('gameChallenge', {
-      who: eChallengeWho.CHALLENGER,
       ...gameChallenge,
+      who: eChallengeWho.CHALLENGER,
     });
     challengee.socket.emit('gameChallenge', {
-      who: eChallengeWho.CHALLENGEE,
       ...gameChallenge,
+      who: eChallengeWho.CHALLENGEE,
     });
   }
 
@@ -1687,8 +1679,8 @@ export class GameService {
         name: player2Infos ? player2Infos.name : '',
         pic: player2Infos ? player2Infos.pic : '',
       });
-      setTimeout(() => {
-        this.create(playersToMatch);
+      setTimeout(async () => {
+        await this.create(playersToMatch);
       }, 2000);
     }
     // update players status and broadcast it
@@ -1698,6 +1690,24 @@ export class GameService {
     await this._savePlayerInfos(userId, {
       status: resultingStatus,
     });
-    this._sendPlayersInfo();
+    await this._sendPlayersInfo();
+  }
+
+  /** *********************************************************************** */
+  /** GAME OPTIONS                                                            */
+  /** *********************************************************************** */
+
+  /** update game options */
+  async updateOptions(id: string, updateOptionsDto: UpdateOptionsDto) {
+    // check if game exists
+    await this._getGame(id);
+    // update effects
+    if (updateOptionsDto.effects === true) {
+      await this.redis
+        .multi()
+        .select(DB.GAMES)
+        .call('JSON.SET', id, '$.effects', JSON.stringify(true))
+        .exec();
+    }
   }
 }

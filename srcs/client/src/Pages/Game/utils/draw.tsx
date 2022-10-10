@@ -31,7 +31,7 @@ export const drawStage = (
 };
 
 /** Draw scores */
-export const drawScores = (
+export const olddrawScores = (
   ctx: CanvasRenderingContext2D,
   scores: any,
   map: any,
@@ -43,7 +43,7 @@ export const drawScores = (
       ?.getAttribute('width');
     let display: string = '';
     scores.forEach((s: any) => {
-      if (s.side === 0) display = s.score.toString() + ' ' + display;
+      if (s.side === 0) display = s.score.toString() + '   ' + display;
       else if (display) display = display + s.score.toString();
       else display = display + ' ' + s.score.toString();
     });
@@ -56,6 +56,40 @@ export const drawScores = (
     ctx.shadowColor = map.score.shadowColor;
     ctx.fillStyle = map.score.fill;
     ctx.fillText(display, map.canvas.size.w / 2, 30);
+  }
+};
+
+/** Draw scores */
+export const drawScores = (
+  ctx: CanvasRenderingContext2D,
+  scores: any,
+  map: any,
+) => {
+  if (scores) {
+    // Get current canvas width
+    const cWidth: any = document
+      .getElementById('pongCanvas')
+      ?.getAttribute('width');
+    let display: string = '';
+    scores.forEach((s: any) => {
+      // Global params
+      ctx.font = `${map.score.style} ${+cWidth * map.score.size * 0.078}px ${
+        map.fontFamily
+      }`;
+      ctx.textBaseline = 'top';
+      ctx.shadowBlur = map.score.shadow;
+      ctx.shadowColor = map.score.shadowColor;
+      ctx.fillStyle = map.score.fill;
+      if (s.side === 0) {
+        // Left score
+        ctx.textAlign = 'right';
+        ctx.fillText(s.score.toString(), map.canvas.size.w / 2 - 30, 30);
+      } else {
+        // Right score
+        ctx.textAlign = 'left';
+        ctx.fillText(s.score.toString(), map.canvas.size.w / 2 + 30, 30);
+      };
+    });
   }
 };
 

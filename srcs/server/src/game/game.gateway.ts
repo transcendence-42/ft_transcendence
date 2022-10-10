@@ -17,6 +17,7 @@ import { MatchMakingDto } from './dto/matchMaking.dto';
 import { CreateChallengeDto } from './dto/create-challenge.dto';
 import { UpdateChallengeDto } from './dto/update-challenge.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { UpdateOptionsDto } from './dto/update-options.dto';
 
 @UseFilters(new WsExceptionsFilter())
 @Catch(WsException)
@@ -41,13 +42,12 @@ export class GameGateway
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
+  async onModuleInit() {
     //this.server.sockets.disconnectSockets(true);
     this.gameService.server = this.server;
-    this.gameService.disconnectOldSockets();
+    await this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
     this.logger.log(`Module chat is up`);
-    // console.log = function () {};
   }
 
   /** Handle new clients connection to the game */
@@ -194,5 +194,14 @@ export class GameGateway
     @MessageBody() updatePlayerDto: UpdatePlayerDto,
   ) {
     await this.gameService.updatePlayer(client, updatePlayerDto);
+  }
+
+  /** Update options on the game */
+  @SubscribeMessage('updateOptions')
+  async handleUpdateOptions(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() updateOptionsDto: UpdateOptionsDto,
+  ) {
+    await this.gameService.updateOptions(updateOptionsDto.id, updateOptionsDto);
   }
 }

@@ -19,6 +19,7 @@ import GoBack from "./modals/GoBack";
 import "./Game.css";
 import "../../Styles";
 import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
+import SelectOptions from "./modals/SelectOptions";
 
 const GameLobby: FC = () => {
   /**
@@ -91,6 +92,7 @@ const GameLobby: FC = () => {
   const [gameList, setGameList] = useState([] as any);
   const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
+  const [options, setOptions] = useState({ effects: false});
 
   /** *********************************************************************** */
   /** MODAL                                                                   */
@@ -100,6 +102,7 @@ const GameLobby: FC = () => {
   const [showGoBack, setShowGoBack] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
   const [showMapSelect, setShowMapSelect] = useState(false);
+  const [showSelectOptions, setShowSelectOptions] = useState(false);
 
   // Modal event handlers
   const handleCloseGoBack = () => setShowGoBack(false);
@@ -108,6 +111,8 @@ const GameLobby: FC = () => {
   const handleShowMatchMaking = () => setShowMatchMaking(true);
   const handleCloseMapSelect = () => setShowMapSelect(false);
   const handleShowMapSelect = () => setShowMapSelect(true);
+  const handleCloseSelectOptions = () => setShowSelectOptions(false);
+  const handleShowSelectOptions = () => setShowSelectOptions(true);
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -139,6 +144,8 @@ const GameLobby: FC = () => {
     (data: any) => {
       setMessage({});
       setGame({ id: data.id, action: eEvents.CREATE_GAME });
+      // Pop the option modal
+      handleShowSelectOptions();
     },
     [eEvents.CREATE_GAME]
   );
@@ -341,6 +348,17 @@ const GameLobby: FC = () => {
         <MapSelect
           closeHandler={handleCloseMapSelect}
           setGameMap={setGameMap}
+        />
+      </PongModal>
+      <PongModal
+        title="Select game options"
+        closeHandler={handleCloseSelectOptions}
+        show={showSelectOptions}
+      >
+        <SelectOptions
+          closeHandler={handleCloseSelectOptions}
+          socket={socket}
+          gameId={game?.id}
         />
       </PongModal>
 
