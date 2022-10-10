@@ -21,6 +21,7 @@ export default function Members({
   const self = user.channels.find(
     (userOnChan) => userOnChan.channelId === currentChannel.id
   );
+
   // console.log("HERE ==> ",self);
   // console.log(user);
   return (
@@ -65,6 +66,7 @@ export default function Members({
                         currentChannel={currentChannel}
                         blockedUsers={blockedUsers}
                         changeRole={changeRole}
+                        currentUserId={user.id}
                       />
                     </div>
                   )
