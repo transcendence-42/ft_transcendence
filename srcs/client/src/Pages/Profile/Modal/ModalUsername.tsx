@@ -7,9 +7,19 @@ import FailAndSuccessUsername from './FailAndSuccessUsername'
 import React, {useContext, useEffect, useState} from "react";
 import { GameSocketContext } from '../../Game/socket/socket';
 
-const ModalUsername =
-({ title, closeHandler, show, textBtn1,
-  handleBtn1, textBtn2, handleBtn2, up, id } : any)=> {
+const ModalUsername =({
+  title,
+  closeHandler,
+  show,
+  textBtn1,
+  handleBtn1,
+  textBtn2,
+  handleBtn2,
+  up,
+  id,
+  showResponse,
+  setShowResponse,
+} : any)=> {
 
   /**
    * @props title:        Title of the modal
@@ -42,10 +52,12 @@ const ModalUsername =
         if (response.message)
         {
           setStatus(0);
+          setShowResponse(1);
           return;
         }
         socket.emit('updatePlayer', { name: content });
       	setStatus(1);
+        setShowResponse(1);
         up();
         setTimeout(() => {
           closeHandler();
@@ -69,11 +81,12 @@ const ModalUsername =
 							type="text"
 							value={content}
 							onChange={handleChange}
-							className="inputContent"/>
+              placeholder="New Username"
+							className="rounded-3 input-field-chat w-75 "/>
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-      {<FailAndSuccessUsername status={status}/>}
+      {showResponse !== 1 ? '' : <FailAndSuccessUsername status={status} />}
         {handleBtn1 &&
           <button
             type="button"

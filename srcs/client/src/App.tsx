@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './Pages/Home/home';
 import Profile from './Pages/Profile/Profile';
@@ -14,14 +14,15 @@ import Context from './Context/Context';
 import GameLobby from './Pages/Game/GameLobby';
 import RootModals from './Pages/RootModals/RootModals';
 import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
-import GameSocketProvider from './Pages/Game/socket/socket';
+import GameSocketProvider, { GameSocketContext } from './Pages/Game/socket/socket';
 import { ChatSocket } from "./Socket";
-import UserContextProvider from './Context/UserContext';
+import { UserContext } from "./Context/UserContext";
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
   const [isFromAuth, setIsFromAuth] = useState(false);
   const [userID, setUserID]: any = useState();
+  const socket = useContext(GameSocketContext);
 
   function update(id: number) {
     setUserID(id);
@@ -30,12 +31,20 @@ function App() {
   /*
    ** Update the UserID when the page is refresh
    */
-
+  const { login } = useContext(UserContext);
   if (!userID) {
     if (isConnected) {
       const success_json = getFetchSuccess();
       success_json.then((responseObject) => {
-        if (responseObject.statusCode >= 200 && responseObject.statusCode < 300)
+          // refresh user context
+          login(responseObject.user?.id);
+          // refresh game websocket
+          socket.auth = {
+            userId: responseObject.user?.id,
+            pic: responseObject.user?.profilePicture,
+            name: responseObject.user?.username,
+          };
+          socket.connect();
           update(responseObject.user?.id);
       });
     }
@@ -71,8 +80,6 @@ function App() {
 
   return (
     <Context.Provider value={contextValue}>
-      <UserContextProvider>
-      <GameSocketProvider>
         <RootModalsProvider>
           <BrowserRouter>
             <NavBar userID={userID} />
@@ -98,8 +105,6 @@ function App() {
             </Routes>
           </BrowserRouter>
         </RootModalsProvider>
-      </GameSocketProvider>
-      </UserContextProvider>
     </Context.Provider>
   );
 }

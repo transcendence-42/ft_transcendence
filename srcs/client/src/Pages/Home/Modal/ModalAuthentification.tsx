@@ -1,15 +1,21 @@
-import Modal from 'react-bootstrap/Modal';
+import Modal from "react-bootstrap/Modal";
 import Context from "../../../Context/Context";
-import "../../../Components/Tools/Text.css"
-import "../../../Components/Tools/Box.css"
-import {postFetchAuthentification} from "../Fetch/postFetchAuthentification"
-import FailAndSuccessAuthenticate from './FailAndSuccessAuthenticate'
-import React, {useEffect, useState, useContext} from "react";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
+import { postFetchAuthentification } from "../Fetch/postFetchAuthentification";
+import FailAndSuccessAuthenticate from "./FailAndSuccessAuthenticate";
+import React, { useEffect, useState, useContext } from "react";
 
-const ModalAuthentification =
-({ title, closeHandler, show, textBtn1,
-  handleBtn1, textBtn2, handleBtn2, up } : any)=> {
-
+const ModalAuthentification = ({
+  title,
+  closeHandler,
+  show,
+  textBtn1,
+  handleBtn1,
+  textBtn2,
+  handleBtn2,
+  up,
+}: any) => {
   /**
    * @props title:        Title of the modal
    *        closeHandler: Function used to close the modal
@@ -20,73 +26,73 @@ const ModalAuthentification =
    *        handleBtn2:   Function associated with the second button
    */
 
-   const contextValue = useContext(Context);
-   const [content, setcontent] = useState('');
-   const [status, setStatus] = useState(2);
+  const contextValue = useContext(Context);
+  const [content, setcontent] = useState("");
+  const [status, setStatus] = useState(2);
 
-   function handleChange(event : any) {
-     setcontent(event.target.value);
-   };
+  function handleChange(event: any) {
+    setcontent(event.target.value);
+  }
 
-   function patchAndClose(e : any)
-   {
-     e.preventDefault();
-     const status = postFetchAuthentification({keyGen: content});
-     status.then((responseObject)=> {
-       if (responseObject.status !== 200)
-       {
+  function patchAndClose(e: any) {
+    e.preventDefault();
+    const status = postFetchAuthentification({ keyGen: content });
+    status.then((responseObject) => {
+      if (responseObject.status !== 200) {
         setStatus(0);
         return;
-       }
-       setStatus(1);
-       localStorage.setItem("pathIsFree", JSON.stringify(true));
-       contextValue.updateIsConnected(true);
-       setTimeout(() => {
-       up();
-       closeHandler();
+      }
+      setStatus(1);
+      localStorage.setItem("pathIsFree", JSON.stringify(true));
+      contextValue.updateIsConnected(true);
+      setTimeout(() => {
+        up();
+        closeHandler();
       }, 500);
-     })
-   }
+    });
+  }
 
-   useEffect(() => {
+  useEffect(() => {
     setStatus(2);
-   },[])
+  }, []);
 
   return (
-    <Modal show={show} onHide={closeHandler} backdrop='static'>
+    <Modal show={show} onHide={closeHandler} backdrop="static">
       <Modal.Header closeButton>
         <Modal.Title className="text-blue">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-pink text-center ">
         Enter your Google Authenticator code
-        <br/>
+        <br />
         <form onSubmit={patchAndClose}>
-						<input
-              maxLength={6}
-							type="text"
-							value={content}
-							onChange={handleChange}
-							className="inputContent"/>
+          <input
+            maxLength={6}
+            type="text"
+            value={content}
+            onChange={handleChange}
+            className="rounded-3 input-field-chat w-75 "
+          />
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-      {<FailAndSuccessAuthenticate status={status}/>}
-        {handleBtn1 &&
+        {<FailAndSuccessAuthenticate status={status} />}
+        {handleBtn1 && (
           <button
             type="button"
             className="btn btn-blue text-blue"
-            onClick={handleBtn1}>{textBtn1}
+            onClick={handleBtn1}
+          >
+            {textBtn1}
           </button>
-        }
-        {handleBtn2 &&
-          <button
-            className="btn btn-pink text-pink"
-            onClick={patchAndClose}>{textBtn2}
+        )}
+        {handleBtn2 && (
+          <button className="btn btn-pink text-pink" onClick={patchAndClose}>
+            {textBtn2}
           </button>
-        }
+        )}
       </Modal.Footer>
     </Modal>
-  )
-}
+  );
+};
 
 export default ModalAuthentification;

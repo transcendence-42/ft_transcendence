@@ -15,8 +15,10 @@ export default function ChangeUsername(props : any) {
    */
 
 	const [isShowing, setIsShowing] = useState(false);
+	const [showResponse, setShowResponse] = useState(0);
 
 	function toggle() {
+		setShowResponse(0);
 		setIsShowing(!isShowing);
 	}
 
@@ -43,6 +45,8 @@ export default function ChangeUsername(props : any) {
 					title="Put your NEW Username"
 					id={props.id}
 					up={props.up}
+					showResponse={showResponse}
+					setShowResponse={setShowResponse}
 				/>
 		</>
  		);

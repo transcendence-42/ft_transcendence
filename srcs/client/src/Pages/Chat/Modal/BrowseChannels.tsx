@@ -117,10 +117,12 @@ export default function BrowseChannels({
   } else filtered = availableChannels;
 
   return (
-    <div className="row row-color">
+    <div className="row row-color d-flex justify-content-center">
       <input
-        className="rounded-3 mb-3 input-browse-channels"
-        style={{ color: "black" }}
+        className="rounded-3 input-field-chat w-75 "
+        style={{ color: "white" }}
+        maxLength={10}
+        placeholder="Search Channel..."
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}
       ></input>

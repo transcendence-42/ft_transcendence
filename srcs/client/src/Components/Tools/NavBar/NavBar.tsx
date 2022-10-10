@@ -35,6 +35,7 @@ export default function NavBar(props: any) {
           localStorage.removeItem('pathIsFree');
           contextValue.updateIsConnected(false);
           gameSocket.close();
+          document.cookie = '';
           return;
         }
       })

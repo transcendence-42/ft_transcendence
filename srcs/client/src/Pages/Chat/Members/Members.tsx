@@ -15,6 +15,7 @@ export default function Members({
   banUser,
   blockedUsers,
   handleShowAddToChannel,
+  changeRole,
   ...props
 }: any) {
   const self = user.channels.find(
@@ -63,6 +64,7 @@ export default function Members({
                         blockUser={blockUser}
                         currentChannel={currentChannel}
                         blockedUsers={blockedUsers}
+                        changeRole={changeRole}
                       />
                     </div>
                   )

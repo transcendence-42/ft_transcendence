@@ -124,15 +124,6 @@ export default function ModalChat({
         handleBtn2={handlePasswordOperation}
       >
         <SetPasswordChannel
-          friends={friends}
-          channel={currentChannel}
-          addToChannel={addToChannel}
-          allChannels={allChannels}
-          currentChannel={currentChannel}
-          changeChannelPassword={changeChannelPassword}
-          setChannelPassword={setChannelPassword}
-          handlePasswordOperation={handlePasswordOperation}
-          newChannelPassword={newChannelPassword}
           setNewChannelPassword={setNewChannelPassword}
         />
       </PongAdvancedModal>
