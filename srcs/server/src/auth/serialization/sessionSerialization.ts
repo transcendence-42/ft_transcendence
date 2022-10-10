@@ -13,6 +13,7 @@ export class Serialization extends PassportSerializer {
   }
 
   async deserializeUser(user: RequestUser, done: Function) {
+    console.log(`Trying to deserialize user ${JSON.stringify(user)}`)
     const userDb = await this.userService.getUserByEmail(user.email);
     if (!userDb) return done(null, null);
     return done(null, user);

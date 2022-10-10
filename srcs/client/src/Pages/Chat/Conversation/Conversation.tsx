@@ -124,7 +124,7 @@ export default function Conversation({
                     value={message}
                     type="text"
                     maxLength={50}
-                    placeholder="  Send a message..."
+                    placeholder="Send a message..."
                   ></input>
                   <button
                     type="button"

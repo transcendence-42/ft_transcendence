@@ -143,8 +143,7 @@ const Profile = () => {
           request = `${apiUrl}/auth/2fa/state/` + userId;
           const double_json = getFetch({ url: request });
           double_json.then((responseObject) => {
-            console.log(`${JSON.stringify(responseObject)}`);
-            if (responseObject.message === true) {
+            if (responseObject.message === "on") {
               setDoubleFactor(true);
             }
           });
@@ -156,7 +155,6 @@ const Profile = () => {
   /** *********************************************************************** */
   /** RENDER                                                                  */
   /** *********************************************************************** */
-
   if (user) {
     return (
       <div className="row">

@@ -34,6 +34,7 @@ export default function NavBar(props: any) {
           console.log('Disconnect from our services');
           localStorage.removeItem('pathIsFree');
           contextValue.updateIsConnected(false);
+          document.cookie = '';
           return;
         }
       })

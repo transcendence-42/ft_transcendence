@@ -14,15 +14,6 @@ export class LoggedInGuard implements CanActivate {
       console.debug('Guard Rejected user because of isAuthenticated()!');
       return result;
     }
-    const user: RequestUser = request.user;
-    if (
-      user.isTwoFactorActivated === true &&
-      user.isTwoFactorAuthenticated === false
-    ) {
-      // console.debug('Guard Rejected user! because of isTwoFactorAuthenticated');
-      return false;
-    }
-    // console.debug('Guard Accepeted user!');
     return true;
   }
 }

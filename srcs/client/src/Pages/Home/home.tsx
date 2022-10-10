@@ -66,6 +66,7 @@ export default function Home({ updateID, userID }: any) {
       })
       .then((responseObject) => {
         if (responseObject.message) {
+          console.log(responseObject.message);
           if (responseObject.message === "require 2fa") {
             toggle();
             return;
@@ -81,7 +82,7 @@ export default function Home({ updateID, userID }: any) {
           if (responseObject.message === 'Registered')
             setShowFirstConnection(true);
           // Game socket connection
-          socket.auth = { 
+          socket.auth = {
             userId: responseObject.user.id,
             pic: responseObject.user.profilePicture,
             name: responseObject.user.username,

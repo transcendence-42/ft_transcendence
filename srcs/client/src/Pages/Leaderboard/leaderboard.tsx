@@ -25,13 +25,14 @@ export default function Leaderboard() {
   /*
    **  Simple display, map is going to sort the elo Ratings
    */
-    
+
    return (
       <>
-        <h1 className="pinkText " style={{ fontSize: '4vw' }}>
+        <h1 className="pinkText " style={{ fontSize: '2em' }}>
           LEADERBOARD
         </h1>
-        <div className="container1 scroll" data-testid="tracker">
+        <div className="row">
+        <div className="container1 scroll col-10 col-sm-8 col-md-7 col-lg-6 col-xl-5" data-testid="tracker">
           <table className="table">
             <thead>
               <tr className='leaderboard-tr text-center'>
@@ -57,19 +58,19 @@ export default function Leaderboard() {
                         {userID === user.id ? (
                           <>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {i++}
                             </td>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {user.username}
                             </td>
                             <td
-                              style={{ fontSize: '2vw' }}
+                              style={{ fontSize: '1.2em' }}
                               className="pinkText"
                             >
                               {user.eloRating}
@@ -77,15 +78,15 @@ export default function Leaderboard() {
                           </>
                         ) : (
                           <>
-                            <td style={{ fontSize: '2vw' }}>{i++}</td>
-                            <td style={{ fontSize: '2vw' }}>{user.username}</td>
-                            <td style={{ fontSize: '2vw' }}>
+                            <td style={{ fontSize: '1.2em' }}>{i++}</td>
+                            <td style={{ fontSize: '1.2em' }}>{user.username}</td>
+                            <td style={{ fontSize: '1.2em' }}>
                               {user.eloRating}
                             </td>
                           </>
                         )}
                         <td>
-                          <League elo={user.eloRating} size={'2vw'} />
+                          <League elo={user.eloRating} size={'1.2em'} />
                         </td>
                       </tr>
                     ),
@@ -93,7 +94,7 @@ export default function Leaderboard() {
                   {
                     users && users.length === 0 &&
                     <tr className='text-center'>
-                      <td style={{ fontSize: '2vw' }} className="pinkText" colSpan={4}>
+                      <td style={{ fontSize: '1.2em' }} className="pinkText" colSpan={4}>
                         No user yet on the leaderboard :(
                       </td>
                     </tr>
@@ -101,6 +102,8 @@ export default function Leaderboard() {
             </tbody>
           </table>
         </div>
+        </div>
+
       </>
     );
 }

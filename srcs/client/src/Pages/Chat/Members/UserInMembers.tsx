@@ -15,6 +15,7 @@ export default function UserInMembers({
   banUser,
   blockUser,
   blockedUsers,
+  changeRole,
   ...props
 }: any) {
   return (
@@ -69,6 +70,32 @@ export default function UserInMembers({
                       blockedUsers
                     )}`
                   )} */}
+                  {/* NEED NOUFEL'S FUNCTIONS HERE */}
+                  {self.role !== eUserRole.OWNER ? (
+                      ""
+                    ) : (
+                      <>
+                  {member.role === eUserRole.ADMIN ?
+                        <li
+                          onClick={(e) =>
+                            changeRole(member.userId, member.channelId, eUserRole.USER)
+                          }
+                          className="dropdown-item"
+                        >
+                          Give User role
+                        </li>
+                          :
+                        <li
+                          onClick={(e) =>
+                            changeRole(member.userId, member.channelId, eUserRole.ADMIN)
+                          }
+                          className="dropdown-item"
+                        >
+                          Give Admin role
+                        </li>
+                        }
+                      </>
+                    )}
                     {blockedUsers[member.userId] ? (
                       ""
                     ) : (

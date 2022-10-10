@@ -114,8 +114,8 @@ const ModalDoubleAuth = (props: any) => {
             maxLength={6}
             value={content}
             onChange={handleChange}
-            className="inputContent"
-          />
+            placeholder="6 Numbers Code"
+            className="rounded-3 input-field-chat w-75 "/>
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">

@@ -252,7 +252,8 @@ export class AuthService {
     const credentials = await this.userService.getUserCredentialsByEmail(
       userDb.email,
     );
-    if (credentials && credentials.twoFactorActivated) {
+    this.logger.debug(`This is user credentials ${JSON.stringify(credentials)}`)
+    if (credentials && credentials.twoFactorActivated === true) {
       return true;
     }
     return false;
