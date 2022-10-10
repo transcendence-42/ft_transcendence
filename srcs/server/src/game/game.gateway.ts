@@ -48,7 +48,6 @@ export class GameGateway
     await this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
     this.logger.log(`Module chat is up`);
-    // console.log = function () {};
   }
 
   /** Handle new clients connection to the game */

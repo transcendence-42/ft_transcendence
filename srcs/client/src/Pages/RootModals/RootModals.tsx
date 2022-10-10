@@ -17,7 +17,9 @@ const RootModals = ({ id }: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const socket = useContext(GameSocketContext);
   // Get current user
-  const { user: currentUser } = useContext<{user: { id: number }}>(UserContext);
+  const { user: currentUser } = useContext<{ user: { id: number } }>(
+    UserContext,
+  );
   const userId = currentUser.id;
   const navigate = useNavigate();
 
@@ -107,7 +109,7 @@ const RootModals = ({ id }: any) => {
   const handleGoToProfile = useCallback(() => {
     handleCloseFirstConnection();
     navigate(`/profile/${userId}`);
-  }, [navigate, userId])
+  }, [navigate, userId]);
 
   /** *********************************************************************** */
   /** SOCKET EVENTS HANDLERS                                                  */
@@ -208,7 +210,15 @@ const RootModals = ({ id }: any) => {
       socket.off('gameChallenge', handleGameChallenge);
       socket.off('gameChallengeReply', handleGameChallengeReply);
     };
-  }, [handleGameChallenge, handleGameChallengeReply, socket, handleAccept, handleCancel, handleRefuse]);
+  }, [
+    handleGameChallenge,
+    handleGameChallengeReply,
+    socket,
+    handleAccept,
+    handleCancel,
+    handleRefuse,
+    gameChallengeData,
+  ]);
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
@@ -249,7 +259,7 @@ const RootModals = ({ id }: any) => {
         show={showFirstConnection}
         textBtn1="Nah I'm good"
         handleBtn1={handleCloseFirstConnection}
-        textBtn2='Go to my profile !'
+        textBtn2="Go to my profile !"
         handleBtn2={handleGoToProfile}
         closeButton={false}
         backdrop="static"

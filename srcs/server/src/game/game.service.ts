@@ -312,7 +312,7 @@ export class GameService {
     const pic = client.handshake.auth.pic.toString();
     const name = client.handshake.auth.name.toString();
     const isClient = this.clients.find((c) => c.userId === userId);
-    if (isClient) isClient.socket == client;
+    if (isClient) isClient.socket?.id === client.id;
     else this.clients.push(new Client(client, userId, name, pic));
     // Check if player is registered in a game for status
     let status: ePlayerStatus = ePlayerStatus.ONLINE;
@@ -359,21 +359,8 @@ export class GameService {
   async clientConnection(client: Socket) {
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
-    const userPic: string = client.handshake.auth.pic.toString();
     const userName: string = client.handshake.auth.name.toString();
-    console.log(`user number : ${userId} (${client.id}) connected !`);
-    // // Create user in database *************** TO DELETE AFTER TESTS
-    // try {
-    //   await this.userService.findOne(+userId);
-    // } catch (e) {
-    //   console.log(userId);
-    //   await this.userService.create({
-    //     id: +userId,
-    //     username: userName,
-    //     email: `${userName}@student.42.fr`,
-    //     profilePicture: userPic,
-    //   });
-    // }
+    console.log(`user number : ${userName} (${userId}) connected !`);
     // add client to the server list
     await this._addOrUpdateClient(client);
     // switch client status to online
@@ -400,7 +387,7 @@ export class GameService {
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
     const userName: string = client.handshake.auth.name.toString();
-    console.log(`user : ${userName} disconnected`);
+    console.log(`user : ${userName} (${userId}) disconnected`);
     // Remove client from server
     await this._removeClient(client);
     // Broadcast that user left the lobby
@@ -1643,12 +1630,12 @@ export class GameService {
       status: eChallengeStatus.OPEN,
     };
     challenger.socket.emit('gameChallenge', {
-      who: eChallengeWho.CHALLENGER,
       ...gameChallenge,
+      who: eChallengeWho.CHALLENGER,
     });
     challengee.socket.emit('gameChallenge', {
-      who: eChallengeWho.CHALLENGEE,
       ...gameChallenge,
+      who: eChallengeWho.CHALLENGEE,
     });
   }
 
@@ -1713,7 +1700,7 @@ export class GameService {
   /** update game options */
   async updateOptions(id: string, updateOptionsDto: UpdateOptionsDto) {
     // check if game exists
-    const game: Game = await this._getGame(id);
+    await this._getGame(id);
     // update effects
     if (updateOptionsDto.effects === true) {
       await this.redis
