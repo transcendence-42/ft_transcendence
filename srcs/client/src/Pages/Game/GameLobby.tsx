@@ -92,7 +92,6 @@ const GameLobby: FC = () => {
   const [gameList, setGameList] = useState([] as any);
   const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
-  const [options, setOptions] = useState({ effects: false});
 
   /** *********************************************************************** */
   /** MODAL                                                                   */

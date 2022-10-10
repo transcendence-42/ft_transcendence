@@ -225,7 +225,9 @@ export default function UserInMembers({
                             action: eAction.SPECTATE,
                           }}
                         >
-                          <li className="dropdown-item"><VisibilityIcon /> Spectate</li>
+                          <li className="dropdown-item">
+                            <VisibilityIcon /> Spectate
+                          </li>
                         </Link>
                       )}
                   </>
