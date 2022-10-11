@@ -95,7 +95,7 @@ else ifeq ($(BUILD_ENV), testing)
 	ENVFILE			= .env.dev
 	RUNNING_ENV		= test.int
 else
-	DCOMPOSEFILE	= docker-compose.prod.yml
+	DCOMPOSEFILE	= docker-compose.yml
 	ENVFILE			= .env
 	RUNNING_ENV		= prod
 endif
