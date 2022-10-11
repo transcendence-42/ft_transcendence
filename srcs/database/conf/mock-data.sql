@@ -1067,18 +1067,6 @@ ALTER TABLE ONLY public."UserOnChannel"
 ALTER TABLE ONLY public."UserOnChannel"
     ADD CONSTRAINT "UserOnChannel_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-
---
--- Adjusting auto increment
---
-ALTER SEQUENCE User_id_seq RESTART WITH 100;
-ALTER SEQUENCE Achievement_id_seq RESTART WITH 100;
-ALTER SEQUENCE Channel_id_seq RESTART WITH 100;
-ALTER SEQUENCE Credentials_id_seq RESTART WITH 100;
-ALTER SEQUENCE Match_id_seq RESTART WITH 200;
-ALTER SEQUENCE Rating_id_seq RESTART WITH 200;
-ALTER SEQUENCE Stats_id_seq RESTART WITH 200;
-
 --
 -- PostgreSQL database dump complete
 --
