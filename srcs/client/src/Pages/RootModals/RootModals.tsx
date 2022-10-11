@@ -115,7 +115,6 @@ const RootModals = ({ id }: any) => {
   /** SOCKET EVENTS HANDLERS                                                  */
   /** *********************************************************************** */
 
-  // Socket events handlers
   const handleGameChallenge = useCallback(
     (data: any) => {
       // Show a different modal depending on if you are challenger or challengee
@@ -126,10 +125,7 @@ const RootModals = ({ id }: any) => {
           opponent: data.challengee,
           timer: data.timer,
           message: `You are challenging ${data.challengee.name} to a PONG game!`,
-          btn1Text: `Cancel`,
-          btn1Handler: handleCancel,
-          btn2Text: undefined,
-          btn2Handler: undefined,
+          is: eChallengeWho.CHALLENGER,
         });
       } else {
         setGameChallengeData({
@@ -137,16 +133,13 @@ const RootModals = ({ id }: any) => {
           opponent: data.challenger,
           timer: data.timer,
           message: `${data.challenger.name} is challenging you to a PONG game!`,
-          btn1Text: `Refuse`,
-          btn1Handler: handleRefuse,
-          btn2Text: `Accept`,
-          btn2Handler: handleAccept,
+          is: eChallengeWho.CHALLENGEE,
         });
       }
       setShowGameChallengeBtns(true);
       handleShowGameChallenge();
     },
-    [eChallengeWho.CHALLENGER, handleAccept, handleCancel, handleRefuse],
+    [eChallengeWho.CHALLENGEE, eChallengeWho.CHALLENGER],
   );
 
   const handleGameChallengeReply = useCallback(
@@ -231,10 +224,10 @@ const RootModals = ({ id }: any) => {
         title={gameChallengeData.title}
         closeHandler={handleCloseGameChallenge}
         show={showGameChallenge}
-        textBtn1={gameChallengeData.btn1Text}
-        handleBtn1={gameChallengeData.btn1Handler}
-        textBtn2={gameChallengeData.btn2Text}
-        handleBtn2={gameChallengeData.btn2Handler}
+        textBtn1={gameChallengeData.is === eChallengeWho.CHALLENGEE ? 'Refuse': 'Cancel'}
+        handleBtn1={gameChallengeData.is === eChallengeWho.CHALLENGEE ? handleRefuse: handleCancel}
+        textBtn2={gameChallengeData.is === eChallengeWho.CHALLENGEE ? 'Accept': undefined}
+        handleBtn2={gameChallengeData.is === eChallengeWho.CHALLENGEE ? handleAccept: undefined}
         closeButton={false}
         backdrop="static"
         showButtons={showGameChallengeBtns}
