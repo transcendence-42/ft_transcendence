@@ -152,7 +152,8 @@ const FriendList = (props: any) => {
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.ONLINE && 
                           getPlayerFromId(props.originalId).status ===
-                          ePlayerStatus.ONLINE && (
+                          ePlayerStatus.ONLINE && 
+                          props.id === props.originalId && (
                           <td>
                             <button
                               type="button"
@@ -171,7 +172,8 @@ const FriendList = (props: any) => {
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.PLAYING &&
                           getPlayerFromId(props.originalId).status ===
-                          ePlayerStatus.ONLINE && (
+                          ePlayerStatus.ONLINE && 
+                          props.id === props.originalId && (
                           <td>
                             <Link
                               to="/lobby"
@@ -194,7 +196,8 @@ const FriendList = (props: any) => {
                         getPlayerFromId(friend.id).status ===
                           ePlayerStatus.WAITING && 
                           getPlayerFromId(props.originalId).status ===
-                          ePlayerStatus.ONLINE && (
+                          ePlayerStatus.ONLINE && 
+                          props.id === props.originalId && (
                           <>
                             <td>
                               <Link
