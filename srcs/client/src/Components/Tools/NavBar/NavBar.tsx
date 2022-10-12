@@ -29,7 +29,6 @@ export default function NavBar(props: any) {
         return response.json();
       })
       .then((responseObject) => {
-        console.log(responseObject);
         if (responseObject.message) {
           console.log('Disconnect from our services');
           localStorage.removeItem('pathIsFree');

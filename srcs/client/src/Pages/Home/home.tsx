@@ -54,7 +54,7 @@ export default function Home({ updateID, userID }: any) {
     })
       .then((response) => {
         if (!response.ok) {
-          console.log("!response");
+          // console.log("!response");
           throw new Error("Fail parsing 42auth you probably denied auth42");
         }
         if (response.status === 200) {
@@ -66,7 +66,7 @@ export default function Home({ updateID, userID }: any) {
       })
       .then((responseObject) => {
         if (responseObject.message) {
-          console.log(responseObject.message);
+          // console.log(responseObject.message);
           if (responseObject.message === "require 2fa") {
             toggle();
             return;
