@@ -21,16 +21,12 @@ export class FtStrategy extends PassportStrategy(Strategy, '42') {
       username: profile.username,
       profileImageUrl: profile.photos[0].value,
     };
-    console.debug('Trying to validate user in FT Strat!');
     try {
       const user: RequestUser = await this.authService.validateFtUser(userInfo);
-      console.debug(
-        `Validated user inside Ft Strategy ${JSON.stringify(user, null, 4)}`,
-      );
       return user;
     }
     catch (e) {
-      // return null;
+      return null;
     }
   }
 }

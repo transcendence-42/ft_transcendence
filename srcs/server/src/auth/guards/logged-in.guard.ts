@@ -16,13 +16,6 @@ export class LoggedInGuard implements CanActivate {
       `This is user in LoggedInGuard ${JSON.stringify(request.user, null, 4)}`,
     );
     if (!result) {
-      console.debug('Guard Rejected user because of isAuthenticated()!');
-      // const res = context.switchToHttp().getResponse();
-      // const session = request.session;
-      // session?.destroy();
-      // res.clearCookie('auth_session', { path: '/' });
-      // res.redirect(process.env.LOGIN_PAGE);
-      // throw new UnauthorizedException();
       return result;
     }
     return true;

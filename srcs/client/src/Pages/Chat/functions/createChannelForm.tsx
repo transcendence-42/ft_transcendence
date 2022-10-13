@@ -14,7 +14,6 @@ const handleCreateChannelForm = (
   password?: string
 ) => {
   const channel = (async () => {
-    console.log("creating a channel");
     e.preventDefault();
     if (name === "") return alert("channel name can't be empty");
     else if (type === eChannelType.PROTECTED && password === "")
