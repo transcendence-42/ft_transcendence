@@ -42,7 +42,11 @@ export class ChatService {
     };
     const channelId = msg.toChannelOrUserId.toString();
     console.log('emiting message to channel id', channelId);
-    await this.redis.multi().select(eRedisDb.Messages).lpush(channelId, JSON.stringify(msg)).exec();
+    await this.redis
+      .multi()
+      .select(eRedisDb.Messages)
+      .lpush(channelId, JSON.stringify(msg))
+      .exec();
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneMessage, msg);
@@ -59,12 +63,10 @@ export class ChatService {
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneChannel, channelId);
-    this.server
-      .to(this._makeId(userId, eIdType.User))
-      .emit(
-        eEvent.MuteUser,
-        `You have been muted from channel ${channel.name}`,
-      );
+    this.server.to(this._makeId(userId, eIdType.User)).emit(eEvent.MuteUser, {
+      message: `You have been muted from channel ${channel.name}`,
+      channelId,
+    });
     this.logger.debug(`Muting user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
       await this.channelService.updateUserOnChannel(channelId, userId, {
@@ -125,7 +127,11 @@ export class ChatService {
   async joinChannel(client: Socket, channelId: number) {
     client.join(this._makeId(channelId, eIdType.Channel));
     const messages = await this._getMessage(channelId.toString());
-    this.logger.debug(`These are the messages for channel ${channelId}, ${JSON.stringify(messages)}`)
+    this.logger.debug(
+      `These are the messages for channel ${channelId}, ${JSON.stringify(
+        messages,
+      )}`,
+    );
     client.emit(eEvent.GetMessages, { channelId, messages });
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
   }
@@ -134,15 +140,17 @@ export class ChatService {
     this.server.emit(eEvent.UpdateChannels);
   }
 
-  leavingChannel(client:Socket, channeldId: number) {
+  leavingChannel(client: Socket, channeldId: number) {
     client.leave(this._makeId(channeldId, eIdType.Channel));
   }
 
   leaveChannel(client: Socket, userId: number, channelId: number) {
+    client.leave(this._makeId(channelId, eIdType.Channel));
     this.server
       .to(this._makeId(userId, eIdType.User))
       .emit(eEvent.LeaveChannel, channelId);
   }
+
   updateOneChannel(client: Socket, channelId: number) {
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
     client
@@ -160,15 +168,29 @@ export class ChatService {
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
       channelIds,
     );
-    this.logger.debug(`these are all messages in init connection ${JSON.stringify(allMessages)}`)
+    this.logger.debug(
+      `these are all messages in init connection ${JSON.stringify(
+        allMessages,
+      )}`,
+    );
     client.emit(eEvent.UpdateMessages, allMessages);
   }
 
   private async _getMessage(id: string) {
     // const msg = await this.redis.multi().select(eRedisDb.Messages).lrange(id, 0, -1).exec()[1];
-    const msg: any = (await this.redis.multi().select(eRedisDb.Messages).lrange(id, 0, -1).exec())[1][1];
+    const msg: any = (
+      await this.redis
+        .multi()
+        .select(eRedisDb.Messages)
+        .lrange(id, 0, -1)
+        .exec()
+    )[1][1];
 
-    this.logger.debug(`These are the messages inside getMessage with id ${id} ${JSON.stringify(msg)}`)
+    this.logger.debug(
+      `These are the messages inside getMessage with id ${id} ${JSON.stringify(
+        msg,
+      )}`,
+    );
     const parsedMessage = [];
     for (const message in msg) {
       parsedMessage.push(JSON.parse(msg[message]));
@@ -196,20 +218,6 @@ export class ChatService {
       .emit(eEvent.AddUser, channelId);
   }
 
-  // async getAllAsHashtable<T>(dataBase: eRedisDb): Promise<Hashtable<T>> {
-  //   await this.redis.select(dataBase);
-  //   const allKeys = await this.redis.keys('*');
-  //   const allKeyValues: Hashtable<T> = {};
-  //   await Promise.all(
-  //     allKeys.map(async (key: string) => {
-  //       const value: T = await this.getObject(key, dataBase);
-  //       allKeyValues[key] = value;
-  //       return;
-  //     }),
-  //   );
-  //   return allKeyValues;
-  // }
-
   async handleGetAllMessages(client: Socket, channelIds: string[]) {
     let allMessages: Hashtable<Message[]>;
     for (const id in channelIds) {
@@ -217,36 +225,6 @@ export class ChatService {
       allMessages.id = message;
     }
     client.emit(eEvent.UpdateMessages, allMessages);
-  }
-
-  // async getAllMessagesWithUserId(userId: number) {
-  // const allMessages = await this.redis.json.get('messages', {path: '.messages[?@.]'})
-  // }
-
-  // async getAllAsArray<T>(dataBase: eRedisDb): Promise<T[]> {
-  //   await this.redis.select(dataBase);
-  //   const allKeys = await this.redis.keys('*');
-  //   const allValues: T[] = [];
-  //   await Promise.all(
-  //     allKeys.map(async (key: string) => {
-  //       const value: T = await this.getObject(key, dataBase);
-  //       allValues.push(value);
-  //       return;
-  //     }),
-  //   );
-  //   return allValues;
-  // }
-
-  // async getObject<T>(key: string, dataBase: eRedisDb): Promise<T> {
-  //   const stringObj = await this.redis.get(key);
-  //   const obj = JSON.parse(stringObj);
-  //   return obj;
-  // }
-
-  // trying to emit private channels only to the people who are inside it
-  // and protected to everyone
-  initBot() {
-    this.messageBotId = 4824892084908;
   }
 
   parseIdCookie(cookies) {
@@ -261,14 +239,17 @@ export class ChatService {
     let strId: any;
     if (typeof id === 'string') strId = id;
     else strId = id.toString();
-    return (
+    const createdId =
       (idType === eIdType.User
         ? 'user'
         : idType === eIdType.Channel
         ? 'channel'
         : idType === eIdType.Message
-        ? 'channel'
-        : 'unkown') + strId
+        ? 'message'
+        : 'unkown') + strId;
+    this.logger.debug(
+      `this is the string fabricated form make id ${createdId}`,
     );
+    return createdId;
   }
 }

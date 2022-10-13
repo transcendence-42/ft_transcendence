@@ -39,9 +39,7 @@ export class ChatGateway
   }
 
   async afterInit(server: any) {
-    this.chatService.initBot();
     this.chatService.server = server;
-    this.chatService.initRedis();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

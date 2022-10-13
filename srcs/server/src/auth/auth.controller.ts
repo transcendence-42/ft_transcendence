@@ -42,6 +42,7 @@ import {
 import { FtExceptionFilter } from './filters/ftAuthException.filter';
 
 @ApiTags('Authentication')
+// @UseFilters(FtExceptionFilter)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -54,7 +55,9 @@ export class AuthController {
   @Get('42/redirect')
   @ApiExcludeEndpoint()
   ftRedirec(@Request() req, @Response() res) {
-    this.logger.debug(`This is request Originalurl ${req.originalUrl} and req url ${req.url}`)
+    this.logger.debug(
+      `This is request Originalurl ${req.originalUrl} and req url ${req.url}`,
+    );
     return this.authService.handleFtRedirect(req.user, res);
   }
 
@@ -124,6 +127,7 @@ export class AuthController {
     description: 'when the request doesnt have a valid auth session',
     type: ForbiddenException,
   })
+  @UseFilters(FtExceptionFilter)
   @UseGuards(LoggedInGuard)
   @Get('success')
   successLogin(@Request() req) {
@@ -150,6 +154,7 @@ export class AuthController {
 
   /*************************** 2 Factor Auth Flow *****************************/
 
+  @UseFilters(FtExceptionFilter)
   @UseGuards(TwoFactorGuard)
   @Get('2fa/generate')
   @ApiOperation({
@@ -163,7 +168,6 @@ export class AuthController {
     return this.authService.handleTwoFactorCodeGen(req.user, res);
   }
 
-  @UseGuards(TwoFactorGuard)
   @HttpCode(200)
   @Post('2fa/activate')
   @ApiOperation({

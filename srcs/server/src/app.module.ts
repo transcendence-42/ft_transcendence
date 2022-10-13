@@ -35,7 +35,6 @@ import { ChatModule } from './chat/chat.module';
     FriendshipModule,
     MatchModule,
     RatingModule,
-    GameModule,
     RedisModule,
     PictureModule,
     ChannelModule,

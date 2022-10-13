@@ -8,6 +8,8 @@ import * as ConnectRedis from 'connect-redis';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { FtAuthGuard } from './auth/guards';
+import { FtExceptionFilter } from './auth/filters/ftAuthException.filter';
 
 async function bootstrap() {
   console.debug = function () {
@@ -19,6 +21,8 @@ async function bootstrap() {
 
   // Global prefix
   app.setGlobalPrefix('api');
+  // app.useGlobalGuards(new FtAuthGuard());
+  // app.useGlobalFilters(new FtExceptionFilter());
 
   // Redis store
   const redisClient = Redis.createClient({
@@ -76,7 +80,7 @@ async function bootstrap() {
   app.use(Passport.initialize());
   app.use(Passport.session());
   app.enableCors({
-    origin: [config.get('WEBSITE_URL')],
+    origin: [config.get('WEBSITE_URL'), 'https://api.intra.42.fr/*'],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });

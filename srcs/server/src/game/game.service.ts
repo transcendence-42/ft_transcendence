@@ -275,7 +275,8 @@ export class GameService {
 
   /** Go offline / online */
   async switchStatus(client: Socket) {
-    const userId = client.handshake.auth.userId.toString();
+    const userId = client.handshake.auth?.userId?.toString();
+    if (!userId) return; // to delete
     // Save or update client as a player for players info
     let status: any = (
       await this.redis
@@ -297,7 +298,9 @@ export class GameService {
 
   /** Update username and/or picture */
   async updatePlayer(client: Socket, updatePlayerDto: UpdatePlayerDto) {
-    const userId = client.handshake.auth.userId.toString();
+    // const userId = client.handshake.auth.userId.toString();
+    const userId = client.handshake.auth?.userId?.toString(); //to delete
+    if (!userId) return;
     await this._savePlayerInfos(userId, updatePlayerDto);
     await this._sendPlayersInfo();
   }

@@ -33,11 +33,9 @@ import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 @ApiTags('Channels')
 @Controller('channels')
 export class ChannelController {
-  constructor(
-    private readonly channelService: ChannelService,
-  ) {}
+  constructor(private readonly channelService: ChannelService) {}
 
-  private readonly logger = new Logger(ChannelController.name)
+  private readonly logger = new Logger(ChannelController.name);
   @Get(':id')
   @ApiOperation({ summary: 'Get channel by id' })
   @ApiOkResponse({
@@ -141,6 +139,7 @@ export class ChannelController {
     @Param('userid', ParseIntPipe) userId: number,
     @Body() updateUserOnChannelDto: UpdateUserOnChannelDto,
   ) {
+    this.logger.debug(`Trying to patch channel ${id} with userid ${userId}`);
     return this.channelService.updateUserOnChannel(
       id,
       userId,
