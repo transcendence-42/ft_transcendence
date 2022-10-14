@@ -118,7 +118,7 @@ export default function Conversation({
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
               {getUserOnChannel(user.id, user.channels).isMuted ? (
-                <div>You are muted</div>
+                <div className={"blueText"}>You are muted</div>
               ) : (
                 <>
                   <input

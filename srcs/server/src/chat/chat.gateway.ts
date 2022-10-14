@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { MessageDto } from './dto';
-import { eRedisDb, eEvent } from './constants';
+import { eRedisDb, eEvent, eIdType } from './constants';
 import { RequestUser } from 'src/common/entities';
 
 @WebSocketGateway(4444, {
@@ -40,55 +40,56 @@ export class ChatGateway
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async handleConnection(client: Socket, ...args: any[]) {
     const user = client.handshake.auth.id;
-    client.join(user.id);
+    // client.join(user.id);
+    client.join(this.chatService._makeId(user, eIdType.User));
     this.logger.debug(
       `User id:${user} with socket id:${client.id} is trying to connect`,
     );
   }
 
   async handleDisconnect(client: Socket) {
-    const sessionCookie = this.chatService.parseIdCookie(
-      client.handshake.headers.cookie,
+    const id = this.chatService.parseIdCookie(
+      client.handshake.auth?.id.toString(),
     );
-    this.logger.debug(`User is disconnecting`);
+    this.logger.debug(`User is disconnecting and userId ${id} ${client.id}`);
   }
 
   @SubscribeMessage(eEvent.InitConnection)
-  initConnection(client: Socket, channelIds: string[]) {
+  async initConnection(client: Socket, channelIds: string[]) {
     this.logger.debug(
       `Initing connection for user ${client.handshake.auth.id} and socket.id ${client.id}`,
     );
-    this.chatService.initConnection(client, channelIds);
+    await this.chatService.initConnection(client, channelIds);
   }
 
   @SubscribeMessage(eEvent.SendMessage)
-  handleMessage(client: Socket, message: MessageDto) {
+  async handleMessage(client: Socket, message: MessageDto) {
     this.logger.log(
       `Recieved message ${JSON.stringify(message, null, 4)} from socket ${
         client.id
       }`,
     );
     console.log('messages recieved');
-    this.chatService.handleMessage(client, message);
+    await this.chatService.handleMessage(client, message);
   }
 
   @SubscribeMessage(eEvent.JoinChannel)
-  handleJoinChannel(client: Socket, channelId: number) {
+  async handleJoinChannel(client: Socket, channelId: number) {
     this.logger.debug(`This is channel joining ${channelId}`);
-    this.chatService.joinChannel(client, channelId);
+    await this.chatService.joinChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.AddedToChannel)
-  addedToChannel(client: Socket, channelId: number) {
-    this.chatService.addedToChannel(client, channelId);
+  async addedToChannel(client: Socket, channelId: number) {
+    await this.chatService.addedToChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.AddUser)
-  addUser(client: Socket, payload: { channelId; userId }) {
+  async addUser(client: Socket, payload: { channelId; userId }) {
     this.logger.debug(
       `Recieved AddedUser with data ${JSON.stringify(payload)}`,
     );
-    this.chatService.addUser(client, payload.channelId, payload.userId);
+    await this.chatService.addUser(client, payload.channelId, payload.userId);
   }
 
   @SubscribeMessage(eEvent.UpdateOneChannel)
@@ -113,28 +114,20 @@ export class ChatGateway
   }
 
   @SubscribeMessage(eEvent.CreateChannel)
-  handleCreateChannel(client: Socket, channelId: number) {
+  async handleCreateChannel(client: Socket, channelId: number) {
     this.logger.debug(
       `Recieved event createChannel for channel Id ${channelId}`,
     );
-    this.chatService.createChannel(client, channelId);
+    await this.chatService.createChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.MuteUser)
-  muteUser(client: Socket, { userId, channelId }) {
-    this.chatService.muteUser(client, userId, channelId);
+  async muteUser(client: Socket, { userId, channelId }) {
+    await this.chatService.muteUser(client, userId, channelId);
   }
 
   @SubscribeMessage(eEvent.BanUser)
-  banUser(client: Socket, { userId, channelId }) {
-    this.chatService.banUser(client, userId, channelId);
+  async banUser(client: Socket, { userId, channelId }) {
+    await this.chatService.banUser(client, userId, channelId);
   }
-  //on login: create room with (user_userId) if doesnt exist
-  // json.set(rooms, '.rooms[roomId', )
-  //on create channel: create room with (room_channelId)
-
-  // on connect the user sends their channel information (all Ids)
-  // the server then adds the socket to the rooms.
-  // (for const channelId in channelIds)
-  // socket.join(channelId)
 }

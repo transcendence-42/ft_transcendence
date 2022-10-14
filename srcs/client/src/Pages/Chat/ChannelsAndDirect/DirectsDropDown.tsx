@@ -16,7 +16,6 @@ export default function DirectsDropDown({id, ...props }: any) {
                 <Link to={`/profile/${id}`}>
                   <li className="dropdown-item"> View Profile </li>
                 </Link>
-                <li className="dropdown-item"> Challenge </li>
               </ul>
             </td>
     </>

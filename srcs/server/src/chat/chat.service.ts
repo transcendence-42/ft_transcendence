@@ -109,6 +109,7 @@ export class ChatService {
   }
 
   async addedToChannel(client: Socket, channelId: number) {
+    this.logger.debug(`addedTochannel channel ID ${channelId}`);
     await this.joinChannel(client, channelId);
     client.emit(eEvent.UpdateOneChannel, channelId);
     client.emit(eEvent.UpdateChannels);
@@ -154,6 +155,10 @@ export class ChatService {
   async initConnection(client: Socket, channelIds: string[]) {
     const id = client.handshake.auth.id;
     client.join(this._makeId(id, eIdType.User));
+    this.logger.debug(`this is user id in init connection ${id}`);
+    if (!channelIds || channelIds.length === 0) {
+      return;
+    }
     for (const channel of channelIds) {
       this.logger.debug(`Client join channel ${channel}`);
       client.join(this._makeId(channel, eIdType.Channel));
@@ -206,8 +211,8 @@ export class ChatService {
   }
 
   async addUser(client: Socket, channelId, userId) {
-    client.join(this._makeId(channelId, eIdType.Channel));
-    client
+    this.logger.debug(`adding user ${userId} yo ${channelId}`);
+    this.server
       .to(this._makeId(userId, eIdType.User))
       .emit(eEvent.AddUser, channelId);
   }
@@ -229,7 +234,7 @@ export class ChatService {
     return null;
   }
 
-  private _makeId(id: number | string, idType: eIdType): string {
+  _makeId(id: number | string, idType: eIdType): string {
     let strId: any;
     if (typeof id === 'string') strId = id;
     else strId = id.toString();
