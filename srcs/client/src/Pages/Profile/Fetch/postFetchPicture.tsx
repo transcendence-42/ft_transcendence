@@ -10,7 +10,6 @@ export async function postFetchPicture(props : any){
 	  method: "POST",
 	  credentials: "include",
 	  headers: {
-    Accept: "application/json",
 		"Access-Control-Allow-Credentials": "true",
 	  },
 	  body: props.data,
