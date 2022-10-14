@@ -36,9 +36,9 @@ const handleCreateChannelForm = (
       throw new Error("Failed to create user on database");
     }
     updateOwnUserOnChannel(resp[1]);
-    // if (type !== eChannelType.DIRECT) {
+    if (type !== eChannelType.DIRECT) {
       socket.emit(eEvent.CreateChannel, resp[0].id);
-    // }
+    }
     return resp[0];
   })();
   return channel;

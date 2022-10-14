@@ -23,8 +23,6 @@ export default function Members({
     (userOnChan) => userOnChan.channelId === currentChannel.id
   );
 
-  // console.log("HERE ==> ",self);
-  // console.log(user);
   return (
     <div className="  rounded-4 blue-box-chat col-3 chat-sidebar-right h-100">
       <div className="row mt-2">

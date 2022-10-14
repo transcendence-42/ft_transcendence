@@ -22,8 +22,6 @@ export class ChatService {
   @WebSocketServer()
   server: Server;
 
-  messageBotId: number;
-
   async initRedis() {
     await this.redis.select(eRedisDb.Messages);
   }

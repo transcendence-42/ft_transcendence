@@ -15,7 +15,7 @@ import { RequestUser } from 'src/common/entities';
 @WebSocketGateway(4444, {
   cors: {
     origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    credentials: true,
+    // credentials: true,
   },
   path: '/api/chatws/socket.io',
 })
@@ -50,7 +50,7 @@ export class ChatGateway
     const sessionCookie = this.chatService.parseIdCookie(
       client.handshake.headers.cookie,
     );
-    this.logger.debug(`User is disconnecting`)
+    this.logger.debug(`User is disconnecting`);
   }
 
   @SubscribeMessage(eEvent.InitConnection)

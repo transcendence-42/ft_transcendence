@@ -232,7 +232,7 @@ export class ChannelService {
     users.sort((a: { joinedAt: Date }, b: { joinedAt: Date }) =>
       a.joinedAt < b.joinedAt ? 1 : -1,
     );
-    let newOwner = users.find(
+    const newOwner = users.find(
       (user: UserOnChannel) =>
         user.hasLeftChannel === false && user.userId !== currentOwnerId,
     );

@@ -20,11 +20,10 @@ import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 import * as Bcrypt from "bcryptjs";
 
-export default function Chat(props: any) {
+export default function Chat({ props, userID, socket }: any) {
   // API URL
   const apiUrl: string = process.env.REACT_APP_API_URL as string;
 
-  const socket: Socket = props.socket;
   // const myUserId: number = props.userId;
   const [user, setUser] = useState({} as User);
   const [blockedUsers, setBlockedUsers] = useState({} as Hashtable<boolean>);
@@ -268,9 +267,10 @@ export default function Chat(props: any) {
           "PUT",
           createUserOnChannelDto
         );
-        handleUpdateChannels();
         if (newUser["userId"]) {
+          console.log(`Adding user to channel`);
           socket.emit(eEvent.AddUser, { channelId, userId });
+          handleUpdateChannels();
           return newUser;
         }
       })();
@@ -279,10 +279,6 @@ export default function Chat(props: any) {
   );
 
   const leaveChannel = (channelId: number) => {
-    // need to leave socket when leaving channel
-    // send a leave channel event and on the backend send a leaveChannel event:
-    // then all sockets in userId will emit an event leaving channel
-    // and do a client.leave(channel);
     (async () => {
       const userOnChannel = user.channels.find(
         (usrOnChan: UserOnChannel) => usrOnChan.channelId === channelId
@@ -299,14 +295,11 @@ export default function Chat(props: any) {
         if (!updatedUsrOnChan) {
           return;
         }
-        // updateOwnUserOnChannel(updatedUsrOnChan, true);
       } else {
         await fetchUrl(
           `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "delete"
         );
-        //fetch all userChannels and all channels preferably instead of this
-        // and instead of updateOwnUserOnchannel
       }
       if (currentChannel.id === channelId) {
         if (user.channels.length >= 2) {
@@ -373,7 +366,7 @@ export default function Chat(props: any) {
         });
       })();
     },
-    [user]
+    [user, apiUrl]
   );
 
   const banUser = useCallback(
@@ -387,7 +380,7 @@ export default function Chat(props: any) {
         socket.emit(eEvent.BanUser, { userId, channelId });
       })();
     },
-    [socket]
+    [socket, apiUrl]
   );
 
   const changeRole = useCallback(
@@ -405,7 +398,7 @@ export default function Chat(props: any) {
         }
       })();
     },
-    [updateChannel, socket]
+    [updateChannel, socket, apiUrl]
   );
 
   const muteUser = (userId: number, channelId: number) => {
@@ -458,12 +451,7 @@ export default function Chat(props: any) {
 
   useEffect(() => {
     (async () => {
-      let response = await fetchUrl(`${apiUrl}/auth/success`);
-      let { user } = response;
-      if (!user) {
-        response = await fetchUrl(`${apiUrl}/users/2`);
-        user = response;
-      }
+      const user = await fetchUrl(`${apiUrl}/users/${userID}`);
       setUser(user);
       const blockedUsers: Hashtable<boolean> = {};
       for (const blockedUser in user.blockedUsersIds) {
@@ -503,7 +491,6 @@ export default function Chat(props: any) {
     if (!isUserFetched) return;
     socket.on("connect", () => {
       const channelIds: string[] = [];
-      console.log(`connected to server`);
       if (user.channels) {
         for (const chan of user.channels) {
           channelIds.push(chan.channelId.toString());
@@ -617,7 +604,7 @@ export default function Chat(props: any) {
     <>
       <div className="container-fluid h-75">
         <div className="row main justify-content-center ms-2 ">
-          {allChannels && (
+          {user && allChannels && (
             <>
               <ChannelsAndDirect
                 handleShowBrowseChannel={handleShowBrowseChannel}
