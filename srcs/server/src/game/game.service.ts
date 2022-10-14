@@ -1669,8 +1669,8 @@ export class GameService {
       });
       // create a match and launch it
       const playersToMatch: Player[] = [];
-      const player1Infos = await this._getPlayerInfos(userId);
-      const player2Infos = await this._getPlayerInfos(opponent.userId);
+      const player1Infos = await this._getPlayerInfos(opponent.userId);
+      const player2Infos = await this._getPlayerInfos(userId);
       playersToMatch.push({
         userId: opponent.userId,
         socket: this._getSocket(opponent.userId),
