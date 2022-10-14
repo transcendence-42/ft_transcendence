@@ -357,6 +357,8 @@ export class GameService {
 
   /** client connection */
   async clientConnection(client: Socket) {
+    // Security if the connection handshake is not ok
+    if (!client.handshake.auth.userId) return;
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
     const userName: string = client.handshake.auth.name.toString();
@@ -384,6 +386,8 @@ export class GameService {
 
   /** client disconnection */
   async clientDisconnection(client: Socket) {
+    // Security if the connection handshake is not ok
+    if (!client.handshake.auth.userId) return;
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
     const userName: string = client.handshake.auth.name.toString();

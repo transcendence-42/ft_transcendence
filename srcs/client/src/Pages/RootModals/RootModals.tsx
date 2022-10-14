@@ -67,8 +67,6 @@ const RootModals = ({ id }: any) => {
 
   // Challenge modal
   const handleCancel = useCallback(() => {
-    console.log('data from handle cancel');
-    console.log(gameChallengeData);
     handleCloseGameChallenge();
     if (gameChallengeData.opponent === undefined) return;
     socket.emit('updateChallenge', {

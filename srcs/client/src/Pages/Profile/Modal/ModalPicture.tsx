@@ -2,6 +2,7 @@ import Modal from 'react-bootstrap/Modal';
 import '../../../Components/Tools/Text.css';
 import '../../../Components/Tools/Box.css';
 import './ModalChangeContent.css';
+import './form.css';
 import FailAndSuccessPicture from './FailAndSuccessPicture';
 import React, { useContext, useEffect, useState } from 'react';
 import { postFetchPicture } from '../Fetch/postFetchPicture';
@@ -92,8 +93,9 @@ const ModalPicture = ({
           <input
             {...register('picture')}
             required
+            id="file-upload"
             type="file"
-            className="form-control"
+            className="form-control box-pink text-pink"
           />
         </form>
       </Modal.Body>

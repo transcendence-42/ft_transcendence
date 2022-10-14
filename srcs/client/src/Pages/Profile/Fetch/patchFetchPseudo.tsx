@@ -10,7 +10,7 @@ export async function patchFetchPseudo(props : any): Promise<boolean> {
 	  },
 	  body: JSON.stringify({ username: props.name})
 	}).then((response) => {
-		console.log(response);
+		// console.log(response);
 		if (response.status !== 200) return false;
     else return true;	
 	})

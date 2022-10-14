@@ -1,0 +1,9 @@
+.box-pink:focus {
+  color: #fca1f3;
+  border: 2px solid #eb89d6;
+  background-color: rgb(5, 2, 30);
+  box-shadow:	0px 0px 5px #FF6ADE,
+              inset 0px 0px 5px #FF6ADE,
+  				    0px 0px 6px #852388,
+              inset 0px 0px 6px #852388;
+}
