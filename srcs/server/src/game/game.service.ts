@@ -1000,7 +1000,6 @@ export class GameService {
       const gameList = await this._createGameList();
       this.server.to(Params.LOBBY).emit('gameList', gameList);
     }
-    // } else client.join(game.id);
   }
 
   /** view a game (viewer) */
@@ -1512,6 +1511,16 @@ export class GameService {
       updatedBall = this._bounce(ball, world.players[Side.LEFT], game);
     else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
       updatedBall = this._bounce(ball, world.players[Side.RIGHT], game);
+    // Control if the ball goes outside of the game screen
+    if (
+      updatedBall.coordinates.x > Params.CANVASW + Params.WALLSIZE + 50 ||
+      updatedBall.coordinates.x < 0 - Params.WALLSIZE - 50 ||
+      updatedBall.coordinates.y > Params.CANVASH + Params.WALLSIZE + 50 ||
+      updatedBall.coordinates.y < 0 - Params.WALLSIZE - 50
+    ) {
+      updatedBall.coordinates.x = Params.CANVASW / 2;
+      updatedBall.coordinates.y = Params.CANVASH / 2;
+    }
     return updatedBall;
   }
 
