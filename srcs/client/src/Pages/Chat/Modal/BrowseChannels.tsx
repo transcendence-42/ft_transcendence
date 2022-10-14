@@ -6,7 +6,7 @@ import { fetchUrl } from "../utils";
 import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
 import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
 import { isEmpty } from "../utils";
-import ChatModal from "../../../Components/Modal/ChatModals";
+import * as Bcrypt from "bcryptjs";
 
 export default function BrowseChannels({
   allChannels,
@@ -27,23 +27,26 @@ export default function BrowseChannels({
 
   const handleJoinChannel = (e: any, channel: Channel, password?: string) => {
     e.preventDefault();
-    if (!channel || isEmpty(channel)) {
-      return alert(`You must select a channel!`);
-    }
-    if (channel["type"] === eChannelType.PROTECTED) {
-      if (joinChannelPassword === "") {
-        return alert("You must provide a Password!");
-      } else if (joinChannelPassword !== channel.password)
-        return alert("Bad password!");
-    }
     (async () => {
+      if (!channel || isEmpty(channel)) {
+        return alert(`You must select a channel!`);
+      }
+      if (channel["type"] === eChannelType.PROTECTED) {
+        if (joinChannelPassword === "") {
+          return alert("You must provide a Password!");
+        }
+        const isGoodPassword = await Bcrypt.compare(password, channel.password);
+        if (!isGoodPassword) {
+          return alert("Bad password!");
+        }
+      }
       const userOnChannel = userChannels?.find(
         (usrChan: UserOnChannel) => usrChan.channelId === channel.id
       );
       let res;
       if (userOnChannel) {
         const payload: UpdateUserOnChannelDto = {
-          hasLeftChannel: false,
+          hasLeftChannel: false
         };
         res = await fetchUrl(
           `${apiUrl}/channels/${channel.id}/useronchannel/${userId}`,
@@ -51,29 +54,20 @@ export default function BrowseChannels({
           payload
         );
         if (!res) {
-          console.error(
-            `There was an error while upadting channel ${userOnChannel.channelId}`
-          );
           return;
         }
       } else {
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id,
+          channelId: channel.id
         };
         res = await fetchUrl(
           `${apiUrl}/channels/${channel.id}/useronchannel`,
           "PUT",
           payload
         );
-        console.log(
-          `this is result from joining channel ${JSON.stringify(res, null, 4)}`
-        );
         if (!res) {
-          console.error(
-            `There was an error creating user on channel in Join Channel inside Browse channel`
-          );
           return;
         }
       }
@@ -85,21 +79,12 @@ export default function BrowseChannels({
   };
 
   const availableChannels = allChannels?.filter((channel: Channel) => {
-    console.log(`Channel type is ${channel.type}`);
     if (
       channel.type === eChannelType.DIRECT ||
       channel.type === eChannelType.PRIVATE
     ) {
-      console.log(`returning because channel type is ${channel.type}`);
       return;
     }
-    console.log(
-      `these are userChannels in browsechannels ${JSON.stringify(
-        userChannels,
-        null,
-        4
-      )}`
-    );
     const userInChan: UserOnChannel = userChannels?.find(
       (usrChan: UserOnChannel) => usrChan.channelId === channel.id
     );
@@ -126,7 +111,7 @@ export default function BrowseChannels({
         value={channelSearch}
         onChange={(e) => setChannelSearch(e.target.value)}
       ></input>
-      {filtered ? (
+      {!isEmpty(filtered) ? (
         <>
           <form
             id="joinChannelForm"
@@ -145,10 +130,10 @@ export default function BrowseChannels({
                           aria-expanded="false"
                           data-bs-toggle="collapse"
                           data-bs-target={
-                            "#collapseProtected" + channel.id.toString()
+                            "#collapseProtected" + channel?.id?.toString()
                           }
                           aria-controls={
-                            "collapseProtected" + channel.id.toString()
+                            "collapseProtected" + channel?.id?.toString()
                           }
                         >
                           <input
@@ -178,7 +163,7 @@ export default function BrowseChannels({
                           ) : (
                             <div
                               className="collapse"
-                              id={"collapseProtected" + channel.id.toString()}
+                              id={"collapseProtected" + channel?.id?.toString()}
                             >
                               <input
                                 type="name"

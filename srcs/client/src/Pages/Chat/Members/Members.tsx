@@ -4,6 +4,7 @@ import { getChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import UserInMembers from "./UserInMembers";
+import { eChannelType } from "../constants";
 
 export default function Members({
   currentChannel,
@@ -22,8 +23,6 @@ export default function Members({
     (userOnChan) => userOnChan.channelId === currentChannel.id
   );
 
-  // console.log("HERE ==> ",self);
-  // console.log(user);
   return (
     <div className="  rounded-4 blue-box-chat col-3 chat-sidebar-right h-100">
       <div className="row mt-2">
@@ -38,12 +37,17 @@ export default function Members({
       </div>
       <div className="row" style={{ fontSize: "14px" }}>
         <div className="col d-flex justify-content-center">
-          <button
-            className="message-button rounded-4 "
-            onClick={handleShowAddToChannel}
-          >
-            Add Friend
-          </button>
+          {!isEmpty(currentChannel) &&
+          currentChannel.type !== eChannelType.DIRECT ? (
+            <button
+              className="message-button rounded-4 "
+              onClick={handleShowAddToChannel}
+            >
+              Add Friend
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
       <div className="row">

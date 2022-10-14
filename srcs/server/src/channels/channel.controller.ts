@@ -33,11 +33,9 @@ import { UserOnChannel } from 'src/generated/nestjs-dto/userOnChannel.entity';
 @ApiTags('Channels')
 @Controller('channels')
 export class ChannelController {
-  constructor(
-    private readonly channelService: ChannelService,
-  ) {}
+  constructor(private readonly channelService: ChannelService) {}
 
-  private readonly logger = new Logger(ChannelController.name)
+  private readonly logger = new Logger(ChannelController.name);
   @Get(':id')
   @ApiOperation({ summary: 'Get channel by id' })
   @ApiOkResponse({
@@ -49,8 +47,8 @@ export class ChannelController {
     description: 'Channel not found',
     type: BaseApiException,
   })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.channelService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.channelService.findOne(id);
   }
 
   @Get()
@@ -63,8 +61,8 @@ export class ChannelController {
   @ApiNoContentResponse({ description: 'No channels' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  findAll(@Query() paginationQuerry?: PaginationQueryDto) {
-    return this.channelService.findAll(paginationQuerry);
+  async findAll(@Query() paginationQuerry?: PaginationQueryDto) {
+    return await this.channelService.findAll(paginationQuerry);
   }
 
   @Put()
@@ -74,8 +72,8 @@ export class ChannelController {
     type: Channel,
     isArray: false,
   })
-  create(@Body() createChannelDto: CreateChannelDto) {
-    return this.channelService.create(createChannelDto);
+  async create(@Body() createChannelDto: CreateChannelDto) {
+    return await this.channelService.create(createChannelDto);
   }
 
   @Patch(':id')
@@ -88,14 +86,14 @@ export class ChannelController {
     description: 'Channel not found',
     type: BaseApiException,
   })
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateChannelDto: UpdateChannelDto,
   ) {
     this.logger.log(
       `This is request object ${JSON.stringify(updateChannelDto, null, 4)}`,
     );
-    return this.channelService.update(id, updateChannelDto);
+    return await this.channelService.update(id, updateChannelDto);
   }
 
   @Delete(':id')
@@ -108,51 +106,54 @@ export class ChannelController {
     description: 'Channel not found',
     type: BaseApiException,
   })
-  delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseIntPipe) id: number) {
     this.logger.debug(`Deleting from delete channel`);
-    return this.channelService.delete(id);
+    return await this.channelService.delete(id);
   }
 
   @Get(':id/useronchannel/:userid')
   @ApiOperation({ summary: 'Find userOnChannel' })
   @ApiOkResponse({ description: 'user on channel', type: UserOnChannel })
-  findUserOnChannel(
+  async findUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Param('userid', ParseIntPipe) userId: number,
   ) {
-    return this.channelService.findUserOnChannel(id, userId);
+    return await this.channelService.findUserOnChannel(id, userId);
   }
 
   @Put(':id/useronchannel')
   @ApiOperation({ summary: 'Creates a user on a channel' })
   @ApiOkResponse({ description: 'Created Channel', type: Channel })
-  createUserOnChannel(
+  async createUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Body() createUserOnChannelDto: CreateUserOnChannelDto,
   ) {
-    return this.channelService.createUserOnChannel(createUserOnChannelDto);
+    return await this.channelService.createUserOnChannel(
+      createUserOnChannelDto,
+    );
   }
 
   @Patch(':id/useronchannel/:userid')
   @ApiOperation({ summary: 'Updates a user on a channel' })
   @ApiOkResponse({ description: 'Updated Channel', type: Channel })
-  updateUserOnChannel(
+  async updateUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Param('userid', ParseIntPipe) userId: number,
     @Body() updateUserOnChannelDto: UpdateUserOnChannelDto,
   ) {
-    return this.channelService.updateUserOnChannel(
+    this.logger.debug(`Trying to patch channel ${id} with userid ${userId}`);
+    return await this.channelService.updateUserOnChannel(
       id,
       userId,
       updateUserOnChannelDto,
     );
   }
   @Delete(':id/useronchannel/:userid')
-  deleteUserOnChannel(
+  async deleteUserOnChannel(
     @Param('id', ParseIntPipe) id: number,
     @Param('userid', ParseIntPipe) userId: number,
   ) {
     this.logger.debug(`trying to delete channel ${id}`);
-    return this.channelService.deleteUserOnChannel(id, userId);
+    return await this.channelService.deleteUserOnChannel(id, userId);
   }
 }

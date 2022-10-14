@@ -22,8 +22,6 @@ export class ChatService {
   @WebSocketServer()
   server: Server;
 
-  messageBotId: number;
-
   async initRedis() {
     await this.redis.select(eRedisDb.Messages);
   }
@@ -42,7 +40,11 @@ export class ChatService {
     };
     const channelId = msg.toChannelOrUserId.toString();
     console.log('emiting message to channel id', channelId);
-    await this.redis.lpush(channelId, JSON.stringify(msg));
+    await this.redis
+      .multi()
+      .select(eRedisDb.Messages)
+      .lpush(channelId, JSON.stringify(msg))
+      .exec();
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneMessage, msg);
@@ -59,12 +61,10 @@ export class ChatService {
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneChannel, channelId);
-    this.server
-      .to(this._makeId(userId, eIdType.User))
-      .emit(
-        eEvent.MuteUser,
-        `You have been muted from channel ${channel.name}`,
-      );
+    this.server.to(this._makeId(userId, eIdType.User)).emit(eEvent.MuteUser, {
+      message: `You have been muted from channel ${channel.name}`,
+      channelId,
+    });
     this.logger.debug(`Muting user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
       await this.channelService.updateUserOnChannel(channelId, userId, {
@@ -84,16 +84,6 @@ export class ChatService {
     // so that the user can refresh its own user if they are still in the channel.
   }
 
-  leaveChannel(client: Socket, userId: number, channelId: number) {
-    this.server
-      .to(this._makeId(userId, eIdType.User))
-      .emit(eEvent.LeaveChannel, channelId);
-  }
-
-  leavingChannel(client: Socket, channelId: number) {
-    client.leave(this._makeId(channelId, eIdType.Channel));
-  }
-
   async banUser(client: Socket, userId: number, channelId: number) {
     const channel = await this.channelService.findOne(channelId);
     this.server
@@ -102,17 +92,8 @@ export class ChatService {
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateOneChannel, channelId);
-    this.server
-      .to(this._makeId(userId, eIdType.User))
-      .emit(eEvent.LeaveChannel, channelId);
     this.logger.debug(`Banning user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
-      // delete user because they are no longer banned and thus can join the channel again
-      // need to emit an event to the user to update all channels and its own channels
-      // in the two setTimeout I need to check for the existance of the channel.
-      // if they don't exist I don't need to send an event
-      // I can do that by checking delete user. Try {delete| update} user
-      // catch e === channel doesnt existe
       try {
         const deleteUser = await this.channelService.deleteUserOnChannel(
           channelId,
@@ -128,8 +109,10 @@ export class ChatService {
   }
 
   async addedToChannel(client: Socket, channelId: number) {
+    this.logger.debug(`addedTochannel channel ID ${channelId}`);
     await this.joinChannel(client, channelId);
     client.emit(eEvent.UpdateOneChannel, channelId);
+    client.emit(eEvent.UpdateChannels);
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateUserOnChannel, channelId);
@@ -138,8 +121,28 @@ export class ChatService {
   async joinChannel(client: Socket, channelId: number) {
     client.join(this._makeId(channelId, eIdType.Channel));
     const messages = await this._getMessage(channelId.toString());
+    this.logger.debug(
+      `These are the messages for channel ${channelId}, ${JSON.stringify(
+        messages,
+      )}`,
+    );
     client.emit(eEvent.GetMessages, { channelId, messages });
     client.broadcast.emit(eEvent.UpdateOneChannel, channelId);
+  }
+
+  updateChannels(client: Socket) {
+    this.server.emit(eEvent.UpdateChannels);
+  }
+
+  leavingChannel(client: Socket, channeldId: number) {
+    client.leave(this._makeId(channeldId, eIdType.Channel));
+  }
+
+  leaveChannel(client: Socket, userId: number, channelId: number) {
+    client.leave(this._makeId(channelId, eIdType.Channel));
+    this.server
+      .to(this._makeId(userId, eIdType.User))
+      .emit(eEvent.LeaveChannel, channelId);
   }
 
   updateOneChannel(client: Socket, channelId: number) {
@@ -152,6 +155,10 @@ export class ChatService {
   async initConnection(client: Socket, channelIds: string[]) {
     const id = client.handshake.auth.id;
     client.join(this._makeId(id, eIdType.User));
+    this.logger.debug(`this is user id in init connection ${id}`);
+    if (!channelIds || channelIds.length === 0) {
+      return;
+    }
     for (const channel of channelIds) {
       this.logger.debug(`Client join channel ${channel}`);
       client.join(this._makeId(channel, eIdType.Channel));
@@ -159,12 +166,29 @@ export class ChatService {
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
       channelIds,
     );
-    if (!allMessages) return;
+    this.logger.debug(
+      `these are all messages in init connection ${JSON.stringify(
+        allMessages,
+      )}`,
+    );
     client.emit(eEvent.UpdateMessages, allMessages);
   }
 
   private async _getMessage(id: string) {
-    const msg = await this.redis.lrange(id, 0, -1);
+    // const msg = await this.redis.multi().select(eRedisDb.Messages).lrange(id, 0, -1).exec()[1];
+    const msg: any = (
+      await this.redis
+        .multi()
+        .select(eRedisDb.Messages)
+        .lrange(id, 0, -1)
+        .exec()
+    )[1][1];
+
+    this.logger.debug(
+      `These are the messages inside getMessage with id ${id} ${JSON.stringify(
+        msg,
+      )}`,
+    );
     const parsedMessage = [];
     for (const message in msg) {
       parsedMessage.push(JSON.parse(msg[message]));
@@ -187,23 +211,10 @@ export class ChatService {
   }
 
   async addUser(client: Socket, channelId, userId) {
-    client
+    this.logger.debug(`adding user ${userId} yo ${channelId}`);
+    this.server
       .to(this._makeId(userId, eIdType.User))
       .emit(eEvent.AddUser, channelId);
-  }
-
-  async getAllAsHashtable<T>(dataBase: eRedisDb): Promise<Hashtable<T>> {
-    await this.redis.select(dataBase);
-    const allKeys = await this.redis.keys('*');
-    const allKeyValues: Hashtable<T> = {};
-    await Promise.all(
-      allKeys.map(async (key: string) => {
-        const value: T = await this.getObject(key, dataBase);
-        allKeyValues[key] = value;
-        return;
-      }),
-    );
-    return allKeyValues;
   }
 
   async handleGetAllMessages(client: Socket, channelIds: string[]) {
@@ -215,36 +226,6 @@ export class ChatService {
     client.emit(eEvent.UpdateMessages, allMessages);
   }
 
-  // async getAllMessagesWithUserId(userId: number) {
-  // const allMessages = await this.redis.json.get('messages', {path: '.messages[?@.]'})
-  // }
-
-  async getAllAsArray<T>(dataBase: eRedisDb): Promise<T[]> {
-    await this.redis.select(dataBase);
-    const allKeys = await this.redis.keys('*');
-    const allValues: T[] = [];
-    await Promise.all(
-      allKeys.map(async (key: string) => {
-        const value: T = await this.getObject(key, dataBase);
-        allValues.push(value);
-        return;
-      }),
-    );
-    return allValues;
-  }
-
-  async getObject<T>(key: string, dataBase: eRedisDb): Promise<T> {
-    const stringObj = await this.redis.get(key);
-    const obj = JSON.parse(stringObj);
-    return obj;
-  }
-
-  // trying to emit private channels only to the people who are inside it
-  // and protected to everyone
-  initBot() {
-    this.messageBotId = 4824892084908;
-  }
-
   parseIdCookie(cookies) {
     if (cookies) {
       const cookiesObj = Cookie.parse(cookies);
@@ -253,18 +234,21 @@ export class ChatService {
     return null;
   }
 
-  private _makeId(id: number | string, idType: eIdType): string {
+  _makeId(id: number | string, idType: eIdType): string {
     let strId: any;
     if (typeof id === 'string') strId = id;
     else strId = id.toString();
-    return (
+    const createdId =
       (idType === eIdType.User
         ? 'user'
         : idType === eIdType.Channel
         ? 'channel'
         : idType === eIdType.Message
-        ? 'channel'
-        : 'unkown') + strId
+        ? 'message'
+        : 'unkown') + strId;
+    this.logger.debug(
+      `this is the string fabricated form make id ${createdId}`,
     );
+    return createdId;
   }
 }

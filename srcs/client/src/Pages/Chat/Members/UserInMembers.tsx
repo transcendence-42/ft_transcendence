@@ -1,13 +1,13 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { UserOnChannel } from '../entities/user.entity';
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { UserOnChannel } from "../entities/user.entity";
 // import { findChannel, isEmpty } from "../utils";
-import { Link } from 'react-router-dom';
-import '../../../Components/Tools/Text.css';
-import '../../../Components/Tools/Box.css';
-import { eUserRole } from '../constants';
-import { GameSocketContext } from '../../Game/socket/socket';
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Link } from "react-router-dom";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
+import { eChannelType, eUserRole } from "../constants";
+import { GameSocketContext } from "../../Game/socket/socket";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 export default function UserInMembers({
   memberName,
@@ -38,13 +38,13 @@ export default function UserInMembers({
     WAITING,
     PLAYING,
     SPECTATING,
-    CHALLENGE,
+    CHALLENGE
   }
 
   enum eAction {
     NOTHING = 0,
     JOIN,
-    SPECTATE,
+    SPECTATE
   }
 
   /** *********************************************************************** */
@@ -75,7 +75,7 @@ export default function UserInMembers({
   };
 
   const handleChallengePlayer = (id: string) => {
-    socket.emit('challengePlayer', { id: id });
+    socket.emit("challengePlayer", { id: id });
   };
 
   /** *********************************************************************** */
@@ -83,10 +83,10 @@ export default function UserInMembers({
   /** *********************************************************************** */
 
   useEffect(() => {
-    socket.emit('getPlayersInfos');
-    socket.on('playersInfos', handlePlayersInfo);
+    socket.emit("getPlayersInfos");
+    socket.on("playersInfos", handlePlayersInfo);
     return () => {
-      socket.off('playersInfos', handlePlayersInfo);
+      socket.off("playersInfos", handlePlayersInfo);
     };
   }, [handlePlayersInfo, socket]);
 
@@ -98,7 +98,7 @@ export default function UserInMembers({
       <table>
         <tbody>
           <tr>
-            <td className="textPink" style={{ fontSize: '0.9em' }}>
+            <td className="textPink" style={{ fontSize: "0.9em" }}>
               {memberName}
             </td>
             <td>
@@ -113,12 +113,13 @@ export default function UserInMembers({
                   {member.role === eUserRole.OWNER ||
                   (self.role === eUserRole.ADMIN &&
                     member.role === eUserRole.ADMIN) ||
-                  self.role === eUserRole.USER ? (
-                    ''
+                  self.role === eUserRole.USER ||
+                  currentChannel.type === eChannelType.DIRECT ? (
+                    ""
                   ) : (
                     <>
                       {member.isMuted ? (
-                        ''
+                        ""
                       ) : (
                         <li
                           onClick={(e) =>
@@ -140,14 +141,9 @@ export default function UserInMembers({
                     </>
                   )}
                   <>
-                    {/* {console.log(
-                    `This is list of blocked users ${JSON.stringify(
-                      blockedUsers
-                    )}`
-                  )} */}
-                    {/* NEED NOUFEL'S FUNCTIONS HERE */}
-                    {self.role !== eUserRole.OWNER ? (
-                      ''
+                    {(self && self.role !== eUserRole.OWNER) ||
+                    currentChannel.type === eChannelType.DIRECT ? (
+                      ""
                     ) : (
                       <>
                         {member.role === eUserRole.ADMIN ? (
@@ -156,7 +152,7 @@ export default function UserInMembers({
                               changeRole(
                                 member.userId,
                                 member.channelId,
-                                eUserRole.USER,
+                                eUserRole.USER
                               )
                             }
                             className="dropdown-item"
@@ -169,7 +165,7 @@ export default function UserInMembers({
                               changeRole(
                                 member.userId,
                                 member.channelId,
-                                eUserRole.ADMIN,
+                                eUserRole.ADMIN
                               )
                             }
                             className="dropdown-item"
@@ -180,7 +176,7 @@ export default function UserInMembers({
                       </>
                     )}
                     {blockedUsers[member.userId] ? (
-                      ''
+                      ""
                     ) : (
                       <li
                         onClick={(e) => blockUser(member.userId)}
@@ -217,12 +213,12 @@ export default function UserInMembers({
                           to="/lobby"
                           state={{
                             origin: {
-                              name: 'chat',
+                              name: "chat",
                               loc: `/chat`,
-                              state: null,
+                              state: null
                             },
                             gameId: getPlayerFromId(member.userId).game,
-                            action: eAction.SPECTATE,
+                            action: eAction.SPECTATE
                           }}
                         >
                           <li className="dropdown-item">

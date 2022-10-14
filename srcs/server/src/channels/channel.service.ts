@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import * as Bcrypt from 'bcryptjs';
 import { ChannelType, UserOnChannel, UserRole } from '@prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import {
@@ -12,7 +13,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   ChannelAlreadyExistsException,
   ChannelNotFoundException,
-  NoChannelsInDatabaseException,
 } from './exceptions';
 import { UserNotFoundException } from 'src/user/exceptions';
 import { UserService } from 'src/user/user.service';
@@ -46,7 +46,7 @@ export class ChannelService {
         users: true,
       },
     });
-    if (result.length === 0) throw new NoChannelsInDatabaseException();
+    if (result.length === 0) [];
     return result;
   }
 
@@ -146,9 +146,7 @@ export class ChannelService {
       include: { channel: true },
     });
     if (!userOnChannel) {
-      this.logger.debug(
-        `Not found our user ${userId} in channel ${channelId}`,
-      );
+      this.logger.debug(`Not found our user ${userId} in channel ${channelId}`);
       throw new UserNotFoundException(userId);
     }
     return userOnChannel;
@@ -194,7 +192,7 @@ export class ChannelService {
           await this.delete(channelId);
           return channel.users[0];
         } else {
-          const newOwnerId = this._findNextOwner(channel.users);
+          const newOwnerId = this._findNextOwner(channel.users, userId);
           this.logger.debug(
             `finding next owner for channel ${channelId} in delete UserONChannel`,
           );
@@ -227,15 +225,26 @@ export class ChannelService {
     return numberOfUsers;
   }
 
-  private _findNextOwner(users: UserOnChannel[]): number {
+  private _findNextOwner(
+    users: UserOnChannel[],
+    currentOwnerId: number,
+  ): number {
     users.sort((a: { joinedAt: Date }, b: { joinedAt: Date }) =>
       a.joinedAt < b.joinedAt ? 1 : -1,
     );
-    let newOwner = users.find(
+    const newOwner = users.find(
       (user: UserOnChannel) =>
-        user.hasLeftChannel === false && user.role === UserRole.ADMIN,
+        user.hasLeftChannel === false && user.userId !== currentOwnerId,
     );
-    if (newOwner) return newOwner.userId;
-    return users[0].userId; //return the oldest user
+    if (newOwner) {
+      this.logger.debug(
+        ` 1 returning user ${newOwner.userId} to be the new owner`,
+      );
+      return newOwner.userId;
+    }
+    this.logger.debug(
+      ` 2 returning user ${users[1].userId} to be the new owner`,
+    );
+    return users[1].userId; //return the oldest user
   }
 }

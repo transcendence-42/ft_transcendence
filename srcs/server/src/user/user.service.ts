@@ -294,7 +294,7 @@ export class UserService {
         ],
       },
     });
-    if (result.length == 0) throw new NoUsersInDatabaseException();
+    // if (result.length == 0) throw new NoUsersInDatabaseException();
     return result;
   }
 

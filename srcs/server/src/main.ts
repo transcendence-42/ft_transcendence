@@ -68,6 +68,7 @@ async function bootstrap() {
       resave: false,
       name: 'auth_session',
       cookie: {
+        sameSite: 'strict',
         maxAge: 60000 * 60 * 24 * 30 * 3, // 3 months as per RGPD
       },
       store: new redisStore({ client: redisClient }),
@@ -76,7 +77,7 @@ async function bootstrap() {
   app.use(Passport.initialize());
   app.use(Passport.session());
   app.enableCors({
-    origin: [config.get('WEBSITE_URL')],
+    origin: [config.get('WEBSITE_URL'), 'https://api.intra.42.fr/*'],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   });

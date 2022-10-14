@@ -48,25 +48,23 @@ export const otherUser = (
     !channelId ||
     !userId
   ) {
-    console.group("otherUser");
-    console.log(`This is channel id ${channelId}`);
-    console.log(`This is allChannels ${JSON.stringify(allChannels)}`);
-    console.log(`This is userChannels ${JSON.stringify(userChannels)}`);
-    console.log(`This is user id ${userId}`);
-    console.log(`This is allUsers ${JSON.stringify(allUsers)}`);
-    console.groupEnd();
+    // console.log(`other user returning nothing because is empty`);
     return;
   }
   const channel = allChannels.find((chan) => chan.id === channelId);
-  console.log(
-    `this is the channel i found inside otherUse ${JSON.stringify(channel)}`
-  );
-  if (!channel) return;
+  if (!channel) {
+    // console.log(`other user returning nothing beccause channel not found`);
+    return;
+  }
+
   const otherUserOnChannel = channel.users.find((usr) => usr.userId !== userId);
-  console.log(
-    `This is the otherUserOnChannel ${JSON.stringify(otherUserOnChannel)}`
-  );
-  if (!otherUserOnChannel) return;
+  if (!otherUserOnChannel) {
+    // console.log(
+    //   `other user returning nothing because otherUserOnChannel not found in all channels`
+    // );
+    return;
+  }
+    // console.log(`other user returning ${allUsers[otherUserOnChannel.userId]}`)
   return allUsers[otherUserOnChannel.userId];
 };
 export const getChannel = (channelId, allChannels) => {

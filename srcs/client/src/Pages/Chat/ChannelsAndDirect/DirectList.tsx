@@ -3,7 +3,7 @@ import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import "../Chat.css";
 import { eChannelType } from "../constants";
-import { UserOnChannel } from "../entities/user.entity";
+import { User, UserOnChannel } from "../entities/user.entity";
 import DirectsDropDown from "./DirectsDropDown";
 
 export default function DirectList({
@@ -25,39 +25,35 @@ export default function DirectList({
               !isEmpty(friends) &&
               !isEmpty(allUsers) &&
               !isEmpty(user) &&
-              user?.channels?.map((usrOnChan: UserOnChannel) =>
-                usrOnChan.channel.type !== eChannelType.DIRECT ? (
-                  ""
-                ) : (
+              user.channels?.map((usrOnChan: UserOnChannel) => {
+                if (usrOnChan.channel.type !== eChannelType.DIRECT) {
+                  return "";
+                }
+                let userToDisplay;
+                const chan = allChannels.find(
+                  (chan) => chan.id === usrOnChan.channelId
+                );
+                if (chan && chan.users && chan.users.length > 1) {
+                  const userOnChannel =
+                    chan.users[0].userId === usrOnChan.userId
+                      ? chan.users[1]
+                      : chan.users[0];
+                  userToDisplay = allUsers[userOnChannel.userId];
+                }
+                return (
                   <tr key={usrOnChan.channelId}>
                     <td onClick={(e) => switchChannel(usrOnChan.channelId)}>
                       <div
                         className="text-start channel"
                         style={{ fontSize: "0.9em" }}
                       >
-                        {otherUser(
-                          usrOnChan.channelId,
-                          allChannels,
-                          user?.channels,
-                          user?.id,
-                          allUsers
-                        )?.username || "loading..."}
+                        {userToDisplay ? userToDisplay.username : "loading"}
                       </div>
                     </td>
-                    <DirectsDropDown
-                      id={
-                        otherUser(
-                          usrOnChan.channelId,
-                          allChannels,
-                          user?.channels,
-                          user?.id,
-                          allUsers
-                        )?.id || "loading..."
-                      }
-                    />
+                    {userToDisplay && <DirectsDropDown id={userToDisplay.id} />}
                   </tr>
-                )
-              )}
+                );
+              })}
           </tbody>
         </table>
       </div>
