@@ -260,7 +260,7 @@ export default function Chat(props: any) {
           "PUT",
           createUserOnChannelDto
         );
-        console.log(`this is addtochannel ${JSON.stringify(newUser)}`)
+        console.log(`this is addtochannel ${JSON.stringify(newUser)}`);
         if (newUser["userId"]) {
           console.log(`Adding user to channel`);
           socket.emit(eEvent.AddUser, { channelId, userId });

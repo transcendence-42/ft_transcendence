@@ -4,7 +4,7 @@ import { UserOnChannel } from "../entities/user.entity";
 import { Link } from "react-router-dom";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
-import { eUserRole } from "../constants";
+import { eChannelType, eUserRole } from "../constants";
 import { GameSocketContext } from "../../Game/socket/socket";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -113,7 +113,8 @@ export default function UserInMembers({
                   {member.role === eUserRole.OWNER ||
                   (self.role === eUserRole.ADMIN &&
                     member.role === eUserRole.ADMIN) ||
-                  self.role === eUserRole.USER ? (
+                  self.role === eUserRole.USER ||
+                  currentChannel.type === eChannelType.DIRECT ? (
                     ""
                   ) : (
                     <>
@@ -140,7 +141,8 @@ export default function UserInMembers({
                     </>
                   )}
                   <>
-                    {self && self.role !== eUserRole.OWNER ? (
+                    {(self && self.role !== eUserRole.OWNER) ||
+                    currentChannel.type === eChannelType.DIRECT ? (
                       ""
                     ) : (
                       <>

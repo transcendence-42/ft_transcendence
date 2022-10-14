@@ -86,6 +86,7 @@ function App() {
         <BrowserRouter>
           <NavBar userID={userID} />
           <RootModals id={userID} />
+          {userID && 
           <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home updateID={update} userID={userID} />} />
@@ -95,15 +96,13 @@ function App() {
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
               <Route path="/lobby" element={<GameLobby />} />
-              {userID && (
-                <Route
-                  path="/chat"
-                  element={<Chat userID={userID} socket={ChatSocket} />}
-                />
-              )}
+              <Route
+                path="/chat"
+                element={<Chat userID={userID} socket={ChatSocket} />}
+              />
               <Route path="/profile/:id" element={<Profile />} />
             </Route>
-          </Routes>
+          </Routes>}
         </BrowserRouter>
       </RootModalsProvider>
     </Context.Provider>
