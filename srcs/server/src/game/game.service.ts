@@ -370,9 +370,12 @@ export class GameService {
     await this._sendPlayersInfo();
     // if the user id is in a game, reconnect the client to the game
     const gameId: any = (
-      await this.redis.multi().select(DB.PLAYERS).hget('players', userId).exec()
+      await this.redis.multi().select(DB.PLAYERS).get(userId).exec()
     )[1][1];
     if (gameId) {
+      await this._savePlayerInfos(userId, {
+        status: ePlayerStatus.PLAYING,
+      });
       client.join(gameId);
       client.emit('reconnect', gameId);
     } else {
@@ -1508,6 +1511,16 @@ export class GameService {
       updatedBall = this._bounce(ball, world.players[Side.LEFT], game);
     else if (this._isCollision(updatedBall, world.players[Side.RIGHT]))
       updatedBall = this._bounce(ball, world.players[Side.RIGHT], game);
+    // Control if the ball goes outside of the game screen
+    if (
+      updatedBall.coordinates.x > Params.CANVASW + Params.WALLSIZE + 50 ||
+      updatedBall.coordinates.x < 0 - Params.WALLSIZE - 50 ||
+      updatedBall.coordinates.y > Params.CANVASH + Params.WALLSIZE + 50 ||
+      updatedBall.coordinates.y < 0 - Params.WALLSIZE - 50
+    ) {
+      updatedBall.coordinates.x = Params.CANVASW / 2;
+      updatedBall.coordinates.y = Params.CANVASH / 2;
+    }
     return updatedBall;
   }
 
@@ -1669,8 +1682,8 @@ export class GameService {
       });
       // create a match and launch it
       const playersToMatch: Player[] = [];
-      const player1Infos = await this._getPlayerInfos(userId);
-      const player2Infos = await this._getPlayerInfos(opponent.userId);
+      const player1Infos = await this._getPlayerInfos(opponent.userId);
+      const player2Infos = await this._getPlayerInfos(userId);
       playersToMatch.push({
         userId: opponent.userId,
         socket: this._getSocket(opponent.userId),
