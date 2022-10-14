@@ -14,7 +14,7 @@ const AddFriend = (props: any) => {
    */
 
   const apiUrl: string = process.env.REACT_APP_API_URL as string;
-	const url = `${apiUrl}/users/${props.originalId}/friends`;
+  const url = `${apiUrl}/users/${props.originalId}/friends`;
 
   /** *********************************************************************** */
   /** STATES                                                                  */
@@ -22,7 +22,7 @@ const AddFriend = (props: any) => {
 
   const [isFriend, setIsFriend] = useState(false);
   const [btnMessage, setBtnMessage] = useState('Add friend');
-  
+
   /** *********************************************************************** */
   /** INITIALIZATION                                                          */
   /** *********************************************************************** */
@@ -45,29 +45,34 @@ const AddFriend = (props: any) => {
     setTimeout(() => {
       setBtnMessage('Add friend');
     }, 2000);
-  }
+  };
 
   /** *********************************************************************** */
   /** RENDER                                                                  */
   /** *********************************************************************** */
 
   return (
-    <>{!isFriend &&
-      <button
-        className="btn btn-blue text-blue"
-        style={{
-          width: '100%',
-          height: 'auto',
-        }}
-        onClick={() => sendRequest({ url: url, addresseeId: props.id })}
-      >
-        <div style={{ fontSize: '0.8em' }}>{btnMessage}</div>
-      </button>}
-      {isFriend &&
-        <div className="text-blue" style={{ fontSize: '0.8em' }}>
+    <>
+      {!isFriend && (
+        <button
+          className="btn btn-blue text-blue"
+          style={{
+            width: '100%',
+            height: 'auto',
+          }}
+          onClick={() => sendRequest({ url: url, addresseeId: props.id })}
+        >
+          <div style={{ fontSize: '0.8em' }}>{btnMessage}</div>
+        </button>
+      )}
+      {isFriend && (
+        <div
+          className="text-blue text-center"
+          style={{ fontSize: '0.8em', width: '100%', height: 'auto' }}
+        >
           <GroupIcon /> you are friends !
         </div>
-      }
+      )}
     </>
   );
 };

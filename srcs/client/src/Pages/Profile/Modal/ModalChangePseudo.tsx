@@ -20,8 +20,8 @@ export default function ModalChangePseudo({ isShowing, hide, id, up } : any) {
 	function patchAndClose(e : any)
 	{
 		e.preventDefault();
-		console.log(content);
-		console.log(url);
+		// console.log(content);
+		// console.log(url);
 		patchFetchPseudo({url: url, name: content});
 		hide();
 		up();

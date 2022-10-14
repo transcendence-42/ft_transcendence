@@ -39,6 +39,7 @@ RUN     apk update && apk upgrade && apk add --update --no-cache \
 # copy conf files to the container 
 RUN     rm -f /etc/nginx/conf.d/default.conf
 COPY    conf/nginx.conf /etc/nginx/conf.d/
+COPY    conf/redirect.conf /etc/nginx/conf.d/
 COPY    --from=build app/build /usr/share/nginx/html
 
 # run nginx on port http 80

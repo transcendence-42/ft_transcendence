@@ -11,8 +11,8 @@ const AuthenticatedNavBar = () =>{
     // If not, return element that will navigate to login page
     const cookies = new Cookies();
     const[cookie, setCookie] = useCookies(['auth-session']);
-    console.log("value cookie");
-    console.log(cookie);
+    // console.log("value cookie");
+    // console.log(cookie);
     return cookie ? 0 : 1;
 }
 

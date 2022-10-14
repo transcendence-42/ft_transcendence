@@ -3,6 +3,7 @@ import { getFetch } from './getFetch';
 import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './leaderboard.css';
+import '../../Styles/table.css'
 import League from '../Profile/League';
 
 export default function Leaderboard() {
@@ -33,7 +34,7 @@ export default function Leaderboard() {
         </h1>
         <div className="row">
         <div className="container1 scroll col-10 col-sm-8 col-md-7 col-lg-6 col-xl-5" data-testid="tracker">
-          <table className="table">
+          <table className="table table-borderless">
             <thead>
               <tr className='leaderboard-tr text-center'>
                 <th scope="col">RANK</th>
@@ -54,7 +55,7 @@ export default function Leaderboard() {
                       id: React.Key;
                       username: string;
                     }) => (
-                      <tr className='leaderboard-tr text-center' key={user.id}>
+                      <tr className='leaderboard-tr text-center border-blue' key={user.id}>
                         {userID === user.id ? (
                           <>
                             <td

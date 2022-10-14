@@ -1,0 +1,10 @@
+--
+-- Adjusting auto increment
+--
+ALTER SEQUENCE "User_id_seq" RESTART WITH 100;
+ALTER SEQUENCE "Achievement_id_seq" RESTART WITH 100;
+ALTER SEQUENCE "Channel_id_seq" RESTART WITH 100;
+ALTER SEQUENCE "Credentials_id_seq" RESTART WITH 100;
+ALTER SEQUENCE "Match_id_seq" RESTART WITH 200;
+ALTER SEQUENCE "Rating_id_seq" RESTART WITH 200;
+ALTER SEQUENCE "Stats_id_seq" RESTART WITH 200;

@@ -21,8 +21,8 @@ const TwoFactorLogin = () => {
     })
     .then((resp) => resp.json())
     .then((response) => {
-      console.log(
-        `This is response from 2fa ${JSON.stringify(response, null, 4)}`);
+      // console.log(
+      //   `This is response from 2fa ${JSON.stringify(response, null, 4)}`);
       if (response.statusCode !== 401)
         navigate("/");
       return response;

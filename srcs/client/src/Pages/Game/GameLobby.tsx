@@ -92,7 +92,7 @@ const GameLobby: FC = () => {
   const [gameList, setGameList] = useState([] as any);
   const [matchMaking, setMatchMaking] = useState(eMatchMaking.NOT_IN_QUEUE);
   const [gameMap, setGameMap] = useState(mapNeon);
-  const [options, setOptions] = useState({ effects: false});
+  const [isEffect, setIsEffect] = useState(false);
 
   /** *********************************************************************** */
   /** MODAL                                                                   */
@@ -144,10 +144,13 @@ const GameLobby: FC = () => {
     (data: any) => {
       setMessage({});
       setGame({ id: data.id, action: eEvents.CREATE_GAME });
-      // Pop the option modal
-      handleShowSelectOptions();
+      // Pop the option modal if the game is created from the lobby
+      if (isEffect === true) {
+        handleShowSelectOptions();
+        setIsEffect(false);
+      }
     },
-    [eEvents.CREATE_GAME]
+    [eEvents.CREATE_GAME, isEffect]
   );
 
   const handleReconnect = useCallback(
@@ -208,6 +211,7 @@ const GameLobby: FC = () => {
   /** *********************************************************************** */
 
   const handleNewGame = () => {
+    setIsEffect(true);
     socket.emit("createGame");
   };
 

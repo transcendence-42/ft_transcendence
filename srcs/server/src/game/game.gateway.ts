@@ -23,12 +23,7 @@ import { UpdateOptionsDto } from './dto/update-options.dto';
 @Catch(WsException)
 @WebSocketGateway(4343, {
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'https://localhost:3000',
-      'https://127.0.0.1:3000',
-    ],
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,
   },
   path: '/api/gamews/socket.io',
@@ -47,7 +42,7 @@ export class GameGateway
     this.gameService.server = this.server;
     await this.gameService.disconnectOldSockets();
     this.server.disconnectSockets();
-    this.logger.log(`Module chat is up`);
+    this.logger.log(`Module game is up`);
   }
 
   /** Handle new clients connection to the game */

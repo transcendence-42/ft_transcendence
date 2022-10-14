@@ -25,7 +25,6 @@ services:
       retries: 15
       start_period: 30s
 
-
   server:
     image: server:${TAG}
     build: 
@@ -76,35 +75,23 @@ services:
       start_period: 30s
    
   database:
-    image: postgres:alpine
+    image: database:${TAG}
+    build:
+      context: ./database
+      args: 
+        - POSTGRES_USER=${POSTGRES_USER}
     container_name: database
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - PGDATA=${PGDATA}
+    env_file: ['.env']
     restart: always
+    ports: ['${POSTGRES_PORT}:5432']
     networks: ['transcendence']
+    volumes: ['db_data:${PGDATA}']
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-    env_file: ['.env.dev']
-
-  # adminer:
-  #   image: adminer
-  #   container_name: adminer
-  #   restart: always
-  #   ports: ['${DBADMIN_PORT}:8080']
-  #   networks: ['transcendence']
-  #   depends_on:
-  #     database:
-  #       condition: service_healthy
-
-  # redis-insight:
-  #   image: redislabs/redisinsight:latest
-  #   container_name: redisinsight
-  #   restart: always
-  #   networks: ['transcendence']
-  #   ports: ['8001:8001']
+      test: if [ ! -f "/tmp/.ready" ];then exit 1; fi;
+      interval: 30s
+      timeout: 30s
+      retries: 10
+      start_period: 20s
 
   controller:
     image: busybox
@@ -136,3 +123,6 @@ networks:
   transcendence:
     driver: bridge
     name: transcendance
+
+volumes:
+  db_data:

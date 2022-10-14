@@ -1,23 +1,27 @@
-# syntax=docker/dockerfile:1
-FROM    alpine:3.16
+FROM  alpine:3.16
 
-# args 
-ARG     POSTGRES_USER=${POSTGRES_USER}
-ARG     POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-ARG     POSTGRES_DB=${POSTGRES_DB}
-ARG     PGDATA=${PGDATA}
+# get postgres user
+ARG   POSTGRES_USER=${POSTGRES_USER}
 
-# install MariaDB from package manager and shadow (login and pass utilities)
-RUN     apk update && apk upgrade && apk add --update --no-cache \
-            postgresql14 \
-            icu-data-full \
- &&     rm -f /var/cache/apk/* \
-\
-# configuration
- &&     mkdir -p "$PGDATA" \
- &&     chmod 777 "$PGDATA"
+# install PostgreSQL from package manager
+RUN   apk update && apk upgrade && apk add --update --no-cache \
+        postgresql \
+ &&   rm -f /var/cache/apk/*
 
-# launch command as root
-EXPOSE  5432
+# copy entrypoint and mock data
+COPY  /scripts/docker-entrypoint.prod.sh /usr/local/bin/docker-entrypoint.sh
+COPY  /conf/mock-data.sql /tmp/
 
-CMD     ["postgres"]
+# create a user on the container
+RUN   adduser -D ${POSTGRES_USER}
+
+# socket folder and rights
+RUN   mkdir /run/postgresql \
+ &&   chown -R postgres:postgres /run/postgresql /var/lib/postgresql
+
+EXPOSE 5432
+
+# launch as root
+USER root
+
+CMD ["docker-entrypoint.sh"]

@@ -868,7 +868,6 @@ ALTER TABLE ONLY public."UserOnChannel"
 ALTER TABLE ONLY public."UserOnChannel"
     ADD CONSTRAINT "UserOnChannel_userId_fkey" FOREIGN KEY ("userId") REFERENCES public."User"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-
 --
 -- PostgreSQL database dump complete
 --
