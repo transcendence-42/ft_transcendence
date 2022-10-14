@@ -52,21 +52,42 @@ const ModalPicture = ({
     formData.append('user', originalId.toString());
     const status = postFetchPicture({ url: url, data: formData });
     status.then((responseObject) => {
-      responseObject.json().then((res) => {
-        if (res.apiStatusCode >= 400) {
+      const contentType = responseObject.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        responseObject.json().then((res) => {
+          if (res.apiStatusCode >= 400) {
+            setStatus(0);
+            setShowResponse(1);
+            return;
+          } else {
+            socket.emit('updatePlayer', { pic: res.profilePicture });
+            setStatus(1);
+            setShowResponse(1);
+            up();
+            setTimeout(() => {
+              closeHandler();
+            }, 500);
+          }
+        }).catch((e) => {
           setStatus(0);
           setShowResponse(1);
           return;
-        } else {
-          socket.emit('updatePlayer', { pic: res.profilePicture });
-          setStatus(1);
+        });
+      } else {
+        responseObject.text().then((res) => {
+          setStatus(0);
           setShowResponse(1);
-          up();
-          setTimeout(() => {
-            closeHandler();
-          }, 500);
-        }
-      });
+          return;
+        }).catch((e) => {
+          setStatus(0);
+          setShowResponse(1);
+          return;
+        });
+      }
+    }).catch((e) => {
+      setStatus(0);
+      setShowResponse(1);
+      return;
     });
   };
 
