@@ -370,9 +370,12 @@ export class GameService {
     await this._sendPlayersInfo();
     // if the user id is in a game, reconnect the client to the game
     const gameId: any = (
-      await this.redis.multi().select(DB.PLAYERS).hget('players', userId).exec()
+      await this.redis.multi().select(DB.PLAYERS).get(userId).exec()
     )[1][1];
     if (gameId) {
+      await this._savePlayerInfos(userId, {
+        status: ePlayerStatus.PLAYING,
+      });
       client.join(gameId);
       client.emit('reconnect', gameId);
     } else {
@@ -982,7 +985,6 @@ export class GameService {
         .srem('users', userId)
         .exec();
     // it this is not a re join, add new player to the game and emit new grid
-    client.join(game.id);
     if (!(await this._isPlayerInThisGame(userId, id))) {
       await this._addPlayerToGame(
         new Player(client, userId, playerInfos.name, playerInfos.pic),
@@ -998,6 +1000,7 @@ export class GameService {
       const gameList = await this._createGameList();
       this.server.to(Params.LOBBY).emit('gameList', gameList);
     }
+    // } else client.join(game.id);
   }
 
   /** view a game (viewer) */
