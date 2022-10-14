@@ -982,6 +982,7 @@ export class GameService {
         .srem('users', userId)
         .exec();
     // it this is not a re join, add new player to the game and emit new grid
+    client.join(game.id);
     if (!(await this._isPlayerInThisGame(userId, id))) {
       await this._addPlayerToGame(
         new Player(client, userId, playerInfos.name, playerInfos.pic),
