@@ -74,13 +74,13 @@ export class ChatGateway
       }`,
     );
     console.log('messages recieved');
-    return this.chatService.handleMessage(client, message);
+    this.chatService.handleMessage(client, message);
   }
 
   @SubscribeMessage(eEvent.JoinChannel)
   handleJoinChannel(client: Socket, channelId: number) {
     this.logger.debug(`This is channel joining ${channelId}`);
-    return this.chatService.joinChannel(client, channelId);
+    this.chatService.joinChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.AddedToChannel)
@@ -93,13 +93,13 @@ export class ChatGateway
     this.logger.debug(
       `Recieved AddedUser with data ${JSON.stringify(payload)}`,
     );
-    return this.chatService.addUser(client, payload.channelId, payload.userId);
+    this.chatService.addUser(client, payload.channelId, payload.userId);
   }
 
   @SubscribeMessage(eEvent.UpdateOneChannel)
   updateOneChannel(client: Socket, id: number) {
     this.logger.debug(`gateway ${id} `);
-    return this.chatService.updateOneChannel(client, id);
+    this.chatService.updateOneChannel(client, id);
   }
 
   @SubscribeMessage(eEvent.LeaveChannel)
@@ -114,7 +114,7 @@ export class ChatGateway
 
   @SubscribeMessage(eEvent.UpdateChannels)
   updateChannels(client: Socket) {
-    return this.chatService.updateChannels(client);
+    this.chatService.updateChannels(client);
   }
 
   @SubscribeMessage(eEvent.CreateChannel)
@@ -122,17 +122,17 @@ export class ChatGateway
     this.logger.debug(
       `Recieved event createChannel for channel Id ${channelId}`,
     );
-    return this.chatService.createChannel(client, channelId);
+    this.chatService.createChannel(client, channelId);
   }
 
   @SubscribeMessage(eEvent.MuteUser)
   muteUser(client: Socket, { userId, channelId }) {
-    return this.chatService.muteUser(client, userId, channelId);
+    this.chatService.muteUser(client, userId, channelId);
   }
 
   @SubscribeMessage(eEvent.BanUser)
   banUser(client: Socket, { userId, channelId }) {
-    return this.chatService.banUser(client, userId, channelId);
+    this.chatService.banUser(client, userId, channelId);
   }
   //on login: create room with (user_userId) if doesnt exist
   // json.set(rooms, '.rooms[roomId', )

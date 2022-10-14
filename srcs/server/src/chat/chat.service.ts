@@ -96,12 +96,6 @@ export class ChatService {
       .emit(eEvent.UpdateOneChannel, channelId);
     this.logger.debug(`Banning user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
-      // delete user because they are no longer banned and thus can join the channel again
-      // need to emit an event to the user to update all channels and its own channels
-      // in the two setTimeout I need to check for the existance of the channel.
-      // if they don't exist I don't need to send an event
-      // I can do that by checking delete user. Try {delete| update} user
-      // catch e === channel doesnt existe
       try {
         const deleteUser = await this.channelService.deleteUserOnChannel(
           channelId,
@@ -119,6 +113,7 @@ export class ChatService {
   async addedToChannel(client: Socket, channelId: number) {
     await this.joinChannel(client, channelId);
     client.emit(eEvent.UpdateOneChannel, channelId);
+    client.emit(eEvent.UpdateChannels);
     this.server
       .to(this._makeId(channelId, eIdType.Channel))
       .emit(eEvent.UpdateUserOnChannel, channelId);
@@ -213,6 +208,7 @@ export class ChatService {
   }
 
   async addUser(client: Socket, channelId, userId) {
+    client.join(this._makeId(channelId, eIdType.Channel));
     client
       .to(this._makeId(userId, eIdType.User))
       .emit(eEvent.AddUser, channelId);

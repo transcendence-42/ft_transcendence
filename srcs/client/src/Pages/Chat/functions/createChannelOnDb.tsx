@@ -4,7 +4,7 @@ import { fetchUrl } from "../utils";
 
 const createChannelOnDb = async (
   createChannelDto: CreateChannelDto
-): Promise<[Channel, UserOnChannel] | void> => {
+): Promise<[Channel, UserOnChannel]> => {
   // API URL
   const apiUrl: string = process.env.REACT_APP_API_URL as string;
   const channel = await fetchUrl(
@@ -19,7 +19,6 @@ const createChannelOnDb = async (
     );
     return [channel, userOnChannel];
   }
-  return alert(`Error while creating channel! ${channel.message}`);
 };
 
 export default createChannelOnDb;

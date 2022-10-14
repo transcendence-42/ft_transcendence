@@ -14,6 +14,7 @@ import { PictureModule } from './picture/picture.module';
 import { LoggerModule } from 'nestjs-pino';
 import { ChannelModule } from './channels/channel.module';
 import { ChatModule } from './chat/chat.module';
+import { Game } from './game/entities';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChatModule } from './chat/chat.module';
     MulterModule.register({
       dest: './uploads/',
     }),
+    GameModule,
     AuthModule,
     PrismaModule,
     UserModule,

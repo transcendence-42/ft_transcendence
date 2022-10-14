@@ -4,6 +4,7 @@ import { getChannel, isEmpty } from "../utils";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
 import UserInMembers from "./UserInMembers";
+import { eChannelType } from "../constants";
 
 export default function Members({
   currentChannel,
@@ -37,16 +38,17 @@ export default function Members({
       </div>
       <div className="row" style={{ fontSize: "14px" }}>
         <div className="col d-flex justify-content-center">
-          { !isEmpty(currentChannel) ?
-          <button
-            className="message-button rounded-4 "
-            onClick={handleShowAddToChannel}
-          >
-            Add Friend
-          </button>
-          :
-          <></>
-          }
+          {!isEmpty(currentChannel) &&
+          currentChannel.type !== eChannelType.DIRECT ? (
+            <button
+              className="message-button rounded-4 "
+              onClick={handleShowAddToChannel}
+            >
+              Add Friend
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
       <div className="row">

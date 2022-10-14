@@ -87,7 +87,7 @@ export default function Home({ updateID, userID }: any) {
             pic: responseObject.user.profilePicture,
             name: responseObject.user.username,
           };
-          // socket.connect();
+          socket.connect();
           return;
         }
         throw new Error("Something went wrong");

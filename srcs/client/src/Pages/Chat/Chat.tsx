@@ -60,7 +60,6 @@ export default function Chat(props: any) {
   const handleClosePassworChannel = () => setShowPassworChannel(false);
   const handleShowPassworChannel = () => setShowPassworChannel(true);
 
-  console.log(`channels: ${JSON.stringify(user.channels)}`);
   const handlePasswordOperation = () => {
     if (!newChannelPassword) {
       return alert("Password cant be empty!");
@@ -90,15 +89,11 @@ export default function Chat(props: any) {
       }
       setUser({ ...updatedUser });
     })();
-  }, [allChannels, user]);
+  }, [user, apiUrl]);
 
-  const updateCurrentChannel = useCallback(
-    (channel: Channel) => {
-      setCurrentChannel((prevState) => ({ ...channel }));
-    },
-    [currentChannel, allChannels, user.channels]
-  );
-  // maybe use a useCallback here is better? using allChannels state
+  const updateCurrentChannel = useCallback((channel: Channel) => {
+    setCurrentChannel((prevState) => ({ ...channel }));
+  }, []);
   const switchChannel = useCallback(
     (channelId: number | null, channel?: Channel) => {
       if (!channelId) {
@@ -123,6 +118,7 @@ export default function Chat(props: any) {
     },
     [allChannels]
   );
+
   const updateOwnUserOnChannel = useCallback(
     (userOnChannel: UserOnChannel, toDelete?: boolean) => {
       setUser((prevUser: User) => {
@@ -130,7 +126,7 @@ export default function Chat(props: any) {
         let updatedChannels: UserOnChannel[] = [];
         if (toDelete === true) {
           updatedChannels = prevUser.channels.filter(
-            (usrOnChan) => usrOnChan.channelId !== usrOnChan.channelId
+            (usrOnChan) => usrOnChan.channelId !== userOnChannel.channelId
           );
         }
         updatedChannels = prevUser.channels.map((usrOnChan) => {
@@ -146,7 +142,7 @@ export default function Chat(props: any) {
         return { ...prevUser, channels: [...updatedChannels] };
       });
     },
-    [user.channels]
+    [user]
   );
   const handleLeaveChannelEvent = useCallback(
     (channelId: number) => {
@@ -192,7 +188,14 @@ export default function Chat(props: any) {
         }
       })();
     },
-    [allChannels, user, allUsers, updateChannel, updateOwnUserOnChannel]
+    [
+      user,
+      updateChannel,
+      updateOwnUserOnChannel,
+      apiUrl,
+      currentChannel.id,
+      updateCurrentChannel
+    ]
   );
   const createDirect = async (e: any, friendId: number) => {
     const channelName = friendId.toString() + "_" + user.id.toString();
@@ -209,7 +212,7 @@ export default function Chat(props: any) {
       socket.emit(eEvent.CreateChannel, newChannel.id);
       addToChannel(friendId, newChannel.id);
       setCurrentChannel(newChannel);
-      setAllChannels((prevAllChannels) => [...prevAllChannels, newChannel]);
+      // handleUpdateChannels();
       switchChannel(newChannel.id);
       handleCloseFriendList();
     } else return alert(`couldnt create channel with user ${friendId}`);
@@ -252,34 +255,28 @@ export default function Chat(props: any) {
     })();
   };
 
-  const addToChannel = async (userId: number, channelId: number) => {
-    const createUserOnChannelDto = {
-      role: eUserRole.USER,
-      userId,
-      channelId
-    };
-    const newUser = await fetchUrl(
-      `${apiUrl}/channels/${channelId}/useronchannel/`,
-      "PUT",
-      createUserOnChannelDto
-    );
-    if (newUser["userId"]) {
-      // to be modified later to include a better way of handling error
-      socket.emit(eEvent.AddUser, { channelId, userId });
-      return newUser;
-    } else {
-      return alert(
-        `can't add user to channel ${JSON.stringify(newUser, null, 4)}`
-      );
-    }
-  };
-
-  const isLastUser = (users: UserOnChannel[], userId): boolean => {
-    for (const usr of users) {
-      if (usr.hasLeftChannel === false && usr.userId !== userId) return false;
-    }
-    return true;
-  };
+  const addToChannel = useCallback(
+    (userId: number, channelId: number) => {
+      return (async () => {
+        const createUserOnChannelDto = {
+          role: eUserRole.USER,
+          userId,
+          channelId
+        };
+        const newUser = await fetchUrl(
+          `${apiUrl}/channels/${channelId}/useronchannel/`,
+          "PUT",
+          createUserOnChannelDto
+        );
+        handleUpdateChannels();
+        if (newUser["userId"]) {
+          socket.emit(eEvent.AddUser, { channelId, userId });
+          return newUser;
+        }
+      })();
+    },
+    [handleUpdateChannels, apiUrl, socket]
+  );
 
   const leaveChannel = (channelId: number) => {
     // need to leave socket when leaving channel
@@ -290,10 +287,6 @@ export default function Chat(props: any) {
       const userOnChannel = user.channels.find(
         (usrOnChan: UserOnChannel) => usrOnChan.channelId === channelId
       );
-      const chan: Channel = getChannel(channelId, allChannels);
-      const isLastOnChannel = isLastUser(chan?.users, userOnChannel.userId)
-        ? true
-        : false;
       if (userOnChannel.isBanned || userOnChannel.isMuted) {
         const dto: UpdateUserOnChannelDto = {
           hasLeftChannel: true
@@ -308,7 +301,7 @@ export default function Chat(props: any) {
         }
         // updateOwnUserOnChannel(updatedUsrOnChan, true);
       } else {
-        const deleteUser = await fetchUrl(
+        await fetchUrl(
           `${apiUrl}/channels/${channelId}/useronchannel/${userOnChannel.userId}`,
           "delete"
         );
@@ -510,6 +503,7 @@ export default function Chat(props: any) {
     if (!isUserFetched) return;
     socket.on("connect", () => {
       const channelIds: string[] = [];
+      console.log(`connected to server`);
       if (user.channels) {
         for (const chan of user.channels) {
           channelIds.push(chan.channelId.toString());
@@ -612,7 +606,11 @@ export default function Chat(props: any) {
     handleGetMessages,
     user,
     handleLeaveChannelEvent,
-    updateOwnUserOnChannel
+    updateOwnUserOnChannel,
+    handleUpdateChannels,
+    handleBanUser,
+    handleMuteUser,
+    apiUrl
   ]);
 
   return (

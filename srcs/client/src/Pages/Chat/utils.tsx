@@ -48,12 +48,23 @@ export const otherUser = (
     !channelId ||
     !userId
   ) {
+    // console.log(`other user returning nothing because is empty`);
     return;
   }
   const channel = allChannels.find((chan) => chan.id === channelId);
-  if (!channel) return;
+  if (!channel) {
+    // console.log(`other user returning nothing beccause channel not found`);
+    return;
+  }
+
   const otherUserOnChannel = channel.users.find((usr) => usr.userId !== userId);
-  if (!otherUserOnChannel) return;
+  if (!otherUserOnChannel) {
+    // console.log(
+    //   `other user returning nothing because otherUserOnChannel not found in all channels`
+    // );
+    return;
+  }
+    // console.log(`other user returning ${allUsers[otherUserOnChannel.userId]}`)
   return allUsers[otherUserOnChannel.userId];
 };
 export const getChannel = (channelId, allChannels) => {

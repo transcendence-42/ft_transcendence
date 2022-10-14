@@ -44,7 +44,7 @@ function App() {
             pic: responseObject.user?.profilePicture,
             name: responseObject.user?.username,
           };
-          // socket.connect();
+          socket.connect();
           update(responseObject.user?.id);
       });
     }
