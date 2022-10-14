@@ -6,6 +6,7 @@ import { fetchUrl } from "../utils";
 import { UpdateUserOnChannelDto } from "../dtos/update-userOnChannel.dts";
 import { CreateUserOnChannelDto } from "../dtos/create-userOnChannel.dto";
 import { isEmpty } from "../utils";
+import * as Bcrypt from "bcryptjs";
 
 export default function BrowseChannels({
   allChannels,
@@ -26,23 +27,26 @@ export default function BrowseChannels({
 
   const handleJoinChannel = (e: any, channel: Channel, password?: string) => {
     e.preventDefault();
-    if (!channel || isEmpty(channel)) {
-      return alert(`You must select a channel!`);
-    }
-    if (channel["type"] === eChannelType.PROTECTED) {
-      if (joinChannelPassword === "") {
-        return alert("You must provide a Password!");
-      } else if (joinChannelPassword !== channel.password)
-        return alert("Bad password!");
-    }
     (async () => {
+      if (!channel || isEmpty(channel)) {
+        return alert(`You must select a channel!`);
+      }
+      if (channel["type"] === eChannelType.PROTECTED) {
+        if (joinChannelPassword === "") {
+          return alert("You must provide a Password!");
+        }
+        const isGoodPassword = await Bcrypt.compare(password, channel.password);
+        if (!isGoodPassword) {
+          return alert("Bad password!");
+        }
+      }
       const userOnChannel = userChannels?.find(
         (usrChan: UserOnChannel) => usrChan.channelId === channel.id
       );
       let res;
       if (userOnChannel) {
         const payload: UpdateUserOnChannelDto = {
-          hasLeftChannel: false,
+          hasLeftChannel: false
         };
         res = await fetchUrl(
           `${apiUrl}/channels/${channel.id}/useronchannel/${userId}`,
@@ -56,7 +60,7 @@ export default function BrowseChannels({
         const payload: CreateUserOnChannelDto = {
           role: eUserRole.USER,
           userId,
-          channelId: channel.id,
+          channelId: channel.id
         };
         res = await fetchUrl(
           `${apiUrl}/channels/${channel.id}/useronchannel`,

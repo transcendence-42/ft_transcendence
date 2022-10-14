@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import * as Bcrypt from 'bcryptjs';
 import { ChannelType, UserOnChannel, UserRole } from '@prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import {

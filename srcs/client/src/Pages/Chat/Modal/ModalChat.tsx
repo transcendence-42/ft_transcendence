@@ -32,7 +32,6 @@ export default function ModalChat({
   createNonDirectChannel,
   currentChannel,
   changeChannelPassword,
-  setChannelPassword,
   showPassworChannel,
   handleClosePassworChannel,
   handlePasswordOperation,

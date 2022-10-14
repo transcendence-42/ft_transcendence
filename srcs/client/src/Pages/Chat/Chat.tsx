@@ -18,6 +18,7 @@ import { fetchUrl, getChannel, isEmpty } from "./utils";
 import handleCreateChannelForm from "./functions/createChannelForm";
 import { UpdateUserOnChannelDto } from "./dtos/update-userOnChannel.dts";
 import { UpdateUserDto } from "./dtos/update-user.dto";
+import * as Bcrypt from "bcryptjs";
 
 export default function Chat(props: any) {
   // API URL
@@ -59,16 +60,13 @@ export default function Chat(props: any) {
   const handleClosePassworChannel = () => setShowPassworChannel(false);
   const handleShowPassworChannel = () => setShowPassworChannel(true);
 
+  console.log(`channels: ${JSON.stringify(user.channels)}`);
   const handlePasswordOperation = () => {
     if (!newChannelPassword) {
       return alert("Password cant be empty!");
     }
-    if (currentChannel.type === eChannelType.DIRECT) {
-      changeChannelPassword(currentChannel.id, newChannelPassword);
-    } else {
-      setChannelPassword(currentChannel.id, newChannelPassword);
-      handleClosePassworChannel();
-    }
+    changeChannelPassword(currentChannel.id, newChannelPassword);
+    handleClosePassworChannel();
     setNewChannelPassword("");
   };
 
@@ -382,7 +380,7 @@ export default function Chat(props: any) {
         });
       })();
     },
-    [user.blockedUsersIds]
+    [user]
   );
 
   const banUser = useCallback(
@@ -432,28 +430,12 @@ export default function Chat(props: any) {
     })();
   };
 
-  // update the userOnChannel with isMuted === true;
-  // emit an event MutedUser -> which sets a setTimeout of 5 minutes to unmute a user
-  // the server then emits an event (update user to all ppl in channel)
-  // and another one You have been muted to display a message to the user
-
-  const changeChannelPassword = (channelId: number, newPassword: string) => {
+  const changeChannelPassword = (channelId: number, password: string) => {
     (async () => {
       const url = `${apiUrl}/channels/${channelId}`;
+      const hash = await Bcrypt.hash(password, 1);
       const dto: UpdateChannelDto = {
-        password: newPassword
-      };
-      const updatedChannel = await fetchUrl(url, "PATCH", dto);
-      updateChannel(updatedChannel);
-      socket.emit(eEvent.UpdateOneChannel, channelId);
-    })();
-  };
-
-  const setChannelPassword = (channelId: number, password: string) => {
-    (async () => {
-      const url = `${apiUrl}/channels/${channelId}`;
-      const dto: UpdateChannelDto = {
-        password,
+        password: hash,
         type: eChannelType.PROTECTED
       };
       const updatedChannel = await fetchUrl(url, "PATCH", dto);
@@ -663,7 +645,6 @@ export default function Chat(props: any) {
                   handleShowAddToChannel={handleShowAddToChannel}
                   handleCloseAddToChannel={handleCloseAddToChannel}
                   handleShowPassworChannel={handleShowPassworChannel}
-                  setChannelPassword={setChannelPassword}
                   changeChannelPassword={changeChannelPassword}
                   blockedUsers={blockedUsers}
                 />
@@ -708,7 +689,6 @@ export default function Chat(props: any) {
         showAddToChannel={showAddToChannel}
         currentChannel={currentChannel}
         changeChannelPassword={changeChannelPassword}
-        setChannelPassword={setChannelPassword}
         showPassworChannel={showPassworChannel}
         handleClosePassworChannel={handleClosePassworChannel}
         handlePasswordOperation={handlePasswordOperation}
