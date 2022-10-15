@@ -18,4 +18,5 @@ export enum eEvent {
   BanUser = 'banUser',
   LeaveChannel = 'leaveChannel',
   LeavingChannel = 'leavingChannel',
+  AddedToRoom= 'addedToRoom',
 }
