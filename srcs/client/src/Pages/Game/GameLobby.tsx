@@ -142,7 +142,6 @@ const GameLobby: FC = () => {
 
   const handleGameId = useCallback(
     (data: any) => {
-      console.log('toto');
       setMessage({});
       setGame({ id: data.id, action: eEvents.CREATE_GAME });
       // Pop the option modal if the game is created from the lobby
