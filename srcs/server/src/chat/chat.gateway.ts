@@ -54,6 +54,17 @@ export class ChatGateway
     this.logger.debug(`User is disconnecting and userId ${id} ${client.id}`);
   }
 
+  @SubscribeMessage(eEvent.AddedToRoom)
+  handleAddedToRoom(client: Socket, id: string) {
+    client.join(this.chatService._makeId(id, eIdType.User));
+  }
+
+  @SubscribeMessage(eEvent.GetMessages)
+  async handleGetAllMessages(client: Socket) {
+    const allMessages = await this.chatService.getFullMessages();
+    client.emit(eEvent.UpdateMessages, allMessages);
+  }
+
   @SubscribeMessage(eEvent.InitConnection)
   async initConnection(client: Socket, channelIds: string[]) {
     this.logger.debug(

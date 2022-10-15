@@ -3,6 +3,7 @@ import "./Conversation.css";
 import { Message } from "../entities/message.entity";
 import "../../../Components/Tools/Text.css";
 import "../../../Components/Tools/Box.css";
+import { isEmpty } from "../utils";
 
 export default function Dialogue({
   currentChannel,
@@ -20,12 +21,7 @@ export default function Dialogue({
         <div className="col scroll-bar-messages h-100 px-4 ">
           <div>
             <>
-              {/* {console.log(
-                `AllsMessges of current channelid ${JSON.stringify(
-                  allMessages[currentChannel.id]
-                )}`
-              )} */}
-              {allMessages &&
+              {!isEmpty(allMessages) && !isEmpty(allUsers) &&
                 allMessages[currentChannel.id]?.map((message: Message) =>
                   blockedUsers[message.fromUserId] ? (
                     ""

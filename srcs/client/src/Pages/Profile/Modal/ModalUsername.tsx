@@ -77,7 +77,7 @@ const ModalUsername =({
       <Modal.Body className="text-pink text-center ">
         <form onSubmit={patchAndClose}>
 						<input
-              maxLength={16}
+              maxLength={12}
 							type="text"
 							value={content}
 							onChange={handleChange}

@@ -115,7 +115,7 @@ export default function Conversation({
           <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
-              {getUserOnChannel(user?.id, user?.channels)?.isMuted ? (
+              {getUserOnChannel(user?.id, currentChannel.users)?.isMuted ? (
                 <div className={"blueText"}>You are muted</div>
               ) : (
                 <>
@@ -125,7 +125,7 @@ export default function Conversation({
                     onKeyDown={onPressEnter}
                     value={message}
                     type="text"
-                    maxLength={50}
+                    maxLength={200}
                     placeholder="Send a message..."
                   ></input>
                   <button

@@ -347,7 +347,7 @@ export default function Chat(props: any) {
   const blockUser = useCallback(
     (userId: number) => {
       (async () => {
-        const url = `${apiUrl}/users/${userId}`;
+        const url = `${apiUrl}/users/${user.id}`;
         const dto: UpdateUserDto = { blockedUsersIds: user.blockedUsersIds };
         dto.blockedUsersIds.push(userId);
         await fetchUrl(url, "PATCH", dto);
@@ -430,7 +430,9 @@ export default function Chat(props: any) {
   const handleBanUser = useCallback(
     (message: string) => {
       switchChannel(null);
-      return alert(message);
+      if (message) {
+        return alert(`You have been banned from channel ${message}`);
+      }
     },
     [switchChannel]
   );
@@ -501,26 +503,31 @@ export default function Chat(props: any) {
    * mounts in order to fetch the states
    */
   useEffect(() => {
+    if (!user || isEmpty(user)) return;
+    const blockedUsers: Hashtable<boolean> = {};
+    for (const blockedUser of user.blockedUsersIds) {
+      blockedUsers[blockedUser] = true;
+    }
+    setBlockedUsers(blockedUsers);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || isEmpty(user)) return;
+    (async () => {
+      const friends = await fetchUrl(`${apiUrl}/users/${user.id}/friends`);
+      if (friends && friends.length !== 0) {
+        setFriends(friends);
+      }
+    })();
+  }, [apiUrl, user]);
+
+  useEffect(() => {
     (async () => {
       if (!userID) return;
       const user = await fetchUrl(`${apiUrl}/users/${userID}`);
       setUser(user);
-      const blockedUsers: Hashtable<boolean> = {};
-      for (const blockedUser in user.blockedUsersIds) {
-        blockedUsers[blockedUser] = true;
-      }
-      setBlockedUsers(blockedUsers);
       setIsUserFetched(true);
-      if (user && user.id) {
-        const friends = await fetchUrl(`${apiUrl}/users/${user.id}/friends`);
-        if (friends && friends.length !== 0) {
-          setFriends(friends);
-        } else {
-        }
-      } else {
-      }
       const channels = await fetchUrl(`${apiUrl}/channels`);
-
       if (channels) {
         setAllChannels(channels);
         setDefaultChannel(channels, user.channels);
@@ -539,7 +546,17 @@ export default function Chat(props: any) {
   }, [userID]);
 
   useEffect(() => {
-    if (!isUserFetched) return;
+    if (!userID) return;
+    socket.emit(eEvent.AddedToRoom, userID.toString());
+  }, [userID, socket]);
+
+  useEffect(() => {
+    if (!user) return;
+    socket.emit(eEvent.GetMessages);
+  }, [socket, user]);
+
+  useEffect(() => {
+    if (!isUserFetched || !userID) return;
     socket.on("connect", () => {
       const channelIds: string[] = [];
       if (user.channels) {
@@ -551,10 +568,10 @@ export default function Chat(props: any) {
     });
 
     return () => {
-      // socket.disconnect();
       socket.off("connect");
     };
-  }, [isUserFetched, user.channels, socket, userID]);
+  }, [isUserFetched, userID]);
+
   useEffect(() => {
     socket.on(eEvent.GetMessages, handleGetMessages);
     socket.on(eEvent.UpdateOneMessage, handleUpdateOneMessage);
@@ -608,84 +625,91 @@ export default function Chat(props: any) {
 
   return (
     <>
-      <div className="container-fluid h-75">
-        <div className="row main justify-content-center ms-2 ">
-          {user && allChannels && (
-            <>
-              <ChannelsAndDirect
-                handleShowBrowseChannel={handleShowBrowseChannel}
-                handleShowCreateChannel={handleShowCreateChannel}
-                user={user}
-                allUsers={allUsers}
-                allChannels={allChannels}
-                friends={friends}
-                switchChannel={switchChannel}
-                handleShowFriendList={handleShowFriendList}
-              />{" "}
-              {user?.channels && (
-                <Conversation
-                  allChannels={allChannels}
-                  currentChannel={currentChannel}
-                  allMessages={allMessages}
-                  leaveChannel={leaveChannel}
-                  allUsers={allUsers}
-                  user={user}
-                  setMessage={setMessage}
-                  message={message}
-                  handleSendMessage={handleSendMessage}
-                  handleShowAddToChannel={handleShowAddToChannel}
-                  handleCloseAddToChannel={handleCloseAddToChannel}
-                  handleShowPassworChannel={handleShowPassworChannel}
-                  changeChannelPassword={changeChannelPassword}
-                  blockedUsers={blockedUsers}
-                />
+      {" "}
+      {!userID ? (
+        ""
+      ) : (
+        <>
+          <div className="container-fluid h-75">
+            <div className="row main justify-content-center ms-2 ">
+              {user && allChannels && (
+                <>
+                  <ChannelsAndDirect
+                    handleShowBrowseChannel={handleShowBrowseChannel}
+                    handleShowCreateChannel={handleShowCreateChannel}
+                    user={user}
+                    allUsers={allUsers}
+                    allChannels={allChannels}
+                    friends={friends}
+                    switchChannel={switchChannel}
+                    handleShowFriendList={handleShowFriendList}
+                  />{" "}
+                  {user?.channels && (
+                    <Conversation
+                      allChannels={allChannels}
+                      currentChannel={currentChannel}
+                      allMessages={allMessages}
+                      leaveChannel={leaveChannel}
+                      allUsers={allUsers}
+                      user={user}
+                      setMessage={setMessage}
+                      message={message}
+                      handleSendMessage={handleSendMessage}
+                      handleShowAddToChannel={handleShowAddToChannel}
+                      handleCloseAddToChannel={handleCloseAddToChannel}
+                      handleShowPassworChannel={handleShowPassworChannel}
+                      changeChannelPassword={changeChannelPassword}
+                      blockedUsers={blockedUsers}
+                    />
+                  )}
+                  {user && user.channels && (
+                    <Members
+                      currentChannel={currentChannel}
+                      allUsers={allUsers}
+                      allChannels={allChannels}
+                      user={user}
+                      muteUser={muteUser}
+                      banUser={banUser}
+                      blockUser={blockUser}
+                      blockedUsers={blockedUsers}
+                      handleShowAddToChannel={handleShowAddToChannel}
+                      changeRole={changeRole}
+                    />
+                  )}
+                </>
               )}
-              {user && user.channels && (
-                <Members
-                  currentChannel={currentChannel}
-                  allUsers={allUsers}
-                  allChannels={allChannels}
-                  user={user}
-                  muteUser={muteUser}
-                  banUser={banUser}
-                  blockUser={blockUser}
-                  blockedUsers={blockedUsers}
-                  handleShowAddToChannel={handleShowAddToChannel}
-                  changeRole={changeRole}
-                />
-              )}
-            </>
-          )}
-        </div>
-      </div>
-      {/* MODAL */}
-      <ModalChat
-        user={user}
-        friends={friends}
-        allChannels={allChannels}
-        socket={socket}
-        updateOwnUserOnChannel={updateOwnUserOnChannel}
-        switchChannel={switchChannel}
-        showBrowseChannel={showBrowseChannel}
-        handleCloseBrowseChannel={handleCloseBrowseChannel}
-        showCreateChannel={showCreateChannel}
-        handleCloseCreateChannel={handleCloseCreateChannel}
-        showFriendList={showFriendList}
-        handleCloseFriendList={handleCloseFriendList}
-        createDirect={createDirect}
-        createNonDirectChannel={createNonDirectChannel}
-        addToChannel={addToChannelAndClose}
-        handleCloseAddToChannel={handleCloseAddToChannel}
-        handleShowAddToChannel={handleShowAddToChannel}
-        showAddToChannel={showAddToChannel}
-        currentChannel={currentChannel}
-        changeChannelPassword={changeChannelPassword}
-        showPassworChannel={showPassworChannel}
-        handleClosePassworChannel={handleClosePassworChannel}
-        handlePasswordOperation={handlePasswordOperation}
-        newChannelPassword={newChannelPassword}
-        setNewChannelPassword={setNewChannelPassword}
-      />
+            </div>
+          </div>
+          {/* MODAL */}
+          <ModalChat
+            user={user}
+            friends={friends}
+            allChannels={allChannels}
+            socket={socket}
+            updateOwnUserOnChannel={updateOwnUserOnChannel}
+            switchChannel={switchChannel}
+            showBrowseChannel={showBrowseChannel}
+            handleCloseBrowseChannel={handleCloseBrowseChannel}
+            showCreateChannel={showCreateChannel}
+            handleCloseCreateChannel={handleCloseCreateChannel}
+            showFriendList={showFriendList}
+            handleCloseFriendList={handleCloseFriendList}
+            createDirect={createDirect}
+            createNonDirectChannel={createNonDirectChannel}
+            addToChannel={addToChannelAndClose}
+            handleCloseAddToChannel={handleCloseAddToChannel}
+            handleShowAddToChannel={handleShowAddToChannel}
+            showAddToChannel={showAddToChannel}
+            currentChannel={currentChannel}
+            changeChannelPassword={changeChannelPassword}
+            showPassworChannel={showPassworChannel}
+            handleClosePassworChannel={handleClosePassworChannel}
+            handlePasswordOperation={handlePasswordOperation}
+            newChannelPassword={newChannelPassword}
+            setNewChannelPassword={setNewChannelPassword}
+          />
+        </>
+      )}
     </>
   );
 }
