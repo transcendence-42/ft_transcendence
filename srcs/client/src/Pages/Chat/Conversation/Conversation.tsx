@@ -72,7 +72,7 @@ export default function Conversation({
               )}
             </div>
             <div className="col-7 d-flex justify-content-end align-items-center">
-              {currentChannel.type !== eChannelType.DIRECT ? (
+              {currentChannel?.type !== eChannelType.DIRECT ? (
                 <button
                   className="btn btn-leave me-2 "
                   style={{ fontSize: "12px" }}
@@ -87,7 +87,7 @@ export default function Conversation({
               )}
               <div>
                 {self?.role === "OWNER" &&
-                currentChannel.type !== eChannelType.DIRECT ? (
+                currentChannel?.type !== eChannelType.DIRECT ? (
                   <button
                     className="btn btn-leave me-2 "
                     style={{ fontSize: "12px" }}
@@ -115,7 +115,7 @@ export default function Conversation({
           <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
-              {getUserOnChannel(user.id, user.channels)?.isMuted ? (
+              {getUserOnChannel(user?.id, user?.channels)?.isMuted ? (
                 <div className={"blueText"}>You are muted</div>
               ) : (
                 <>

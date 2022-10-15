@@ -17,12 +17,12 @@ export async function requestFriendship(props : any){
 	  body: JSON.stringify({ addresseeId: props.addresseeId })
 	}).then((response) =>{
 			if (response.status !== 200){
-				console.error(response.status);
+				// console.error(response.status);
 				throw new Error("Error");
 			}
 		})
 	}
 	catch(error) {
-		console.error(error);
+		// console.error(error);
  };
 }

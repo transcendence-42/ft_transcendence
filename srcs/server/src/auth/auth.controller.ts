@@ -231,7 +231,7 @@ export class AuthController {
   @Get('status')
   @ApiExcludeEndpoint()
   isLoggedIn(@Session() session, @Request() req) {
-    console.debug(`This is user ${JSON.stringify(req, null, 4)}`);
+    // console.debug(`This is user ${JSON.stringify(req, null, 4)}`);
     return `User is logged in with session' ${JSON.stringify(session)}`;
   }
 }
