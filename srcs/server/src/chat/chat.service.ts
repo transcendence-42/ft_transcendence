@@ -67,6 +67,7 @@ export class ChatService {
     });
     this.logger.debug(`Muting user ${userId} on channel ${channel.name}`);
     setTimeout(async () => {
+      try {
       await this.channelService.updateUserOnChannel(channelId, userId, {
         isMuted: false,
       } as UpdateUserOnChannelDto);
@@ -79,7 +80,11 @@ export class ChatService {
       this.server
         .to(this._makeId(channelId, eIdType.Channel))
         .emit(eEvent.UpdateOneChannel, channelId);
+      } catch (e) {
+        this.logger.log('could not find user')
+      }
     }, 1000 * 60);
+
     // inside the setTimeout include an emit event to display you are now unmuted ?
     // so that the user can refresh its own user if they are still in the channel.
   }
@@ -233,7 +238,7 @@ export class ChatService {
       return {};
     }
     this.logger.debug(`these are the keys form full messages ${JSON.stringify(keys)}`)
-    
+
     const allMessages: Hashtable<Message[]> = {};
     for (const key of keys) {
       const message = await this._getMessage(key);
