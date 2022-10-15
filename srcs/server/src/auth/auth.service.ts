@@ -220,6 +220,11 @@ export class AuthService {
     return { message: 'Bad 2FA Code' };
   }
 
+  turnOffTwoFactorAuth(user: RequestUser) {
+    user.isTwoFactorActivated = false;
+    user.isTwoFactorAuthenticated = false;
+  }
+
   /* returns a Generated Qr Code as a stream for Two Factor Auth */
   async pipeQrCodeStream(stream: Response, otpAuthUrl: string) {
     return toFileStream(stream, otpAuthUrl);
@@ -252,7 +257,9 @@ export class AuthService {
     const credentials = await this.userService.getUserCredentialsByEmail(
       userDb.email,
     );
-    this.logger.debug(`This is user credentials ${JSON.stringify(credentials)}`)
+    this.logger.debug(
+      `This is user credentials ${JSON.stringify(credentials)}`,
+    );
     if (credentials && credentials.twoFactorActivated === true) {
       return true;
     }

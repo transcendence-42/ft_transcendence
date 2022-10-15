@@ -9,6 +9,7 @@ import {
   Body,
   Patch,
   Logger,
+  Response,
 } from '@nestjs/common';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import {
@@ -73,7 +74,16 @@ export class ChannelController {
     isArray: false,
   })
   async create(@Body() createChannelDto: CreateChannelDto) {
-    return await this.channelService.create(createChannelDto);
+    // try {
+    const chan = await this.channelService.create(createChannelDto);
+    this.logger.debug(
+      `Created channel ${createChannelDto.name} and recieved ${chan.name} from db`,
+    );
+    return chan;
+    // } catch (e) {
+    //   this.logger.debug(`failed to create channel ${createChannelDto.name}`);
+    //   res.status(204).json({ status: 'Already exists' });
+    // }
   }
 
   @Patch(':id')

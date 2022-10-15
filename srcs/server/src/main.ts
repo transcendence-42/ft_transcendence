@@ -68,7 +68,7 @@ async function bootstrap() {
       resave: false,
       name: 'auth_session',
       cookie: {
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 60000 * 60 * 24 * 30 * 3, // 3 months as per RGPD
       },
       store: new redisStore({ client: redisClient }),

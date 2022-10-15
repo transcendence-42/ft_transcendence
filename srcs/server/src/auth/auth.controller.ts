@@ -211,6 +211,12 @@ export class AuthController {
     return this.authService.handleTwoFactorLoggin(twoFactorCode.code, req.user);
   }
 
+  @UseGuards(TwoFactorGuard)
+  @Get('2fa/deactivate')
+  deactivateTwoFactor(@Request() req) {
+    return this.authService.turnOffTwoFactorAuth(req.user);
+  }
+
   @UseGuards(TwoFactorDto)
   @Get('2fa/state/:id')
   async isTwoFaActivated(@Param('id', ParseIntPipe) id: number) {

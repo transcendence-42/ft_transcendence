@@ -84,7 +84,6 @@ function App() {
         <BrowserRouter>
           <NavBar userID={userID} />
           <RootModals id={userID} />
-
           <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home updateID={update} userID={userID} />} />

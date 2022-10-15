@@ -59,8 +59,9 @@ export class ChannelService {
         const nameTaken = await this.prisma.channel.findFirst({
           where: { name: createChannelDto.name },
         });
-        if (nameTaken)
+        if (nameTaken) {
           throw new ChannelAlreadyExistsException(createChannelDto.name);
+        }
       }
       const channel = await this.prisma.channel.create({
         data: {

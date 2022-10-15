@@ -16,16 +16,16 @@ export async function fetchUrl(
     body: JSON.stringify(body)
   })
     .then((response) => {
+      if (response.status === 204) return {};
       return response.json();
     })
     .then((respObj) => {
+      if (isEmpty(respObj)) {
+        return null;
+      }
       return respObj;
     })
-    .catch((e) =>
-      console.log(
-        `Error while fetching ${path}. Error: ${JSON.stringify(e, null, 4)}`
-      )
-    );
+    .catch((e) => null);
   return response;
 }
 
@@ -64,7 +64,7 @@ export const otherUser = (
     // );
     return;
   }
-    // console.log(`other user returning ${allUsers[otherUserOnChannel.userId]}`)
+  // console.log(`other user returning ${allUsers[otherUserOnChannel.userId]}`)
   return allUsers[otherUserOnChannel.userId];
 };
 export const getChannel = (channelId, allChannels) => {
