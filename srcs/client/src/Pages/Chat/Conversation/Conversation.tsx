@@ -31,10 +31,10 @@ export default function Conversation({
   );
 
   const onPressEnter = (e: any) => {
-    if(e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSendMessage(e);
     }
-  }
+  };
 
   return (
     <div
@@ -50,18 +50,16 @@ export default function Conversation({
           <div className="row mt-2 d-flex justify-content-start">
             <div className="col-5">
               <p className="blue-titles" style={{ fontSize: "13px" }}>
-                {currentChannel.type !== eChannelType.DIRECT ? (
-                  "@" + currentChannel.name
-                ) : (
-                  `Direct with ` +
-                    otherUser(
-                      currentChannel.id,
-                      allChannels,
-                      user.channels,
-                      user.id,
-                      allUsers
-                    )?.username || "loading"
-                )}
+                {currentChannel.type !== eChannelType.DIRECT
+                  ? "@" + currentChannel.name
+                  : `Direct with ` +
+                      otherUser(
+                        currentChannel.id,
+                        allChannels,
+                        user.channels,
+                        user.id,
+                        allUsers
+                      )?.username || "loading"}
               </p>
               {self?.role === "ADMIN" || self?.role === "OWNER" ? (
                 <div className="yellow-titles" style={{ fontSize: "13px" }}>
@@ -74,19 +72,19 @@ export default function Conversation({
               )}
             </div>
             <div className="col-7 d-flex justify-content-end align-items-center">
-            {currentChannel.type !== eChannelType.DIRECT ?
-              <button
-                className="btn btn-leave me-2 "
-                style={{ fontSize: "12px" }}
-                onClick={(e) => leaveChannel(currentChannel.id)}
-              >
-                <div className="textPink d-flex justify-content-center">
-                  Leave
-                </div>
-              </button>
-              :
-              <></>
-            }
+              {currentChannel.type !== eChannelType.DIRECT ? (
+                <button
+                  className="btn btn-leave me-2 "
+                  style={{ fontSize: "12px" }}
+                  onClick={(e) => leaveChannel(currentChannel.id)}
+                >
+                  <div className="textPink d-flex justify-content-center">
+                    Leave
+                  </div>
+                </button>
+              ) : (
+                <></>
+              )}
               <div>
                 {self?.role === "OWNER" &&
                 currentChannel.type !== eChannelType.DIRECT ? (
@@ -117,7 +115,7 @@ export default function Conversation({
           <div className="border-blue" />
           <div className="row" style={{ height: "15%" }}>
             <div className="col-12 text-center align-self-center ">
-              {getUserOnChannel(user.id, user.channels).isMuted ? (
+              {getUserOnChannel(user.id, user.channels)?.isMuted ? (
                 <div className={"blueText"}>You are muted</div>
               ) : (
                 <>
