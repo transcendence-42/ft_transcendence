@@ -365,6 +365,12 @@ export class GameService {
     // get query information
     const userId: string = client.handshake.auth.userId.toString();
     const userName: string = client.handshake.auth.name.toString();
+    // check if the user already has a socket
+    if (this.clients.find((c) => c.userId === userId)) {
+      // Don't create another socket for this client
+      client.emit('alreadyConnected');
+      return;
+    }
     console.log(`user number : ${userName} (${userId}) connected !`);
     // add client to the server list
     await this._addOrUpdateClient(client);

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Context from "../../Context/Context";
 import "./home.css";
@@ -23,8 +23,12 @@ export default function Home({ updateID, userID }: any) {
   const { login } = useContext(UserContext);
 
   // First connection modal
-  const [showFirstConnection, setShowFirstConnection] =
-    useContext(RootModalsContext);
+  const [
+    showFirstConnection,
+    setShowFirstConnection,
+    showAlreadyConnected,
+    setShowAlreadyConnected,
+  ] = useContext(RootModalsContext);
 
   function toggleUpdate() {
     setTimeout(() => {
@@ -107,6 +111,19 @@ export default function Home({ updateID, userID }: any) {
       window.localStorage.removeItem("fromAuth");
     }
   }, [update]);
+
+
+  // Already connected management
+  const handleAlreadyConnected = useCallback(() => {
+    setShowAlreadyConnected(true);
+  }, [setShowAlreadyConnected]);
+
+  useEffect(() => {
+    socket.on('alreadyConnected', handleAlreadyConnected);
+    return () => {
+      socket.off("alreadyConnected", handleAlreadyConnected);
+    }
+  }, [handleAlreadyConnected, socket])
 
   /*
    ** If we are connected we have the options of playing and watch, otherwise

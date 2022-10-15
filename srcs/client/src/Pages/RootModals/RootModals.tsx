@@ -12,6 +12,7 @@ import MatchMaking from './modals/MatchMaking';
 import { RootModalsContext } from './RootModalsProvider';
 import FirstConnection from './modals/FirstConnection';
 import { UserContext } from '../../Context/UserContext';
+import AlreadyConnected from './modals/AlreadyConnected';
 
 const RootModals = ({ id }: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,8 +48,12 @@ const RootModals = ({ id }: any) => {
   const [showGameChallenge, setShowGameChallenge] = useState(false);
   const [showMatchMaking, setShowMatchMaking] = useState(false);
   const [showGameChallengeBtns, setShowGameChallengeBtns] = useState(true);
-  const [showFirstConnection, setShowFirstConnection] =
-    useContext(RootModalsContext);
+  const [
+    showFirstConnection,
+    setShowFirstConnection,
+    showAlreadyConnected,
+    setShowAlreadyConnected,
+  ] = useContext(RootModalsContext);
 
   // Modal param states
   const [gameChallengeData, setGameChallengeData] = useState({} as any);
@@ -60,6 +65,8 @@ const RootModals = ({ id }: any) => {
   const handleShowMatchMaking = () => setShowMatchMaking(true);
   const handleCloseFirstConnection = () => setShowFirstConnection(false);
   const handleShowFirstConnection = () => setShowFirstConnection(true);
+  const handleCloseAlreadyConnected = () => setShowAlreadyConnected(true);
+  const handleShowAlreadyConnected = () => setShowAlreadyConnected(true);
 
   /** *********************************************************************** */
   /** COMPONENT EVENT HANDLERS                                                */
@@ -222,10 +229,26 @@ const RootModals = ({ id }: any) => {
         title={gameChallengeData.title}
         closeHandler={handleCloseGameChallenge}
         show={showGameChallenge}
-        textBtn1={gameChallengeData.is === eChallengeWho.CHALLENGEE ? 'Refuse': 'Cancel'}
-        handleBtn1={gameChallengeData.is === eChallengeWho.CHALLENGEE ? handleRefuse: handleCancel}
-        textBtn2={gameChallengeData.is === eChallengeWho.CHALLENGEE ? 'Accept': undefined}
-        handleBtn2={gameChallengeData.is === eChallengeWho.CHALLENGEE ? handleAccept: undefined}
+        textBtn1={
+          gameChallengeData.is === eChallengeWho.CHALLENGEE
+            ? 'Refuse'
+            : 'Cancel'
+        }
+        handleBtn1={
+          gameChallengeData.is === eChallengeWho.CHALLENGEE
+            ? handleRefuse
+            : handleCancel
+        }
+        textBtn2={
+          gameChallengeData.is === eChallengeWho.CHALLENGEE
+            ? 'Accept'
+            : undefined
+        }
+        handleBtn2={
+          gameChallengeData.is === eChallengeWho.CHALLENGEE
+            ? handleAccept
+            : undefined
+        }
         closeButton={false}
         backdrop="static"
         showButtons={showGameChallengeBtns}
@@ -256,6 +279,17 @@ const RootModals = ({ id }: any) => {
         backdrop="static"
       >
         <FirstConnection />
+      </PongModal>
+
+      {/* Already connected */}
+      <PongModal
+        title="You are already connected"
+        closeHandler={handleCloseAlreadyConnected}
+        show={showAlreadyConnected}
+        closeButton={false}
+        backdrop="static"
+      >
+        <AlreadyConnected />
       </PongModal>
     </>
   );
