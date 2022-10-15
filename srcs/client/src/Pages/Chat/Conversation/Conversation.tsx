@@ -125,7 +125,7 @@ export default function Conversation({
                     onKeyDown={onPressEnter}
                     value={message}
                     type="text"
-                    maxLength={50}
+                    maxLength={200}
                     placeholder="Send a message..."
                   ></input>
                   <button
