@@ -30,6 +30,11 @@ function App() {
     setUserID(id);
   }
 
+  window.onbeforeunload = function() {
+    localStorage.clear();
+    return;
+  };
+
   /*
    ** Update the UserID when the page is refresh
    */
@@ -86,7 +91,7 @@ function App() {
         <BrowserRouter>
           <NavBar userID={userID} />
           <RootModals id={userID} />
-          {userID && 
+          {/* {userID && */}
           <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home updateID={update} userID={userID} />} />
@@ -102,7 +107,8 @@ function App() {
               />
               <Route path="/profile/:id" element={<Profile />} />
             </Route>
-          </Routes>}
+          </Routes>
+          {/* } */}
         </BrowserRouter>
       </RootModalsProvider>
     </Context.Provider>
