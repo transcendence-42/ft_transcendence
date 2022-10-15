@@ -1,11 +1,11 @@
-import Modal from 'react-bootstrap/Modal';
-import '../../../Components/Tools/Text.css';
-import '../../../Components/Tools/Box.css';
-import './ModalChangeContent.css';
-import { getFetchDoubleAuth } from '../Fetch/getFetchDoubleAuth';
-import { postDoubleAuthActivate } from '../Fetch/postDoubleAuthActivate';
-import FailAndSuccess from './FailAndSuccess';
-import React, { useEffect, useState } from 'react';
+import Modal from "react-bootstrap/Modal";
+import "../../../Components/Tools/Text.css";
+import "../../../Components/Tools/Box.css";
+import "./ModalChangeContent.css";
+import { getFetchDoubleAuth } from "../Fetch/getFetchDoubleAuth";
+import { postDoubleAuthActivate } from "../Fetch/postDoubleAuthActivate";
+import FailAndSuccess from "./FailAndSuccess";
+import React, { useEffect, useState } from "react";
 
 const ModalDoubleAuth = (props: any) => {
   /**
@@ -21,7 +21,7 @@ const ModalDoubleAuth = (props: any) => {
 
   const [qrCode, setQrCode]: any = useState([]);
   const [status, setStatus] = useState(2);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
 
   function handleChange(event: any) {
     setContent(event.target.value);
@@ -29,15 +29,14 @@ const ModalDoubleAuth = (props: any) => {
 
   function submitKey(e: any) {
     e.preventDefault();
-    if (content.length !== 6)
-      return;
+    if (content.length !== 6) return;
     const status = postDoubleAuthActivate({ keyGen: content });
     status
       .then((response) => {
         return response.json();
       })
       .then((response) => {
-        if (response.message === '2FA activated!') {
+        if (response.message === "2FA activated!") {
           setStatus(1);
           props.up();
           props.authUp(true);
@@ -73,7 +72,7 @@ const ModalDoubleAuth = (props: any) => {
                   return pump();
                 });
               }
-            },
+            }
           });
         }
       })
@@ -84,14 +83,14 @@ const ModalDoubleAuth = (props: any) => {
       .then((blob) => URL.createObjectURL(blob))
       // Update image
       .then((url) => setQrCode(url))
-      .catch((err) => console.error(err));
+      .catch((err) => undefined);
   }, []);
 
   return (
     <Modal
       show={props.show}
       onHide={props.closeHandler}
-      size={props.size || ''}
+      size={props.size || ""}
     >
       <Modal.Header closeButton>
         <Modal.Title className="text-blue">{props.title}</Modal.Title>
@@ -115,11 +114,12 @@ const ModalDoubleAuth = (props: any) => {
             value={content}
             onChange={handleChange}
             placeholder="6 Numbers Code"
-            className="rounded-3 input-field-chat w-75 "/>
+            className="rounded-3 input-field-chat w-75 "
+          />
         </form>
       </Modal.Body>
       <Modal.Footer className="modal-footer">
-        {props.showResponse !== 1 ? '' : <FailAndSuccess status={status} />}
+        {props.showResponse !== 1 ? "" : <FailAndSuccess status={status} />}
         {props.handleBtn1 && (
           <button
             type="button"

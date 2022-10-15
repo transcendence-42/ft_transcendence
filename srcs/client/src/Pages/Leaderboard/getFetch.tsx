@@ -22,6 +22,6 @@ export async function getFetch(props){
 		return response;
 	}
 	catch(error) { // Mettre un potentiel message d'erreur ?
-		console.error(error);
+		// console.error(error);
  };
 }

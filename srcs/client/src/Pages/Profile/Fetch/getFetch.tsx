@@ -17,10 +17,10 @@ export async function getFetch(props: any) {
         return response.json();
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
       });
     return response;
   } catch (error) {
-    console.error(error);
+    // console.error(error);
   }
 }

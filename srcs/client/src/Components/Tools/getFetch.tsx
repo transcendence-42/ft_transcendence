@@ -16,7 +16,6 @@ const getFetch = async (props: any) => {
     });
     return response;
   } catch (error) {
-    console.error(error);
   }
 };
 

@@ -27,7 +27,7 @@ export default function Home({ updateID, userID }: any) {
     showFirstConnection,
     setShowFirstConnection,
     showAlreadyConnected,
-    setShowAlreadyConnected,
+    setShowAlreadyConnected
   ] = useContext(RootModalsContext);
 
   function toggleUpdate() {
@@ -48,13 +48,13 @@ export default function Home({ updateID, userID }: any) {
   const getUser = async () => {
     const apiUrl: string = process.env.REACT_APP_API_URL as string;
     await fetch(`${apiUrl}/auth/success`, {
-      method: 'GET',
-      credentials: 'include',
+      method: "GET",
+      credentials: "include",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": "true",
-      },
+        "Access-Control-Allow-Credentials": "true"
+      }
     })
       .then((response) => {
         if (!response.ok) {
@@ -83,20 +83,20 @@ export default function Home({ updateID, userID }: any) {
           localStorage.setItem("pathIsFree", JSON.stringify(true));
           contextValue.updateIsConnected(true);
           // First connection modal
-          if (responseObject.message === 'Registered')
+          if (responseObject.message === "Registered")
             setShowFirstConnection(true);
           // Game socket connection
           socket.auth = {
             userId: responseObject.user.id,
             pic: responseObject.user.profilePicture,
-            name: responseObject.user.username,
+            name: responseObject.user.username
           };
           socket.connect();
           return;
         }
         throw new Error("Something went wrong");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => undefined);
   };
 
   /*
@@ -112,18 +112,17 @@ export default function Home({ updateID, userID }: any) {
     }
   }, [update]);
 
-
   // Already connected management
   const handleAlreadyConnected = useCallback(() => {
     setShowAlreadyConnected(true);
   }, [setShowAlreadyConnected]);
 
   useEffect(() => {
-    socket.on('alreadyConnected', handleAlreadyConnected);
+    socket.on("alreadyConnected", handleAlreadyConnected);
     return () => {
       socket.off("alreadyConnected", handleAlreadyConnected);
-    }
-  }, [handleAlreadyConnected, socket])
+    };
+  }, [handleAlreadyConnected, socket]);
 
   /*
    ** If we are connected we have the options of playing and watch, otherwise
