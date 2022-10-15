@@ -508,11 +508,7 @@ export default function Chat(props: any) {
     for (const blockedUser of user.blockedUsersIds) {
       blockedUsers[blockedUser] = true;
     }
-    console.log(`this is blocked users : ${JSON.stringify(blockedUsers)}`);
     setBlockedUsers(blockedUsers);
-    console.log(
-      `this is user ${!isEmpty(user) ? JSON.stringify(user) : "empty"}`
-    );
   }, [user]);
 
   useEffect(() => {
@@ -544,7 +540,6 @@ export default function Chat(props: any) {
         }
         setAllUsers(userHashTable);
       }
-      console.log(`passing`);
       socket.auth = { id: user.id.toString() };
       socket.connect();
     })();
@@ -552,13 +547,11 @@ export default function Chat(props: any) {
 
   useEffect(() => {
     if (!userID) return;
-    console.log(`adding to room`);
     socket.emit(eEvent.AddedToRoom, userID.toString());
   }, [userID, socket]);
 
   useEffect(() => {
     if (!user) return;
-    console.log("ICIIIIIIIIIIIIIIIIIII");
     socket.emit(eEvent.GetMessages);
   }, [socket, user]);
 
@@ -566,7 +559,6 @@ export default function Chat(props: any) {
     if (!isUserFetched || !userID) return;
     socket.on("connect", () => {
       const channelIds: string[] = [];
-      console.log(`connecting to server`);
       if (user.channels) {
         for (const chan of user.channels) {
           channelIds.push(chan.channelId.toString());
