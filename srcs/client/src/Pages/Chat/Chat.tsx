@@ -502,6 +502,7 @@ export default function Chat(props: any) {
    */
   useEffect(() => {
     (async () => {
+      if (!userID) return;
       const user = await fetchUrl(`${apiUrl}/users/${userID}`);
       setUser(user);
       const blockedUsers: Hashtable<boolean> = {};
@@ -535,7 +536,7 @@ export default function Chat(props: any) {
       socket.auth = { id: user.id.toString() };
       socket.connect();
     })();
-  }, []);
+  }, [userID]);
 
   useEffect(() => {
     if (!isUserFetched) return;
@@ -553,8 +554,7 @@ export default function Chat(props: any) {
       // socket.disconnect();
       socket.off("connect");
     };
-  }, [isUserFetched, user.channels, socket]);
-
+  }, [isUserFetched, user.channels, socket, userID]);
   useEffect(() => {
     socket.on(eEvent.GetMessages, handleGetMessages);
     socket.on(eEvent.UpdateOneMessage, handleUpdateOneMessage);

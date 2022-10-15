@@ -48,6 +48,11 @@ const ModalPicture = ({
 
   const onSubmit = (data: any) => {
     const formData = new FormData();
+    if (!data.picture[0].type) {
+      setStatus(0);
+      setShowResponse(1);
+      return;
+    }
     formData.append('picture', data.picture[0]);
     formData.append('user', originalId.toString());
     const status = postFetchPicture({ url: url, data: formData });

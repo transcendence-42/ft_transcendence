@@ -221,7 +221,10 @@ export class AuthService {
   }
 
   async turnOffTwoFactorAuth(request) {
-    const userDb = await this.userService.setTwoFactorAuthentification(request.user.id, false);
+    const userDb = await this.userService.setTwoFactorAuthentification(
+      request.user.id,
+      false,
+    );
     request.user.isTwoFactorActivated = false;
     request.user.isTwoFactorAuthenticated = false;
   }
