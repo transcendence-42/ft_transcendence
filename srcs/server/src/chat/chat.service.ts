@@ -171,16 +171,10 @@ export class ChatService {
     const allMessages: Hashtable<Message[]> = await this._getAllMessages(
       channelIds,
     );
-    this.logger.debug(
-      `these are all messages in init connection ${JSON.stringify(
-        allMessages,
-      )}`,
-    );
     client.emit(eEvent.UpdateMessages, allMessages);
   }
 
   private async _getMessage(id: string) {
-    // const msg = await this.redis.multi().select(eRedisDb.Messages).lrange(id, 0, -1).exec()[1];
     const msg: any = (
       await this.redis
         .multi()
@@ -189,11 +183,6 @@ export class ChatService {
         .exec()
     )[1][1];
 
-    this.logger.debug(
-      `These are the messages inside getMessage with id ${id} ${JSON.stringify(
-        msg,
-      )}`,
-    );
     const parsedMessage = [];
     for (const message in msg) {
       parsedMessage.push(JSON.parse(msg[message]));
@@ -245,7 +234,6 @@ export class ChatService {
       allMessages[key] = message;
       // this.logger.log(`this is the message from getFullMessages ${JSON.stringify(message)}`)
     }
-    this.logger.log(`AllMessage in GetFullMessages ${JSON.stringify(allMessages)}`)
     return allMessages;
   }
 
