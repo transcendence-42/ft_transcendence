@@ -34,7 +34,7 @@ export class ChannelService {
         users: true,
       },
     });
-    if (!channel) throw new ChannelNotFoundException(id);
+    if (!channel) throw new ChannelAlreadyExistsException(id.toString());
     return channel;
   }
 
@@ -98,7 +98,7 @@ export class ChannelService {
       return result;
     } catch (e) {
       this.logger.error('In update channel');
-      throw new ChannelNotFoundException(id);
+      throw new ChannelAlreadyExistsException(id.toString());
     }
   }
 
@@ -111,7 +111,7 @@ export class ChannelService {
       return channel;
     } catch (e) {
       this.logger.error('In delete channel');
-      throw new ChannelNotFoundException(id);
+      throw new ChannelAlreadyExistsException(id.toString());
     }
   }
 
@@ -134,7 +134,9 @@ export class ChannelService {
           4,
         )} with error: ${JSON.stringify(e, null, 4)} ${e['message']}`,
       );
-      throw new ChannelNotFoundException(createUserOnChannelDto.userId);
+      throw new ChannelAlreadyExistsException(
+        createUserOnChannelDto.userId.toString(),
+      );
     }
   }
 
@@ -148,7 +150,7 @@ export class ChannelService {
     });
     if (!userOnChannel) {
       this.logger.debug(`Not found our user ${userId} in channel ${channelId}`);
-      throw new UserNotFoundException(userId);
+      throw new ChannelAlreadyExistsException(userId.toString());
     }
     return userOnChannel;
   }
@@ -169,7 +171,7 @@ export class ChannelService {
       this.logger.error(
         `Prisma failed to update UserOnChannel ${e['message']}`,
       );
-      throw new UserNotFoundException(userId);
+      throw new ChannelAlreadyExistsException(userId.toString());
     }
   }
 
@@ -214,7 +216,7 @@ export class ChannelService {
       this.logger.debug(
         `Got error ${JSON.stringify(e, null, 4)} when trying to delete user`,
       );
-      throw new UserNotFoundException(userId);
+      throw new ChannelAlreadyExistsException(userId.toString());
     }
   }
 
