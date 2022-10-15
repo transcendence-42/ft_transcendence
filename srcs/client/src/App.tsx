@@ -28,6 +28,11 @@ function App() {
     setUserID(id);
   }
 
+  window.onbeforeunload = function() {
+    localStorage.clear();
+    return;
+  };
+
   /*
    ** Update the UserID when the page is refresh
    */

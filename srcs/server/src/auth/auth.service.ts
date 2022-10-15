@@ -220,9 +220,10 @@ export class AuthService {
     return { message: 'Bad 2FA Code' };
   }
 
-  turnOffTwoFactorAuth(user: RequestUser) {
-    user.isTwoFactorActivated = false;
-    user.isTwoFactorAuthenticated = false;
+  async turnOffTwoFactorAuth(request) {
+    const userDb = await this.userService.setTwoFactorAuthentification(request.user.id, false);
+    request.user.isTwoFactorActivated = false;
+    request.user.isTwoFactorAuthenticated = false;
   }
 
   /* returns a Generated Qr Code as a stream for Two Factor Auth */

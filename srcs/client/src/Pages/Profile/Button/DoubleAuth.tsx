@@ -3,6 +3,8 @@ import "../../../Components/Tools/Text.css"
 import "../../../Components/Tools/Box.css"
 import ModalDoubleAuth from "../Modal/ModalDoubleAuth"
 import { useState } from "react";
+import { getFetchDeactivateDoubleAuth } from '../Fetch/getFetchDeactivateDoubleAuth';
+
 
 export default function DoubleAuth(props : any) {
 
@@ -25,6 +27,11 @@ export default function DoubleAuth(props : any) {
 		setIsShowing(!isShowing);
 	}
 
+	function deactivate2fa() {
+		const res = getFetchDeactivateDoubleAuth();
+		props.authUp(false);
+	}
+
 	return (
 		<>
 			{ props.activated ?
@@ -34,9 +41,10 @@ export default function DoubleAuth(props : any) {
 						width: "100%",
 						height: "auto",
 					}}
+				onClick={()=>(deactivate2fa())}
 					>
 						<div className="greenText" style={{fontSize: "0.8em"}}>
-							Activated
+							Activated (Click to desactivate)
 						</div>
 				</button>
 			</>

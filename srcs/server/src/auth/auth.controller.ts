@@ -42,7 +42,6 @@ import {
 import { FtExceptionFilter } from './filters/ftAuthException.filter';
 
 @ApiTags('Authentication')
-// @UseFilters(FtExceptionFilter)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -193,6 +192,12 @@ export class AuthController {
   })
   activateTwoFactorAuth(@Request() req, @Body() twoFactorCode: TwoFactorDto) {
     return this.authService.turnOnTwoFactorAuth(req.user, twoFactorCode.code);
+  }
+
+  @UseGuards(TwoFactorGuard)
+  @Get('2fa/deactivate')
+  deactivateTwoFactor(@Request() req) {
+    return this.authService.turnOffTwoFactorAuth(req);
   }
 
   @UseGuards(TwoFactorGuard)
