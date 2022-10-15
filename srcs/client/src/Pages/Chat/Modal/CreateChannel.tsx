@@ -28,7 +28,7 @@ export default function CreateChannel({
         }
       >
         <label className="form-label text-blue">Name</label>
-        <br/>
+        <br />
         <input
           type="name"
           className="rounded-3 input-field-chat w-75 form-control-margin"

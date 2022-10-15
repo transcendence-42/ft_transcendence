@@ -33,7 +33,7 @@ const handleCreateChannelForm = (
       createChannelDto
     );
     if (!resp) {
-      throw new Error("Failed to create user on database");
+      return alert(`Channel ${name} already exist`);
     }
     updateOwnUserOnChannel(resp[1]);
     if (type !== eChannelType.DIRECT) {

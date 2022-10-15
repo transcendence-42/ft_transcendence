@@ -220,32 +220,35 @@ export default function Chat(props: any) {
     } else return alert(`couldnt create channel with user ${friendId}`);
   };
 
-  const createNonDirectChannel = (
-    e: any,
-    name: string,
-    type: eChannelType,
-    ownerId: number,
-    password?: string
-  ) => {
-    (async () => {
-      const channel = await handleCreateChannelForm(
-        e,
-        name,
-        type,
-        ownerId,
-        socket,
-        updateOwnUserOnChannel,
-        password
-      );
-      if (channel) {
-        sessionStorage.setItem("currentChannel", JSON.stringify(channel));
-        setCurrentChannel(channel);
-        setAllChannels((prevAllChannels) => [...prevAllChannels, channel]);
-        switchChannel(channel.id);
-        handleCloseCreateChannel();
-      }
-    })();
-  };
+  const createNonDirectChannel = useCallback(
+    (
+      e: any,
+      name: string,
+      type: eChannelType,
+      ownerId: number,
+      password?: string
+    ) => {
+      (async () => {
+        const channel = await handleCreateChannelForm(
+          e,
+          name,
+          type,
+          ownerId,
+          socket,
+          updateOwnUserOnChannel,
+          password
+        );
+        if (channel) {
+          sessionStorage.setItem("currentChannel", JSON.stringify(channel));
+          setCurrentChannel(channel);
+          setAllChannels((prevAllChannels) => [...prevAllChannels, channel]);
+          switchChannel(channel.id);
+          handleCloseCreateChannel();
+        }
+      })();
+    },
+    [socket, switchChannel, updateOwnUserOnChannel]
+  );
 
   const addToChannel = useCallback(
     (userId: number, channelId: number) => {
@@ -260,9 +263,7 @@ export default function Chat(props: any) {
           "PUT",
           createUserOnChannelDto
         );
-        console.log(`this is addtochannel ${JSON.stringify(newUser)}`);
         if (newUser["userId"]) {
-          console.log(`Adding user to channel`);
           socket.emit(eEvent.AddUser, { channelId, userId });
           // handleUpdateChannels();
           return newUser;
@@ -314,7 +315,7 @@ export default function Chat(props: any) {
         socket.emit(eEvent.LeaveChannel, { userId: user.id, channelId });
       })();
     },
-    [apiUrl, currentChannel.id, socket, switchChannel, user.channels, user.id]
+    [apiUrl, socket, switchChannel, user.channels, user.id]
   );
 
   const handleSendMessage = (e: any) => {
@@ -539,7 +540,6 @@ export default function Chat(props: any) {
   useEffect(() => {
     if (!isUserFetched) return;
     socket.on("connect", () => {
-      console.log(`connecting to server`);
       const channelIds: string[] = [];
       if (user.channels) {
         for (const chan of user.channels) {
@@ -567,7 +567,6 @@ export default function Chat(props: any) {
     socket.on(eEvent.LeaveChannel, handleLeaveChannelEvent);
     socket.on(eEvent.BanUser, handleBanUser);
     socket.on(eEvent.AddUser, (channelId) => {
-      console.log(`recievd add user and emiting ${channelId}`);
       socket.emit(eEvent.AddedToChannel, channelId);
     });
     socket.on(eEvent.UpdateMessages, (messages: Hashtable<Message[]>) => {

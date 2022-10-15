@@ -1,24 +1,22 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Home from "./Pages/Home/home";
-import Profile from "./Pages/Profile/Profile";
-import { getFetchSuccess } from "./Pages/Profile/Fetch/getFetchSuccess";
-import Notfound from "./Pages/NotFound/notFound";
-import Login from "./Pages/Login/Login";
-import About from "./Pages/About/about";
-import Leaderboard from "./Pages/Leaderboard/leaderboard";
-import Chat from "./Pages/Chat/Chat";
-import NavBar from "./Components/Tools/NavBar/NavBar";
-import AuthenticatedRoute from "./Components/services/authenticatedRoute";
-import Context from "./Context/Context";
-import GameLobby from "./Pages/Game/GameLobby";
-import RootModals from "./Pages/RootModals/RootModals";
-import RootModalsProvider from "./Pages/RootModals/RootModalsProvider";
-import GameSocketProvider, {
-  GameSocketContext
-} from "./Pages/Game/socket/socket";
-import { ChatSocket } from "./Socket";
-import { UserContext } from "./Context/UserContext";
+import React, { useEffect, useState, useContext } from 'react';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import Home from './Pages/Home/home';
+import Profile from './Pages/Profile/Profile';
+import { getFetchSuccess } from './Pages/Profile/Fetch/getFetchSuccess';
+import Notfound from './Pages/NotFound/notFound';
+import Login from './Pages/Login/Login';
+import About from './Pages/About/about';
+import Leaderboard from './Pages/Leaderboard/leaderboard';
+import Chat from './Pages/Chat/Chat';
+import NavBar from './Components/Tools/NavBar/NavBar';
+import AuthenticatedRoute from './Components/services/authenticatedRoute';
+import Context from './Context/Context';
+import GameLobby from './Pages/Game/GameLobby';
+import RootModals from './Pages/RootModals/RootModals';
+import RootModalsProvider from './Pages/RootModals/RootModalsProvider';
+import { GameSocketContext } from './Pages/Game/socket/socket';
+import { ChatSocket } from './Socket';
+import { UserContext } from './Context/UserContext';
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
@@ -49,7 +47,7 @@ function App() {
         socket.auth = {
           userId: responseObject.user?.id,
           pic: responseObject.user?.profilePicture,
-          name: responseObject.user?.username
+          name: responseObject.user?.username,
         };
         socket.connect();
         update(responseObject.user?.id);
@@ -66,7 +64,7 @@ function App() {
     isConnected: isConnected,
     isFromAuth: isFromAuth,
     updateIsConnected: setIsConnected,
-    updateIsFromAuth: setIsFromAuth
+    updateIsFromAuth: setIsFromAuth,
   };
 
   /*
@@ -74,7 +72,7 @@ function App() {
    ** all routes
    */
   useEffect(() => {
-    var data = localStorage.getItem("pathIsFree");
+    var data = localStorage.getItem('pathIsFree');
     if (data) {
       contextValue.updateIsConnected(true);
     } else contextValue.updateIsConnected(false);
@@ -91,7 +89,6 @@ function App() {
         <BrowserRouter>
           <NavBar userID={userID} />
           <RootModals id={userID} />
-          {/* {userID && */}
           <Routes>
             <Route path="*" element={<Notfound />} />
             <Route index element={<Home updateID={update} userID={userID} />} />
@@ -101,14 +98,15 @@ function App() {
             <Route path="/" element={<AuthenticatedRoute res />}>
               <Route path="/about" element={<About />} />
               <Route path="/lobby" element={<GameLobby />} />
-              <Route
-                path="/chat"
-                element={<Chat userID={userID} socket={ChatSocket} />}
-              />
+              {userID && (
+                <Route
+                  path="/chat"
+                  element={<Chat userID={userID} socket={ChatSocket} />}
+                />
+              )}
               <Route path="/profile/:id" element={<Profile />} />
             </Route>
           </Routes>
-          {/* } */}
         </BrowserRouter>
       </RootModalsProvider>
     </Context.Provider>
