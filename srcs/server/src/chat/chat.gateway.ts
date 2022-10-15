@@ -54,6 +54,12 @@ export class ChatGateway
     this.logger.debug(`User is disconnecting and userId ${id} ${client.id}`);
   }
 
+  @SubscribeMessage(eEvent.GetMessages)
+  async handleGetAllMessages(client: Socket) {
+    const allMessages = await this.chatService.getFullMessages();
+    client.emit(eEvent.UpdateMessages, allMessages);
+  }
+
   @SubscribeMessage(eEvent.InitConnection)
   async initConnection(client: Socket, channelIds: string[]) {
     this.logger.debug(

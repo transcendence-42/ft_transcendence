@@ -225,6 +225,24 @@ export class ChatService {
     }
     client.emit(eEvent.UpdateMessages, allMessages);
   }
+  async getFullMessages() {
+    const keys: any = (
+      await this.redis.multi().select(eRedisDb.Messages).keys('*').exec()
+    )[1][1];
+    if (keys.length < 0) {
+      return {};
+    }
+    this.logger.debug(`these are the keys form full messages ${JSON.stringify(keys)}`)
+    
+    const allMessages: Hashtable<Message[]> = {};
+    for (const key of keys) {
+      const message = await this._getMessage(key);
+      allMessages[key] = message;
+      // this.logger.log(`this is the message from getFullMessages ${JSON.stringify(message)}`)
+    }
+    this.logger.log(`AllMessage in GetFullMessages ${JSON.stringify(allMessages)}`)
+    return allMessages;
+  }
 
   parseIdCookie(cookies) {
     if (cookies) {

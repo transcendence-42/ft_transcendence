@@ -347,7 +347,7 @@ export default function Chat(props: any) {
   const blockUser = useCallback(
     (userId: number) => {
       (async () => {
-        const url = `${apiUrl}/users/${userId}`;
+        const url = `${apiUrl}/users/${user.id}`;
         const dto: UpdateUserDto = { blockedUsersIds: user.blockedUsersIds };
         dto.blockedUsersIds.push(userId);
         await fetchUrl(url, "PATCH", dto);
@@ -539,9 +539,16 @@ export default function Chat(props: any) {
   }, [userID]);
 
   useEffect(() => {
-    if (!isUserFetched) return;
+    if (!user) return;
+    console.log("ICIIIIIIIIIIIIIIIIIII");
+    socket.emit(eEvent.GetMessages);
+  }, [socket, user])
+
+  useEffect(() => {
+    if (!isUserFetched || !userID) return;
     socket.on("connect", () => {
       const channelIds: string[] = [];
+      console.log(`connecting to server`)
       if (user.channels) {
         for (const chan of user.channels) {
           channelIds.push(chan.channelId.toString());
@@ -551,10 +558,10 @@ export default function Chat(props: any) {
     });
 
     return () => {
-      // socket.disconnect();
       socket.off("connect");
     };
-  }, [isUserFetched, user.channels, socket, userID]);
+  }, [isUserFetched, userID]);
+
   useEffect(() => {
     socket.on(eEvent.GetMessages, handleGetMessages);
     socket.on(eEvent.UpdateOneMessage, handleUpdateOneMessage);
@@ -607,7 +614,8 @@ export default function Chat(props: any) {
   ]);
 
   return (
-    <>
+    <> {!userID ? '' :
+    <> 
       <div className="container-fluid h-75">
         <div className="row main justify-content-center ms-2 ">
           {user && allChannels && (
@@ -686,6 +694,7 @@ export default function Chat(props: any) {
         newChannelPassword={newChannelPassword}
         setNewChannelPassword={setNewChannelPassword}
       />
+      </>}
     </>
   );
 }
