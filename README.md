@@ -67,5 +67,3 @@ https://localhost:5555        # Database (through Adminer)
 
 <br />
 
-# Resources
-* ...
