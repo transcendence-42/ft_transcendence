@@ -63,11 +63,7 @@ https://localhost:5555        # Database (through Adminer)
 
 <br />
 
-# Authors
-
-👨 **firstName LASTNAME**
-
-* Github: [@author](https://github.com/author/)
+![](https://github.com/transcendence-42/ft_transcendence/blob/master/transcendence.gif)
 
 <br />
 
